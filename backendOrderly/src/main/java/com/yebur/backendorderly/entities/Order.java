@@ -3,8 +3,14 @@ package com.yebur.backendorderly.entities;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.yebur.backendorderly.enums.OrderStatus;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,7 +36,8 @@ public class Order {
     private LocalDateTime datetime;
 
     @Column(nullable = false)
-    private String state;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus state;
 
     @Column
     private String paymentMethod;
@@ -38,19 +45,18 @@ public class Order {
     @Column
     private double total;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_employee", nullable = false)
     private Employee employee;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_client")
     private Client client;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_restable")
     private RestTable restTable;
 
-    @OneToMany
-    @JoinColumn(name = "id_order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails;
 }

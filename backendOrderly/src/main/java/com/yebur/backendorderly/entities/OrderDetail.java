@@ -1,15 +1,13 @@
 package com.yebur.backendorderly.entities;
 
-import java.util.List;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -27,17 +25,17 @@ public class OrderDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToMany
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "orderdetails_products",
+        name = "order_details_products",
         joinColumns = @JoinColumn(name = "id_product"),
-        inverseJoinColumns = @JoinColumn(name = "id_orderdetail")
+        inverseJoinColumns = @JoinColumn(name = "id_order_detail")
     )
     private Product product;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_order", nullable = false)
-    private List<Order> order;
+    private Order order;
 
     private String comment;
 

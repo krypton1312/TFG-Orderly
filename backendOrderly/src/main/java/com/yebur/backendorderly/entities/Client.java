@@ -3,6 +3,7 @@ package com.yebur.backendorderly.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,6 +29,6 @@ public class Client {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "clients")
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orders = new ArrayList<>();
 }

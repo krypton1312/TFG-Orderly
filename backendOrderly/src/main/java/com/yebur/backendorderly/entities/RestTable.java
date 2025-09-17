@@ -3,8 +3,12 @@ package com.yebur.backendorderly.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.yebur.backendorderly.enums.TableStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,6 +32,10 @@ public class RestTable {
     @Column(nullable = false, unique = true)
     private int number;
 
-    @OneToMany(mappedBy = "rest_tables")
+    @OneToMany(mappedBy = "restTable")
     private List<Order> orders = new ArrayList<>();
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TableStatus status;
 }

@@ -4,8 +4,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+import com.yebur.backendorderly.enums.EmployeeStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -41,7 +45,7 @@ public class Employee {
     @NotBlank(message = "Last name is required")
     private String lastname;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "employee_rol",
         joinColumns = @JoinColumn(name = "id_employee"),
@@ -52,7 +56,7 @@ public class Employee {
     @Column
     private String phoneNumber;
 
-    @Column
+    @Column(unique = true)
     @Email(message = "Email should be valid")
     private String email;
 
@@ -60,12 +64,13 @@ public class Employee {
     private LocalDate hireDate;
 
     @Column
-    @NotBlank
+    @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be between 3 and 20 characters")
     private String password;
 
     @Column(nullable = false)
-    private Boolean active;
+    @Enumerated(EnumType.STRING)
+    private EmployeeStatus status;
 
     @OneToMany(mappedBy = "employee")
     private List<Order> orders;
