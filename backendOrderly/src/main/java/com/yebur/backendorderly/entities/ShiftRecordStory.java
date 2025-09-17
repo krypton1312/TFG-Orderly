@@ -1,7 +1,7 @@
 package com.yebur.backendorderly.entities;
 
+
 import java.time.LocalDateTime;
-import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,47 +10,47 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="orders")
+@Table(name = "shift_record_stories")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Order {
+public class ShiftRecordStory {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(nullable = false)
-    private LocalDateTime datetime;
-
-    @Column(nullable = false)
-    private String state;
-
-    @Column
-    private String paymentMethod;
-
-    @Column
-    private double total;
 
     @ManyToOne
+    @JoinColumn(name = "id_shift_record", nullable = false)
+    private ShiftRecord shiftRecord;
+
+    @Column
+    private LocalDateTime oldEntryRecord;
+
+    @Column
+    private LocalDateTime newEntryRecord;
+
+    @Column
+    private LocalDateTime oldExitRecord;
+
+    @Column
+    private LocalDateTime newExitRecord;
+
+    @Column
+    private String notes;
+
+    @Column
+    private LocalDateTime modificationDate;
+
+    @OneToOne
     @JoinColumn(name = "id_employee", nullable = false)
     private Employee employee;
 
-    @ManyToOne
-    @JoinColumn(name = "id_client")
-    private Client client;
-
-    @ManyToOne
-    @JoinColumn(name = "id_restable")
-    private RestTable restTable;
-
-    @OneToMany
-    @JoinColumn(name = "id_order")
-    private List<OrderDetail> orderDetails;
 }

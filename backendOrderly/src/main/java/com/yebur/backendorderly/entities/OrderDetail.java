@@ -1,5 +1,7 @@
 package com.yebur.backendorderly.entities;
 
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,9 +10,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,7 +21,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class OrderDetail {
     
     @Id
@@ -34,7 +35,9 @@ public class OrderDetail {
     )
     private Product product;
 
-    // private Order order;
+    @ManyToOne
+    @JoinColumn(name = "id_order", nullable = false)
+    private List<Order> order;
 
     private String comment;
 
@@ -42,6 +45,6 @@ public class OrderDetail {
     private int amount;
 
     @Column(nullable = false)
-    private double unit_price;
+    private double unitPrice;
 
 }
