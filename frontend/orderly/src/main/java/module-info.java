@@ -1,7 +1,17 @@
 module com.yebur {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.net.http;
 
-    opens com.yebur to javafx.fxml;
-    exports com.yebur;
+    requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.core;
+    requires com.fasterxml.jackson.annotation;
+
+    opens com.yebur.app to javafx.fxml;
+    opens com.yebur.controller to javafx.fxml;
+    opens com.yebur.model to javafx.base;
+
+    exports com.yebur.app;
+    exports com.yebur.controller;
+    exports com.yebur.model;
 }

@@ -1,4 +1,4 @@
-package com.yebur;
+package com.yebur.app;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -19,17 +19,18 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         scene = new Scene(loadFXML("primary"));
         stage.setScene(scene);
-        stage.sizeToScene(); // <-- добавляем эту строку
+        stage.sizeToScene();
         stage.show();
+        stage.setTitle("Title");
 
     }
 
-    static void setRoot(String fxml) throws IOException {
+    public static void setRoot(String fxml) throws IOException {
         scene.setRoot(loadFXML(fxml));
     }
 
     private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("/com/yebur/"+ fxml + ".fxml"));
         return fxmlLoader.load();
     }
 

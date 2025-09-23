@@ -1,0 +1,8 @@
+com\yebur\controller\PrimaryController.class
+com\yebur\controller\SecondaryController.class
+com\yebur\service\ApiClient.class
+com\yebur\service\CategoryService$1.class
+com\yebur\app\App.class
+module-info.class
+com\yebur\model\Category.class
+com\yebur\service\CategoryService.class
