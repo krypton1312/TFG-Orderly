@@ -8,21 +8,22 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-/**
- * JavaFX App
- */
 public class App extends Application {
 
     private static Scene scene;
 
     @Override
     public void start(Stage stage) throws IOException {
+        // Загружаем FXML
         scene = new Scene(loadFXML("primary"));
-        stage.setScene(scene);
-        stage.sizeToScene();
-        stage.show();
-        stage.setTitle("Title");
 
+        // Подключаем CSS (ищем в resources/com/yebur/styles/primary.css)
+        String css = App.class.getResource("/com/yebur/styles/primary.css").toExternalForm();
+        scene.getStylesheets().add(css);
+
+        stage.setTitle("Orderly POS");
+        stage.setScene(scene);
+        stage.show();
     }
 
     public static void setRoot(String fxml) throws IOException {
@@ -30,12 +31,13 @@ public class App extends Application {
     }
 
     private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("/com/yebur/"+ fxml + ".fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(
+            App.class.getResource("/com/yebur/" + fxml + ".fxml")
+        );
         return fxmlLoader.load();
     }
 
     public static void main(String[] args) {
         launch();
     }
-
 }

@@ -1,0 +1,109 @@
+.root {
+    -fx-font-family: 'Inter', sans-serif;
+    -fx-background-color: #c3c4c7; /* bg-gray-100 */
+}
+
+/* Карточки */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+}
+
+/* Заказ */
+.order-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827; /* text-gray-900 */
+}
+.order-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #6b7280; /* text-gray-500 */
+}
+.order-total {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+/* Дисплей */
+.display {
+    -fx-background-color: #f3f4f6;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-padding: 8;
+    -fx-background-radius: 6;
+}
+
+/* Цифровые кнопки */
+.num-btn {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+.num-btn:hover {
+    -fx-background-color: #e5e7eb;
+}
+
+/* Категории */
+.category-btn {
+    -fx-background-color: #f9fafb;
+    -fx-text-fill: #374151;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 10 15;
+}
+.category-btn:hover {
+    -fx-background-color: #e5e7eb;
+}
+.category-btn.selected {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+}
+
+/* Продукты */
+#productBox .button {
+    -fx-background-color: #f9fafb;
+    -fx-border-color: #e5e7eb;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 15;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+#productBox .button:hover {
+    -fx-border-color: #3b82f6;
+    -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3), 10, 0, 0, 2);
+}
+
+/* Правая панель */
+.sidebar {
+    -fx-background-color: #1f2937; /* bg-gray-800 */
+    -fx-background-radius: 12;
+}
+
+/* Кнопки действий */
+.action-btn {
+    -fx-background-radius: 8;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 15;
+    -fx-cursor: hand;
+}
+.green { -fx-background-color: #22c55e; }
+.green:hover { -fx-background-color: #16a34a; }
+
+.blue { -fx-background-color: #3b82f6; }
+.blue:hover { -fx-background-color: #2563eb; }
+
+.red { -fx-background-color: #ef4444; }
+.red:hover { -fx-background-color: #dc2626; }
+
+.dark { -fx-background-color: #374151; }
+.dark:hover { -fx-background-color: #4b5563; }
+
