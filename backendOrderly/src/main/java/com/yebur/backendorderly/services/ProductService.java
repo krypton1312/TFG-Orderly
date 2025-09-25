@@ -1,0 +1,57 @@
+package com.yebur.backendorderly.services;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.yebur.backendorderly.entities.Product;
+import com.yebur.backendorderly.repositories.ProductRepository;
+import com.yebur.backendorderly.services.interfaces.ProductServiceInterface;
+
+@Service("productService")
+public class ProductService implements ProductServiceInterface {
+    
+    private final ProductRepository productRepository;
+
+    public ProductService(ProductRepository productRepository){
+        this.productRepository = productRepository;
+    }
+
+    @Override
+    public List<Product> findAll() {
+        return productRepository.findAll();
+    }
+    
+    @Override
+    public Optional<Product> findById(Long id) {
+        return productRepository.findById(id);
+    }
+
+    @Override
+    public List<Product> findByCategoryId(Long categoryId) {
+        return productRepository.findByCategoryId(categoryId);
+    }
+
+    @Override
+    public Product createProduct(Product product) {
+        return productRepository.save(product);
+    }
+
+    @Override
+    public Product updateProduct(Long id, Product product) {
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id " + id));
+
+        existingProduct.setName(product.getName());
+        existingProduct.setPrice(product.getPrice());
+        existingProduct.setStock(product.getStock());
+        existingProduct.setCategory(product.getCategory());
+        return productRepository.save(existingProduct);
+    }
+
+    @Override
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
+    }
+}

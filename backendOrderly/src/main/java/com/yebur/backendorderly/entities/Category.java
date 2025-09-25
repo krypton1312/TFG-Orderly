@@ -29,6 +29,12 @@ public class Category {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @Column
+    private String color;
+
+    @Column
+    private String index;
+
     @OneToMany(mappedBy = "category")
     private List<Product> products;
 }

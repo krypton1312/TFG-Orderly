@@ -30,6 +30,9 @@ public class Product {
     private Long idProduct;
     
     @Column(nullable = false)
+    private String name;
+    
+    @Column(nullable = false)
     private double price;
 
     @Column

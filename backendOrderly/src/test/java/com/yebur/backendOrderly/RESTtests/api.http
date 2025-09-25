@@ -1,10 +1,24 @@
 @url = http://localhost:8080
 
-GET {{url}}/categories
+# GET {{url}}/categories
 
-# POST {{url}}/categories
-# Content-Type: application/json
+#POST {{url}}/categories
+#Content-Type: application/json
 
-# {
-#   "name": "CERVEZAS"
-# }
+#{
+ # "name": "CAFE"
+#}
+
+
+POST {{url}}/products
+Content-Type: application/json
+
+{
+  "name": "Cafe con leche",
+  "price": 1.5,
+  "stock": 100,
+  "categoryId": "1"
+}
+
+
+
