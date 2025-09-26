@@ -102,7 +102,7 @@
                     <children>
                         <TilePane fx:id="categoryBox"
                             hgap="15" vgap="15"
-                            prefColumns="3" />
+                            prefColumns="3"/>
                     </children>
                 </VBox>
 

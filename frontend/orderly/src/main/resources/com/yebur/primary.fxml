@@ -102,8 +102,7 @@
                     <children>
                         <TilePane fx:id="categoryBox"
                             hgap="15" vgap="15"
-                            prefColumns="3"
-                            alignment="TOP_CENTER" />
+                            prefColumns="3"/>
                     </children>
                 </VBox>
 
