@@ -7,13 +7,15 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryResponse {
+public class ProductResponse {
 
     private Long id;
 
     private String name;
 
-    private String color;
-    
-    private Integer index;
+    private Double price;
+
+    private Integer stock;
+
+    private Long categoryId;
 }

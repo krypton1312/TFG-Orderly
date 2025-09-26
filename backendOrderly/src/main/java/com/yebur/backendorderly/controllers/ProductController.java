@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yebur.backendorderly.dto.input.ProductRequest;
+import com.yebur.backendorderly.dto.output.ProductResponse;
 import com.yebur.backendorderly.entities.Category;
 import com.yebur.backendorderly.entities.Product;
 import com.yebur.backendorderly.services.CategoryService;
@@ -37,20 +38,20 @@ public class ProductController {
     }
     
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts(){
-        List<Product> products = productService.findAll();
+    public ResponseEntity<List<ProductResponse>> getAllProducts(){
+        List<ProductResponse> products = productService.findAllProductDTO();
         return ResponseEntity.ok(products);
     }
 
     @GetMapping("/byCategory/{categoryId}")
-    public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable Long categoryId){
-        List<Product> products = productService.findByCategoryId(categoryId);
+    public ResponseEntity<List<ProductResponse>> getProductsByCategoryId(@PathVariable Long categoryId){
+        List<ProductResponse> products = productService.findProductDTOByCategoryId(categoryId);
         return ResponseEntity.ok(products);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Long id){
-        return productService.findById(id)
+        return productService.findProductDTOById(id)
                 .<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(404).body("Product is not found with this id: " + id));
     }

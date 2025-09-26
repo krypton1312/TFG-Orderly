@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.yebur.backendorderly.dto.output.ProductResponse;
 import com.yebur.backendorderly.entities.Product;
 import com.yebur.backendorderly.repositories.ProductRepository;
 import com.yebur.backendorderly.services.interfaces.ProductServiceInterface;
@@ -24,13 +25,23 @@ public class ProductService implements ProductServiceInterface {
     }
     
     @Override
+    public List<ProductResponse> findAllProductDTO() {
+        return productRepository.findAllProductDTO();
+    }
+
+    @Override
     public Optional<Product> findById(Long id) {
         return productRepository.findById(id);
     }
 
     @Override
-    public List<Product> findByCategoryId(Long categoryId) {
-        return productRepository.findByCategoryId(categoryId);
+    public Optional<ProductResponse> findProductDTOById(Long id) {
+        return productRepository.findProductDTOById(id);
+    }
+
+    @Override
+    public List<ProductResponse> findProductDTOByCategoryId(Long categoryId) {
+        return productRepository.findProductDTOByCategoryId(categoryId);
     }
 
     @Override

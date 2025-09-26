@@ -1,13 +1,14 @@
 @url = http://localhost:8080
 
- GET {{url}}/categories
+ #GET {{url}}/categories
 
-#POST {{url}}/categories
-#Content-Type: application/json
+POST {{url}}/categories
+Content-Type: application/json
 
-#{
- # "name": "CAFE"
-#}
+{
+  "name": "CAFE",
+  "color": "#FF5733",
+  "index": 1}
 
 
 

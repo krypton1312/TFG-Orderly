@@ -33,7 +33,7 @@ public class Category {
     private String color;
 
     @Column
-    private String index;
+    private Integer index;
 
     @OneToMany(mappedBy = "category")
     private List<Product> products;

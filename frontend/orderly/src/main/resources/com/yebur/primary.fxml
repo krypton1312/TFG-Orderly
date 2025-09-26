@@ -5,7 +5,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.*?>
 
-<GridPane hgap="10" prefHeight="768.0" prefWidth="1280.0" style="-fx-padding: 10;" vgap="10" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.yebur.controller.PrimaryController">
+<GridPane hgap="10" prefHeight="768.0" prefWidth="1280.0" style="-fx-padding: 10;" vgap="10"
+    xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.yebur.controller.PrimaryController">
 
     <!-- ==== Настройка сетки ==== -->
     <columnConstraints>
@@ -23,107 +25,139 @@
         <!-- Нижняя часть (категории + продукты) -->
         <RowConstraints percentHeight="50" />
     </rowConstraints>
-   <children>
-   
-       <!-- ==== Верхняя левая часть (OrderItems) ==== -->
-       <VBox fx:id="orderItems" spacing="10" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="0">
-      <children>
-              <Label styleClass="order-title" text="Order #345" />
-              <Label styleClass="order-subtitle" text="Table 8" />
-      </children>
-           <!-- Товары стола будут добавляться динамически -->
-       </VBox>
-   
-       <!-- ==== Верхняя правая часть (Калькулятор) ==== -->
-<VBox prefHeight="200" prefWidth="300" spacing="10" styleClass="card" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS">
     <children>
-        <!-- Поле ввода также растягивается по ширине -->
-        <TextField fx:id="displayField" maxWidth="Infinity" styleClass="display" VBox.vgrow="NEVER" />
-        
-        <!-- Грид тянется на всю оставшуюся высоту -->
-        <GridPane hgap="10" vgap="10" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" VBox.vgrow="ALWAYS">
-            <columnConstraints>
-                <ColumnConstraints hgrow="ALWAYS" />
-                <ColumnConstraints hgrow="ALWAYS" />
-                <ColumnConstraints hgrow="ALWAYS" />
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints vgrow="ALWAYS" />
-                <RowConstraints vgrow="ALWAYS" />
-                <RowConstraints vgrow="ALWAYS" />
-                <RowConstraints vgrow="ALWAYS" />
-            </rowConstraints>
+
+        <!-- ==== Верхняя левая часть (OrderItems) ==== -->
+        <VBox fx:id="orderItems" spacing="10" styleClass="card" GridPane.columnIndex="0"
+            GridPane.rowIndex="0">
             <children>
-                <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="7" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="8" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="9" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-
-                <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="4" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="5" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="6" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-
-                <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="1" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="2" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="3" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-
-                <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="0" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="." GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="del" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                <Label styleClass="order-title" text="Order #345" />
+                <Label styleClass="order-subtitle" text="Table 8" />
             </children>
-        </GridPane>
-    </children>
-</VBox>
-
-   
-       <!-- ==== Нижняя часть (Категории + Продукты) ==== -->
-       <HBox spacing="10" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="1">
-      <children>
-              <VBox fx:id="categoryBox" prefHeight="369.0" prefWidth="268.0" spacing="10" styleClass="card">
-            <!-- Категории будут подгружаться динамически -->
+            <!-- Товары стола будут добавляться динамически -->
         </VBox>
-      
-              <FlowPane fx:id="productBox" hgap="10" prefHeight="369.0" prefWidth="790.0" prefWrapLength="600" styleClass="card" vgap="10">
-            <!-- Продукты подгружаются динамически -->
-        </FlowPane>
-      </children>
-       </HBox>
-   
-       <!-- ==== Правая панель ==== -->
-       <VBox spacing="10" styleClass="sidebar" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.rowSpan="2">
-           <padding>
-               <Insets bottom="20" left="20" right="20" top="20" />
-           </padding>
-           <children>
-               <Button text="Get Check">
-               <styleClass>
-                  <String fx:value="action-btn"/>
-                  <String fx:value="green"/>
-               </styleClass>
-            </Button>
 
-            <Button text="Print Invoice">
-               <styleClass>
-                  <String fx:value="action-btn"/>
-                  <String fx:value="blue"/>
-               </styleClass>
-            </Button>
+        <!-- ==== Верхняя правая часть (Калькулятор) ==== -->
+        <VBox prefHeight="200" prefWidth="300" spacing="10" styleClass="card"
+            GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0"
+            GridPane.vgrow="ALWAYS">
+            <children>
+                <!-- Поле ввода также растягивается по ширине -->
+                <TextField fx:id="displayField" maxWidth="Infinity" styleClass="display"
+                    VBox.vgrow="NEVER" />
 
-            <Button text="Close Table">
-               <styleClass>
-                  <String fx:value="action-btn"/>
-                  <String fx:value="red"/>
-               </styleClass>
-            </Button>
+                <!-- Грид тянется на всю оставшуюся высоту -->
+                <GridPane hgap="10" vgap="10" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                    VBox.vgrow="ALWAYS">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="ALWAYS" />
+                        <RowConstraints vgrow="ALWAYS" />
+                        <RowConstraints vgrow="ALWAYS" />
+                        <RowConstraints vgrow="ALWAYS" />
+                    </rowConstraints>
+                    <children>
+                        <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn"
+                            text="7" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn"
+                            text="8" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn"
+                            text="9" GridPane.columnIndex="2" GridPane.rowIndex="0" />
 
-            <Button text="Shift Report">
-               <styleClass>
-                  <String fx:value="action-btn"/>
-                  <String fx:value="dark"/>
-               </styleClass>
-            </Button>
+                        <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn"
+                            text="4" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn"
+                            text="5" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn"
+                            text="6" GridPane.columnIndex="2" GridPane.rowIndex="1" />
 
-           </children>
-       </VBox>
-   </children>
+                        <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn"
+                            text="1" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn"
+                            text="2" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn"
+                            text="3" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+
+                        <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn"
+                            text="0" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn"
+                            text="." GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <Button maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn"
+                            text="del" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                    </children>
+                </GridPane>
+            </children>
+        </VBox>
+
+        <!-- ==== Нижняя часть (Категории + Продукты) ==== -->
+        <HBox spacing="10" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="1">
+            <children>
+                <!-- Левая панель (категории) -->
+                <VBox maxWidth="300" minWidth="300.0" prefHeight="369.0" prefWidth="280.0"
+                    spacing="10" styleClass="card">
+                    <children>
+                        <TilePane fx:id="categoryBox"
+                            hgap="15" vgap="15"
+                            prefColumns="3"
+                            alignment="TOP_CENTER" />
+                    </children>
+                </VBox>
+
+                <!-- Правая панель (продукты) -->
+                <TilePane fx:id="productBox"
+                    hgap="15" vgap="15"
+                    prefColumns="5"
+                    alignment="TOP_LEFT"
+                    HBox.hgrow="ALWAYS"
+                    prefHeight="369.0"
+                    styleClass="card">
+                    <!-- кнопки продуктов будут динамически -->
+                </TilePane>
+            </children>
+        </HBox>
+
+
+        <!-- ==== Правая панель ==== -->
+        <VBox spacing="10" styleClass="sidebar" GridPane.columnIndex="2" GridPane.rowIndex="0"
+            GridPane.rowSpan="2">
+            <padding>
+                <Insets bottom="20" left="20" right="20" top="20" />
+            </padding>
+            <children>
+                <Button text="Get Check">
+                    <styleClass>
+                        <String fx:value="action-btn" />
+                        <String fx:value="green" />
+                    </styleClass>
+                </Button>
+
+                <Button text="Print Invoice">
+                    <styleClass>
+                        <String fx:value="action-btn" />
+                        <String fx:value="blue" />
+                    </styleClass>
+                </Button>
+
+                <Button text="Close Table">
+                    <styleClass>
+                        <String fx:value="action-btn" />
+                        <String fx:value="red" />
+                    </styleClass>
+                </Button>
+
+                <Button text="Shift Report">
+                    <styleClass>
+                        <String fx:value="action-btn" />
+                        <String fx:value="dark" />
+                    </styleClass>
+                </Button>
+
+            </children>
+        </VBox>
+    </children>
 
 </GridPane>

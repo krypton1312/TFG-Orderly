@@ -14,16 +14,14 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        // Загружаем FXML
         scene = new Scene(loadFXML("primary"));
-
-        // Подключаем CSS (ищем в resources/com/yebur/styles/primary.css)
         String css = App.class.getResource("/com/yebur/styles/primary.css").toExternalForm();
         scene.getStylesheets().add(css);
 
         stage.setTitle("Orderly POS");
         stage.setScene(scene);
         stage.show();
+        scene.getRoot().requestFocus();
     }
 
     public static void setRoot(String fxml) throws IOException {
