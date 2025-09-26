@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.yebur.backendorderly.dto.output.CategoryResponse;
 import com.yebur.backendorderly.entities.Category;
 import com.yebur.backendorderly.services.CategoryService;
 
@@ -36,14 +37,13 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Category>> getAllCategories(){
-        List<Category> categories = categoryService.findAll();
-        return ResponseEntity.ok(categories);
+    public ResponseEntity<List<CategoryResponse>> getAllCategories(){
+        return ResponseEntity.ok(categoryService.findAllCategoryDTO());
     }
     
     @GetMapping("/{id}")
     public ResponseEntity<?> getCategoryById(@PathVariable Long id){
-        Optional<Category> optional = categoryService.findById(id);
+        Optional<CategoryResponse> optional = categoryService.findCategoryDTOById(id);
         if(optional.isPresent()){
             return ResponseEntity.ok(optional.orElseThrow());
         } else {

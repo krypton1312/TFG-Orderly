@@ -70,8 +70,9 @@ public class ProductController {
         product.setStock(request.getStock());
         product.setCategory(category);
 
+        productService.createProduct(product);
 
-        return ResponseEntity.status(201).body(productService.createProduct(product));
+        return ResponseEntity.status(201).body(request);
     }
 
     @PutMapping("/{id}")

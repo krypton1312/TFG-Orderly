@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.yebur.backendorderly.dto.output.CategoryResponse;
 import com.yebur.backendorderly.entities.Category;
 import com.yebur.backendorderly.repositories.CategoryRepository;
 import com.yebur.backendorderly.services.interfaces.CategoryServiceInterface;
@@ -22,9 +23,20 @@ public class CategoryService implements CategoryServiceInterface {
     public List<Category> findAll(){
         return categoryRepository.findAll();
     }
+
+    @Override
+    public List<CategoryResponse> findAllCategoryDTO() {
+        return categoryRepository.findAllCategoryDTO();
+    }
+
     @Override
     public Optional<Category> findById(Long id) {
         return categoryRepository.findById(id);
+    }
+
+    @Override
+    public Optional<CategoryResponse> findCategoryDTOById(Long id) {
+        return categoryRepository.findCategoryDTOById(id);
     }
 
     @Override
