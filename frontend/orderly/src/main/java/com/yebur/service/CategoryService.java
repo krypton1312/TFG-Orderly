@@ -14,6 +14,11 @@ public class CategoryService {
         return mapper.readValue(json, new TypeReference<List<Category>>() {}); 
     }
 
+    public static List<Category> getAllCategoriesPage(Integer page, Integer pageSize) throws Exception{
+        String json = ApiClient.get("/categories/page/" + page + "," + pageSize);
+        return mapper.readValue(json, new TypeReference<List<Category>>() {});
+    }
+
     public static Category createCategory(Category category) throws Exception {
         String jsonInput = mapper.writeValueAsString(category);
         String jsonResponse = ApiClient.post("/categories", jsonInput);

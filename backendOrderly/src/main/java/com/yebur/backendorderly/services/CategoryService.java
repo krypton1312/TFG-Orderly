@@ -3,6 +3,8 @@ package com.yebur.backendorderly.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.yebur.backendorderly.dto.output.CategoryResponse;
@@ -12,16 +14,21 @@ import com.yebur.backendorderly.services.interfaces.CategoryServiceInterface;
 
 @Service("categoryService")
 public class CategoryService implements CategoryServiceInterface {
-    
+
     private final CategoryRepository categoryRepository;
 
-    public CategoryService(CategoryRepository categoryRepository){
+    public CategoryService(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 
     @Override
-    public List<Category> findAll(){
+    public List<Category> findAll() {
         return categoryRepository.findAll();
+    }
+
+    @Override
+    public Page<CategoryResponse> findAllCategoryDTOPage(Pageable pageable) {
+        return categoryRepository.findAllCategoryDTOPage(pageable);
     }
 
     @Override
@@ -40,7 +47,7 @@ public class CategoryService implements CategoryServiceInterface {
     }
 
     @Override
-    public Category createCategory(Category category){
+    public Category createCategory(Category category) {
         return categoryRepository.save(category);
     }
 
@@ -54,7 +61,7 @@ public class CategoryService implements CategoryServiceInterface {
     }
 
     @Override
-    public void deleteCategory(Long id){
+    public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
     }
 }

@@ -97,7 +97,7 @@
         <HBox spacing="10" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="1">
             <children>
                 <!-- Левая панель (категории) -->
-                <VBox maxWidth="300" minWidth="300.0" prefHeight="369.0" prefWidth="280.0"
+                <VBox maxWidth="310" minWidth="310" prefHeight="369.0" prefWidth="280.0"
                     spacing="10" styleClass="card">
                     <children>
                         <TilePane fx:id="categoryBox"

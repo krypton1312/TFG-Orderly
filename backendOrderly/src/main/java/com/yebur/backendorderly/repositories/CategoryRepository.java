@@ -3,6 +3,8 @@ package com.yebur.backendorderly.repositories;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -18,6 +20,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long>{
 
     @Query("SELECT new com.yebur.backendorderly.dto.output.CategoryResponse(c.id, c.name, c.color, c.index) FROM Category c")
     List<CategoryResponse> findAllCategoryDTO();
+
+    @Query("SELECT new com.yebur.backendorderly.dto.output.CategoryResponse(c.id, c.name, c.color, c.index) FROM Category c")
+    Page<CategoryResponse> findAllCategoryDTOPage(Pageable pageable);
     
     @Override
     Optional<Category> findById(Long id);

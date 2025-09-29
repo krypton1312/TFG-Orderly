@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -40,8 +41,19 @@ public class CategoryController {
     public ResponseEntity<List<CategoryResponse>> getAllCategories(){
         return ResponseEntity.ok(categoryService.findAllCategoryDTO());
     }
+
+    @GetMapping("/page/{page},{pageSize}")
+    public ResponseEntity<List<CategoryResponse>> listPageable(@PathVariable Integer page, @PathVariable Integer pageSize){
+        try{
+            PageRequest pageable = PageRequest.of(page, pageSize);
+            List<CategoryResponse> result = categoryService.findAllCategoryDTOPage(pageable).getContent();
+            return ResponseEntity.ok(result);
+        }catch(Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
+    }
     
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<?> getCategoryById(@PathVariable Long id){
         Optional<CategoryResponse> optional = categoryService.findCategoryDTOById(id);
         if(optional.isPresent()){

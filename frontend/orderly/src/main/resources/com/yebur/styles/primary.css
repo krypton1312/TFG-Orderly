@@ -50,8 +50,8 @@
 }
 
 .category-btn {
-    -fx-pref-width: 80;       /* фикс ширина */
-    -fx-pref-height: 80;       /* фикс высота */
+    -fx-pref-width: 75;       /* фикс ширина */
+    -fx-pref-height: 75;       /* фикс высота */
     -fx-text-fill: #374151;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
