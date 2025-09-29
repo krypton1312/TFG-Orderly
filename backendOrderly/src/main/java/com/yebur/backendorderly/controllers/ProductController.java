@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yebur.backendorderly.dto.input.ProductRequest;
+import com.yebur.backendorderly.dto.output.CategoryResponse;
 import com.yebur.backendorderly.dto.output.ProductResponse;
 import com.yebur.backendorderly.entities.Category;
 import com.yebur.backendorderly.entities.Product;
@@ -41,6 +43,17 @@ public class ProductController {
     public ResponseEntity<List<ProductResponse>> getAllProducts(){
         List<ProductResponse> products = productService.findAllProductDTO();
         return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/categoryId/{categoryId}/page/{page},{pageSize}")
+    public ResponseEntity<List<ProductResponse>> listPageable(@PathVariable Long categoryId, @PathVariable Integer page, @PathVariable Integer pageSize){
+        try{
+            PageRequest pageable = PageRequest.of(page,pageSize);
+            List<ProductResponse> result = productService.findAllProductDTOPage(categoryId, pageable).getContent();
+            return ResponseEntity.ok(result);
+        }catch(Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @GetMapping("/byCategory/{categoryId}")

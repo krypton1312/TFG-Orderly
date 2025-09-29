@@ -19,6 +19,11 @@ public class ProductService {
         return mapper.readValue(json, new TypeReference<List<Product>>() {});
     }
 
+    public static List<Product> getProductsPageByCategory(Long categoryId, Integer page, Integer pageSize) throws Exception{
+        String json = ApiClient.get("/products/categoryId/" + categoryId + "/page/" + page + "," + pageSize);
+        return mapper.readValue(json, new TypeReference<List<Product>>() {});
+    }
+
     public static Product createProduct(Product product) throws Exception {
         String jsonInput = mapper.writeValueAsString(product);
         String jsonResponse = ApiClient.post("/products", jsonInput);

@@ -97,19 +97,14 @@
         <HBox spacing="10" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="1">
             <children>
                 <!-- Левая панель (категории) -->
-                <VBox prefHeight="369" minHeight="369" maxHeight="369"
-                    prefWidth="310" minWidth="310" maxWidth="315"
+                <VBox maxWidth="310" minWidth="310" prefHeight="369.0" prefWidth="280.0"
                     spacing="10" styleClass="card">
                     <children>
                         <TilePane fx:id="categoryBox"
-                                prefColumns="3"
-                                prefTileWidth="75"
-                                prefTileHeight="75"
-                                hgap="10" vgap="10"
-                                prefHeight="339" minHeight="339" maxHeight="339"/>
+                            hgap="10" vgap="10"
+                            prefColumns="3"/>
                     </children>
                 </VBox>
-
 
                 <!-- Правая панель (продукты) -->
                 <TilePane fx:id="productBox"
