@@ -108,7 +108,7 @@
 
                 <!-- Правая панель (продукты) -->
                 <TilePane fx:id="productBox"
-                    hgap="15" vgap="15"
+                    hgap="10" vgap="10"
                     prefColumns="5"
                     alignment="TOP_LEFT"
                     HBox.hgrow="ALWAYS"

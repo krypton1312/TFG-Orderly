@@ -64,12 +64,12 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody Category caterogy, BindingResult result){
+    public ResponseEntity<?> create(@Valid @RequestBody Category category, BindingResult result){
         if(result.hasErrors()){
             return validation(result);
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(caterogy));
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(category));
     }
 
     @PutMapping("/{id}")

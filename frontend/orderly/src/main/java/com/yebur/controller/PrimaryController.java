@@ -22,6 +22,7 @@ public class PrimaryController {
     private TilePane productBox;
 
     private List<Category> allCategories;
+    private List<Product> allProducts;
     private List<Category> categories;
     private List<Product> productsByCategory;
 
@@ -35,6 +36,7 @@ public class PrimaryController {
     private int currentProductPage = 0;
     private Long selectedCategoryId;
     private int categoryPageSize;
+    private int productPageSize;
 
     @FXML
     public void initialize() {
@@ -55,10 +57,13 @@ public class PrimaryController {
         loadCategories(categoryPageSize);
     }
 
-    private void reloadProducts() {
+    private void reloadProducts(String color) {
+        if (productPageSize <= 0) {
+            productPageSize = getMaximumProducts();
+        }
         if (selectedCategoryId == null)
             return;
-        loadProductsForCategory(selectedCategoryId, getMaximumProducts());
+        loadProductsForCategory(productPageSize, selectedCategoryId, color);
     }
 
     private void loadCategories(int slots) {
@@ -68,46 +73,37 @@ public class PrimaryController {
             return;
         }
 
-        final int S = Math.max(1, slots); // слоты всего (включая места под стрелки)
-        final int N = allCategories.size(); // всего категорий
-
-        // 1) считаем стартовый индекс текущей страницы, учитывая реальную вместимость
-        // прошлых страниц
+        final int S = Math.max(1, slots);
+        final int N = allCategories.size();
         int start = 0;
         int remaining = N;
         for (int p = 0; p < currentCategoryPage && remaining > 0; p++) {
             int capPrev;
-            if (p == 0) { // первая страница: только →
+            if (p == 0) {
                 capPrev = Math.min(S - 1, remaining);
-            } else { // промежуточные страницы: ← и →
+            } else {
                 capPrev = Math.min(Math.max(S - 2, 1), remaining);
             }
             start += capPrev;
             remaining -= capPrev;
         }
 
-        // если ушли за пределы (например, изменился размер и текущая страница стала
-        // "пустой") — шаг назад
         if (start >= N && currentCategoryPage > 0) {
             currentCategoryPage--;
-            loadCategories(S);
+            reloadCategories();
             return;
         }
 
-        // 2) определяем вместимость текущей страницы и наличие стрелок
-        boolean hasPrev = currentCategoryPage > 0;
+        boolean hasPrev = currentProductPage > 0;
         int navSlots = hasPrev ? 1 : 0;
 
-        // если нет "→", можем занять все оставшиеся слоты; если "→" нужен — один слот
-        // резервируем
-        int capIfNoNext = Math.max(S - navSlots, 1); // максимум элементов без →
-        int capIfNext = Math.max(capIfNoNext - 1, 1); // максимум элементов с →
+        int capIfNoNext = Math.max(S - navSlots, 1);
+        int capIfNext = Math.max(capIfNoNext - 1, 1);
 
         boolean hasNext;
-        int capacity; // сколько категорий рисуем на этой странице
+        int capacity;
 
         if (remaining > capIfNoNext) {
-            // элементов больше, чем поместится без → → нужна кнопка →
             hasNext = true;
             capacity = capIfNext;
         } else {
@@ -118,7 +114,6 @@ public class PrimaryController {
         int end = Math.min(start + capacity, N);
         this.categories = allCategories.subList(start, end);
 
-        // 3) рисуем категории
         for (Category category : this.categories) {
             Button btn = new Button(category.getName());
             btn.getStyleClass().add("category-btn");
@@ -127,12 +122,10 @@ public class PrimaryController {
             btn.setOnAction(e -> {
                 selectedCategoryId = category.getId();
                 currentProductPage = 0;
-                reloadProducts();
+                reloadProducts(category.getColor());
             });
             categoryBox.getChildren().add(btn);
         }
-
-        // 4) стрелки навигации
         if (hasPrev) {
             Button prevBtn = new Button("←");
             prevBtn.getStyleClass().add("category-btn");
@@ -154,61 +147,107 @@ public class PrimaryController {
         }
     }
 
-    private void loadProductsForCategory(Long categoryId, int pageSize) {
+    private void loadProductsForCategory(int slots, Long selectedCategoryId, String color) {
+        productBox.getChildren().clear();
+
         try {
-            productBox.getChildren().clear();
-
-            this.productsByCategory = ProductService.getProductsPageByCategory(categoryId, currentProductPage,
-                    pageSize);
-
-            for (Product product : this.productsByCategory) {
-                Button btn = new Button(product.getName());
-                btn.getStyleClass().add("product-btn");
-                productBox.getChildren().add(btn);
-            }
-
-            // Кнопка "назад"
-            if (currentProductPage > 0) {
-                Button prevBtn = new Button("←");
-                prevBtn.getStyleClass().add("product-btn");
-                prevBtn.setOnAction(e -> {
-                    currentProductPage--;
-                    reloadProducts();
-                });
-                productBox.getChildren().add(0, prevBtn);
-            }
-
-            // Кнопка "вперёд"
-            if (this.productsByCategory.size() == pageSize) {
-                Button nextBtn = new Button("→");
-                nextBtn.getStyleClass().add("product-btn");
-                nextBtn.setOnAction(e -> {
-                    currentProductPage++;
-                    reloadProducts();
-                });
-                productBox.getChildren().add(nextBtn);
-            }
+            this.allProducts = ProductService.getProductsByCategory(selectedCategoryId);
         } catch (Exception e) {
             e.printStackTrace();
+            return;
+        }
+
+        if (allProducts == null || allProducts.isEmpty()) {
+            return;
+        }
+
+        final int S = Math.max(1, slots);
+        final int N = allProducts.size();
+
+        int start = 0;
+        int remaining = N;
+        for (int p = 0; p < currentProductPage && remaining > 0; p++) {
+            int capPrev;
+            if (p == 0) {
+                capPrev = Math.min(S - 1, remaining);
+            } else {
+                capPrev = Math.min(Math.max(S - 2, 1), remaining);
+            }
+            start += capPrev;
+            remaining -= capPrev;
+        }
+
+        if (start >= N && currentProductPage > 0) {
+            currentProductPage--;
+            loadProductsForCategory(S, selectedCategoryId, color);
+            return;
+        }
+
+        boolean hasPrev = currentProductPage > 0;
+        int navSlots = hasPrev ? 1 : 0;
+
+        int capIfNoNext = Math.max(S - navSlots, 1);
+        int capIfNext = Math.max(capIfNoNext - 1, 1);
+
+        boolean hasNext;
+        int capacity;
+
+        if (remaining > capIfNoNext) {
+            hasNext = true;
+            capacity = capIfNext;
+        } else {
+            hasNext = false;
+            capacity = Math.min(remaining, capIfNoNext);
+        }
+
+        int end = Math.min(start + capacity, N);
+        this.productsByCategory = allProducts.subList(start, end);
+
+        if (hasPrev) {
+            Button prevBtn = new Button("←");
+            prevBtn.getStyleClass().add("product-btn");
+            prevBtn.setOnAction(e -> {
+                currentProductPage--;
+                loadProductsForCategory(S, selectedCategoryId, color);
+            });
+            productBox.getChildren().add(prevBtn);
+        }
+
+        for (Product product : this.productsByCategory) {
+            Button btn = new Button(product.getName());
+            btn.getStyleClass().add("product-btn");
+            btn.setStyle("-fx-background-color: " + (color != null ? color : "#f9fafb"));
+            btn.setOnAction(e -> {
+                System.out.println("Product clicked: " + product.getName());
+            });
+            productBox.getChildren().add(btn);
+        }
+-
+        if (hasNext) {
+            if (!productBox.getChildren().isEmpty()) {
+                productBox.getChildren().remove(productBox.getChildren().size() - 1);
+            }
+
+            Button nextBtn = new Button("→");
+            nextBtn.getStyleClass().add("product-btn");
+            nextBtn.setOnAction(e -> {
+                currentProductPage++;
+                loadProductsForCategory(S, selectedCategoryId, color);
+            });
+            productBox.getChildren().add(nextBtn);
         }
     }
 
     private int getMaximumCategories() {
-        // количество колонок
         int cols = categoryBox.getPrefColumns() > 0 ? categoryBox.getPrefColumns() : 3;
-
-        // фактическая высота контейнера
         double h = categoryBox.getParent().getLayoutBounds().getHeight();
-
-        // параметры кнопок (как в CSS)
-        double tileH = 75; // фиксированная высота кнопки
-        double vgap = categoryBox.getVgap(); // отступы между строками
+        double tileH = 75;
+        double vgap = categoryBox.getVgap();
 
         if (h <= 0) {
-            return cols * 3; // fallback (например, по умолчанию 9 кнопок)
+            return cols * 3;
         }
 
-        // сколько строк помещается
         int rows = (int) Math.floor((h + vgap) / (tileH + vgap));
         rows = Math.max(rows, 1);
 
@@ -216,17 +255,27 @@ public class PrimaryController {
     }
 
     private int getMaximumProducts() {
-        int cols = productBox.getPrefColumns() > 0 ? productBox.getPrefColumns() : 3;
+        int cols = productBox.getPrefColumns() > 0 ? productBox.getPrefColumns() : 5;
 
-        double h = productBox.getBoundsInParent().getHeight(); // тоже лучше через Bounds
+        double h = productBox.getLayoutBounds().getHeight();
+
+        double tileH;
+        if (!productBox.getChildren().isEmpty()) {
+            tileH = productBox.getChildren().get(0).getLayoutBounds().getHeight();
+        } else {
+            tileH = 60;
+        }
+
         double vgap = productBox.getVgap();
-        double tileH = productBox.getPrefTileHeight() > 0 ? productBox.getPrefTileHeight() : 80;
 
-        if (h <= 0)
+        if (h <= 0) {
             return cols * 3;
-
-        int rows = (int) Math.floor((h + vgap) / (tileH + vgap));
+        }
+        
+        int rows = (int) Math.floor((h + vgap * 0.9) / (tileH + vgap));
         rows = Math.max(rows, 1);
+
         return cols * rows;
     }
+
 }

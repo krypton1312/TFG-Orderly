@@ -57,6 +57,8 @@ public class CategoryService implements CategoryServiceInterface {
                 .orElseThrow(() -> new RuntimeException("Category not found with id " + id));
 
         existingCategory.setName(category.getName());
+        existingCategory.setColor(category.getColor());
+        existingCategory.setIndex(category.getIndex());
         return categoryRepository.save(existingCategory);
     }
 

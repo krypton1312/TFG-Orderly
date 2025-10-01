@@ -77,7 +77,7 @@
 
 /* Продукты */
 .product-btn{
-    -fx-pref-width: 70;       /* фикс ширина */
+    -fx-pref-width: 85;       /* фикс ширина */
     -fx-pref-height: 75;       /* фикс высота */
     -fx-text-fill: #374151;
     -fx-font-size: 14px;
