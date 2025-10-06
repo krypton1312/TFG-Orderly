@@ -1,5 +1,7 @@
 package com.yebur.backendorderly.entities;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -44,5 +46,7 @@ public class OrderDetail {
 
     @Column(nullable = false)
     private double unitPrice;
+
+    private LocalDateTime createdAt;
 
 }
