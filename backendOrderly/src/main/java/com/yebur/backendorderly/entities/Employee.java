@@ -68,7 +68,7 @@ public class Employee {
     @Size(min = 8, message = "Password must be between 3 and 20 characters")
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private EmployeeStatus status;
 

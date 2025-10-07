@@ -21,6 +21,7 @@ import com.yebur.backendorderly.entities.Order;
 import com.yebur.backendorderly.entities.OrderDetail;
 import com.yebur.backendorderly.entities.Product;
 import com.yebur.backendorderly.services.OrderDetailService;
+import com.yebur.backendorderly.services.OrderService;
 import com.yebur.backendorderly.services.ProductService;
 
 import jakarta.validation.Valid;
@@ -97,7 +98,7 @@ public class OrderDetailController {
                     updated.getComment(),
                     updated.getAmount(),
                     updated.getUnitPrice());
-            return ResponseEntity.ok(updated);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }

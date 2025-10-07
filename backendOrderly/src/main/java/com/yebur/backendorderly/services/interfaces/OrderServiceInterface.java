@@ -10,12 +10,14 @@ import com.yebur.backendorderly.entities.Order;
 public interface OrderServiceInterface {
 
     List<OrderResponse> findAllOrderDTO();
+
+    Optional<Order> findById(Long id);
     
     Optional<OrderResponse> findOrderDTOById(Long id);
 
-    Order createOrder(Order order);
+    Order createOrder(OrderRequest orderRequest);
 
-    Order updateOrder(Long id, OrderRequest order);
+    Order updateOrder(Long id, OrderRequest orderRequest);
 
     void deleteOrder(Long id);
 }

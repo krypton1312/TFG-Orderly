@@ -17,7 +17,7 @@ public class OrderRequest {
     private LocalDateTime datetime;
     
     @NotBlank
-    private String orderStatus;
+    private String state;
 
     private String paymentMethod;
 
@@ -31,5 +31,5 @@ public class OrderRequest {
 
     private Long idTable;
 
-    private List<Long> orderDetails;
+    private List<OrderDetailRequest> orderDetails;
 }

@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.yebur.backendorderly.dto.input.ProductRequest;
-import com.yebur.backendorderly.dto.output.CategoryResponse;
 import com.yebur.backendorderly.dto.output.ProductResponse;
 import com.yebur.backendorderly.entities.Category;
 import com.yebur.backendorderly.entities.Product;

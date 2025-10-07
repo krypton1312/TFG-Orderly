@@ -14,23 +14,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderResponse {
-    @NotNull
+
+    private Long id;
+
     private LocalDateTime datetime;
     
-    @NotBlank
-    private String orderStatus;
+    private String state;
 
     private String paymentMethod;
 
-    @Positive
     private double total;
 
-    @NotBlank
     private Long idEmployee;
 
     private Long idClient;
 
     private Long idTable;
-
-    private List<OrderDetailResponse> orderDetails;
 }

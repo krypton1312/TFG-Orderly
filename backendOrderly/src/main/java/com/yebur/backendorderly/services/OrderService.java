@@ -2,6 +2,8 @@ package com.yebur.backendorderly.services;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -24,56 +26,37 @@ public class OrderService implements OrderServiceInterface {
     private final OrderDetailRepository orderDetailRepository;
     private final ProductRepository productRepository;
 
-    public OrderService(OrderRepository orderRepository, OrderDetailRepository orderDetailRepository, ProductRepository productRepository) {
+    public OrderService(OrderRepository orderRepository, OrderDetailRepository orderDetailRepository,
+            ProductRepository productRepository) {
         this.orderRepository = orderRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.productRepository = productRepository;
     }
 
-    public List<OrderResponse> getAllOrders() {
-        return orderRepository.findAllWithDetails().stream()
-                .map(o -> new OrderResponse(
-                        o.getDatetime(),
-                        o.getState().name(),
-                        o.getPaymentMethod(),
-                        o.getTotal(),
-                        o.getEmployee().getId(),
-                        o.getClient() != null ? o.getClient().getId() : null,
-                        o.getRestTable() != null ? o.getRestTable().getId() : null,
-                        o.getOrderDetails().stream()
-                                .map(od -> new OrderDetailResponse(
-                                        od.getProduct().getId(),
-                                        od.getOrder().getId(),
-                                        od.getComment(),
-                                        od.getAmount(),
-                                        od.getUnitPrice()))
-                                .collect(Collectors.toList())))
-                .collect(Collectors.toList());
-    }
-
-    public OrderResponse getOrderById(Long id) {
-        return orderRepository.findByIdWithDetails(id)
-                .map(o -> new OrderResponse(
-                        o.getDatetime(),
-                        o.getState().name(),
-                        o.getPaymentMethod(),
-                        o.getTotal(),
-                        o.getEmployee().getId(),
-                        o.getClient() != null ? o.getClient().getId() : null,
-                        o.getRestTable() != null ? o.getRestTable().getId() : null,
-                        o.getOrderDetails().stream()
-                                .map(od -> new OrderDetailResponse(
-                                        od.getProduct().getId(),
-                                        od.getOrder().getId(),
-                                        od.getComment(),
-                                        od.getAmount(),
-                                        od.getUnitPrice()))
-                                .collect(Collectors.toList())))
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+    @Override
+    public List<OrderResponse> findAllOrderDTO() {
+        return orderRepository.findAllOrderDTO();
     }
 
     @Override
-    public Order createOrder(Order order) {
+    public Optional<Order> findById(Long id) {
+        return orderRepository.findById(id);
+    }
+
+    @Override
+    public Optional<OrderResponse> findOrderDTOById(Long id) {
+        return orderRepository.findOrderDTOById(id);
+    }
+
+    @Override
+    public Order createOrder(OrderRequest orderRequest) {
+        Order order = new Order();
+        order.setState(OrderStatus.valueOf(orderRequest.getState().toUpperCase()));
+        order.setPaymentMethod(orderRequest.getPaymentMethod() != null ? orderRequest.getPaymentMethod() : "N/A");
+        order.setTotal(Objects.requireNonNullElse(orderRequest.getTotal(), 0.0));
+        // order.setEmployee(orderRequest.getEmployee());
+        // order.setClient(orderRequest.getClient());
+        // order.setRestTable(orderRequest.getRestTable());
         order.setDatetime(LocalDateTime.now());
         return orderRepository.save(order);
     }
@@ -83,29 +66,35 @@ public class OrderService implements OrderServiceInterface {
         Order existingOrder = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id " + id));
 
-        
-        existingOrder.setState(OrderStatus.valueOf(order.getOrderStatus()));
+        existingOrder.setState(OrderStatus.valueOf(order.getState()));
         existingOrder.setPaymentMethod(order.getPaymentMethod());
         existingOrder.setTotal(order.getTotal());
-        //existingOrder.setEmployee(order.());
-        //existingOrder.setClient(order.getClient());
-        //existingOrder.setRestTable(order.getRestTable());
+        // existingOrder.setEmployee(order.());
+        // existingOrder.setClient(order.getClient());
+        // existingOrder.setRestTable(order.getRestTable());
         List<OrderDetail> details = order.getOrderDetails().stream()
-            .map(d -> {
-                OrderDetail detail = new OrderDetail();
-                detail.setOrder(existingOrder);
-                detail.setProduct(productRepository.findById(d.getProductId())
-                        .orElseThrow(() -> new RuntimeException("Product not found with id " + d.getProductId())));
-                detail.setComment(d.getComment());
-                detail.setAmount(d.getAmount());
-                detail.setUnitPrice(d.getUnitPrice());
-                return detail;
-            })
-            .collect(Collectors.toList());
+                .map(d -> {
+                    OrderDetail detail = new OrderDetail();
+                    detail.setOrder(existingOrder);
+                    detail.setProduct(productRepository.findById(d.getProductId())
+                            .orElseThrow(() -> new RuntimeException("Product not found with id " + d.getProductId())));
+                    detail.setComment(d.getComment());
+                    detail.setAmount(d.getAmount());
+                    detail.setUnitPrice(d.getUnitPrice());
+                    return detail;
+                })
+                .collect(Collectors.toList());
 
         existingOrder.setOrderDetails(details);
 
         return orderRepository.save(existingOrder);
     }
 
+    @Override
+    public void deleteOrder(Long id) {
+        if (!orderRepository.existsById(id)) {
+            throw new RuntimeException("Order not found with id " + id);
+        }
+        orderRepository.deleteById(id);
+    }
 }

@@ -46,7 +46,7 @@ public class Order {
     private double total;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_employee", nullable = false)
+    @JoinColumn(name = "id_employee", nullable = true)
     private Employee employee;
 
     @ManyToOne(fetch = FetchType.LAZY)
