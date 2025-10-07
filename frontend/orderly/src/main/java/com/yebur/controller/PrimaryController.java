@@ -3,12 +3,15 @@ package com.yebur.controller;
 import java.util.List;
 
 import com.yebur.model.Category;
+import com.yebur.model.Order;
 import com.yebur.model.Product;
 import com.yebur.service.CategoryService;
+import com.yebur.service.OrderService;
 import com.yebur.service.ProductService;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
@@ -25,6 +28,8 @@ public class PrimaryController {
     private List<Product> allProducts;
     private List<Category> categories;
     private List<Product> productsByCategory;
+    private List<Order> allOrders;
+    private List<Order> orders;
 
     @FXML
     private VBox orderItems;
@@ -34,9 +39,17 @@ public class PrimaryController {
 
     private int currentCategoryPage = 0;
     private int currentProductPage = 0;
+    private int currentOrderPage = 0;
     private Long selectedCategoryId;
     private int categoryPageSize;
     private int productPageSize;
+
+    @FXML
+    Label orderIdLabel;
+    @FXML
+    Label tableNameLabel;
+
+    
 
     @FXML
     public void initialize() {
@@ -64,6 +77,14 @@ public class PrimaryController {
         if (selectedCategoryId == null)
             return;
         loadProductsForCategory(productPageSize, selectedCategoryId, color);
+    }
+
+    @FXML
+    private void handleChecksClick(){
+        if (productPageSize <= 0) {
+            productPageSize = getMaximumProducts();
+        }
+        loadOrders(productPageSize);
     }
 
     private void loadCategories(int slots) {
@@ -222,7 +243,6 @@ public class PrimaryController {
             });
             productBox.getChildren().add(btn);
         }
--
         if (hasNext) {
             if (!productBox.getChildren().isEmpty()) {
                 productBox.getChildren().remove(productBox.getChildren().size() - 1);
@@ -278,4 +298,103 @@ public class PrimaryController {
         return cols * rows;
     }
 
+    private void numberFieldClicked() {
+        
+    }
+
+    private void loadOrders(int slots) {
+        productBox.getChildren().clear();
+
+        try {
+            this.allOrders = OrderService.getAllOrders();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if (allOrders == null || allOrders.isEmpty()) {
+            return;
+        }
+
+        final int S = Math.max(1, slots);
+        final int N = allOrders.size();
+
+        int start = 0;
+        int remaining = N;
+        for (int p = 0; p < currentOrderPage && remaining > 0; p++) {
+            int capPrev;
+            if (p == 0) {
+                capPrev = Math.min(S - 1, remaining);
+            } else {
+                capPrev = Math.min(Math.max(S - 2, 1), remaining);
+            }
+            start += capPrev;
+            remaining -= capPrev;
+        }
+
+        if (start >= N && currentOrderPage > 0) {
+            currentOrderPage--;
+            loadOrders(S);
+            return;
+        }
+
+        boolean hasPrev = currentOrderPage > 0;
+        int navSlots = hasPrev ? 1 : 0;
+
+        int capIfNoNext = Math.max(S - navSlots, 1);
+        int capIfNext = Math.max(capIfNoNext - 1, 1);
+
+        boolean hasNext;
+        int capacity;
+
+        if (remaining > capIfNoNext) {
+            hasNext = true;
+            capacity = capIfNext;
+        } else {
+            hasNext = false;
+            capacity = Math.min(remaining, capIfNoNext);
+        }
+
+        int end = Math.min(start + capacity, N);
+        this.orders = allOrders.subList(start, end);
+
+        if (hasPrev) {
+            Button prevBtn = new Button("←");
+            prevBtn.getStyleClass().add("product-btn");
+            prevBtn.setOnAction(e -> {
+                currentOrderPage--;
+                loadOrders(S);
+            });
+            productBox.getChildren().add(prevBtn);
+        }
+
+        for (Order order : this.orders) {
+            Button btn = new Button(order.getId().toString());
+            btn.getStyleClass().add("product-btn");
+            btn.setStyle("-fx-background-color: #f9fafb");
+            btn.setOnAction(e -> {
+                openOrder(order);
+                System.out.println("Order clicked: " + order.getId().toString());
+            });
+            productBox.getChildren().add(btn);
+        }
+        if (hasNext) {
+            if (!productBox.getChildren().isEmpty()) {
+                productBox.getChildren().remove(productBox.getChildren().size() - 1);
+            }
+
+            Button nextBtn = new Button("→");
+            nextBtn.getStyleClass().add("product-btn");
+            nextBtn.setOnAction(e -> {
+                currentOrderPage++;
+                loadCategories(S);
+            });
+            productBox.getChildren().add(nextBtn);
+        }
+    }
+    
+    private void openOrder(Order order){
+        orderIdLabel.setText("Cuenta #"+ order.getId());
+        tableNameLabel.setText("Mesa 14");
+    }
 }

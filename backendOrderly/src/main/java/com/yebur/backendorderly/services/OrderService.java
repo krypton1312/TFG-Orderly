@@ -72,20 +72,6 @@ public class OrderService implements OrderServiceInterface {
         // existingOrder.setEmployee(order.());
         // existingOrder.setClient(order.getClient());
         // existingOrder.setRestTable(order.getRestTable());
-        List<OrderDetail> details = order.getOrderDetails().stream()
-                .map(d -> {
-                    OrderDetail detail = new OrderDetail();
-                    detail.setOrder(existingOrder);
-                    detail.setProduct(productRepository.findById(d.getProductId())
-                            .orElseThrow(() -> new RuntimeException("Product not found with id " + d.getProductId())));
-                    detail.setComment(d.getComment());
-                    detail.setAmount(d.getAmount());
-                    detail.setUnitPrice(d.getUnitPrice());
-                    return detail;
-                })
-                .collect(Collectors.toList());
-
-        existingOrder.setOrderDetails(details);
 
         return orderRepository.save(existingOrder);
     }

@@ -30,6 +30,4 @@ public class OrderRequest {
     private Long idClient;
 
     private Long idTable;
-
-    private List<OrderDetailRequest> orderDetails;
 }
