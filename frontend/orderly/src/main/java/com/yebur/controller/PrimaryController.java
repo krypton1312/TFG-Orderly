@@ -115,7 +115,7 @@ public class PrimaryController {
             return;
         }
 
-        boolean hasPrev = currentProductPage > 0;
+        boolean hasPrev = currentCategoryPage > 0;
         int navSlots = hasPrev ? 1 : 0;
 
         int capIfNoNext = Math.max(S - navSlots, 1);
