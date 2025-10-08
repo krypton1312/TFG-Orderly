@@ -10,11 +10,20 @@ import com.yebur.service.OrderService;
 import com.yebur.service.ProductService;
 
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 public class PrimaryController {
 
@@ -32,7 +41,7 @@ public class PrimaryController {
     private List<Order> orders;
 
     @FXML
-    private VBox orderItems;
+    private VBox orderVboxItems;
 
     @FXML
     private TextField displayField;
@@ -45,11 +54,9 @@ public class PrimaryController {
     private int productPageSize;
 
     @FXML
-    Label orderIdLabel;
+    private Label orderIdLabel;
     @FXML
-    Label tableNameLabel;
-
-    
+    private Label tableNameLabel;
 
     @FXML
     public void initialize() {
@@ -80,7 +87,7 @@ public class PrimaryController {
     }
 
     @FXML
-    private void handleChecksClick(){
+    private void handleChecksClick() {
         if (productPageSize <= 0) {
             productPageSize = getMaximumProducts();
         }
@@ -239,6 +246,11 @@ public class PrimaryController {
             btn.getStyleClass().add("product-btn");
             btn.setStyle("-fx-background-color: " + (color != null ? color : "#f9fafb"));
             btn.setOnAction(e -> {
+                for (int i = 0; i < 10; i++) {
+                    addProductToOrder(new Item(
+                            "jgdflkjgkldfjglkdfjglkdfjglkdfjgkldfjklgjdfklgjlkdfjgkldfjglkfdjglkdfjglkfdjgklfdjglkdfjgkldfg",
+                            2, 10.2));
+                }
                 System.out.println("Product clicked: " + product.getName());
             });
             productBox.getChildren().add(btn);
@@ -291,7 +303,7 @@ public class PrimaryController {
         if (h <= 0) {
             return cols * 3;
         }
-        
+
         int rows = (int) Math.floor((h + vgap * 0.9) / (tileH + vgap));
         rows = Math.max(rows, 1);
 
@@ -299,7 +311,7 @@ public class PrimaryController {
     }
 
     private void numberFieldClicked() {
-        
+
     }
 
     private void loadOrders(int slots) {
@@ -392,9 +404,50 @@ public class PrimaryController {
             productBox.getChildren().add(nextBtn);
         }
     }
-    
-    private void openOrder(Order order){
-        orderIdLabel.setText("Cuenta #"+ order.getId());
+
+    private void openOrder(Order order) {
+        orderIdLabel.setText("Cuenta #" + order.getId());
         tableNameLabel.setText("Mesa 14");
+    }
+
+    private void addProductToOrder(Item item) {
+        HBox row = new HBox(10);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setBorder(new Border(new BorderStroke(
+                Color.web("#e5e7eb"), // цвет линии (светло-серый)
+                BorderStrokeStyle.SOLID, // сплошная линия
+                CornerRadii.EMPTY, // без скруглений
+                new BorderWidths(0, 0, 1, 0) // только снизу (top, right, bottom, left)
+        )));
+
+         
+        Label nameLabel = new Label(item.name);
+        nameLabel.setPrefWidth(340);
+        nameLabel.setWrapText(true);
+
+        Label quantityLabel = new Label("x" + item.cuantity);
+        quantityLabel.setPrefWidth(40);
+
+        Label priceLabel = new Label(String.format("$%.2f", item.price));
+        priceLabel.setPrefWidth(100);
+
+        Label totalPriceLabel = new Label(String.format("$%.2f", item.price * item.cuantity));
+        priceLabel.setPrefWidth(100);
+
+        row.getChildren().addAll(nameLabel, quantityLabel, priceLabel, totalPriceLabel);
+
+        orderVboxItems.getChildren().add(row);
+    }
+
+    class Item {
+        String name;
+        int cuantity;
+        double price;
+
+        public Item(String name, int cuantity, double price) {
+            this.name = name;
+            this.cuantity = cuantity;
+            this.price = price;
+        }
     }
 }

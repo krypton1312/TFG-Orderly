@@ -1,7 +1,6 @@
 package com.yebur.backendorderly.dto.input;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;

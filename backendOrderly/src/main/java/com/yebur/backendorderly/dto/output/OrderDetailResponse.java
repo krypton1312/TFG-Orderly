@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrderDetailResponse {
 
+    private Long id;
+    
     private Long productId;
 
     private Long orderId;

@@ -26,6 +26,24 @@
     -fx-font-weight: bold;
     -fx-text-fill: #111827;
 }
+/* сам ScrollPane */
+.order-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 6;
+}
+
+/* область внутри ScrollPane */
+.order-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* сам VBox внутри */
+.order-items-box {
+    -fx-background-color: transparent; /* фон элементов заказов */
+    -fx-background-radius: 6;
+}
+
 
 /* Дисплей */
 .display {
@@ -119,4 +137,60 @@
 
 .dark { -fx-background-color: #374151; }
 .dark:hover { -fx-background-color: #4b5563; }
+
+/* ==== SCROLLBAR TOUCH-FRIENDLY STYLE ==== */
+
+/* Убираем стандартный фон */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+/* Общая область скролла */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+/* Вертикальная полоса — широкая и удобная для пальца */
+.scroll-pane > .scroll-bar:vertical {
+    -fx-pref-width: 22;
+    -fx-background-color: transparent;
+}
+
+/* Горизонтальная (если будет нужна) */
+.scroll-pane > .scroll-bar:horizontal {
+    -fx-pref-height: 22;
+    -fx-background-color: transparent;
+}
+
+/* Фон под ползунком */
+.scroll-bar .track {
+    -fx-background-color: #b6b6b6;
+    -fx-background-radius: 11;
+}
+
+/* Сам ползунок (thumb) */
+.scroll-bar .thumb {
+    -fx-background-color: #6b7280;
+    -fx-background-radius: 11;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 2);
+}
+
+/* Hover-эффект */
+.scroll-bar .thumb:hover {
+    -fx-background-color: #6b7280;
+}
+
+/* Полностью убираем стрелки ↑ ↓ */
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button,
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-shape: "";
+    -fx-opacity: 0;
+}
+
+
+
 

@@ -4,33 +4,23 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.yebur.backendorderly.dto.input.OrderRequest;
-import com.yebur.backendorderly.dto.output.OrderDetailResponse;
 import com.yebur.backendorderly.dto.output.OrderResponse;
 import com.yebur.backendorderly.entities.Order;
-import com.yebur.backendorderly.entities.OrderDetail;
 import com.yebur.backendorderly.enums.OrderStatus;
-import com.yebur.backendorderly.repositories.OrderDetailRepository;
 import com.yebur.backendorderly.repositories.OrderRepository;
-import com.yebur.backendorderly.repositories.ProductRepository;
 import com.yebur.backendorderly.services.interfaces.OrderServiceInterface;
 
 @Service("orderService")
 public class OrderService implements OrderServiceInterface {
 
     private final OrderRepository orderRepository;
-    private final OrderDetailRepository orderDetailRepository;
-    private final ProductRepository productRepository;
 
-    public OrderService(OrderRepository orderRepository, OrderDetailRepository orderDetailRepository,
-            ProductRepository productRepository) {
+    public OrderService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
-        this.orderDetailRepository = orderDetailRepository;
-        this.productRepository = productRepository;
     }
 
     @Override

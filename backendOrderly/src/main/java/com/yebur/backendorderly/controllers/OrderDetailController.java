@@ -73,6 +73,7 @@ public class OrderDetailController {
             orderDetail.setCreatedAt(LocalDateTime.now());
             OrderDetail saved = orderDetailService.createOrderDetail(orderDetail);
             OrderDetailResponse response = new OrderDetailResponse(
+                    saved.getId(),
                     saved.getProduct().getId(),
                     saved.getOrder().getId(),
                     saved.getComment(),
@@ -93,6 +94,7 @@ public class OrderDetailController {
         try {
             OrderDetail updated = orderDetailService.updateOrderDetail(id, buildOrderDetail(dto));
             OrderDetailResponse response = new OrderDetailResponse(
+                    updated.getId(),
                     updated.getProduct().getId(),
                     updated.getOrder().getId(),
                     updated.getComment(),
