@@ -23,7 +23,6 @@ public class OrderRequest {
     @Positive
     private double total;
 
-    @NotBlank
     private Long idEmployee;
 
     private Long idClient;

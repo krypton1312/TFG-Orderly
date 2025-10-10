@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.yebur.model.request.OrderRequest;
 import com.yebur.model.response.OrderResponse;
 
 public class OrderService {
@@ -23,9 +24,10 @@ public class OrderService {
         return mapper.readValue(json, OrderResponse.class);
     }
 
-    public static OrderResponse createOrder(OrderResponse order) throws Exception{
+    public static OrderResponse createOrder(OrderRequest order) throws Exception{
         String jsonInput = mapper.writeValueAsString(order);
         String jsonResponse = ApiClient.post("/orders", jsonInput);
+        System.out.println(jsonResponse);
         return mapper.readValue(jsonResponse, OrderResponse.class);
     }
 

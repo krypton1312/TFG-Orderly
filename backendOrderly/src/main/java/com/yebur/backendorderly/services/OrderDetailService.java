@@ -52,9 +52,6 @@ public class OrderDetailService implements com.yebur.backendorderly.services.int
 
     @Override
     public OrderDetailResponse createOrderDetail(OrderDetailRequest dto) {
-        if(dto.getOrderId() == null){
-            dto.setOrderId(1L);
-        }
         OrderDetail orderDetail = mapToEntity(dto);
         orderDetail.setCreatedAt(LocalDateTime.now());
         OrderDetail saved = orderDetailRepository.save(orderDetail);

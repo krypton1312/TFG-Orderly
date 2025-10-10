@@ -26,15 +26,16 @@ public class OrderDetailService {
         return mapper.readValue(json, new TypeReference<List<OrderDetailResponse>>(){});
     }
 
-    public static OrderDetailRequest createOrder(OrderDetailRequest orderDetail) throws Exception{
+    public static OrderDetailResponse createOrderDetail(OrderDetailRequest orderDetail) throws Exception{
         String jsonInput = mapper.writeValueAsString(orderDetail);
-        String jsonResponse = ApiClient.post("/orderDetail", jsonInput);
-        return mapper.readValue(jsonResponse, OrderDetailRequest.class);
+        String jsonResponse = ApiClient.post("/orderDetails", jsonInput);
+        System.out.println(jsonResponse);
+        return mapper.readValue(jsonResponse, OrderDetailResponse.class);
     }
 
-    public static OrderDetailRequest updateOrder(Long id, OrderDetailRequest orderDetail) throws Exception{
+    public static OrderDetailRequest updateOrderDetail(Long id, OrderDetailRequest orderDetail) throws Exception{
         String jsonInput = mapper.writeValueAsString(orderDetail);
-        String jsonResponse = ApiClient.put("/orderDetail/" + id, jsonInput);
+        String jsonResponse = ApiClient.put("/orderDetails/" + id, jsonInput);
         return mapper.readValue(jsonResponse, OrderDetailRequest.class);
     }
 }

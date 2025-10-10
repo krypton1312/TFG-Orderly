@@ -29,9 +29,9 @@
     <VBox fx:id="orderVbox" spacing="10" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="0">
         <children>
             <HBox>
-                <Label fx:id="tableNameLabel" styleClass="order-title" text="Mesa" />
+                <Label fx:id="tableNameLabel" styleClass="order-title" text="" />
                 <Pane HBox.hgrow="ALWAYS" /> <!-- Разделитель -->
-                <Label fx:id="orderIdLabel" styleClass="order-title" text="Cuenta" />
+                <Label fx:id="orderIdLabel" styleClass="order-title" text="" />
             </HBox>
             <!-- Заголовок таблицы -->
             <HBox alignment="CENTER_LEFT" style="-fx-border-color: transparent transparent #e5e7eb transparent; -fx-border-width: 0 0 1 0;">

@@ -39,6 +39,7 @@ public class OrderDetail {
     @JoinColumn(name = "id_order", nullable = false)
     private Order order;
 
+    @Column
     private String comment;
 
     @Column(nullable = false)
@@ -46,7 +47,8 @@ public class OrderDetail {
 
     @Column(nullable = false)
     private double unitPrice;
-
+    
+    @Column
     private LocalDateTime createdAt;
 
 }

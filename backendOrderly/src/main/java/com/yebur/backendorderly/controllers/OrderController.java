@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.yebur.backendorderly.dto.input.OrderRequest;
 import com.yebur.backendorderly.dto.output.OrderDetailResponse;
 import com.yebur.backendorderly.dto.output.OrderResponse;
+import com.yebur.backendorderly.entities.Order;
 import com.yebur.backendorderly.services.OrderDetailService;
 import com.yebur.backendorderly.services.OrderService;
 
@@ -43,7 +44,7 @@ public class OrderController {
         }
     }
 
-    @GetMapping("/id/{id}/details")
+    @GetMapping("{id}/details")
     public ResponseEntity<List<OrderDetailResponse>> getOrderDetailsByOrderId(@PathVariable Long id) {
         List<OrderDetailResponse> orderDetails = orderDetailService.findAllOrderDetailDTOByOrderId(id);
         if (orderDetails.isEmpty()) {
@@ -69,8 +70,8 @@ public class OrderController {
             return validation(result);
         }
         try {
-            orderService.createOrder(orderRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(orderRequest);
+            Order order = orderService.createOrder(orderRequest);
+            return ResponseEntity.status(HttpStatus.CREATED).body(orderService.findOrderDTOById(order.getId()));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body(e.getMessage());

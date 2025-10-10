@@ -1,11 +1,16 @@
 package com.yebur.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.yebur.model.request.OrderDetailRequest;
+import com.yebur.model.request.OrderRequest;
 import com.yebur.model.response.CategoryReponse;
+import com.yebur.model.response.OrderDetailResponse;
 import com.yebur.model.response.OrderResponse;
 import com.yebur.model.response.ProductResponse;
 import com.yebur.service.CategoryService;
+import com.yebur.service.OrderDetailService;
 import com.yebur.service.OrderService;
 import com.yebur.service.ProductService;
 
@@ -15,15 +20,9 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 public class PrimaryController {
 
@@ -39,6 +38,7 @@ public class PrimaryController {
     private List<ProductResponse> productsByCategory;
     private List<OrderResponse> allOrders;
     private List<OrderResponse> orders;
+    private OrderResponse currentOrder = null;
 
     @FXML
     private VBox orderVboxItems;
@@ -57,6 +57,8 @@ public class PrimaryController {
     private Label orderIdLabel;
     @FXML
     private Label tableNameLabel;
+    @FXML
+    private Label orderTotalValue;
 
     @FXML
     public void initialize() {
@@ -246,7 +248,9 @@ public class PrimaryController {
             btn.getStyleClass().add("product-btn");
             btn.setStyle("-fx-background-color: " + (color != null ? color : "#f9fafb"));
             btn.setOnAction(e -> {
+                createOrderIfNotExists();
                 addProductToOrder(product);
+                updateOrderTotal();
             });
             productBox.getChildren().add(btn);
         }
@@ -401,13 +405,85 @@ public class PrimaryController {
     }
 
     private void openOrder(OrderResponse order) {
+        orderVboxItems.getChildren().clear(); // очищаем старые позиции
+        List<OrderDetailResponse> details = new ArrayList<>();
+
+        try {
+            details = OrderDetailService.getOrderDetailsByOrderId(order.getId());
+        } catch (Exception e) {
+            System.out.println("Error getting order details in openOrder(): " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        // Если заказ пустой — просто выводим надпись
+        if (details.isEmpty()) {
+            Label emptyLabel = new Label("Vacio");
+            orderVboxItems.getChildren().add(emptyLabel);
+        } else {
+            // Добавляем каждую позицию
+            for (OrderDetailResponse detail : details) {
+                HBox row = new HBox(10);
+                row.getStyleClass().add("order-item-row");
+
+                // Количество
+                Label quantityLabel = new Label("x" + detail.getAmount());
+                quantityLabel.getStyleClass().add("quantity-label");
+                quantityLabel.setPrefWidth(40);
+                quantityLabel.setAlignment(Pos.CENTER);
+
+                // Название товара
+                Label nameLabel = new Label("Producto #" + detail.getProductId());
+                nameLabel.setPrefWidth(340);
+                nameLabel.setWrapText(true);
+
+                // Цена за единицу
+                Label priceLabel = new Label(String.format("$%.2f", detail.getUnitPrice()));
+                priceLabel.getStyleClass().add("price-label");
+                priceLabel.setPrefWidth(100);
+
+                // Общая сумма
+                double total = detail.getUnitPrice() * detail.getAmount();
+                Label totalLabel = new Label(String.format("$%.2f", total));
+                totalLabel.getStyleClass().add("total-label");
+                totalLabel.setPrefWidth(100);
+
+                row.getChildren().addAll(quantityLabel, nameLabel, priceLabel, totalLabel);
+                orderVboxItems.getChildren().add(row);
+            }
+        }
+
+        // Заголовок заказа
         orderIdLabel.setText("Cuenta #" + order.getId());
         tableNameLabel.setText("Mesa 14");
+
+        // Пересчитать общую сумму
+        double totalOrder = 0;
+        for (OrderDetailResponse detail : details) {
+            totalOrder += detail.getUnitPrice() * detail.getAmount();
+        }
+        orderTotalValue.setText(String.format("$%.2f", totalOrder));
+    }
+
+    private void createOrderIfNotExists() {
+        if (currentOrder == null) {
+            try {
+                // Здесь можно предусмотреть выбор клиента и стола, но пока — дефолтные
+                OrderResponse newOrder = OrderService.createOrder(new OrderRequest("OPEN")); // null = клиент не выбран
+                this.currentOrder = newOrder;
+                orderIdLabel.setText("Cuenta #" + newOrder.getId());
+                tableNameLabel.setText(newOrder.getIdTable() != null ? newOrder.getIdTable().toString() : "null");
+                orderVboxItems.getChildren().clear();
+                orderTotalValue.setText("$0.00");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void addProductToOrder(ProductResponse product) {
+        createOrderIfNotExists();
         int amount = 1;
-
         // Проверка на наличие продукта
         for (Node node : orderVboxItems.getChildren()) {
             if (node instanceof HBox row) {
@@ -420,8 +496,8 @@ public class PrimaryController {
                     currentAmount++;
                     quantityLabel.setText("x" + currentAmount);
 
-                    double totalPrice = product.getPrice() * currentAmount;
-                    totalPriceLabel.setText(String.format("$%.2f", totalPrice));
+                    double totalProductPrice = product.getPrice() * currentAmount;
+                    totalPriceLabel.setText(String.format("$%.2f", totalProductPrice));
                     return;
                 }
             }
@@ -450,6 +526,31 @@ public class PrimaryController {
 
         row.getChildren().addAll(quantityLabel, nameLabel, priceLabel, totalPriceLabel);
         orderVboxItems.getChildren().add(row);
+        try {
+            OrderDetailRequest detail = new OrderDetailRequest();
+            detail.setOrderId(currentOrder.getId());
+            System.out.println(detail.getOrderId());
+            detail.setProductId(product.getId());
+            detail.setAmount(amount);
+            detail.setUnitPrice(product.getPrice());
+
+            OrderDetailService.createOrderDetail(detail);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void updateOrderTotal() {
+        double total = 0;
+        for (Node node : orderVboxItems.getChildren()) {
+            if (node instanceof HBox row) {
+                Label totalLabel = (Label) row.getChildren().get(3);
+                total += Double.parseDouble(totalLabel.getText().replace("$", "").replace(",", "."));
+            }
+        }
+        orderTotalValue.setText(String.format("$%.2f", total));
     }
 
 }

@@ -55,7 +55,7 @@
             <HBox alignment="CENTER_RIGHT" styleClass="order-total-bar">
                 <HBox alignment="CENTER_RIGHT" styleClass="order-total-bg">
                     <Label text="Total:" styleClass="order-total-label" />
-                    <Label fx:id="orderTotalValue" text="$0.00" styleClass="order-total-value" />
+                    <Label fx:id="orderTotalValue" text="0.00" styleClass="order-total-value" />
                 </HBox>
             </HBox>
         </children>
