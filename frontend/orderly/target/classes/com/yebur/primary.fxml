@@ -25,29 +25,42 @@
     </rowConstraints>
     <children>
 
-        <!-- ==== Верхняя левая часть (OrderItems) ==== -->
-        <VBox fx:id="orderVbox" spacing="10" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <children>
-                <Label fx:id= "orderIdLabel" styleClass="order-title" text="" />
-                <Label fx:id="tableNameLabel" styleClass="order-subtitle" text="" />
-            </children>
+            <!-- ==== Верхняя левая часть (OrderItems) ==== -->
+    <VBox fx:id="orderVbox" spacing="10" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+        <children>
+            <HBox>
+                <Label fx:id="tableNameLabel" styleClass="order-title" text="Mesa" />
+                <Pane HBox.hgrow="ALWAYS" /> <!-- Разделитель -->
+                <Label fx:id="orderIdLabel" styleClass="order-title" text="Cuenta" />
+            </HBox>
+            <!-- Заголовок таблицы -->
+            <HBox alignment="CENTER_LEFT" style="-fx-border-color: transparent transparent #e5e7eb transparent; -fx-border-width: 0 0 1 0;">
+                <Label prefWidth="40" text="Uds" />
+                <Label prefWidth="340" text="Producto" />
+                <Label prefWidth="100" text="Precio unitario" />
+                <Label prefWidth="100" text="Precio total" />
+            </HBox>
+
+            <!-- Список заказов -->
             <ScrollPane fx:id="orderSP"
                         styleClass="order-scroll-pane"
                         fitToWidth="true"
-                        prefHeight="200">
+                        prefHeight="250">
                 <content>
-                    <VBox fx:id="orderVboxItems" styleClass="order-items-box">
-                        <padding>
-                            <Insets top="10" right="10" bottom="10" left="10" />
-                        </padding>
-                            <Label prefWidth = "340">Producto</Label>
-                            <Label prefWidth = "40">Cantidad</Label>
-                            <Label prefWidth = "100">Precio unitario</Label>
-                            <Label prefWidth = "100">Precio total</Label>
-                    </VBox>
+                    <VBox fx:id="orderVboxItems"
+                        styleClass="order-items-box"
+                        spacing="5" />
                 </content>
             </ScrollPane>
-        </VBox>
+            <HBox alignment="CENTER_RIGHT" styleClass="order-total-bar">
+                <HBox alignment="CENTER_RIGHT" styleClass="order-total-bg">
+                    <Label text="Total:" styleClass="order-total-label" />
+                    <Label fx:id="orderTotalValue" text="0.00" styleClass="order-total-value" />
+                </HBox>
+            </HBox>
+        </children>
+    </VBox>
+
 
         <!-- ==== Верхняя правая часть (Калькулятор) ==== -->
         <VBox prefHeight="200" prefWidth="300" spacing="10" styleClass="card" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS">

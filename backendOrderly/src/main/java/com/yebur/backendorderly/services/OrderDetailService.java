@@ -1,21 +1,31 @@
 package com.yebur.backendorderly.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.yebur.backendorderly.dto.input.OrderDetailRequest;
 import com.yebur.backendorderly.dto.output.OrderDetailResponse;
+import com.yebur.backendorderly.entities.Order;
 import com.yebur.backendorderly.entities.OrderDetail;
+import com.yebur.backendorderly.entities.Product;
 import com.yebur.backendorderly.repositories.OrderDetailRepository;
 
 @Service("orderDetailService")
 public class OrderDetailService implements com.yebur.backendorderly.services.interfaces.OrderDetailInterface {
 
     private final OrderDetailRepository orderDetailRepository;
+    private final ProductService productService;
+    private final OrderService orderService;
 
-    public OrderDetailService(OrderDetailRepository orderDetailRepository) {
+    public OrderDetailService(OrderDetailRepository orderDetailRepository,
+                              ProductService productService,
+                              OrderService orderService) {
         this.orderDetailRepository = orderDetailRepository;
+        this.productService = productService;
+        this.orderService = orderService;
     }
 
     @Override
@@ -41,23 +51,31 @@ public class OrderDetailService implements com.yebur.backendorderly.services.int
     }
 
     @Override
-    public OrderDetail createOrderDetail(OrderDetail orderDetail) {
-        return orderDetailRepository.save(orderDetail);
+    public OrderDetailResponse createOrderDetail(OrderDetailRequest dto) {
+        if(dto.getOrderId() == null){
+            dto.setOrderId(1L);
+        }
+        OrderDetail orderDetail = mapToEntity(dto);
+        orderDetail.setCreatedAt(LocalDateTime.now());
+        OrderDetail saved = orderDetailRepository.save(orderDetail);
+        return mapToResponse(saved);
     }
 
     @Override
-    public OrderDetail updateOrderDetail(Long id, OrderDetail orderDetail) {
-        OrderDetail existingOrderDetail = orderDetailRepository.findById(id)
+    public OrderDetailResponse updateOrderDetail(Long id, OrderDetailRequest dto) {
+        OrderDetail existing = orderDetailRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("OrderDetail not found with id " + id));
 
-        existingOrderDetail.setAmount(orderDetail.getAmount());
-        existingOrderDetail.setUnitPrice(orderDetail.getUnitPrice());
-        existingOrderDetail.setProduct(orderDetail.getProduct());
-        existingOrderDetail.setOrder(orderDetail.getOrder());
-        existingOrderDetail.setComment(orderDetail.getComment());
-        existingOrderDetail.setCreatedAt(orderDetail.getCreatedAt());
+        OrderDetail updated = mapToEntity(dto);
+        existing.setAmount(updated.getAmount());
+        existing.setUnitPrice(updated.getUnitPrice());
+        existing.setProduct(updated.getProduct());
+        existing.setOrder(updated.getOrder());
+        existing.setComment(updated.getComment());
+        existing.setCreatedAt(updated.getCreatedAt());
 
-        return orderDetailRepository.save(existingOrderDetail);
+        OrderDetail saved = orderDetailRepository.save(existing);
+        return mapToResponse(saved);
     }
 
     @Override
@@ -65,4 +83,30 @@ public class OrderDetailService implements com.yebur.backendorderly.services.int
         orderDetailRepository.deleteById(id);
     }
 
+    private OrderDetail mapToEntity(OrderDetailRequest dto) {
+        Product product = productService.findById(dto.getProductId())
+                .orElseThrow(() -> new RuntimeException("Product not found with id " + dto.getProductId()));
+
+        Order order = orderService.findById(dto.getOrderId())
+                .orElseThrow(() -> new RuntimeException("Order not found with id " + dto.getOrderId()));
+
+        OrderDetail detail = new OrderDetail();
+        detail.setProduct(product);
+        detail.setOrder(order);
+        detail.setAmount(dto.getAmount());
+        detail.setUnitPrice(dto.getUnitPrice());
+        detail.setComment(dto.getComment());
+        return detail;
+    }
+
+    private OrderDetailResponse mapToResponse(OrderDetail entity) {
+        return new OrderDetailResponse(
+                entity.getId(),
+                entity.getProduct().getId(),
+                entity.getOrder().getId(),
+                entity.getComment(),
+                entity.getAmount(),
+                entity.getUnitPrice()
+        );
+    }
 }

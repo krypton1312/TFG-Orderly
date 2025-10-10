@@ -10,9 +10,9 @@ module com.yebur {
 
     opens com.yebur.app to javafx.fxml;
     opens com.yebur.controller to javafx.fxml;
-    opens com.yebur.model to javafx.base;
+    opens com.yebur.model.response to javafx.base;
 
     exports com.yebur.app;
     exports com.yebur.controller;
-    exports com.yebur.model;
+    exports com.yebur.model.response;
 }

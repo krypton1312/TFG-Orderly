@@ -2,16 +2,16 @@ package com.yebur.controller;
 
 import java.util.List;
 
-import com.yebur.model.Category;
-import com.yebur.model.Order;
-import com.yebur.model.Product;
+import com.yebur.model.response.CategoryReponse;
+import com.yebur.model.response.OrderResponse;
+import com.yebur.model.response.ProductResponse;
 import com.yebur.service.CategoryService;
 import com.yebur.service.OrderService;
 import com.yebur.service.ProductService;
 
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -33,12 +33,12 @@ public class PrimaryController {
     @FXML
     private TilePane productBox;
 
-    private List<Category> allCategories;
-    private List<Product> allProducts;
-    private List<Category> categories;
-    private List<Product> productsByCategory;
-    private List<Order> allOrders;
-    private List<Order> orders;
+    private List<CategoryReponse> allCategories;
+    private List<ProductResponse> allProducts;
+    private List<CategoryReponse> categories;
+    private List<ProductResponse> productsByCategory;
+    private List<OrderResponse> allOrders;
+    private List<OrderResponse> orders;
 
     @FXML
     private VBox orderVboxItems;
@@ -142,7 +142,7 @@ public class PrimaryController {
         int end = Math.min(start + capacity, N);
         this.categories = allCategories.subList(start, end);
 
-        for (Category category : this.categories) {
+        for (CategoryReponse category : this.categories) {
             Button btn = new Button(category.getName());
             btn.getStyleClass().add("category-btn");
             btn.setStyle("-fx-background-color: " +
@@ -241,17 +241,12 @@ public class PrimaryController {
             productBox.getChildren().add(prevBtn);
         }
 
-        for (Product product : this.productsByCategory) {
+        for (ProductResponse product : this.productsByCategory) {
             Button btn = new Button(product.getName());
             btn.getStyleClass().add("product-btn");
             btn.setStyle("-fx-background-color: " + (color != null ? color : "#f9fafb"));
             btn.setOnAction(e -> {
-                for (int i = 0; i < 10; i++) {
-                    addProductToOrder(new Item(
-                            "jgdflkjgkldfjglkdfjglkdfjglkdfjgkldfjklgjdfklgjlkdfjgkldfjglkfdjglkdfjglkfdjgklfdjglkdfjgkldfg",
-                            2, 10.2));
-                }
-                System.out.println("Product clicked: " + product.getName());
+                addProductToOrder(product);
             });
             productBox.getChildren().add(btn);
         }
@@ -380,7 +375,7 @@ public class PrimaryController {
             productBox.getChildren().add(prevBtn);
         }
 
-        for (Order order : this.orders) {
+        for (OrderResponse order : this.orders) {
             Button btn = new Button(order.getId().toString());
             btn.getStyleClass().add("product-btn");
             btn.setStyle("-fx-background-color: #f9fafb");
@@ -405,49 +400,56 @@ public class PrimaryController {
         }
     }
 
-    private void openOrder(Order order) {
+    private void openOrder(OrderResponse order) {
         orderIdLabel.setText("Cuenta #" + order.getId());
         tableNameLabel.setText("Mesa 14");
     }
 
-    private void addProductToOrder(Item item) {
-        HBox row = new HBox(10);
-        row.setAlignment(Pos.CENTER_LEFT);
-        row.setBorder(new Border(new BorderStroke(
-                Color.web("#e5e7eb"), // цвет линии (светло-серый)
-                BorderStrokeStyle.SOLID, // сплошная линия
-                CornerRadii.EMPTY, // без скруглений
-                new BorderWidths(0, 0, 1, 0) // только снизу (top, right, bottom, left)
-        )));
+    private void addProductToOrder(ProductResponse product) {
+        int amount = 1;
 
-         
-        Label nameLabel = new Label(item.name);
+        // Проверка на наличие продукта
+        for (Node node : orderVboxItems.getChildren()) {
+            if (node instanceof HBox row) {
+                Label nameLabel = (Label) row.getChildren().get(1);
+                if (nameLabel.getText().equals(product.getName())) {
+                    Label quantityLabel = (Label) row.getChildren().get(0);
+                    Label totalPriceLabel = (Label) row.getChildren().get(3);
+
+                    int currentAmount = Integer.parseInt(quantityLabel.getText().replace("x", ""));
+                    currentAmount++;
+                    quantityLabel.setText("x" + currentAmount);
+
+                    double totalPrice = product.getPrice() * currentAmount;
+                    totalPriceLabel.setText(String.format("$%.2f", totalPrice));
+                    return;
+                }
+            }
+        }
+
+        // Создание новой строки
+        HBox row = new HBox(10);
+        row.getStyleClass().add("order-item-row");
+
+        Label quantityLabel = new Label("x" + amount);
+        quantityLabel.getStyleClass().add("quantity-label");
+        quantityLabel.setPrefWidth(40);
+        quantityLabel.setAlignment(Pos.CENTER);
+
+        Label nameLabel = new Label(product.getName());
         nameLabel.setPrefWidth(340);
         nameLabel.setWrapText(true);
 
-        Label quantityLabel = new Label("x" + item.cuantity);
-        quantityLabel.setPrefWidth(40);
-
-        Label priceLabel = new Label(String.format("$%.2f", item.price));
+        Label priceLabel = new Label(String.format("$%.2f", product.getPrice()));
+        priceLabel.getStyleClass().add("price-label");
         priceLabel.setPrefWidth(100);
 
-        Label totalPriceLabel = new Label(String.format("$%.2f", item.price * item.cuantity));
-        priceLabel.setPrefWidth(100);
+        Label totalPriceLabel = new Label(String.format("$%.2f", product.getPrice() * amount));
+        totalPriceLabel.getStyleClass().add("total-label");
+        totalPriceLabel.setPrefWidth(100);
 
-        row.getChildren().addAll(nameLabel, quantityLabel, priceLabel, totalPriceLabel);
-
+        row.getChildren().addAll(quantityLabel, nameLabel, priceLabel, totalPriceLabel);
         orderVboxItems.getChildren().add(row);
     }
 
-    class Item {
-        String name;
-        int cuantity;
-        double price;
-
-        public Item(String name, int cuantity, double price) {
-            this.name = name;
-            this.cuantity = cuantity;
-            this.price = price;
-        }
-    }
 }

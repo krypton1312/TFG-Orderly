@@ -1,16 +1,16 @@
-package com.yebur.model;
+package com.yebur.model.response;
 
-public class Product {
+public class ProductResponse {
     private Long id;
     private String name;
     private Double price;
     private Integer stock;
     private Long categoryId;
 
-    public Product() {
+    public ProductResponse() {
     }
 
-    public Product(Long id, String name, Double price, Integer stock, Long categoryId) {
+    public ProductResponse(Long id, String name, Double price, Integer stock, Long categoryId) {
         this.id = id;
         this.name = name;
         this.price = price;

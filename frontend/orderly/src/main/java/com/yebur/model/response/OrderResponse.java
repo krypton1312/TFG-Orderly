@@ -1,8 +1,11 @@
-package com.yebur.model;
+package com.yebur.model.response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-public class Order {
+import com.yebur.service.OrderDetailService;
+
+public class OrderResponse {
     private Long id;
     private LocalDateTime datetime;
     private String state;
@@ -12,29 +15,21 @@ public class Order {
     private Long IdClient;
     private Long idTable;
 
-    public Order() {
-    }
-
-    public Order(Long id, LocalDateTime datetime, String state, String paymentMethod, double total, Long idEmployee, Long idClient, Long idTable) {
+    public OrderResponse(Long id, LocalDateTime datetime, String state, String paymentMethod, double total, Long idEmployee, Long idClient, Long idTable) throws Exception {
         this.id = id;
         this.datetime = datetime;
         this.state = state;
         this.paymentMethod = paymentMethod;
         this.total = total;
         this.idEmployee = idEmployee;
-        IdClient = idClient;
+        this.IdClient = idClient;
         this.idTable = idTable;
     }
 
-    public Order(LocalDateTime datetime, String state, String paymentMethod, double total, Long idEmployee, Long idClient, Long idTable) {
-        this.datetime = datetime;
-        this.state = state;
-        this.paymentMethod = paymentMethod;
-        this.total = total;
-        this.idEmployee = idEmployee;
-        IdClient = idClient;
-        this.idTable = idTable;
+    
+    public OrderResponse() throws Exception {
     }
+
 
     public Long getId() {
         return id;
@@ -84,6 +79,7 @@ public class Order {
     public void setIdTable(Long idTable) {
         this.idTable = idTable;
     }
+    
     
     public String toString() {
         return "Order [id=" + id + ", datetime=" + datetime + ", state=" + state + ", paymentMethod=" + paymentMethod
