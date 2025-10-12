@@ -12,15 +12,19 @@ import com.yebur.backendorderly.dto.output.OrderResponse;
 import com.yebur.backendorderly.entities.Order;
 import com.yebur.backendorderly.enums.OrderStatus;
 import com.yebur.backendorderly.repositories.OrderRepository;
+import com.yebur.backendorderly.repositories.RestTableRepository;
 import com.yebur.backendorderly.services.interfaces.OrderServiceInterface;
 
 @Service("orderService")
 public class OrderService implements OrderServiceInterface {
 
+    private final RestTableRepository restTableRepository;
+
     private final OrderRepository orderRepository;
 
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(OrderRepository orderRepository, RestTableRepository restTableRepository) {
         this.orderRepository = orderRepository;
+        this.restTableRepository = restTableRepository;
     }
 
     @Override
@@ -61,7 +65,7 @@ public class OrderService implements OrderServiceInterface {
         existingOrder.setTotal(order.getTotal());
         // existingOrder.setEmployee(order.());
         // existingOrder.setClient(order.getClient());
-        // existingOrder.setRestTable(order.getRestTable());
+        existingOrder.setRestTable(restTableRepository.findById(order.getIdTable()).orElseThrow(() -> new RuntimeException("Table not found")));
 
         return orderRepository.save(existingOrder);
     }
