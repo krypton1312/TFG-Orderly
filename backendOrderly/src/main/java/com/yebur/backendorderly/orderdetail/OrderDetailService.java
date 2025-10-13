@@ -7,12 +7,13 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.yebur.backendorderly.order.Order;
+import com.yebur.backendorderly.order.OrderRequest;
 import com.yebur.backendorderly.order.OrderService;
 import com.yebur.backendorderly.product.Product;
 import com.yebur.backendorderly.product.ProductService;
 
 @Service("orderDetailService")
-public class OrderDetailService implements com.yebur.backendorderly.orderdetail.OrderDetailServiceInterface {
+public class OrderDetailService implements OrderDetailServiceInterface {
 
     private final OrderDetailRepository orderDetailRepository;
     private final ProductService productService;
@@ -52,7 +53,12 @@ public class OrderDetailService implements com.yebur.backendorderly.orderdetail.
     public OrderDetailResponse createOrderDetail(OrderDetailRequest dto) {
         OrderDetail orderDetail = mapToEntity(dto);
         orderDetail.setCreatedAt(LocalDateTime.now());
+
         OrderDetail saved = orderDetailRepository.save(orderDetail);
+
+        // Пересчёт total заказа после добавления позиции
+        recalculateOrderTotal(saved.getOrder());
+
         return mapToResponse(saved);
     }
 
@@ -61,21 +67,58 @@ public class OrderDetailService implements com.yebur.backendorderly.orderdetail.
         OrderDetail existing = orderDetailRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("OrderDetail not found with id " + id));
 
-        OrderDetail updated = mapToEntity(dto);
-        existing.setAmount(updated.getAmount());
-        existing.setUnitPrice(updated.getUnitPrice());
-        existing.setProduct(updated.getProduct());
-        existing.setOrder(updated.getOrder());
-        existing.setComment(updated.getComment());
-        existing.setCreatedAt(updated.getCreatedAt());
+        existing.setAmount(dto.getAmount());
+        existing.setUnitPrice(dto.getUnitPrice());
+        existing.setComment(dto.getComment());
+
+        Product product = productService.findById(dto.getProductId())
+                .orElseThrow(() -> new RuntimeException("Product not found with id " + dto.getProductId()));
+        existing.setProduct(product);
+
+        Order order = orderService.findById(dto.getOrderId())
+                .orElseThrow(() -> new RuntimeException("Order not found with id " + dto.getOrderId()));
+        existing.setOrder(order);
+
+        existing.setCreatedAt(LocalDateTime.now());
 
         OrderDetail saved = orderDetailRepository.save(existing);
+
+        // Пересчёт total заказа после обновления позиции
+        recalculateOrderTotal(saved.getOrder());
+
         return mapToResponse(saved);
     }
 
     @Override
     public void deleteOrderDetail(Long id) {
-        orderDetailRepository.deleteById(id);
+        OrderDetail detail = orderDetailRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("OrderDetail not found with id " + id));
+
+        Order order = detail.getOrder();
+
+        orderDetailRepository.delete(detail);
+
+        // Пересчёт total заказа после удаления позиции
+        recalculateOrderTotal(order);
+    }
+
+    // 🔹 Пересчёт общей суммы заказа
+    private void recalculateOrderTotal(Order order) {
+        double newTotal = orderDetailRepository.findAllByOrderId(order.getId()).stream()
+                .mapToDouble(od -> od.getUnitPrice() * od.getAmount())
+                .sum();
+
+        order.setTotal(newTotal);
+
+        orderService.updateOrder(order.getId(), new OrderRequest(
+                order.getDatetime(),
+                order.getState().name(),
+                order.getPaymentMethod(),
+                newTotal,
+                order.getEmployee() != null ? order.getEmployee().getId() : null,
+                order.getClient() != null ? order.getClient().getId() : null,
+                order.getRestTable() != null ? order.getRestTable().getId() : null
+        ));
     }
 
     private OrderDetail mapToEntity(OrderDetailRequest dto) {

@@ -1,15 +1,15 @@
 package com.yebur.model.response;
 
-public class CategoryReponse {
+public class CategoryResponse {
     private Long id;
     private String name;
     private String color;
     private Integer index;
     
-    public CategoryReponse() {
+    public CategoryResponse() {
     }
 
-    public CategoryReponse(Long id,String name, String color, Integer index) {
+    public CategoryResponse(Long id,String name, String color, Integer index) {
         this.id = id;
         this.name = name;
         this.color = color;

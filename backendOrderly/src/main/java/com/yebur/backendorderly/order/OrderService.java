@@ -4,26 +4,36 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.yebur.backendorderly.resttable.RestTableRepository;
+import com.yebur.backendorderly.resttable.RestTableResponse;
+import com.yebur.backendorderly.resttable.RestTableService;
 
-@Service("orderService")
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
 public class OrderService implements OrderServiceInterface {
 
-    private final RestTableRepository restTableRepository;
-
     private final OrderRepository orderRepository;
-
-    public OrderService(OrderRepository orderRepository, RestTableRepository restTableRepository) {
-        this.orderRepository = orderRepository;
-        this.restTableRepository = restTableRepository;
-    }
+    private final RestTableRepository restTableRepository;
+    private final RestTableService restTableService;
 
     @Override
     public List<OrderResponse> findAllOrderDTO() {
-        return orderRepository.findAllOrderDTO();
+        return orderRepository.findAllOrderDTO().stream()
+                .map(this::mapWithTable)
+                .collect(Collectors.toList());
+    }
+
+    public List<OrderResponse> findAllOrderDTOByStatus(OrderStatus status) {
+        return orderRepository.findAllOrderDTO().stream()
+                .filter(o -> o.getState().equalsIgnoreCase(status.name()))
+                .map(this::mapWithTable)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -33,35 +43,48 @@ public class OrderService implements OrderServiceInterface {
 
     @Override
     public Optional<OrderResponse> findOrderDTOById(Long id) {
-        return orderRepository.findOrderDTOById(id);
+        return orderRepository.findOrderDTOById(id)
+                .map(this::mapWithTable);
     }
 
     @Override
-    public Order createOrder(OrderRequest orderRequest) {
+    public OrderResponse createOrder(OrderRequest orderRequest) {
         Order order = new Order();
         order.setState(OrderStatus.valueOf(orderRequest.getState().toUpperCase()));
-        order.setPaymentMethod(orderRequest.getPaymentMethod() != null ? orderRequest.getPaymentMethod() : "N/A");
+        order.setPaymentMethod(Objects.requireNonNullElse(orderRequest.getPaymentMethod(), "N/A"));
         order.setTotal(Objects.requireNonNullElse(orderRequest.getTotal(), 0.0));
-        // order.setEmployee(orderRequest.getEmployee());
-        // order.setClient(orderRequest.getClient());
-        // order.setRestTable(orderRequest.getRestTable());
         order.setDatetime(LocalDateTime.now());
-        return orderRepository.save(order);
+
+        // order.setEmployee(...);
+        // order.setClient(...);
+        order.setRestTable(orderRequest.getIdTable() != null
+                ? restTableRepository.findById(orderRequest.getIdTable())
+                        .orElseThrow(() -> new RuntimeException("Table not found"))
+                : null);
+        
+        OrderResponse savedOrder = findOrderDTOById(orderRepository.save(order).getId())
+                .orElseThrow(() -> new RuntimeException("Error creating order"));
+        return mapWithTable(savedOrder);
     }
 
     @Override
-    public Order updateOrder(Long id, OrderRequest order) {
-        Order existingOrder = orderRepository.findById(id)
+    public Order updateOrder(Long id, OrderRequest orderRequest) {
+        Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id " + id));
 
-        existingOrder.setState(OrderStatus.valueOf(order.getState()));
-        existingOrder.setPaymentMethod(order.getPaymentMethod());
-        existingOrder.setTotal(order.getTotal());
-        // existingOrder.setEmployee(order.());
-        // existingOrder.setClient(order.getClient());
-        existingOrder.setRestTable(restTableRepository.findById(order.getIdTable()).orElseThrow(() -> new RuntimeException("Table not found")));
+        order.setState(OrderStatus.valueOf(orderRequest.getState().toUpperCase()));
+        order.setPaymentMethod(orderRequest.getPaymentMethod());
+        order.setTotal(orderRequest.getTotal());
 
-        return orderRepository.save(existingOrder);
+        // Привязываем стол, если передан
+        if (orderRequest.getIdTable() != null) {
+            order.setRestTable(restTableRepository.findById(orderRequest.getIdTable())
+                    .orElseThrow(() -> new RuntimeException("Table not found")));
+        } else {
+            order.setRestTable(null);
+        }
+
+        return orderRepository.save(order);
     }
 
     @Override
@@ -70,5 +93,25 @@ public class OrderService implements OrderServiceInterface {
             throw new RuntimeException("Order not found with id " + id);
         }
         orderRepository.deleteById(id);
+    }
+
+    private OrderResponse mapWithTable(OrderResponse order) {
+        RestTableResponse tableResponse = null;
+
+        if (order.getRestTable() != null && order.getRestTable().getId() != null) {
+            tableResponse = restTableService
+                    .findRestTableDTOById(order.getRestTable().getId())
+                    .orElse(null);
+        }
+
+        return new OrderResponse(
+                order.getId(),
+                order.getDatetime(),
+                order.getState(),
+                order.getPaymentMethod(),
+                order.getTotal(),
+                order.getIdEmployee(),
+                order.getIdClient(),
+                tableResponse);
     }
 }

@@ -21,5 +21,7 @@ public class RestTableResponse {
 
     }
     
-    
+    public RestTableResponse(Long id) {
+        this.id = id;
+    }
 }

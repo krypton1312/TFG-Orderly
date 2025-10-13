@@ -7,11 +7,13 @@ public interface OrderServiceInterface {
 
     List<OrderResponse> findAllOrderDTO();
 
+    List<OrderResponse> findAllOrderDTOByStatus(OrderStatus status);
+
     Optional<Order> findById(Long id);
     
     Optional<OrderResponse> findOrderDTOById(Long id);
 
-    Order createOrder(OrderRequest orderRequest);
+    OrderResponse createOrder(OrderRequest orderRequest);
 
     Order updateOrder(Long id, OrderRequest orderRequest);
 

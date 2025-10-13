@@ -5,14 +5,18 @@ import java.util.List;
 
 import com.yebur.model.request.OrderDetailRequest;
 import com.yebur.model.request.OrderRequest;
-import com.yebur.model.response.CategoryReponse;
+import com.yebur.model.response.CategoryResponse;
 import com.yebur.model.response.OrderDetailResponse;
 import com.yebur.model.response.OrderResponse;
 import com.yebur.model.response.ProductResponse;
+import com.yebur.model.response.RestTableResponse;
+import com.yebur.model.response.TableWithOrderResponse;
 import com.yebur.service.CategoryService;
 import com.yebur.service.OrderDetailService;
 import com.yebur.service.OrderService;
+import com.yebur.service.OverviewService;
 import com.yebur.service.ProductService;
+import com.yebur.service.RestTableService;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -32,11 +36,13 @@ public class PrimaryController {
     @FXML
     private TilePane productBox;
 
-    private List<CategoryReponse> allCategories;
+    private List<CategoryResponse> allCategories;
     private List<ProductResponse> allProducts;
-    private List<CategoryReponse> categories;
+    private List<CategoryResponse> categories;
     private List<ProductResponse> productsByCategory;
     private List<OrderResponse> allOrders;
+    private List<RestTableResponse> allTables;
+    private List<TableWithOrderResponse> overview;
     private List<OrderResponse> orders;
     private OrderResponse currentOrder = null;
 
@@ -144,7 +150,7 @@ public class PrimaryController {
         int end = Math.min(start + capacity, N);
         this.categories = allCategories.subList(start, end);
 
-        for (CategoryReponse category : this.categories) {
+        for (CategoryResponse category : this.categories) {
             Button btn = new Button(category.getName());
             btn.getStyleClass().add("category-btn");
             btn.setStyle("-fx-background-color: " +
@@ -317,28 +323,24 @@ public class PrimaryController {
         productBox.getChildren().clear();
 
         try {
-            this.allOrders = OrderService.getAllOrders();
+            this.overview = OverviewService.getOverview();
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
 
-        if (allOrders == null || allOrders.isEmpty()) {
+        if (overview == null || overview.isEmpty()) {
+            System.out.println("No tables or orders to display");
             return;
         }
 
         final int S = Math.max(1, slots);
-        final int N = allOrders.size();
+        final int N = overview.size();
 
         int start = 0;
         int remaining = N;
         for (int p = 0; p < currentOrderPage && remaining > 0; p++) {
-            int capPrev;
-            if (p == 0) {
-                capPrev = Math.min(S - 1, remaining);
-            } else {
-                capPrev = Math.min(Math.max(S - 2, 1), remaining);
-            }
+            int capPrev = (p == 0) ? Math.min(S - 1, remaining) : Math.min(Math.max(S - 2, 1), remaining);
             start += capPrev;
             remaining -= capPrev;
         }
@@ -367,7 +369,7 @@ public class PrimaryController {
         }
 
         int end = Math.min(start + capacity, N);
-        this.orders = allOrders.subList(start, end);
+        List<TableWithOrderResponse> currentOverview = overview.subList(start, end);
 
         if (hasPrev) {
             Button prevBtn = new Button("←");
@@ -379,26 +381,34 @@ public class PrimaryController {
             productBox.getChildren().add(prevBtn);
         }
 
-        for (OrderResponse order : this.orders) {
-            Button btn = new Button(order.getId().toString());
+        for (TableWithOrderResponse item : currentOverview) {
+            String buttonName;
+
+            if (item.getTableId() == null) {
+                buttonName = "Cuenta #" + item.getOrder().getOrderId() + "\n$" + item.getOrder().getTotal();
+            } else {
+                buttonName = item.getTableName() + "\n$" + item.getOrder().getTotal();
+            }
+
+            Button btn = new Button(buttonName);
             btn.getStyleClass().add("product-btn");
             btn.setStyle("-fx-background-color: #f9fafb");
             btn.setOnAction(e -> {
-                openOrder(order);
-                System.out.println("Order clicked: " + order.getId().toString());
+                try {
+                    openOrder(OrderService.getOrderById(item.getOrder().getOrderId()));
+                } catch (Exception ex) {
+                    System.out.println("Error opening order: " + ex.getMessage());
+                }
             });
             productBox.getChildren().add(btn);
         }
-        if (hasNext) {
-            if (!productBox.getChildren().isEmpty()) {
-                productBox.getChildren().remove(productBox.getChildren().size() - 1);
-            }
 
+        if (hasNext) {
             Button nextBtn = new Button("→");
             nextBtn.getStyleClass().add("product-btn");
             nextBtn.setOnAction(e -> {
                 currentOrderPage++;
-                loadCategories(S);
+                loadOrders(S);
             });
             productBox.getChildren().add(nextBtn);
         }
@@ -409,17 +419,21 @@ public class PrimaryController {
         List<OrderDetailResponse> details = new ArrayList<>();
 
         try {
-            details = OrderDetailService.getOrderDetailsByOrderId(order.getId());
+            List<OrderDetailResponse> response = OrderDetailService.getOrderDetailsByOrderId(order.getId());
+
+            if (response == null || response.isEmpty()) {
+                System.out.println("No order details found for order ID: " + order.getId());
+            } else {
+                details = response;
+            }
+
         } catch (Exception e) {
             System.out.println("Error getting order details in openOrder(): " + e.getMessage());
             e.printStackTrace();
         }
 
         // Если заказ пустой — просто выводим надпись
-        if (details.isEmpty()) {
-            Label emptyLabel = new Label("Vacio");
-            orderVboxItems.getChildren().add(emptyLabel);
-        } else {
+        if (!details.isEmpty()) {
             // Добавляем каждую позицию
             for (OrderDetailResponse detail : details) {
                 HBox row = new HBox(10);
@@ -454,7 +468,7 @@ public class PrimaryController {
 
         // Заголовок заказа
         orderIdLabel.setText("Cuenta #" + order.getId());
-        tableNameLabel.setText("Mesa 14");
+        tableNameLabel.setText(order.getRestTable() != null ? order.getRestTable().getName().toString() : "");
 
         // Пересчитать общую сумму
         double totalOrder = 0;
@@ -471,7 +485,9 @@ public class PrimaryController {
                 OrderResponse newOrder = OrderService.createOrder(new OrderRequest("OPEN")); // null = клиент не выбран
                 this.currentOrder = newOrder;
                 orderIdLabel.setText("Cuenta #" + newOrder.getId());
-                tableNameLabel.setText(newOrder.getIdTable() != null ? newOrder.getIdTable().toString() : "null");
+                tableNameLabel.setText(
+                        newOrder.getRestTable().getName() != null ? newOrder.getRestTable().getName().toString()
+                                : "null");
                 orderVboxItems.getChildren().clear();
                 orderTotalValue.setText("$0.00");
 

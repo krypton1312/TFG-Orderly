@@ -46,7 +46,7 @@ public class Order {
     private String paymentMethod;
 
     @Column
-    private double total;
+    private Double total;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_employee", nullable = true)

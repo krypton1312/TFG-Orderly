@@ -66,7 +66,7 @@ public class OrderController {
             return validation(result);
         }
         try {
-            Order order = orderService.createOrder(orderRequest);
+            OrderResponse order = orderService.createOrder(orderRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(orderService.findOrderDTOById(order.getId()));
         } catch (Exception e) {
             e.printStackTrace();
