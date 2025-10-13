@@ -3,12 +3,16 @@ package com.yebur.model.response;
 public class OrderDetailResponse {
     private Long id;
     private Long productId;
+    private String productName;
     private Long orderId;
     private String comment;
     private int amount;
     private double unitPrice;
 
-    public OrderDetailResponse(Long id, Long productId, Long orderId, String comment, int amount, double unitPrice) {
+    
+
+    public OrderDetailResponse(Long id, Long productId, Long orderId, String comment, int amount,
+            double unitPrice) {
         this.id = id;
         this.productId = productId;
         this.orderId = orderId;
@@ -16,6 +20,7 @@ public class OrderDetailResponse {
         this.amount = amount;
         this.unitPrice = unitPrice;
     }
+
 
     public OrderDetailResponse() {
     }
@@ -74,5 +79,14 @@ public class OrderDetailResponse {
                 + comment + ", amount=" + amount + ", unitPrice=" + unitPrice + "]";
     }
 
+
+    public String getProductName() {
+        return productName;
+    }
+
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
     
 }

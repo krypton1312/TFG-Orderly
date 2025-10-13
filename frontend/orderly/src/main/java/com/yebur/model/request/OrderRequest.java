@@ -13,12 +13,12 @@ public class OrderRequest {
 
     
 
-    public OrderRequest(String state) {
+    public OrderRequest(String state, Long idTable) {
         this.state = state;
         this.total = 0.0;
         this.paymentMethod = null;
         this.idClient = null;
-        this.idTable = null;
+        this.idTable = idTable;
         this.idEmployee = null;
     }
 

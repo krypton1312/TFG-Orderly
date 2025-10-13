@@ -394,10 +394,17 @@ public class PrimaryController {
             btn.getStyleClass().add("product-btn");
             btn.setStyle("-fx-background-color: #f9fafb");
             btn.setOnAction(e -> {
-                try {
-                    openOrder(OrderService.getOrderById(item.getOrder().getOrderId()));
-                } catch (Exception ex) {
-                    System.out.println("Error opening order: " + ex.getMessage());
+                currentOrder = null;
+                tableNameLabel.setText("");
+                if (item.getOrder().getOrderId() == null) {
+                    orderIdLabel.setText("");
+                    tableNameLabel.setText(item.getTableName());
+                } else {
+                    try {
+                        openOrder(OrderService.getOrderById(item.getOrder().getOrderId()));
+                    } catch (Exception ex) {
+                        System.out.println("Error opening order: " + ex.getMessage());
+                    }
                 }
             });
             productBox.getChildren().add(btn);
@@ -432,7 +439,6 @@ public class PrimaryController {
             e.printStackTrace();
         }
 
-        // Если заказ пустой — просто выводим надпись
         if (!details.isEmpty()) {
             // Добавляем каждую позицию
             for (OrderDetailResponse detail : details) {
@@ -498,7 +504,9 @@ public class PrimaryController {
     }
 
     private void addProductToOrder(ProductResponse product) {
-        createOrderIfNotExists();
+        if (!orderIdLabel.equals("")) {
+            createOrderIfNotExists();
+        }
         int amount = 1;
         // Проверка на наличие продукта
         for (Node node : orderVboxItems.getChildren()) {
@@ -542,20 +550,21 @@ public class PrimaryController {
 
         row.getChildren().addAll(quantityLabel, nameLabel, priceLabel, totalPriceLabel);
         orderVboxItems.getChildren().add(row);
-        try {
-            OrderDetailRequest detail = new OrderDetailRequest();
-            detail.setOrderId(currentOrder.getId());
-            System.out.println(detail.getOrderId());
-            detail.setProductId(product.getId());
-            detail.setAmount(amount);
-            detail.setUnitPrice(product.getPrice());
+        if (orderIdLabel.equals("")) {
+            try {
+                OrderDetailRequest detail = new OrderDetailRequest();
+                detail.setOrderId(currentOrder.getId());
+                System.out.println(detail.getOrderId());
+                detail.setProductId(product.getId());
+                detail.setAmount(amount);
+                detail.setUnitPrice(product.getPrice());
 
-            OrderDetailService.createOrderDetail(detail);
+                OrderDetailService.createOrderDetail(detail);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-
     }
 
     private void updateOrderTotal() {
