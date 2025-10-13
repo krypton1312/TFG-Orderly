@@ -2,6 +2,7 @@ package com.yebur.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.yebur.model.request.OrderDetailRequest;
 import com.yebur.model.request.OrderRequest;
@@ -16,11 +17,9 @@ import com.yebur.service.OrderDetailService;
 import com.yebur.service.OrderService;
 import com.yebur.service.OverviewService;
 import com.yebur.service.ProductService;
-import com.yebur.service.RestTableService;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -30,27 +29,24 @@ import javafx.scene.layout.VBox;
 
 public class PrimaryController {
 
-    @FXML
-    private TilePane categoryBox;
-
-    @FXML
-    private TilePane productBox;
+    @FXML private TilePane categoryBox;
+    @FXML private TilePane productBox;
 
     private List<CategoryResponse> allCategories;
     private List<ProductResponse> allProducts;
     private List<CategoryResponse> categories;
     private List<ProductResponse> productsByCategory;
-    private List<OrderResponse> allOrders;
-    private List<RestTableResponse> allTables;
     private List<TableWithOrderResponse> overview;
-    private List<OrderResponse> orders;
+
     private OrderResponse currentOrder = null;
+    private RestTableResponse selectedTable = null;
+    private final List<OrderDetailResponse> visualDetails = new ArrayList<>();
 
-    @FXML
-    private VBox orderVboxItems;
-
-    @FXML
-    private TextField displayField;
+    @FXML private VBox orderVboxItems;
+    @FXML private TextField displayField;
+    @FXML private Label orderIdLabel;
+    @FXML private Label tableNameLabel;
+    @FXML private Label orderTotalValue;
 
     private int currentCategoryPage = 0;
     private int currentProductPage = 0;
@@ -58,13 +54,6 @@ public class PrimaryController {
     private Long selectedCategoryId;
     private int categoryPageSize;
     private int productPageSize;
-
-    @FXML
-    private Label orderIdLabel;
-    @FXML
-    private Label tableNameLabel;
-    @FXML
-    private Label orderTotalValue;
 
     @FXML
     public void initialize() {
@@ -83,23 +72,6 @@ public class PrimaryController {
             categoryPageSize = getMaximumCategories();
         }
         loadCategories(categoryPageSize);
-    }
-
-    private void reloadProducts(String color) {
-        if (productPageSize <= 0) {
-            productPageSize = getMaximumProducts();
-        }
-        if (selectedCategoryId == null)
-            return;
-        loadProductsForCategory(productPageSize, selectedCategoryId, color);
-    }
-
-    @FXML
-    private void handleChecksClick() {
-        if (productPageSize <= 0) {
-            productPageSize = getMaximumProducts();
-        }
-        loadOrders(productPageSize);
     }
 
     private void loadCategories(int slots) {
@@ -183,6 +155,14 @@ public class PrimaryController {
         }
     }
 
+    private void reloadProducts(String color) {
+        if (productPageSize <= 0) {
+            productPageSize = getMaximumProducts();
+        }
+        if (selectedCategoryId == null) return;
+        loadProductsForCategory(productPageSize, selectedCategoryId, color);
+    }
+
     private void loadProductsForCategory(int slots, Long selectedCategoryId, String color) {
         productBox.getChildren().clear();
 
@@ -253,11 +233,7 @@ public class PrimaryController {
             Button btn = new Button(product.getName());
             btn.getStyleClass().add("product-btn");
             btn.setStyle("-fx-background-color: " + (color != null ? color : "#f9fafb"));
-            btn.setOnAction(e -> {
-                createOrderIfNotExists();
-                addProductToOrder(product);
-                updateOrderTotal();
-            });
+            btn.setOnAction(e -> onProductClick(product));
             productBox.getChildren().add(btn);
         }
         if (hasNext) {
@@ -275,48 +251,10 @@ public class PrimaryController {
         }
     }
 
-    private int getMaximumCategories() {
-        int cols = categoryBox.getPrefColumns() > 0 ? categoryBox.getPrefColumns() : 3;
-        double h = categoryBox.getParent().getLayoutBounds().getHeight();
-        double tileH = 75;
-        double vgap = categoryBox.getVgap();
-
-        if (h <= 0) {
-            return cols * 3;
-        }
-
-        int rows = (int) Math.floor((h + vgap) / (tileH + vgap));
-        rows = Math.max(rows, 1);
-
-        return cols * rows;
-    }
-
-    private int getMaximumProducts() {
-        int cols = productBox.getPrefColumns() > 0 ? productBox.getPrefColumns() : 5;
-
-        double h = productBox.getLayoutBounds().getHeight();
-
-        double tileH;
-        if (!productBox.getChildren().isEmpty()) {
-            tileH = productBox.getChildren().get(0).getLayoutBounds().getHeight();
-        } else {
-            tileH = 60;
-        }
-
-        double vgap = productBox.getVgap();
-
-        if (h <= 0) {
-            return cols * 3;
-        }
-
-        int rows = (int) Math.floor((h + vgap * 0.9) / (tileH + vgap));
-        rows = Math.max(rows, 1);
-
-        return cols * rows;
-    }
-
-    private void numberFieldClicked() {
-
+    @FXML
+    private void handleChecksClick() {
+        if (productPageSize <= 0) productPageSize = getMaximumProducts();
+        loadOrders(productPageSize);
     }
 
     private void loadOrders(int slots) {
@@ -393,20 +331,7 @@ public class PrimaryController {
             Button btn = new Button(buttonName);
             btn.getStyleClass().add("product-btn");
             btn.setStyle("-fx-background-color: #f9fafb");
-            btn.setOnAction(e -> {
-                currentOrder = null;
-                tableNameLabel.setText("");
-                if (item.getOrder().getOrderId() == null) {
-                    orderIdLabel.setText("");
-                    tableNameLabel.setText(item.getTableName());
-                } else {
-                    try {
-                        openOrder(OrderService.getOrderById(item.getOrder().getOrderId()));
-                    } catch (Exception ex) {
-                        System.out.println("Error opening order: " + ex.getMessage());
-                    }
-                }
-            });
+            btn.setOnAction(e -> onOverviewItemClick(item));
             productBox.getChildren().add(btn);
         }
 
@@ -421,161 +346,166 @@ public class PrimaryController {
         }
     }
 
-    private void openOrder(OrderResponse order) {
-        orderVboxItems.getChildren().clear(); // очищаем старые позиции
-        List<OrderDetailResponse> details = new ArrayList<>();
+    private void onOverviewItemClick(TableWithOrderResponse item) {
+        visualDetails.clear();
+        currentOrder = null;
+
+        if (item.getTableId() != null) {
+            selectedTable = new RestTableResponse();
+            selectedTable.setId(item.getTableId());
+            selectedTable.setName(item.getTableName());
+            tableNameLabel.setText(item.getTableName());
+        } else selectedTable = null;
+
+        if (item.getOrder() == null || item.getOrder().getOrderId() == null) {
+            orderIdLabel.setText("");
+            renderDetails(visualDetails);
+            return;
+        }
 
         try {
-            List<OrderDetailResponse> response = OrderDetailService.getOrderDetailsByOrderId(order.getId());
-
-            if (response == null || response.isEmpty()) {
-                System.out.println("No order details found for order ID: " + order.getId());
-            } else {
-                details = response;
-            }
-
+            OrderResponse order = OrderService.getOrderById(item.getOrder().getOrderId());
+            openOrder(order);
         } catch (Exception e) {
-            System.out.println("Error getting order details in openOrder(): " + e.getMessage());
             e.printStackTrace();
         }
-
-        if (!details.isEmpty()) {
-            // Добавляем каждую позицию
-            for (OrderDetailResponse detail : details) {
-                HBox row = new HBox(10);
-                row.getStyleClass().add("order-item-row");
-
-                // Количество
-                Label quantityLabel = new Label("x" + detail.getAmount());
-                quantityLabel.getStyleClass().add("quantity-label");
-                quantityLabel.setPrefWidth(40);
-                quantityLabel.setAlignment(Pos.CENTER);
-
-                // Название товара
-                Label nameLabel = new Label("Producto #" + detail.getProductId());
-                nameLabel.setPrefWidth(340);
-                nameLabel.setWrapText(true);
-
-                // Цена за единицу
-                Label priceLabel = new Label(String.format("$%.2f", detail.getUnitPrice()));
-                priceLabel.getStyleClass().add("price-label");
-                priceLabel.setPrefWidth(100);
-
-                // Общая сумма
-                double total = detail.getUnitPrice() * detail.getAmount();
-                Label totalLabel = new Label(String.format("$%.2f", total));
-                totalLabel.getStyleClass().add("total-label");
-                totalLabel.setPrefWidth(100);
-
-                row.getChildren().addAll(quantityLabel, nameLabel, priceLabel, totalLabel);
-                orderVboxItems.getChildren().add(row);
-            }
-        }
-
-        // Заголовок заказа
-        orderIdLabel.setText("Cuenta #" + order.getId());
-        tableNameLabel.setText(order.getRestTable() != null ? order.getRestTable().getName().toString() : "");
-
-        // Пересчитать общую сумму
-        double totalOrder = 0;
-        for (OrderDetailResponse detail : details) {
-            totalOrder += detail.getUnitPrice() * detail.getAmount();
-        }
-        orderTotalValue.setText(String.format("$%.2f", totalOrder));
     }
 
-    private void createOrderIfNotExists() {
-        if (currentOrder == null) {
+    private void onProductClick(ProductResponse product) {
+        if (!hasActiveOrder() && selectedTable == null) {
+            upsertVisualDetail(product, 1);
+            renderDetails(visualDetails);
+            return;
+        }
+
+        if (!hasActiveOrder() && selectedTable != null) {
             try {
-                // Здесь можно предусмотреть выбор клиента и стола, но пока — дефолтные
-                OrderResponse newOrder = OrderService.createOrder(new OrderRequest("OPEN")); // null = клиент не выбран
-                this.currentOrder = newOrder;
+                OrderResponse newOrder = OrderService.createOrder(new OrderRequest("OPEN", selectedTable.getId()));
+                currentOrder = newOrder;
                 orderIdLabel.setText("Cuenta #" + newOrder.getId());
-                tableNameLabel.setText(
-                        newOrder.getRestTable().getName() != null ? newOrder.getRestTable().getName().toString()
-                                : "null");
-                orderVboxItems.getChildren().clear();
-                orderTotalValue.setText("$0.00");
-
+                tableNameLabel.setText(selectedTable.getName());
             } catch (Exception e) {
                 e.printStackTrace();
+                upsertVisualDetail(product, 1);
+                renderDetails(visualDetails);
+                return;
             }
+        }
+
+        try {
+            OrderDetailRequest detail = new OrderDetailRequest();
+            detail.setOrderId(currentOrder.getId());
+            detail.setProductId(product.getId());
+            detail.setAmount(1);
+            detail.setUnitPrice(product.getPrice());
+            OrderDetailService.createOrderDetail(detail);
+
+            List<OrderDetailResponse> details = OrderDetailService.getOrderDetailsByOrderId(currentOrder.getId());
+            renderDetails(details);
+        } catch (Exception e) {
+            e.printStackTrace();
+            upsertVisualDetail(product, 1);
+            renderDetails(visualDetails);
         }
     }
 
-    private void addProductToOrder(ProductResponse product) {
-        if (!orderIdLabel.equals("")) {
-            createOrderIfNotExists();
-        }
-        int amount = 1;
-        // Проверка на наличие продукта
-        for (Node node : orderVboxItems.getChildren()) {
-            if (node instanceof HBox row) {
-                Label nameLabel = (Label) row.getChildren().get(1);
-                if (nameLabel.getText().equals(product.getName())) {
-                    Label quantityLabel = (Label) row.getChildren().get(0);
-                    Label totalPriceLabel = (Label) row.getChildren().get(3);
+    private void openOrder(OrderResponse order) {
+        if (order == null) return;
+        this.currentOrder = order;
+        this.visualDetails.clear();
 
-                    int currentAmount = Integer.parseInt(quantityLabel.getText().replace("x", ""));
-                    currentAmount++;
-                    quantityLabel.setText("x" + currentAmount);
-
-                    double totalProductPrice = product.getPrice() * currentAmount;
-                    totalPriceLabel.setText(String.format("$%.2f", totalProductPrice));
-                    return;
-                }
-            }
+        orderIdLabel.setText("Cuenta #" + order.getId());
+        if (order.getRestTable() != null) {
+            selectedTable = order.getRestTable();
+            tableNameLabel.setText(order.getRestTable().getName());
+        } else {
+            selectedTable = null;
+            tableNameLabel.setText("");
         }
 
-        // Создание новой строки
-        HBox row = new HBox(10);
-        row.getStyleClass().add("order-item-row");
-
-        Label quantityLabel = new Label("x" + amount);
-        quantityLabel.getStyleClass().add("quantity-label");
-        quantityLabel.setPrefWidth(40);
-        quantityLabel.setAlignment(Pos.CENTER);
-
-        Label nameLabel = new Label(product.getName());
-        nameLabel.setPrefWidth(340);
-        nameLabel.setWrapText(true);
-
-        Label priceLabel = new Label(String.format("$%.2f", product.getPrice()));
-        priceLabel.getStyleClass().add("price-label");
-        priceLabel.setPrefWidth(100);
-
-        Label totalPriceLabel = new Label(String.format("$%.2f", product.getPrice() * amount));
-        totalPriceLabel.getStyleClass().add("total-label");
-        totalPriceLabel.setPrefWidth(100);
-
-        row.getChildren().addAll(quantityLabel, nameLabel, priceLabel, totalPriceLabel);
-        orderVboxItems.getChildren().add(row);
-        if (orderIdLabel.equals("")) {
-            try {
-                OrderDetailRequest detail = new OrderDetailRequest();
-                detail.setOrderId(currentOrder.getId());
-                System.out.println(detail.getOrderId());
-                detail.setProductId(product.getId());
-                detail.setAmount(amount);
-                detail.setUnitPrice(product.getPrice());
-
-                OrderDetailService.createOrderDetail(detail);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        try {
+            List<OrderDetailResponse> details = OrderDetailService.getOrderDetailsByOrderId(order.getId());
+            renderDetails(details != null ? details : new ArrayList<>());
+        } catch (Exception e) {
+            e.printStackTrace();
+            renderDetails(new ArrayList<>());
         }
     }
 
-    private void updateOrderTotal() {
+    private void renderDetails(List<OrderDetailResponse> details) {
+        orderVboxItems.getChildren().clear();
         double total = 0;
-        for (Node node : orderVboxItems.getChildren()) {
-            if (node instanceof HBox row) {
-                Label totalLabel = (Label) row.getChildren().get(3);
-                total += Double.parseDouble(totalLabel.getText().replace("$", "").replace(",", "."));
-            }
+
+        for (OrderDetailResponse d : details) {
+            HBox row = new HBox(10);
+            row.getStyleClass().add("order-item-row");
+
+            Label qty = new Label("x" + d.getAmount());
+            qty.setPrefWidth(40);
+            qty.setAlignment(Pos.CENTER);
+
+            String name = d.getProductName() != null ? d.getProductName() : "Producto #" + d.getProductId();
+            Label nameLabel = new Label(name);
+            nameLabel.setPrefWidth(340);
+            nameLabel.setWrapText(true);
+
+            Label priceLabel = new Label(String.format("$%.2f", d.getUnitPrice()));
+            priceLabel.setPrefWidth(100);
+
+            double totalLine = d.getUnitPrice() * d.getAmount();
+            Label totalLabel = new Label(String.format("$%.2f", totalLine));
+            totalLabel.setPrefWidth(100);
+
+            row.getChildren().addAll(qty, nameLabel, priceLabel, totalLabel);
+            orderVboxItems.getChildren().add(row);
+            total += totalLine;
         }
+
         orderTotalValue.setText(String.format("$%.2f", total));
     }
 
+    private void upsertVisualDetail(ProductResponse product, int delta) {
+        OrderDetailResponse exist = visualDetails.stream()
+                .filter(d -> Objects.equals(d.getProductId(), product.getId()))
+                .findFirst().orElse(null);
+
+        if (exist == null && delta > 0) {
+            OrderDetailResponse d = new OrderDetailResponse();
+            d.setProductId(product.getId());
+            d.setProductName(product.getName());
+            d.setUnitPrice(product.getPrice());
+            d.setAmount(delta);
+            visualDetails.add(d);
+        } else if (exist != null) {
+            int newAmt = Math.max(0, exist.getAmount() + delta);
+            exist.setAmount(newAmt);
+            if (newAmt == 0) visualDetails.remove(exist);
+        }
+    }
+
+    private boolean hasActiveOrder() {
+        return currentOrder != null && currentOrder.getId() != null;
+    }
+
+    private int getMaximumCategories() {
+        int cols = categoryBox.getPrefColumns() > 0 ? categoryBox.getPrefColumns() : 3;
+        double h = categoryBox.getParent().getLayoutBounds().getHeight();
+        double tileH = 75;
+        double vgap = categoryBox.getVgap();
+        if (h <= 0) return cols * 3;
+        int rows = (int) Math.floor((h + vgap) / (tileH + vgap));
+        rows = Math.max(rows, 1);
+        return cols * rows;
+    }
+
+    private int getMaximumProducts() {
+        int cols = productBox.getPrefColumns() > 0 ? productBox.getPrefColumns() : 5;
+        double h = productBox.getLayoutBounds().getHeight();
+        double tileH = 60;
+        double vgap = productBox.getVgap();
+        if (h <= 0) return cols * 3;
+        int rows = (int) Math.floor((h + vgap * 0.9) / (tileH + vgap));
+        rows = Math.max(rows, 1);
+        return cols * rows;
+    }
 }
