@@ -10,11 +10,11 @@
     <!-- ==== Настройка сетки ==== -->
     <columnConstraints>
         <!-- Левая часть (orderItems + категории) -->
-        <ColumnConstraints percentWidth="53.0" />
+        <ColumnConstraints percentWidth="54.0" />
         <!-- Центральная часть (калькулятор + продукты) -->
         <ColumnConstraints percentWidth="27.0" />
         <!-- Правая панель -->
-        <ColumnConstraints percentWidth="20.0" />
+        <ColumnConstraints percentWidth="19.0" />
     </columnConstraints>
 
     <rowConstraints>
@@ -140,7 +140,14 @@
                     </styleClass>
                 </Button>
 
-                <Button text="Close Table">
+                <Button text="Anular Linea" onAction="#handleDeleteOrderItemClick">
+                    <styleClass>
+                        <String fx:value="action-btn" />
+                        <String fx:value="red" />
+                    </styleClass>
+                </Button>
+                
+                <Button text="Borrar" onAction="#handleClearOrderClick">
                     <styleClass>
                         <String fx:value="action-btn" />
                         <String fx:value="red" />

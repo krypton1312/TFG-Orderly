@@ -380,7 +380,7 @@ public class PrimaryController {
 
         if (item.getOrder() == null || item.getOrder().getOrderId() == null) {
             orderIdLabel.setText("");
-            renderDetails(visualDetails);
+            renderDetails(visualDetails, null);
             return;
         }
 
@@ -395,7 +395,7 @@ public class PrimaryController {
     private void onProductClick(ProductResponse product) {
         if (!hasActiveOrder() && selectedTable == null) {
             upsertVisualDetail(product, 1);
-            renderDetails(visualDetails);
+            renderDetails(visualDetails, product);
             return;
         }
 
@@ -408,26 +408,48 @@ public class PrimaryController {
             } catch (Exception e) {
                 e.printStackTrace();
                 upsertVisualDetail(product, 1);
-                renderDetails(visualDetails);
+                renderDetails(visualDetails, product);
                 return;
             }
         }
 
         try {
-            OrderDetailRequest detail = new OrderDetailRequest();
-            detail.setOrderId(currentOrder.getId());
-            detail.setProductId(product.getId());
-            detail.setAmount(1);
-            detail.setUnitPrice(product.getPrice());
-            OrderDetailService.createOrderDetail(detail);
+            List<OrderDetailResponse> existingDetails = OrderDetailService
+                    .getOrderDetailsByOrderId(currentOrder.getId());
+
+            OrderDetailResponse existingDetail = existingDetails.stream()
+                    .filter(d -> Objects.equals(d.getProductId(), product.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (existingDetail != null) {
+                int newAmount = existingDetail.getAmount() + 1;
+                existingDetail.setAmount(newAmount);
+
+                OrderDetailRequest updateReq = new OrderDetailRequest();
+                updateReq.setOrderId(currentOrder.getId());
+                updateReq.setProductId(product.getId());
+                updateReq.setAmount(newAmount);
+                updateReq.setUnitPrice(product.getPrice());
+
+                OrderDetailService.updateOrderDetail(existingDetail.getId(), updateReq);
+            } else {
+                OrderDetailRequest createReq = new OrderDetailRequest();
+                createReq.setOrderId(currentOrder.getId());
+                createReq.setProductId(product.getId());
+                createReq.setAmount(1);
+                createReq.setUnitPrice(product.getPrice());
+                OrderDetailService.createOrderDetail(createReq);
+            }
 
             List<OrderDetailResponse> details = OrderDetailService.getOrderDetailsByOrderId(currentOrder.getId());
-            renderDetails(details);
+            renderDetails(details, product);
         } catch (Exception e) {
             e.printStackTrace();
             upsertVisualDetail(product, 1);
-            renderDetails(visualDetails);
+            renderDetails(visualDetails, product);
         }
+
     }
 
     private void openOrder(OrderResponse order) {
@@ -447,14 +469,14 @@ public class PrimaryController {
 
         try {
             List<OrderDetailResponse> details = OrderDetailService.getOrderDetailsByOrderId(order.getId());
-            renderDetails(details != null ? details : new ArrayList<>());
+            renderDetails(details != null ? details : new ArrayList<>(), null);
         } catch (Exception e) {
             e.printStackTrace();
-            renderDetails(new ArrayList<>());
+            renderDetails(new ArrayList<>(), null);
         }
     }
 
-    private void renderDetails(List<OrderDetailResponse> details) {
+    private void renderDetails(List<OrderDetailResponse> details, ProductResponse product) {
         orderVboxItems.getChildren().clear();
         double total = 0;
 
@@ -466,7 +488,8 @@ public class PrimaryController {
             qty.setPrefWidth(40);
             qty.setAlignment(Pos.CENTER);
 
-            String name = d.getProductName() != null ? d.getProductName() : "Producto #" + d.getProductId();
+            String name = d.getProductName() != null ? d.getProductName()
+                    : (product != null ? product.getName() : "Producto #" + d.getProductId());
             Label nameLabel = new Label(name);
             nameLabel.setPrefWidth(340);
             nameLabel.setWrapText(true);
@@ -506,6 +529,51 @@ public class PrimaryController {
         }
     }
 
+    @FXML
+    private void handleClearOrderClick() {
+
+    }
+
+    @FXML
+    // доработать метод, не работает удаление из базы
+    private void handleDeleteOrderItemClick() {
+        if (orderVboxItems.getChildren().isEmpty()) {
+            return;
+        }
+        List<OrderDetailResponse> details;
+        try{
+            details = OrderDetailService.getOrderDetailsByOrderId(currentOrder.getId());
+            System.out.println(details);
+        } catch (Exception e){
+            e.printStackTrace();
+            return;
+        }
+        int lastIndex = orderVboxItems.getChildren().size() - 1;
+        System.out.println(lastIndex);
+        HBox lastRow = (HBox) orderVboxItems.getChildren().get(lastIndex);
+        System.out.println(lastRow);
+
+        OrderDetailResponse lastDetail = (OrderDetailResponse) lastRow.getUserData();
+        System.out.println(lastDetail);
+
+        if (hasActiveOrder() && lastDetail != null && lastDetail.getId() != null) {
+            try {
+                OrderDetailService.deleteOrderDetail(details.getLast().getId());
+            } catch (Exception e) {
+                System.out.println("Ошибка при удалении детали заказа: " + e.getMessage());
+            }
+            System.out.println("Удалено из базы: orderDetail #" + lastDetail.getId());
+
+            details.removeLast();
+            renderDetails(details, null);
+        } else {
+            if (!visualDetails.isEmpty()) {
+                visualDetails.remove(visualDetails.size() - 1);
+            }
+            renderDetails(visualDetails, null);
+        }
+    }
+
     private boolean hasActiveOrder() {
         return currentOrder != null && currentOrder.getId() != null;
     }
@@ -525,12 +593,26 @@ public class PrimaryController {
     private int getMaximumProducts() {
         int cols = productBox.getPrefColumns() > 0 ? productBox.getPrefColumns() : 5;
         double h = productBox.getLayoutBounds().getHeight();
-        double tileH = 60;
         double vgap = productBox.getVgap();
+
+        double tileH = 0;
+        if (!productBox.getChildren().isEmpty()) {
+            tileH = productBox.getChildren().get(0).getLayoutBounds().getHeight();
+        }
+        if (tileH <= 0)
+            tileH = 58;
+
         if (h <= 0)
             return cols * 3;
-        int rows = (int) Math.floor((h + vgap * 0.9) / (tileH + vgap));
+
+        double availableRows = (h + vgap) / (tileH + vgap);
+
+        int rows = (int) Math.floor(availableRows + 0.5);
+
         rows = Math.max(rows, 1);
-        return cols * rows;
+        int total = cols * rows - 1;
+
+        return total;
     }
+
 }

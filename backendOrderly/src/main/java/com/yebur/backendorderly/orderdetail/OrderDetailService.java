@@ -83,7 +83,6 @@ public class OrderDetailService implements OrderDetailServiceInterface {
 
         OrderDetail saved = orderDetailRepository.save(existing);
 
-        // Пересчёт total заказа после обновления позиции
         recalculateOrderTotal(saved.getOrder());
 
         return mapToResponse(saved);
@@ -95,14 +94,11 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 .orElseThrow(() -> new RuntimeException("OrderDetail not found with id " + id));
 
         Order order = detail.getOrder();
-
         orderDetailRepository.delete(detail);
 
-        // Пересчёт total заказа после удаления позиции
         recalculateOrderTotal(order);
     }
 
-    // 🔹 Пересчёт общей суммы заказа
     private void recalculateOrderTotal(Order order) {
         double newTotal = orderDetailRepository.findAllByOrderId(order.getId()).stream()
                 .mapToDouble(od -> od.getUnitPrice() * od.getAmount())
@@ -141,6 +137,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         return new OrderDetailResponse(
                 entity.getId(),
                 entity.getProduct().getId(),
+                entity.getProduct().getName(),
                 entity.getOrder().getId(),
                 entity.getComment(),
                 entity.getAmount(),

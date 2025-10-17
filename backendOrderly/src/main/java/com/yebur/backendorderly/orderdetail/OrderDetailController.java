@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,6 +66,16 @@ public class OrderDetailController {
         try {
             OrderDetailResponse response = orderDetailService.updateOrderDetail(id, dto);
             return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        try {
+            orderDetailService.deleteOrderDetail(id);
+            return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }

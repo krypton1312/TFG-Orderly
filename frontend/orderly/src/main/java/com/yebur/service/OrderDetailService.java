@@ -38,4 +38,8 @@ public class OrderDetailService {
         String jsonResponse = ApiClient.put("/orderDetails/" + id, jsonInput);
         return mapper.readValue(jsonResponse, OrderDetailRequest.class);
     }
+
+    public static void deleteOrderDetail(Long id) throws Exception {
+        ApiClient.delete("/orderDetails/" + id);
+    }
 }

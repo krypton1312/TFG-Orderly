@@ -9,18 +9,16 @@ public class OrderDetailResponse {
     private int amount;
     private double unitPrice;
 
-    
-
-    public OrderDetailResponse(Long id, Long productId, Long orderId, String comment, int amount,
+    public OrderDetailResponse(Long id, Long productId, String productName, Long orderId, String comment, int amount,
             double unitPrice) {
         this.id = id;
         this.productId = productId;
+        this.productName = productName;
         this.orderId = orderId;
         this.comment = comment;
         this.amount = amount;
         this.unitPrice = unitPrice;
     }
-
 
     public OrderDetailResponse() {
     }

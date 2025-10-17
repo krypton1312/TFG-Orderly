@@ -15,16 +15,16 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
     
     List<OrderDetail> findAllByOrderId(Long orderId);
     
-    @Query("SELECT new com.yebur.backendorderly.orderdetail.OrderDetailResponse(od.id, od.product.id, od.order.id, od.comment, od.amount, od.unitPrice) FROM OrderDetail od")
+    @Query("SELECT new com.yebur.backendorderly.orderdetail.OrderDetailResponse(od.id, od.product.id, od.product.name, od.order.id, od.comment, od.amount, od.unitPrice) FROM OrderDetail od")
     List<OrderDetailResponse> findAllOrderDetailDTO();
 
-    @Query("SELECT new com.yebur.backendorderly.orderdetail.OrderDetailResponse(od.id, od.product.id, od.order.id, od.comment, od.amount, od.unitPrice) FROM OrderDetail od WHERE od.order.id = :orderId")
+    @Query("SELECT new com.yebur.backendorderly.orderdetail.OrderDetailResponse(od.id, od.product.id, od.product.name, od.order.id, od.comment, od.amount, od.unitPrice) FROM OrderDetail od WHERE od.order.id = :orderId")
     List<OrderDetailResponse> findAllOrderDetailDTOByOrderId(Long orderId);
 
     @Override
     Optional<OrderDetail> findById(Long id);
 
-    @Query("SELECT new com.yebur.backendorderly.orderdetail.OrderDetailResponse(od.id, od.product.id, od.order.id, od.comment, od.amount, od.unitPrice) FROM OrderDetail od WHERE od.id = :id")
+    @Query("SELECT new com.yebur.backendorderly.orderdetail.OrderDetailResponse(od.id, od.product.id, od.product.name, od.order.id, od.comment, od.amount, od.unitPrice) FROM OrderDetail od WHERE od.id = :id")
     Optional<OrderDetailResponse> findOrderDetailDTOById(Long id);
 
 

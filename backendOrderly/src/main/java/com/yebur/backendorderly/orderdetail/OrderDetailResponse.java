@@ -13,6 +13,8 @@ public class OrderDetailResponse {
     
     private Long productId;
 
+    private String productName;
+
     private Long orderId;
 
     private String comment;
