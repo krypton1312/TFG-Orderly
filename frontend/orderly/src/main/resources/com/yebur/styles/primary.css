@@ -219,3 +219,15 @@
     -fx-text-fill: #111827;
     -fx-padding: 0 0 0 10;
 }
+
+.tablewithorder-name-label {
+    -fx-text-fill: #374151;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+.tablewithorder-total-label {
+    -fx-text-fill: #374151;
+    -fx-font-size: 12px;
+    -fx-font-weight: normal;
+    -fx-opacity: 0.7;
+}

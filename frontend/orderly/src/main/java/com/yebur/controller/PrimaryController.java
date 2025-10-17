@@ -29,8 +29,10 @@ import javafx.scene.layout.VBox;
 
 public class PrimaryController {
 
-    @FXML private TilePane categoryBox;
-    @FXML private TilePane productBox;
+    @FXML
+    private TilePane categoryBox;
+    @FXML
+    private TilePane productBox;
 
     private List<CategoryResponse> allCategories;
     private List<ProductResponse> allProducts;
@@ -42,11 +44,16 @@ public class PrimaryController {
     private RestTableResponse selectedTable = null;
     private final List<OrderDetailResponse> visualDetails = new ArrayList<>();
 
-    @FXML private VBox orderVboxItems;
-    @FXML private TextField displayField;
-    @FXML private Label orderIdLabel;
-    @FXML private Label tableNameLabel;
-    @FXML private Label orderTotalValue;
+    @FXML
+    private VBox orderVboxItems;
+    @FXML
+    private TextField displayField;
+    @FXML
+    private Label orderIdLabel;
+    @FXML
+    private Label tableNameLabel;
+    @FXML
+    private Label orderTotalValue;
 
     private int currentCategoryPage = 0;
     private int currentProductPage = 0;
@@ -159,7 +166,8 @@ public class PrimaryController {
         if (productPageSize <= 0) {
             productPageSize = getMaximumProducts();
         }
-        if (selectedCategoryId == null) return;
+        if (selectedCategoryId == null)
+            return;
         loadProductsForCategory(productPageSize, selectedCategoryId, color);
     }
 
@@ -253,7 +261,8 @@ public class PrimaryController {
 
     @FXML
     private void handleChecksClick() {
-        if (productPageSize <= 0) productPageSize = getMaximumProducts();
+        if (productPageSize <= 0)
+            productPageSize = getMaximumProducts();
         loadOrders(productPageSize);
     }
 
@@ -320,18 +329,29 @@ public class PrimaryController {
         }
 
         for (TableWithOrderResponse item : currentOverview) {
-            String buttonName;
+            Label nameLabel;
+            Label totalLabel;
 
             if (item.getTableId() == null) {
-                buttonName = "Cuenta #" + item.getOrder().getOrderId() + "\n$" + item.getOrder().getTotal();
+                nameLabel = new Label("Cuenta #" + item.getOrder().getOrderId());
             } else {
-                buttonName = item.getTableName() + "\n$" + item.getOrder().getTotal();
+                nameLabel = new Label(item.getTableName());
             }
 
-            Button btn = new Button(buttonName);
+            totalLabel = new Label("$" + item.getOrder().getTotal());
+
+            nameLabel.getStyleClass().add("tablewithorder-name-label");
+            totalLabel.getStyleClass().add("tablewithorder-total-label");
+
+            VBox buttonNameVB = new VBox(1, nameLabel, totalLabel);
+            buttonNameVB.setAlignment(Pos.CENTER);
+
+            Button btn = new Button();
+            btn.setGraphic(buttonNameVB);
             btn.getStyleClass().add("product-btn");
-            btn.setStyle("-fx-background-color: #f9fafb");
+            btn.setStyle("-fx-background-color: #f9fafb;");
             btn.setOnAction(e -> onOverviewItemClick(item));
+
             productBox.getChildren().add(btn);
         }
 
@@ -355,7 +375,8 @@ public class PrimaryController {
             selectedTable.setId(item.getTableId());
             selectedTable.setName(item.getTableName());
             tableNameLabel.setText(item.getTableName());
-        } else selectedTable = null;
+        } else
+            selectedTable = null;
 
         if (item.getOrder() == null || item.getOrder().getOrderId() == null) {
             orderIdLabel.setText("");
@@ -410,7 +431,8 @@ public class PrimaryController {
     }
 
     private void openOrder(OrderResponse order) {
-        if (order == null) return;
+        if (order == null)
+            return;
         this.currentOrder = order;
         this.visualDetails.clear();
 
@@ -479,7 +501,8 @@ public class PrimaryController {
         } else if (exist != null) {
             int newAmt = Math.max(0, exist.getAmount() + delta);
             exist.setAmount(newAmt);
-            if (newAmt == 0) visualDetails.remove(exist);
+            if (newAmt == 0)
+                visualDetails.remove(exist);
         }
     }
 
@@ -492,7 +515,8 @@ public class PrimaryController {
         double h = categoryBox.getParent().getLayoutBounds().getHeight();
         double tileH = 75;
         double vgap = categoryBox.getVgap();
-        if (h <= 0) return cols * 3;
+        if (h <= 0)
+            return cols * 3;
         int rows = (int) Math.floor((h + vgap) / (tileH + vgap));
         rows = Math.max(rows, 1);
         return cols * rows;
@@ -503,7 +527,8 @@ public class PrimaryController {
         double h = productBox.getLayoutBounds().getHeight();
         double tileH = 60;
         double vgap = productBox.getVgap();
-        if (h <= 0) return cols * 3;
+        if (h <= 0)
+            return cols * 3;
         int rows = (int) Math.floor((h + vgap * 0.9) / (tileH + vgap));
         rows = Math.max(rows, 1);
         return cols * rows;
