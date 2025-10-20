@@ -17,6 +17,7 @@ import com.yebur.service.OrderDetailService;
 import com.yebur.service.OrderService;
 import com.yebur.service.OverviewService;
 import com.yebur.service.ProductService;
+import com.yebur.ui.CustomDialog;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -27,6 +28,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class PrimaryController {
 
@@ -47,6 +49,7 @@ public class PrimaryController {
     private final List<OrderDetailResponse> visualDetails = new ArrayList<>();
     private TableWithOrderResponse currentOverviewItem = null;
     private Boolean isOverviewMode = false;
+    private boolean isTransferMode = false;
     private String currentCategoryColor = null;
     private List<Integer> selectedOrderDetailIndexes = new ArrayList<>();
 
@@ -269,6 +272,13 @@ public class PrimaryController {
 
     @FXML
     private void handleChecksClick() {
+        currentOrder = null;
+        visualDetails.clear();
+        orderVboxItems.getChildren().clear();
+        currentdetails.clear();
+        orderIdLabel.setText("");
+        tableNameLabel.setText("");
+        orderTotalValue.setText("$0,00");
         if (productPageSize <= 0)
             productPageSize = getMaximumProducts();
         loadOrders(productPageSize);
@@ -379,6 +389,38 @@ public class PrimaryController {
     }
 
     private void onOverviewItemClick(TableWithOrderResponse item) {
+        if (isTransferMode) {
+            Long targetOrderId;
+
+            try {
+                if (item.getOrder() != null && item.getOrder().getOrderId() != null) {
+                    targetOrderId = item.getOrder().getOrderId();
+                } else {
+                    OrderRequest newOrderReq = new OrderRequest("OPEN", item.getTableId());
+                    OrderResponse newOrder = OrderService.createOrder(newOrderReq);
+                    targetOrderId = newOrder.getId();
+
+                    handleChecksClick();
+                }
+
+                for (OrderDetailResponse visualDetail : visualDetails) {
+                    OrderDetailRequest req = new OrderDetailRequest();
+                    req.setOrderId(targetOrderId);
+                    req.setProductId(visualDetail.getProductId());
+                    req.setAmount(visualDetail.getAmount());
+                    req.setUnitPrice(visualDetail.getUnitPrice());
+                    OrderDetailService.createOrderDetail(req);
+                }
+
+                exitTransferMode();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return;
+        }
+
         visualDetails.clear();
         currentOrder = null;
 
@@ -387,8 +429,9 @@ public class PrimaryController {
             selectedTable.setId(item.getTableId());
             selectedTable.setName(item.getTableName());
             tableNameLabel.setText(item.getTableName());
-        } else
+        } else {
             selectedTable = null;
+        }
 
         if (item.getOrder() == null || item.getOrder().getOrderId() == null) {
             orderIdLabel.setText("");
@@ -559,7 +602,7 @@ public class PrimaryController {
 
     @FXML
     private void handleClearOrderClick() {
-        if (orderVboxItems.getChildren().isEmpty()) {
+        if (orderVboxItems.getChildren().isEmpty() && !hasActiveOrder()) {
             return;
         }
         orderVboxItems.getChildren().clear();
@@ -570,7 +613,7 @@ public class PrimaryController {
                 OrderService.deleteOrder(currentOrder.getId());
                 currentOrder = null;
                 orderIdLabel.setText("");
-                orderTotalValue.setText("$0.00");
+                orderTotalValue.setText("$0,00");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -659,30 +702,78 @@ public class PrimaryController {
 
         renderDetails(currentdetails, null);
     }
-    
-    
+
     @FXML
-    private void handleNewOrderClick() {/* 
+    private void handleNewOrderClick() {
         if (hasActiveOrder()) {
             return;
         }
-        OrderRequest orderReq;
-        if (selectedTable == null) {
-            orderReq = new OrderRequest("OPEN", null);
-        } else {
-            orderReq = new OrderRequest("OPEN", selectedTable.getId());
-        }
-        OrderResponse newOrder = null;
-        try {
-            newOrder = OrderService.createOrder(orderReq);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+
+        if(visualDetails.isEmpty()) {
             return;
         }
+
+        Stage stage = (Stage) categoryBox.getScene().getWindow();
+        int result = CustomDialog.show(stage,
+                "Confirmación",
+                "¿Desea crear un nuevo pedido o traspasar los productos a otra mesa/pedido?",
+                "Nuevo",
+                "Traspasar",
+                "Cancelar");
+
+        switch (result) {
+            case 1 -> {
+                try {
+
+                    OrderRequest orderReq = new OrderRequest("OPEN", null);
+                    OrderResponse newOrder = OrderService.createOrder(orderReq);
+
+                    if (!visualDetails.isEmpty()) {
+                        attachVisualDetailsToOrder(newOrder);
+                    }
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+
+            case 0 -> {
+                enterTransferMode();
+            }
+
+            case -1 -> {
+                return;
+            }
+
+            default -> System.err.println("⚠️ Resultado desconocido del diálogo");
+        }
+    }
+
+    private void enterTransferMode() {
+        isTransferMode = true;
+
+        for (Node n : categoryBox.getChildren()) {
+            n.setDisable(true);
+        }
+
+        handleChecksClick();
+    }
+
+    private void exitTransferMode() {
+        isTransferMode = false;
+
+        for (Node n : categoryBox.getChildren()) {
+            n.setDisable(false);
+        }
+        visualDetails.clear();
+        renderDetails(new ArrayList<>(), null);
+        handleChecksClick();
+    }
+
+    private void attachVisualDetailsToOrder(OrderResponse order) {
         for (OrderDetailResponse visualDetail : visualDetails) {
             try {
                 OrderDetailRequest createReq = new OrderDetailRequest();
-                createReq.setOrderId(newOrder.getId()); // temporal order id
+                createReq.setOrderId(order.getId());
                 createReq.setProductId(visualDetail.getProductId());
                 createReq.setAmount(visualDetail.getAmount());
                 createReq.setUnitPrice(visualDetail.getUnitPrice());
@@ -691,7 +782,9 @@ public class PrimaryController {
                 e.printStackTrace();
             }
         }
-            */
+
+        visualDetails.clear();
+        renderDetails(new ArrayList<>(), null);
     }
 
     private boolean hasActiveOrder() {
@@ -730,9 +823,8 @@ public class PrimaryController {
         int rows = (int) Math.floor(availableRows + 0.5);
 
         rows = Math.max(rows, 1);
-        int total = cols * rows - 1;
 
-        return total;
+        return cols * rows - 1;
     }
 
 }
