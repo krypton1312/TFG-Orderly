@@ -225,9 +225,16 @@
     -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
+
 .tablewithorder-total-label {
     -fx-text-fill: #374151;
     -fx-font-size: 12px;
     -fx-font-weight: normal;
     -fx-opacity: 0.7;
+}
+.selected-row-order-item {
+    -fx-background-color: #d0ebff; /* голубая подсветка */
+    -fx-border-color: #339af0;
+    -fx-border-width: 2;
+    -fx-border-radius: 4;
 }

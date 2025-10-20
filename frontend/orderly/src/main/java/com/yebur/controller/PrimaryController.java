@@ -20,6 +20,7 @@ import com.yebur.service.ProductService;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -40,9 +41,14 @@ public class PrimaryController {
     private List<ProductResponse> productsByCategory;
     private List<TableWithOrderResponse> overview;
 
+    private List<OrderDetailResponse> currentdetails = new ArrayList<>();
     private OrderResponse currentOrder = null;
     private RestTableResponse selectedTable = null;
     private final List<OrderDetailResponse> visualDetails = new ArrayList<>();
+    private TableWithOrderResponse currentOverviewItem = null;
+    private Boolean isOverviewMode = false;
+    private String currentCategoryColor = null;
+    private List<Integer> selectedOrderDetailIndexes = new ArrayList<>();
 
     @FXML
     private VBox orderVboxItems;
@@ -137,7 +143,9 @@ public class PrimaryController {
             btn.setOnAction(e -> {
                 selectedCategoryId = category.getId();
                 currentProductPage = 0;
-                reloadProducts(category.getColor());
+                isOverviewMode = false;
+                currentCategoryColor = category.getColor();
+                reloadProducts(currentCategoryColor);
             });
             categoryBox.getChildren().add(btn);
         }
@@ -264,6 +272,7 @@ public class PrimaryController {
         if (productPageSize <= 0)
             productPageSize = getMaximumProducts();
         loadOrders(productPageSize);
+        isOverviewMode = true;
     }
 
     private void loadOrders(int slots) {
@@ -350,7 +359,10 @@ public class PrimaryController {
             btn.setGraphic(buttonNameVB);
             btn.getStyleClass().add("product-btn");
             btn.setStyle("-fx-background-color: #f9fafb;");
-            btn.setOnAction(e -> onOverviewItemClick(item));
+            btn.setOnAction(e -> {
+                onOverviewItemClick(item);
+                currentOverviewItem = item;
+            });
 
             productBox.getChildren().add(btn);
         }
@@ -431,8 +443,11 @@ public class PrimaryController {
                 updateReq.setProductId(product.getId());
                 updateReq.setAmount(newAmount);
                 updateReq.setUnitPrice(product.getPrice());
-
-                OrderDetailService.updateOrderDetail(existingDetail.getId(), updateReq);
+                try {
+                    OrderDetailService.updateOrderDetail(existingDetail.getId(), updateReq);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
             } else {
                 OrderDetailRequest createReq = new OrderDetailRequest();
                 createReq.setOrderId(currentOrder.getId());
@@ -442,10 +457,9 @@ public class PrimaryController {
                 OrderDetailService.createOrderDetail(createReq);
             }
 
-            List<OrderDetailResponse> details = OrderDetailService.getOrderDetailsByOrderId(currentOrder.getId());
-            renderDetails(details, product);
+            currentdetails = OrderDetailService.getOrderDetailsByOrderId(currentOrder.getId());
+            renderDetails(currentdetails, product);
         } catch (Exception e) {
-            e.printStackTrace();
             upsertVisualDetail(product, 1);
             renderDetails(visualDetails, product);
         }
@@ -468,8 +482,8 @@ public class PrimaryController {
         }
 
         try {
-            List<OrderDetailResponse> details = OrderDetailService.getOrderDetailsByOrderId(order.getId());
-            renderDetails(details != null ? details : new ArrayList<>(), null);
+            currentdetails = OrderDetailService.getOrderDetailsByOrderId(order.getId());
+            renderDetails(currentdetails != null ? currentdetails : new ArrayList<>(), null);
         } catch (Exception e) {
             e.printStackTrace();
             renderDetails(new ArrayList<>(), null);
@@ -502,11 +516,25 @@ public class PrimaryController {
             totalLabel.setPrefWidth(100);
 
             row.getChildren().addAll(qty, nameLabel, priceLabel, totalLabel);
+
+            row.setOnMouseClicked(event -> {
+                boolean isSelected = row.getStyleClass().contains("selected-row-order-item");
+
+                if (!isSelected) {
+                    row.getStyleClass().add("selected-row-order-item");
+                    selectedOrderDetailIndexes.add(details.indexOf(d));
+                } else {
+                    row.getStyleClass().remove("selected-row-order-item");
+                    selectedOrderDetailIndexes.remove(Integer.valueOf(details.indexOf(d)));
+                }
+            });
+
             orderVboxItems.getChildren().add(row);
             total += totalLine;
         }
 
         orderTotalValue.setText(String.format("$%.2f", total));
+
     }
 
     private void upsertVisualDetail(ProductResponse product, int delta) {
@@ -531,47 +559,139 @@ public class PrimaryController {
 
     @FXML
     private void handleClearOrderClick() {
-
+        if (orderVboxItems.getChildren().isEmpty()) {
+            return;
+        }
+        orderVboxItems.getChildren().clear();
+        visualDetails.clear();
+        currentdetails.clear();
+        if (hasActiveOrder()) {
+            try {
+                OrderService.deleteOrder(currentOrder.getId());
+                currentOrder = null;
+                orderIdLabel.setText("");
+                orderTotalValue.setText("$0.00");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @FXML
-    // доработать метод, не работает удаление из базы
     private void handleDeleteOrderItemClick() {
         if (orderVboxItems.getChildren().isEmpty()) {
             return;
         }
-        List<OrderDetailResponse> details;
-        try{
-            details = OrderDetailService.getOrderDetailsByOrderId(currentOrder.getId());
-            System.out.println(details);
-        } catch (Exception e){
-            e.printStackTrace();
+
+        if (selectedOrderDetailIndexes == null || selectedOrderDetailIndexes.isEmpty()) {
+            removeLastDetail();
+        } else {
+            removeSelectedDetails();
+        }
+
+        if ((currentdetails == null || currentdetails.isEmpty()) && hasActiveOrder()) {
+            try {
+                OrderService.deleteOrder(currentOrder.getId());
+                currentOrder = null;
+                orderIdLabel.setText("");
+                tableNameLabel.setText("");
+                orderTotalValue.setText("$0.00");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (isOverviewMode) {
+            handleChecksClick();
+        } else {
+            reloadProducts(currentCategoryColor);
+        }
+    }
+
+    private void removeLastDetail() {
+        if ((currentdetails == null || currentdetails.isEmpty()) && !visualDetails.isEmpty()) {
+            visualDetails.remove(visualDetails.size() - 1);
+            renderDetails(visualDetails, null);
             return;
         }
-        int lastIndex = orderVboxItems.getChildren().size() - 1;
-        System.out.println(lastIndex);
-        HBox lastRow = (HBox) orderVboxItems.getChildren().get(lastIndex);
-        System.out.println(lastRow);
 
-        OrderDetailResponse lastDetail = (OrderDetailResponse) lastRow.getUserData();
-        System.out.println(lastDetail);
+        if (currentdetails != null && !currentdetails.isEmpty()) {
+            OrderDetailResponse lastDetail = currentdetails.get(currentdetails.size() - 1);
+            currentdetails.remove(lastDetail);
 
-        if (hasActiveOrder() && lastDetail != null && lastDetail.getId() != null) {
             try {
-                OrderDetailService.deleteOrderDetail(details.getLast().getId());
+                OrderDetailService.deleteOrderDetail(lastDetail.getId());
             } catch (Exception e) {
-                System.out.println("Ошибка при удалении детали заказа: " + e.getMessage());
+                e.printStackTrace();
             }
-            System.out.println("Удалено из базы: orderDetail #" + lastDetail.getId());
 
-            details.removeLast();
-            renderDetails(details, null);
-        } else {
-            if (!visualDetails.isEmpty()) {
-                visualDetails.remove(visualDetails.size() - 1);
-            }
-            renderDetails(visualDetails, null);
+            renderDetails(currentdetails, null);
         }
+    }
+
+    private void removeSelectedDetails() {
+        if (selectedOrderDetailIndexes == null || selectedOrderDetailIndexes.isEmpty()) {
+            return;
+        }
+
+        selectedOrderDetailIndexes.sort((a, b) -> b - a);
+
+        for (Integer index : selectedOrderDetailIndexes) {
+            if (index < 0 || index >= currentdetails.size()) {
+                continue;
+            }
+
+            OrderDetailResponse detailToRemove = currentdetails.get(index);
+            currentdetails.remove(detailToRemove);
+
+            try {
+                OrderDetailService.deleteOrderDetail(detailToRemove.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        selectedOrderDetailIndexes.clear();
+
+        for (Node node : orderVboxItems.getChildren()) {
+            node.getStyleClass().remove("selected-row");
+        }
+
+        renderDetails(currentdetails, null);
+    }
+    
+    
+    @FXML
+    private void handleNewOrderClick() {/* 
+        if (hasActiveOrder()) {
+            return;
+        }
+        OrderRequest orderReq;
+        if (selectedTable == null) {
+            orderReq = new OrderRequest("OPEN", null);
+        } else {
+            orderReq = new OrderRequest("OPEN", selectedTable.getId());
+        }
+        OrderResponse newOrder = null;
+        try {
+            newOrder = OrderService.createOrder(orderReq);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+        for (OrderDetailResponse visualDetail : visualDetails) {
+            try {
+                OrderDetailRequest createReq = new OrderDetailRequest();
+                createReq.setOrderId(newOrder.getId()); // temporal order id
+                createReq.setProductId(visualDetail.getProductId());
+                createReq.setAmount(visualDetail.getAmount());
+                createReq.setUnitPrice(visualDetail.getUnitPrice());
+                OrderDetailService.createOrderDetail(createReq);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+            */
     }
 
     private boolean hasActiveOrder() {

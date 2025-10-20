@@ -168,6 +168,13 @@
                     </styleClass>
                 </Button>
 
+                <Button text="Crear cuenta/Transpasar" onAction="#handleNewOrderClick">
+                    <styleClass>
+                        <String fx:value="action-btn" />
+                        <String fx:value="dark" />
+                    </styleClass>
+                </Button>
+
             </children>
         </VBox>
     </children>

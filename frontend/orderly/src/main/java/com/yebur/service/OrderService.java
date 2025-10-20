@@ -36,5 +36,9 @@ public class OrderService {
         String jsonResponse = ApiClient.put("/orders/" + id, jsonInput);
         return mapper.readValue(jsonResponse, OrderResponse.class);
     }
+
+    public static void deleteOrder(Long id)  throws Exception{
+        ApiClient.delete("/orders/id/" + id);
+    }
     
 }

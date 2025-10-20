@@ -33,10 +33,10 @@ public class OrderDetailService {
         return mapper.readValue(jsonResponse, OrderDetailResponse.class);
     }
 
-    public static OrderDetailRequest updateOrderDetail(Long id, OrderDetailRequest orderDetail) throws Exception{
+    public static OrderDetailResponse updateOrderDetail(Long id, OrderDetailRequest orderDetail) throws Exception{
         String jsonInput = mapper.writeValueAsString(orderDetail);
         String jsonResponse = ApiClient.put("/orderDetails/" + id, jsonInput);
-        return mapper.readValue(jsonResponse, OrderDetailRequest.class);
+        return mapper.readValue(jsonResponse, OrderDetailResponse.class);
     }
 
     public static void deleteOrderDetail(Long id) throws Exception {
