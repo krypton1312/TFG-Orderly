@@ -279,6 +279,7 @@ public class PrimaryController {
         orderIdLabel.setText("");
         tableNameLabel.setText("");
         orderTotalValue.setText("$0,00");
+        selectedTable = null;
         if (productPageSize <= 0)
             productPageSize = getMaximumProducts();
         loadOrders(productPageSize);
@@ -632,7 +633,7 @@ public class PrimaryController {
         } else {
             removeSelectedDetails();
         }
-        
+
         if ((currentdetails == null || currentdetails.isEmpty()) && hasActiveOrder()) {
             try {
                 OrderService.deleteOrder(currentOrder.getId());
@@ -644,13 +645,12 @@ public class PrimaryController {
                 e.printStackTrace();
             }
         }
-        
+
         if (isOverviewMode) {
             handleChecksClick();
         } else {
             reloadProducts(currentCategoryColor);
         }
-        System.out.println("isOverviewMode=" + isOverviewMode + ", currentOrder=" + currentOrder);
 
     }
 
@@ -711,7 +711,7 @@ public class PrimaryController {
             return;
         }
 
-        if(visualDetails.isEmpty()) {
+        if (visualDetails.isEmpty()) {
             return;
         }
 
@@ -768,7 +768,16 @@ public class PrimaryController {
         }
         visualDetails.clear();
         renderDetails(new ArrayList<>(), null);
-        handleChecksClick();
+
+        currentOrderPage = 0; // ✅ сброс страницы
+
+        javafx.application.Platform.runLater(() -> {
+            try {
+                loadOrders(productPageSize); 
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void attachVisualDetailsToOrder(OrderResponse order) {
