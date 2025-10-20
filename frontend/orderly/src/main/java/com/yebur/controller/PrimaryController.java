@@ -513,6 +513,7 @@ public class PrimaryController {
         if (order == null)
             return;
         this.currentOrder = order;
+        this.isOverviewMode = false;
         this.visualDetails.clear();
 
         orderIdLabel.setText("Cuenta #" + order.getId());
@@ -631,7 +632,7 @@ public class PrimaryController {
         } else {
             removeSelectedDetails();
         }
-
+        
         if ((currentdetails == null || currentdetails.isEmpty()) && hasActiveOrder()) {
             try {
                 OrderService.deleteOrder(currentOrder.getId());
@@ -643,12 +644,14 @@ public class PrimaryController {
                 e.printStackTrace();
             }
         }
-
+        
         if (isOverviewMode) {
             handleChecksClick();
         } else {
             reloadProducts(currentCategoryColor);
         }
+        System.out.println("isOverviewMode=" + isOverviewMode + ", currentOrder=" + currentOrder);
+
     }
 
     private void removeLastDetail() {
@@ -667,7 +670,6 @@ public class PrimaryController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
             renderDetails(currentdetails, null);
         }
     }

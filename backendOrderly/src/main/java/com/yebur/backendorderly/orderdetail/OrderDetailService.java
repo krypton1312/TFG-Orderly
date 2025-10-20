@@ -20,8 +20,8 @@ public class OrderDetailService implements OrderDetailServiceInterface {
     private final OrderService orderService;
 
     public OrderDetailService(OrderDetailRepository orderDetailRepository,
-                              ProductService productService,
-                              OrderService orderService) {
+            ProductService productService,
+            OrderService orderService) {
         this.orderDetailRepository = orderDetailRepository;
         this.productService = productService;
         this.orderService = orderService;
@@ -100,9 +100,11 @@ public class OrderDetailService implements OrderDetailServiceInterface {
     }
 
     private void recalculateOrderTotal(Order order) {
-        double newTotal = orderDetailRepository.findAllByOrderId(order.getId()).stream()
-                .mapToDouble(od -> od.getUnitPrice() * od.getAmount())
-                .sum();
+        double newTotal = Math.round(
+                orderDetailRepository.findAllByOrderId(order.getId()).stream()
+                        .mapToDouble(od -> od.getUnitPrice() * od.getAmount())
+                        .sum() * 100.0)
+                / 100.0;
 
         order.setTotal(newTotal);
 
@@ -113,8 +115,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 newTotal,
                 order.getEmployee() != null ? order.getEmployee().getId() : null,
                 order.getClient() != null ? order.getClient().getId() : null,
-                order.getRestTable() != null ? order.getRestTable().getId() : null
-        ));
+                order.getRestTable() != null ? order.getRestTable().getId() : null));
     }
 
     private OrderDetail mapToEntity(OrderDetailRequest dto) {
@@ -141,7 +142,6 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 entity.getOrder().getId(),
                 entity.getComment(),
                 entity.getAmount(),
-                entity.getUnitPrice()
-        );
+                entity.getUnitPrice());
     }
 }
