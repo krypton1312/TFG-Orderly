@@ -49,6 +49,7 @@ public class PrimaryController {
     private final List<OrderDetailResponse> visualDetails = new ArrayList<>();
     private TableWithOrderResponse currentOverviewItem = null;
     private Boolean isOverviewMode = false;
+
     private boolean isTransferMode = false;
     private String currentCategoryColor = null;
     private List<Integer> selectedOrderDetailIndexes = new ArrayList<>();
@@ -146,7 +147,6 @@ public class PrimaryController {
             btn.setOnAction(e -> {
                 selectedCategoryId = category.getId();
                 currentProductPage = 0;
-                isOverviewMode = false;
                 currentCategoryColor = category.getColor();
                 reloadProducts(currentCategoryColor);
             });
@@ -184,6 +184,7 @@ public class PrimaryController {
 
     private void loadProductsForCategory(int slots, Long selectedCategoryId, String color) {
         productBox.getChildren().clear();
+        isOverviewMode = false;
 
         try {
             this.allProducts = ProductService.getProductsByCategory(selectedCategoryId);
@@ -283,10 +284,10 @@ public class PrimaryController {
         if (productPageSize <= 0)
             productPageSize = getMaximumProducts();
         loadOrders(productPageSize);
-        isOverviewMode = true;
     }
 
     private void loadOrders(int slots) {
+        isOverviewMode = true;
         productBox.getChildren().clear();
 
         try {
@@ -372,7 +373,6 @@ public class PrimaryController {
             btn.setStyle("-fx-background-color: #f9fafb;");
             btn.setOnAction(e -> {
                 onOverviewItemClick(item);
-                System.out.println(item + " clicked");
                 this.currentOverviewItem = item;
             });
 
@@ -393,7 +393,6 @@ public class PrimaryController {
     private void onOverviewItemClick(TableWithOrderResponse item) {
         if (isTransferMode) {
             Long targetOrderId;
-            System.out.println(item + " on ovwerview click");
             try {
                 if (item.getOrder() != null && item.getOrder().getOrderId() != null) {
                     targetOrderId = item.getOrder().getOrderId();
@@ -513,7 +512,6 @@ public class PrimaryController {
         if (order == null)
             return;
         this.currentOrder = order;
-        this.isOverviewMode = false;
         this.visualDetails.clear();
 
         orderIdLabel.setText("Cuenta #" + order.getId());
@@ -619,6 +617,10 @@ public class PrimaryController {
                 e.printStackTrace();
             }
         }
+
+        if (isOverviewMode) {
+            loadOrders(productPageSize);
+        }
     }
 
     @FXML
@@ -644,13 +646,9 @@ public class PrimaryController {
                 e.printStackTrace();
             }
         }
-
         if (isOverviewMode) {
-            handleChecksClick();
-        } else {
-            reloadProducts(currentCategoryColor);
+            loadOrders(productPageSize);
         }
-
     }
 
     private void removeLastDetail() {
