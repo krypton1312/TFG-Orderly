@@ -234,7 +234,6 @@
 }
 .selected-row-order-item {
     -fx-background-color: #d0ebff; /* голубая подсветка */
-    -fx-border-color: #339af0;
     -fx-border-width: 2;
     -fx-border-radius: 4;
 }

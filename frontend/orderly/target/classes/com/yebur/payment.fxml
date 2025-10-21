@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.yebur.controller.PartialPaymentController"
+    prefWidth="1280" prefHeight="768"
+    style="-fx-padding: 20;">
+
+    <!-- ===== Верхняя панель ===== -->
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="header-box">
+            <Label text="Dividir cuenta" styleClass="header-title" />
+            <Label fx:id="tableNameLabel" text="Mesa 3" styleClass="header-subtitle" />
+        </HBox>
+    </top>
+
+    <!-- ===== Центральная часть ===== -->
+    <center>
+        <HBox spacing="30">
+
+            <!-- ==== Левая часть: Полный заказ ==== -->
+            <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+                <Label text="Pedido completo" styleClass="order-title" />
+
+                <!-- Заголовок -->
+                <HBox alignment="CENTER_LEFT" styleClass="order-header">
+                    <Label prefWidth="40" text="Uds" />
+                    <Label prefWidth="200" text="Producto" />
+                    <Label prefWidth="80" text="Precio" />
+                </HBox>
+
+                <!-- Список заказов -->
+                <ScrollPane fx:id="mainOrderSP"
+                    styleClass="order-scroll-pane"
+                    fitToWidth="true"
+                    prefHeight="280">
+                    <content>
+                        <VBox fx:id="mainOrderBox"
+                            styleClass="order-items-box"
+                            spacing="5" />
+                    </content>
+                </ScrollPane>
+
+                <!-- Итог -->
+                <HBox alignment="CENTER_RIGHT" styleClass="order-total-bar">
+                    <HBox alignment="CENTER_RIGHT" styleClass="order-total-bg">
+                        <Label text="Total:" styleClass="order-total-label" />
+                        <Label fx:id="mainTotalLabel" text="0.00" styleClass="order-total-value" />
+                    </HBox>
+                </HBox>
+            </VBox>
+
+            <!-- ==== Правая часть: Частичная оплата ==== -->
+            <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+                <Label text="Subcuenta parcial" styleClass="order-title" />
+
+                <HBox alignment="CENTER_LEFT" styleClass="order-header">
+                    <Label prefWidth="40" text="Uds" />
+                    <Label prefWidth="200" text="Producto" />
+                    <Label prefWidth="80" text="Precio" />
+                </HBox>
+
+                <ScrollPane fx:id="partialOrderSP"
+                    styleClass="order-scroll-pane"
+                    fitToWidth="true"
+                    prefHeight="280">
+                    <content>
+                        <VBox fx:id="partialOrderBox"
+                            styleClass="order-items-box"
+                            spacing="5" />
+                    </content>
+                </ScrollPane>
+
+                <HBox alignment="CENTER_RIGHT" styleClass="order-total-bar">
+                    <HBox alignment="CENTER_RIGHT" styleClass="order-total-bg">
+                        <Label text="Parcial:" styleClass="order-total-label" />
+                        <Label fx:id="partialTotalLabel" text="0.00" styleClass="order-total-value" />
+                    </HBox>
+                </HBox>
+            </VBox>
+
+            <!-- ==== Правая колонка: Калькулятор ==== -->
+            <VBox spacing="10" styleClass="card" prefWidth="220">
+                <Label text="Calculadora" styleClass="order-title" />
+                <TextField fx:id="displayField"
+                    styleClass="display"
+                    text="0"
+                    editable="false" />
+                <GridPane hgap="10" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="ALWAYS" />
+                        <RowConstraints vgrow="ALWAYS" />
+                        <RowConstraints vgrow="ALWAYS" />
+                        <RowConstraints vgrow="ALWAYS" />
+                        <RowConstraints vgrow="ALWAYS" />
+                    </rowConstraints>
+
+                    <children>
+                        <Button text="C" styleClass="num-btn calc-operator" GridPane.columnIndex="0"
+                            GridPane.rowIndex="0" />
+                        <Button text="+-" styleClass="num-btn calc-operator"
+                            GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <Button text="/" styleClass="num-btn calc-operator" GridPane.columnIndex="2"
+                            GridPane.rowIndex="0" />
+
+                        <Button text="7" styleClass="num-btn" GridPane.columnIndex="0"
+                            GridPane.rowIndex="1" />
+                        <Button text="8" styleClass="num-btn" GridPane.columnIndex="1"
+                            GridPane.rowIndex="1" />
+                        <Button text="9" styleClass="num-btn" GridPane.columnIndex="2"
+                            GridPane.rowIndex="1" />
+
+                        <Button text="4" styleClass="num-btn" GridPane.columnIndex="0"
+                            GridPane.rowIndex="2" />
+                        <Button text="5" styleClass="num-btn" GridPane.columnIndex="1"
+                            GridPane.rowIndex="2" />
+                        <Button text="6" styleClass="num-btn" GridPane.columnIndex="2"
+                            GridPane.rowIndex="2" />
+
+                        <Button text="1" styleClass="num-btn" GridPane.columnIndex="0"
+                            GridPane.rowIndex="3" />
+                        <Button text="2" styleClass="num-btn" GridPane.columnIndex="1"
+                            GridPane.rowIndex="3" />
+                        <Button text="3" styleClass="num-btn" GridPane.columnIndex="2"
+                            GridPane.rowIndex="3" />
+
+                        <Button text="0" styleClass="num-btn" GridPane.columnIndex="0"
+                            GridPane.rowIndex="4" />
+                        <Button text="." styleClass="num-btn" GridPane.columnIndex="1"
+                            GridPane.rowIndex="4" />
+                        <Button text="=" styleClass="num-btn calc-operator" GridPane.columnIndex="2"
+                            GridPane.rowIndex="4" />
+                    </children>
+                </GridPane>
+            </VBox>
+        </HBox>
+    </center>
+
+    <!-- ===== Нижние кнопки ===== -->
+    <bottom>
+        <HBox spacing="15" alignment="CENTER" style="-fx-padding: 20 0 0 0;">
+            <Button text="Sin copia">
+                <styleClass>
+                    <String fx:value="action-btn" />
+                    <String fx:value="green" />
+                </styleClass>
+            </Button>
+
+            <Button text="Con copia">
+                <styleClass>
+                    <String fx:value="action-btn" />
+                    <String fx:value="blue" />
+                </styleClass>
+            </Button>
+
+            <Button text="Por correo">
+                <styleClass>
+                    <String fx:value="action-btn" />
+                    <String fx:value="dark" />
+                </styleClass>
+            </Button>
+
+            <Button text="Cancelar" onAction="#handleCloseClick">
+                <styleClass>
+                    <String fx:value="action-btn" />
+                    <String fx:value="red" />
+                </styleClass>
+            </Button>
+
+        </HBox>
+    </bottom>
+
+</BorderPane>

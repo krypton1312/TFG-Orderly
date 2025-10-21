@@ -126,7 +126,7 @@
                 <Insets bottom="20" left="20" right="20" top="20" />
             </padding>
             <children>
-                <Button text="Get Check">
+                <Button text="Get Check" onAction="#handlePartialPaymentClick">
                     <styleClass>
                         <String fx:value="action-btn" />
                         <String fx:value="green" />
@@ -172,6 +172,13 @@
                     <styleClass>
                         <String fx:value="action-btn" />
                         <String fx:value="dark" />
+                    </styleClass>
+                </Button>
+
+                <Button text="Salir" onAction="#handleCloseClick">
+                    <styleClass>
+                        <String fx:value="action-btn" />
+                        <String fx:value="red" />
                     </styleClass>
                 </Button>
 

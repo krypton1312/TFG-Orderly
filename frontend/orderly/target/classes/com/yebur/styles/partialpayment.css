@@ -1,0 +1,147 @@
+.root {
+    -fx-font-family: 'Inter', sans-serif;
+    -fx-background-color: #e5e7eb;
+}
+
+/* ===== Верхняя панель ===== */
+.header-box {
+    -fx-padding: 0 0 10 0;
+}
+.header-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+.header-subtitle {
+    -fx-font-size: 16px;
+    -fx-text-fill: #6b7280;
+}
+
+/* ===== Карточки ===== */
+.card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);
+}
+
+/* ===== Заголовок списков ===== */
+.order-header {
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 0 0 3 0;
+}
+
+/* ===== Список заказов ===== */
+.order-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+.order-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+.order-items-box {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+}
+.order-item-row {
+    -fx-alignment: center-left;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 3 5 3 5;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1f2937;
+}
+.order-item-row:hover {
+    -fx-background-color: #f3f4f6;
+}
+.selected-row-order-item {
+    -fx-background-color: #d0ebff;
+    -fx-border-width: 2;
+    -fx-border-radius: 4;
+}
+
+/* ===== Итог ===== */
+.order-total-bar {
+    -fx-padding: 8 10 0 0;
+    -fx-border-color: #e5e7eb transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+.order-total-bg {
+    -fx-background-color: rgba(107, 236, 107, 0.733);
+    -fx-background-radius: 8;
+    -fx-padding: 5 10;
+}
+.order-total-label {
+    -fx-font-size: 15px;
+    -fx-text-fill: #374151;
+}
+.order-total-value {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+    -fx-padding: 0 0 0 10;
+}
+
+/* ===== Калькулятор ===== */
+.display {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-padding: 10;
+    -fx-background-radius: 6;
+    -fx-alignment: center-right;
+}
+.num-btn {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+.num-btn:hover {
+    -fx-background-color: #e5e7eb;
+}
+.num-btn:pressed {
+    -fx-background-color: #d1d5db;
+}
+.calc-operator {
+    -fx-background-color: #fbbf24;
+    -fx-text-fill: white;
+}
+.calc-operator:hover {
+    -fx-background-color: #f59e0b;
+}
+
+/* ===== Кнопки снизу ===== */
+.action-btn {
+    -fx-background-radius: 8;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 18;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 5, 0, 0, 1);
+}
+.action-btn:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);
+}
+.green { -fx-background-color: #22c55e; }
+.green:hover { -fx-background-color: #16a34a; }
+.blue { -fx-background-color: #3b82f6; }
+.blue:hover { -fx-background-color: #2563eb; }
+.dark { -fx-background-color: #374151; }
+.dark:hover { -fx-background-color: #4b5563; }
+.red { -fx-background-color: #ef4444; }
+.red:hover { -fx-background-color: #dc2626; }
+
+/* ===== Общие ===== */
+.label {
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 13px;
+}
+.hbox, .vbox {
+    -fx-spacing: 10;
+}

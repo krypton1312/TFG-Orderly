@@ -1,9 +1,11 @@
 package com.yebur.controller;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.yebur.app.App;
 import com.yebur.model.request.OrderDetailRequest;
 import com.yebur.model.request.OrderRequest;
 import com.yebur.model.response.CategoryResponse;
@@ -20,15 +22,20 @@ import com.yebur.service.ProductService;
 import com.yebur.ui.CustomDialog;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class PrimaryController {
 
@@ -396,7 +403,7 @@ public class PrimaryController {
             try {
                 if (item.getOrder() != null && item.getOrder().getOrderId() != null) {
                     targetOrderId = item.getOrder().getOrderId();
-                }else{
+                } else {
                     OrderRequest newOrderReq = new OrderRequest("OPEN", item.getTableId());
                     OrderResponse newOrder = OrderService.createOrder(newOrderReq);
                     targetOrderId = newOrder.getId();
@@ -410,7 +417,7 @@ public class PrimaryController {
                     req.setUnitPrice(visualDetail.getUnitPrice());
                     OrderDetailService.createOrderDetail(req);
                 }
-                
+
                 exitTransferMode();
 
             } catch (Exception e) {
@@ -795,6 +802,42 @@ public class PrimaryController {
         renderDetails(new ArrayList<>(), null);
     }
 
+    @FXML
+    private void handlePartialPaymentClick() {
+        try {
+            URL fxml = getClass().getResource("/com/yebur/payment.fxml");
+            if (fxml == null) {
+                System.err.println("❌ FXML файл не найден: /com/yebur/payment.fxml");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxml);
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Dividir cuenta / Pago parcial");
+            Scene scene = new Scene(root);
+            stage.initStyle(StageStyle.UNDECORATED);
+            stage.setResizable(false);
+            stage.setScene(scene);
+
+            URL cssUrl = App.class.getResource("/com/yebur/styles/partialpayment.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().clear();
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+                System.out.println("✅ CSS loaded: " + cssUrl);
+            } else {
+                System.err.println("⚠️ CSS не найден: /com/yebur/styles/partialpayment.css");
+            }
+
+            System.out.println(stage.getScene().getStylesheets());
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private boolean hasActiveOrder() {
         return currentOrder != null && currentOrder.getId() != null;
     }
@@ -835,4 +878,9 @@ public class PrimaryController {
         return cols * rows - 1;
     }
 
+    @FXML
+    private void handleCloseClick() {
+        Stage stage = (Stage) categoryBox.getScene().getWindow();
+        stage.close();
+    }
 }
