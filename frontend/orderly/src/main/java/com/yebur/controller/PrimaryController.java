@@ -397,12 +397,12 @@ public class PrimaryController {
             try {
                 if (item.getOrder() != null && item.getOrder().getOrderId() != null) {
                     targetOrderId = item.getOrder().getOrderId();
+                }else{
+                    OrderRequest newOrderReq = new OrderRequest("OPEN", item.getTableId());
+                    OrderResponse newOrder = OrderService.createOrder(newOrderReq);
+                    targetOrderId = newOrder.getId();
                 }
-                OrderRequest newOrderReq = new OrderRequest("OPEN", item.getTableId());
-                OrderResponse newOrder = OrderService.createOrder(newOrderReq);
-                targetOrderId = newOrder.getId();
 
-                System.out.println(visualDetails);
                 for (OrderDetailResponse visualDetail : visualDetails) {
                     OrderDetailRequest req = new OrderDetailRequest();
                     req.setOrderId(targetOrderId);
