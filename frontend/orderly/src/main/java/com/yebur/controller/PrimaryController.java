@@ -372,7 +372,8 @@ public class PrimaryController {
             btn.setStyle("-fx-background-color: #f9fafb;");
             btn.setOnAction(e -> {
                 onOverviewItemClick(item);
-                currentOverviewItem = item;
+                System.out.println(item + " clicked");
+                this.currentOverviewItem = item;
             });
 
             productBox.getChildren().add(btn);
@@ -392,18 +393,16 @@ public class PrimaryController {
     private void onOverviewItemClick(TableWithOrderResponse item) {
         if (isTransferMode) {
             Long targetOrderId;
-
+            System.out.println(item + " on ovwerview click");
             try {
                 if (item.getOrder() != null && item.getOrder().getOrderId() != null) {
                     targetOrderId = item.getOrder().getOrderId();
-                } else {
-                    OrderRequest newOrderReq = new OrderRequest("OPEN", item.getTableId());
-                    OrderResponse newOrder = OrderService.createOrder(newOrderReq);
-                    targetOrderId = newOrder.getId();
-
-                    handleChecksClick();
                 }
+                OrderRequest newOrderReq = new OrderRequest("OPEN", item.getTableId());
+                OrderResponse newOrder = OrderService.createOrder(newOrderReq);
+                targetOrderId = newOrder.getId();
 
+                System.out.println(visualDetails);
                 for (OrderDetailResponse visualDetail : visualDetails) {
                     OrderDetailRequest req = new OrderDetailRequest();
                     req.setOrderId(targetOrderId);
@@ -412,7 +411,7 @@ public class PrimaryController {
                     req.setUnitPrice(visualDetail.getUnitPrice());
                     OrderDetailService.createOrderDetail(req);
                 }
-
+                
                 exitTransferMode();
 
             } catch (Exception e) {
@@ -757,7 +756,7 @@ public class PrimaryController {
             n.setDisable(true);
         }
 
-        handleChecksClick();
+        loadOrders(productPageSize);
     }
 
     private void exitTransferMode() {
@@ -769,11 +768,11 @@ public class PrimaryController {
         visualDetails.clear();
         renderDetails(new ArrayList<>(), null);
 
-        currentOrderPage = 0; // ✅ сброс страницы
+        currentOrderPage = 0;
 
         javafx.application.Platform.runLater(() -> {
             try {
-                loadOrders(productPageSize); 
+                loadOrders(productPageSize);
             } catch (Exception e) {
                 e.printStackTrace();
             }
