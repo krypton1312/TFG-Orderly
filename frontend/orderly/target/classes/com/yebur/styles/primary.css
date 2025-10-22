@@ -11,6 +11,7 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
 }
 
+
 /* Заказ */
 .order-title {
     -fx-font-size: 18px;
@@ -177,7 +178,7 @@
 }
 
 /* Количество — центрировано */
-.order-item-row .quantity-label {
+.order-item-row .quantity-label .order-header-price .order-header-quantity{
     -fx-text-alignment: center;
 }
 

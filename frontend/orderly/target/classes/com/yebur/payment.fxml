@@ -19,9 +19,11 @@
 
     <!-- ===== Верхняя панель ===== -->
     <top>
-        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="header-box">
-            <Label text="Dividir cuenta" styleClass="header-title" />
-            <Label fx:id="tableNameLabel" text="Mesa 3" styleClass="header-subtitle" />
+        <HBox spacing="10" alignment="CENTER" styleClass="header-box">
+            <BorderPane.margin>
+                <Insets top="0" right="0" bottom="10" left="0" />
+            </BorderPane.margin>
+            <Label fx:id="tableNameLabel" styleClass="header-title" />
         </HBox>
     </top>
 
@@ -47,10 +49,10 @@
                 </HBox>
 
                 <HBox alignment="CENTER_LEFT" styleClass="order-header">
-                    <Label minWidth="35" prefWidth="40" text="Uds" />
-                    <Label prefWidth="260" text="Producto" />
-                    <Label prefWidth="100" text="Precio" />
-                    <Label prefWidth="100" text="Total" />
+                    <Label minWidth="60" prefWidth="40" text="Uds" styleClass = "order-header-quantity"/>
+                    <Label prefWidth="235" text="Producto" />
+                    <Label prefWidth="100" text="Precio" styleClass = "order-header-price"/>
+                    <Label prefWidth="100" text="Total" styleClass = "order-header-price" />
                 </HBox>
 
                 <!-- Растяжение вниз: fitToHeight + VBox.vgrow -->
@@ -80,7 +82,7 @@
                 GridPane.columnIndex="1" GridPane.rowIndex="0"
                 GridPane.vgrow="ALWAYS">
                 <HBox alignment="CENTER">
-                    <Label text="Cuenta" styleClass="order-title" />
+                    <Label text="Subcuenta" styleClass="order-title" />
                 </HBox>
 
                 <HBox alignment="CENTER_LEFT" styleClass="order-header">
@@ -126,7 +128,6 @@
 
                     <TextField fx:id="displayField"
                         styleClass="display"
-                        text="0"
                         editable="false"
                         prefWidth="200"
                         maxWidth="Infinity"

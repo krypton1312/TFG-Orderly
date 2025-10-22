@@ -3,6 +3,7 @@
     -fx-background-color: #e5e7eb;
 }
 
+
 .card {
     -fx-background-color: #ffffff;
     -fx-background-radius: 10;
@@ -10,11 +11,54 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.07), 8, 0, 0, 2);
 }
 
+.header-box {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-padding: 5 5;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.07), 8, 0, 0, 2);
+}
+
+.header-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #000000;
+}
+
+.header-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #6b7280;
+}
+
 .order-title {
-    -fx-font-size: 16px;
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
     -fx-text-fill: #1f2937;
 }
+
+
+.order-header {
+    -fx-background-color: transparent;
+    -fx-padding: 5 0 5 0;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 0 0 1 0;
+}
+
+
+.order-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.order-scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.order-items-box {
+    -fx-background-color: transparent;
+}
+
 
 .table-view {
     -fx-background-color: white;
@@ -51,6 +95,12 @@
     -fx-background-color: #dbeafe;
 }
 
+
+.order-total-bar {
+    -fx-background-color: transparent;
+    -fx-padding: 5 0 0 0;
+}
+
 .order-total-bg {
     -fx-background-color: rgba(107, 236, 107, 0.733);
     -fx-background-radius: 8;
@@ -68,6 +118,7 @@
     -fx-text-fill: #111827;
 }
 
+
 .display {
     -fx-background-color: #f3f4f6;
     -fx-text-fill: #1f2937;
@@ -77,6 +128,7 @@
     -fx-background-radius: 6;
     -fx-alignment: center-right;
 }
+
 
 .num-btn {
     -fx-background-color: #f3f4f6;
@@ -94,6 +146,17 @@
 .num-btn:pressed {
     -fx-background-color: #d1d5db;
 }
+
+.calc-operator {
+    -fx-background-color: linear-gradient(to bottom, #f9fafb, #e5e7eb);
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 6;
+}
+
+.calc-operator:hover {
+    -fx-background-color: linear-gradient(to bottom, #f3f4f6, #e5e7eb);
+}
+
 
 .action-btn {
     -fx-background-radius: 8;
@@ -136,12 +199,38 @@
     -fx-background-color: #dc2626;
 }
 
-.label {
+.order-item-row {
+    -fx-alignment: center;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 0 0 0 0;
+    -fx-font-size: 14px;
     -fx-text-fill: #1f2937;
-    -fx-font-size: 13px;
 }
 
-.hbox,
-.vbox {
-    -fx-spacing: 10;
+/* Hover-эффект для строк */
+.order-item-row:hover {
+    -fx-background-color: #f3f4f6;
+}
+
+/* Сумма и цены выделены жирнее */
+.order-item-row .price-label,
+.order-item-row .total-label {
+    -fx-font-weight: bold;
+}
+
+/* Полоса прокрутки */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+.scroll-bar .thumb {
+    -fx-background-color: #9ca3af;
+    -fx-background-radius: 8;
+}
+.scroll-bar .thumb:hover {
+    -fx-background-color: #6b7280;
+}
+.scroll-bar .track {
+    -fx-background-color: #e5e7eb;
+    -fx-background-radius: 8;
 }
