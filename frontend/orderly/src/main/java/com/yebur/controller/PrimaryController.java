@@ -614,6 +614,7 @@ public class PrimaryController {
         orderVboxItems.getChildren().clear();
         visualDetails.clear();
         currentdetails.clear();
+        orderTotalValue.setText("0.00");
         if (hasActiveOrder()) {
             try {
                 OrderService.deleteOrder(currentOrder.getId());
@@ -804,6 +805,9 @@ public class PrimaryController {
 
     @FXML
     private void handlePartialPaymentClick() {
+        if(visualDetails.isEmpty() && !hasActiveOrder()) {
+            return;
+        }
         try {
             URL fxml = getClass().getResource("/com/yebur/payment.fxml");
             if (fxml == null) {
@@ -813,6 +817,9 @@ public class PrimaryController {
 
             FXMLLoader loader = new FXMLLoader(fxml);
             Parent root = loader.load();
+
+            PartialPaymentController controller = loader.getController();
+            controller.setPrimaryController(this);
 
             Stage stage = new Stage();
             stage.setTitle("Dividir cuenta / Pago parcial");
@@ -882,5 +889,21 @@ public class PrimaryController {
     private void handleCloseClick() {
         Stage stage = (Stage) categoryBox.getScene().getWindow();
         stage.close();
+    }
+
+    public List<OrderDetailResponse> getCurrentdetails() {
+        return currentdetails;
+    }
+
+    public OrderResponse getCurrentOrder() {
+        return currentOrder;
+    }
+
+    public RestTableResponse getSelectedTable() {
+        return selectedTable;
+    }
+
+    public List<OrderDetailResponse> getVisualDetails() {
+        return visualDetails;
     }
 }
