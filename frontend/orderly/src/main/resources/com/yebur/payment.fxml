@@ -1,105 +1,242 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.geometry.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import java.lang.String?>
 
-<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.yebur.controller.PartialPaymentController"
-            prefWidth="1000" prefHeight="600"
-            style="-fx-padding: 20;">
+<BorderPane xmlns="http://javafx.com/javafx/8"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.yebur.controller.PartialPaymentController"
+    prefWidth="1280" prefHeight="768"
+    style="-fx-padding: 20;">
 
+    <!-- ===== Верхняя панель ===== -->
     <top>
-        <HBox spacing="10" alignment="CENTER_LEFT">
-            <Label text="Dividir cuenta" style="-fx-font-size: 20; -fx-font-weight: bold;" />
-            <Label fx:id="tableNameLabel" text="Mesa 3" style="-fx-font-size: 16; -fx-text-fill: #6b7280;" />
+        <HBox spacing="10" alignment="CENTER" styleClass="header-box">
+            <BorderPane.margin>
+                <Insets top="0" right="0" bottom="10" left="0" />
+            </BorderPane.margin>
+            <Label fx:id="tableNameLabel" styleClass="header-title" />
         </HBox>
     </top>
 
+    <!-- ===== Центральная часть ===== -->
     <center>
-        <HBox spacing="20">
-            <!-- Левая таблица (основной заказ) -->
-            <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
-                <Label text="Pedido completo" styleClass="order-title" />
-                <TableView fx:id="mainOrderTable" prefHeight="350">
-                    <columns>
-                        <TableColumn text="Uds" prefWidth="60" />
-                        <TableColumn text="Producto" prefWidth="180" />
-                        <TableColumn text="Precio" prefWidth="80" />
-                    </columns>
-                </TableView>
-                <HBox alignment="CENTER_RIGHT" styleClass="order-total-bg">
-                    <Label text="Total:" styleClass="order-total-label" />
-                    <Label fx:id="mainTotalLabel" text="$0.00" styleClass="order-total-value" />
+        <!-- ВАЖНО: есть строка с vgrow=ALWAYS, чтобы центр занял всю высоту -->
+        <GridPane hgap="10" vgap="0">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="37.5" />
+                <ColumnConstraints percentWidth="37.5" />
+                <ColumnConstraints percentWidth="25" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints vgrow="ALWAYS" /> <!-- единственная строка растягивается по высоте -->
+            </rowConstraints>
+
+            <!-- ==== Левая колонка ==== -->
+            <VBox spacing="10" styleClass="card"
+                GridPane.columnIndex="0" GridPane.rowIndex="0"
+                GridPane.vgrow="ALWAYS">
+                <HBox alignment="CENTER">
+                    <Label text="Cuenta" styleClass="order-title" />
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" styleClass="order-header">
+                    <Label minWidth="60" prefWidth="40" text="Uds" styleClass = "order-header-quantity"/>
+                    <Label prefWidth="235" text="Producto" />
+                    <Label prefWidth="100" text="Precio" styleClass = "order-header-price"/>
+                    <Label prefWidth="100" text="Total" styleClass = "order-header-price" />
+                </HBox>
+
+                <!-- Растяжение вниз: fitToHeight + VBox.vgrow -->
+                <ScrollPane fx:id="mainOrderSP"
+                    styleClass="order-scroll-pane"
+                    fitToWidth="true"
+                    fitToHeight="true"
+                    VBox.vgrow="ALWAYS">
+                    <content>
+                        <VBox fx:id="mainOrderBox"
+                            styleClass="order-items-box"
+                            spacing="5"
+                            VBox.vgrow="ALWAYS" />
+                    </content>
+                </ScrollPane>
+
+                <HBox alignment="CENTER_RIGHT" styleClass="order-total-bar">
+                    <HBox alignment="CENTER_RIGHT" styleClass="order-total-bg">
+                        <Label text="Total:" styleClass="order-total-label" />
+                        <Label fx:id="mainTotalLabel" text="0.00" styleClass="order-total-value" />
+                    </HBox>
                 </HBox>
             </VBox>
 
-            <!-- Правая таблица (частичная оплата) -->
-            <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
-                <Label text="Subcuenta parcial" styleClass="order-title" />
-                <TableView fx:id="partialOrderTable" prefHeight="350">
-                    <columns>
-                        <TableColumn text="Uds" prefWidth="60" />
-                        <TableColumn text="Producto" prefWidth="180" />
-                        <TableColumn text="Precio" prefWidth="80" />
-                    </columns>
-                </TableView>
-                <HBox alignment="CENTER_RIGHT" styleClass="order-total-bg">
-                    <Label text="Parcial:" styleClass="order-total-label" />
-                    <Label fx:id="partialTotalLabel" text="$0.00" styleClass="order-total-value" />
+            <!-- ==== Правая колонка ==== -->
+            <VBox spacing="10" styleClass="card"
+                GridPane.columnIndex="1" GridPane.rowIndex="0"
+                GridPane.vgrow="ALWAYS">
+                <HBox alignment="CENTER">
+                    <Label text="Subcuenta" styleClass="order-title" />
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" styleClass="order-header">
+                    <Label minWidth="35" prefWidth="40" text="Uds" />
+                    <Label prefWidth="260" text="Producto" />
+                    <Label prefWidth="100" text="Precio" />
+                    <Label prefWidth="100" text="Total" />
+                </HBox>
+
+                <!-- Растяжение вниз: fitToHeight + VBox.vgrow -->
+                <ScrollPane fx:id="partialOrderSP"
+                    styleClass="order-scroll-pane"
+                    fitToWidth="true"
+                    fitToHeight="true"
+                    VBox.vgrow="ALWAYS">
+                    <content>
+                        <VBox fx:id="partialOrderBox"
+                            styleClass="order-items-box"
+                            spacing="5"
+                            VBox.vgrow="ALWAYS" />
+                    </content>
+                </ScrollPane>
+
+                <HBox alignment="CENTER_RIGHT" styleClass="order-total-bar">
+                    <HBox alignment="CENTER_RIGHT" styleClass="order-total-bg">
+                        <Label text="Parcial:" styleClass="order-total-label" />
+                        <Label fx:id="partialTotalLabel" text="0.00" styleClass="order-total-value" />
+                    </HBox>
                 </HBox>
             </VBox>
 
-            <!-- Калькулятор -->
-            <VBox spacing="10" styleClass="card" prefWidth="220">
-                <Label text="Calculadora" styleClass="order-title" />
-                <TextField fx:id="displayField" styleClass="display" text="0" editable="false" />
-                <GridPane hgap="10" vgap="10">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="ALWAYS" />
-                        <ColumnConstraints hgrow="ALWAYS" />
-                        <ColumnConstraints hgrow="ALWAYS" />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints vgrow="ALWAYS" />
-                        <RowConstraints vgrow="ALWAYS" />
-                        <RowConstraints vgrow="ALWAYS" />
-                        <RowConstraints vgrow="ALWAYS" />
-                        <RowConstraints vgrow="ALWAYS" />
-                    </rowConstraints>
+            <StackPane GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS">
+                <VBox spacing="10" styleClass="card"
+                    alignment="CENTER"
+                    maxWidth="360"
+                    prefWidth="320"
+                    prefHeight="402"
+                    maxHeight="412"
+                    StackPane.alignment="CENTER">
+                    <padding>
+                        <Insets top="0" right="10" bottom="0" left="10" />
+                    </padding>
 
-                    <children>
-                        <Button text="C" styleClass="num-btn" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <Button text="±" styleClass="num-btn" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                        <Button text="%" styleClass="num-btn" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                    <TextField fx:id="displayField"
+                        styleClass="display"
+                        editable="false"
+                        prefWidth="200"
+                        maxWidth="Infinity"
+                        VBox.vgrow="NEVER" />
 
-                        <Button text="7" styleClass="num-btn" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <Button text="8" styleClass="num-btn" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Button text="9" styleClass="num-btn" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                    <!-- Сетка кнопок -->
+                    <GridPane hgap="10" vgap="10" alignment="CENTER">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="33.3" />
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="33.3" />
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="33.3" />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints vgrow="ALWAYS" percentHeight="20" />
+                            <RowConstraints vgrow="ALWAYS" percentHeight="20" />
+                            <RowConstraints vgrow="ALWAYS" percentHeight="20" />
+                            <RowConstraints vgrow="ALWAYS" percentHeight="20" />
+                            <RowConstraints vgrow="ALWAYS" percentHeight="20" />
+                        </rowConstraints>
 
-                        <Button text="4" styleClass="num-btn" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                        <Button text="5" styleClass="num-btn" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Button text="6" styleClass="num-btn" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <children>
+                            <Button text="C" styleClass="num-btn calc-operator"
+                                GridPane.columnIndex="0" GridPane.rowIndex="0"
+                                maxWidth="Infinity" minHeight="65" />
+                            <Button text="+-" styleClass="num-btn calc-operator"
+                                GridPane.columnIndex="1" GridPane.rowIndex="0"
+                                maxWidth="Infinity" minHeight="65" />
+                            <Button text="/" styleClass="num-btn calc-operator"
+                                GridPane.columnIndex="2" GridPane.rowIndex="0"
+                                maxWidth="Infinity" minHeight="65" />
 
-                        <Button text="1" styleClass="num-btn" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                        <Button text="2" styleClass="num-btn" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <Button text="3" styleClass="num-btn" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                            <Button text="7" styleClass="num-btn"
+                                GridPane.columnIndex="0" GridPane.rowIndex="1"
+                                maxWidth="Infinity" minHeight="65" />
+                            <Button text="8" styleClass="num-btn"
+                                GridPane.columnIndex="1" GridPane.rowIndex="1"
+                                maxWidth="Infinity" minHeight="65" />
+                            <Button text="9" styleClass="num-btn"
+                                GridPane.columnIndex="2" GridPane.rowIndex="1"
+                                maxWidth="Infinity" minHeight="65" />
 
-                        <Button text="0" styleClass="num-btn" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                        <Button text="." styleClass="num-btn" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        <Button text="=" styleClass="num-btn" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                    </children>
-                </GridPane>
-            </VBox>
-        </HBox>
+                            <Button text="4" styleClass="num-btn"
+                                GridPane.columnIndex="0" GridPane.rowIndex="2"
+                                maxWidth="Infinity" minHeight="65" />
+                            <Button text="5" styleClass="num-btn"
+                                GridPane.columnIndex="1" GridPane.rowIndex="2"
+                                maxWidth="Infinity" minHeight="65" />
+                            <Button text="6" styleClass="num-btn"
+                                GridPane.columnIndex="2" GridPane.rowIndex="2"
+                                maxWidth="Infinity" minHeight="65" />
+
+                            <Button text="1" styleClass="num-btn"
+                                GridPane.columnIndex="0" GridPane.rowIndex="3"
+                                maxWidth="Infinity" minHeight="65" />
+                            <Button text="2" styleClass="num-btn"
+                                GridPane.columnIndex="1" GridPane.rowIndex="3"
+                                maxWidth="Infinity" minHeight="65" />
+                            <Button text="3" styleClass="num-btn"
+                                GridPane.columnIndex="2" GridPane.rowIndex="3"
+                                maxWidth="Infinity" minHeight="65" />
+
+                            <Button text="0" styleClass="num-btn"
+                                GridPane.columnIndex="0" GridPane.rowIndex="4"
+                                maxWidth="Infinity" minHeight="65" />
+                            <Button text="." styleClass="num-btn"
+                                GridPane.columnIndex="1" GridPane.rowIndex="4"
+                                maxWidth="Infinity" minHeight="65" />
+                            <Button text="=" styleClass="num-btn calc-operator"
+                                GridPane.columnIndex="2" GridPane.rowIndex="4"
+                                maxWidth="Infinity" minHeight="65" />
+                        </children>
+                    </GridPane>
+                </VBox>
+            </StackPane>
+
+
+        </GridPane>
     </center>
 
+    <!-- ===== Нижние кнопки ===== -->
     <bottom>
         <HBox spacing="15" alignment="CENTER" style="-fx-padding: 20 0 0 0;">
-            <Button text="Sin copia" styleClass="action-btn green" />
-            <Button text="Con copia" styleClass="action-btn blue" />
-            <Button text="Por correo" styleClass="action-btn dark" />
-            <Button text="Cancelar" styleClass="action-btn red" />
+            <Button text="Sin copia">
+                <styleClass>
+                    <String fx:value="action-btn" />
+                    <String fx:value="green" />
+                </styleClass>
+            </Button>
+
+            <Button text="Con copia">
+                <styleClass>
+                    <String fx:value="action-btn" />
+                    <String fx:value="blue" />
+                </styleClass>
+            </Button>
+
+            <Button text="Por correo">
+                <styleClass>
+                    <String fx:value="action-btn" />
+                    <String fx:value="dark" />
+                </styleClass>
+            </Button>
+
+            <Button text="Cancelar" onAction="#handleCloseClick">
+                <styleClass>
+                    <String fx:value="action-btn" />
+                    <String fx:value="red" />
+                </styleClass>
+            </Button>
         </HBox>
     </bottom>
 

@@ -178,7 +178,7 @@
 }
 
 /* Количество — центрировано */
-.order-item-row .quantity-label {
+.order-item-row .quantity-label .order-header-price .order-header-quantity{
     -fx-text-alignment: center;
 }
 

@@ -198,3 +198,39 @@
 .red:hover {
     -fx-background-color: #dc2626;
 }
+
+.order-item-row {
+    -fx-alignment: center;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 0 0 0 0;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1f2937;
+}
+
+/* Hover-эффект для строк */
+.order-item-row:hover {
+    -fx-background-color: #f3f4f6;
+}
+
+/* Сумма и цены выделены жирнее */
+.order-item-row .price-label,
+.order-item-row .total-label {
+    -fx-font-weight: bold;
+}
+
+/* Полоса прокрутки */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+.scroll-bar .thumb {
+    -fx-background-color: #9ca3af;
+    -fx-background-radius: 8;
+}
+.scroll-bar .thumb:hover {
+    -fx-background-color: #6b7280;
+}
+.scroll-bar .track {
+    -fx-background-color: #e5e7eb;
+    -fx-background-radius: 8;
+}
