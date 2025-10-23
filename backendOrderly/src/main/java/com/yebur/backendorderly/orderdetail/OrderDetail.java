@@ -54,4 +54,7 @@ public class OrderDetail {
     @Column
     private LocalDateTime createdAt;
 
+    @Column 
+    private OrderDetailStatus status;
+
 }
