@@ -142,6 +142,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 entity.getOrder().getId(),
                 entity.getComment(),
                 entity.getAmount(),
-                entity.getUnitPrice());
+                entity.getUnitPrice(),
+                entity.getStatus());
     }
 }

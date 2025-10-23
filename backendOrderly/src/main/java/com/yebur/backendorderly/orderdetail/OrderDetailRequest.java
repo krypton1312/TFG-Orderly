@@ -24,4 +24,6 @@ public class OrderDetailRequest {
     @Positive
     private double unitPrice;
 
+    private String status;
+
 }
