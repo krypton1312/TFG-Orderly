@@ -1,17 +1,15 @@
 package com.yebur.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.yebur.model.response.OrderDetailResponse;
 import com.yebur.model.response.OrderResponse;
-import com.yebur.model.response.ProductResponse;
 import com.yebur.model.response.RestTableResponse;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -23,7 +21,7 @@ public class PartialPaymentController {
     private VBox mainOrderBox;
 
     @FXML
-    private TableView<?> partialOrderTable;
+    private VBox partialOrderBox;
 
     @FXML
     private Label mainTotalLabel;
@@ -40,19 +38,16 @@ public class PartialPaymentController {
     private PrimaryController primaryController;
 
     private List<OrderDetailResponse> orderDetails;
+    private List<OrderDetailResponse> partialDetails;
+
     private OrderResponse order;
     private RestTableResponse table;
-    private double mainTotal;
-    private double partialTotal;
 
     @FXML
     public void initialize() {
         Platform.runLater(() -> displayField.getParent().requestFocus());
-
         displayField.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) {
-                displayField.deselect();
-            }
+            if (newVal) displayField.deselect();
         });
     }
 
@@ -69,48 +64,69 @@ public class PartialPaymentController {
 
     public void loadData() {
         this.order = primaryController.getCurrentOrder();
-        this.orderDetails = primaryController.getCurrentdetails();
+        this.orderDetails = new ArrayList<>(primaryController.getCurrentdetails());
+        this.partialDetails = new ArrayList<>();
         this.table = primaryController.getSelectedTable();
-        this.mainTotal = order.getTotal();
-        partialTotal = 0.0;
+
         tableNameLabel.setText(table.getName());
-        renderDetails(orderDetails);
-        partialTotalLabel.setText(String.format("%.2f", partialTotal));
+        refreshUI();
     }
 
-    private void renderDetails(List<OrderDetailResponse> details) {
-        mainOrderBox.getChildren().clear();
-        double total = 0;
+    private void refreshUI() {
+        renderDetails(orderDetails, mainOrderBox, true);
+        renderDetails(partialDetails, partialOrderBox, false);
+    }
+
+    private void renderDetails(List<OrderDetailResponse> details, VBox box, boolean isMainBox) {
+        box.getChildren().clear();
+        double total = 0.0;
 
         for (OrderDetailResponse d : details) {
             HBox row = new HBox(10);
             row.getStyleClass().add("order-item-row");
 
-            Label qty = new Label("x" + d.getAmount());
-            qty.setPrefWidth(60);
-            qty.getStyleClass().add("order-item-row");
+            Label qtyLabel = new Label("x" + d.getAmount());
+            qtyLabel.setPrefWidth(60);
 
-            String name = d.getProductName();
-            Label nameLabel = new Label(name);
+            Label nameLabel = new Label(d.getProductName());
             nameLabel.setPrefWidth(235);
             nameLabel.setWrapText(true);
 
             Label priceLabel = new Label(String.format("$%.2f", d.getUnitPrice()));
             priceLabel.setPrefWidth(100);
-            priceLabel.getStyleClass().add("order-item-row");
 
             double totalLine = d.getUnitPrice() * d.getAmount();
             Label totalLabel = new Label(String.format("$%.2f", totalLine));
             totalLabel.setPrefWidth(100);
-            totalLabel.getStyleClass().add("order-item-row");
 
-            row.getChildren().addAll(qty, nameLabel, priceLabel, totalLabel);
+            row.getChildren().addAll(qtyLabel, nameLabel, priceLabel, totalLabel);
 
-            mainOrderBox.getChildren().add(row);
+            row.setOnMouseClicked(event -> {
+                if (isMainBox) {
+                    moveItemToPartial(d);
+                } else {
+                    moveItemToMain(d);
+                }
+            });
+
+            box.getChildren().add(row);
             total += totalLine;
         }
 
-        mainTotalLabel.setText(String.format("$%.2f", total));
-
+        if (isMainBox) {
+            mainTotalLabel.setText(String.format("$%.2f", total));
+        } else {
+            partialTotalLabel.setText(String.format("$%.2f", total));
+        }
+    }
+    private void moveItemToPartial(OrderDetailResponse item) {
+        orderDetails.remove(item);
+        partialDetails.add(item);
+        refreshUI();
+    }
+    private void moveItemToMain(OrderDetailResponse item) {
+        partialDetails.remove(item);
+        orderDetails.add(item);
+        refreshUI();
     }
 }
