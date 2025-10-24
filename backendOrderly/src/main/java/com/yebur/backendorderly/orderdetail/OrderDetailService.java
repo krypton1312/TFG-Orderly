@@ -56,7 +56,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
 
         OrderDetail saved = orderDetailRepository.save(orderDetail);
 
-        // Пересчёт total заказа после добавления позиции
+        
         recalculateOrderTotal(saved.getOrder());
 
         return mapToResponse(saved);
@@ -99,6 +99,23 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         recalculateOrderTotal(order);
     }
 
+    public void updateOrderDetailStatus(List<Long> ids, String status) {
+        OrderDetailStatus enumStatus;
+        try {
+            enumStatus = OrderDetailStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Unknown status: " + status);
+        }
+
+        for (Long id : ids) {
+            OrderDetail detail = findById(id)
+                    .orElseThrow(() -> new RuntimeException("❌ OrderDetail not found with id " + id));
+
+            detail.setStatus(enumStatus);
+            orderDetailRepository.save(detail);
+        }
+    }
+
     private void recalculateOrderTotal(Order order) {
         double newTotal = Math.round(
                 orderDetailRepository.findAllByOrderId(order.getId()).stream()
@@ -131,6 +148,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         detail.setAmount(dto.getAmount());
         detail.setUnitPrice(dto.getUnitPrice());
         detail.setComment(dto.getComment());
+        detail.setStatus(OrderDetailStatus.valueOf(dto.getStatus()));
         return detail;
     }
 

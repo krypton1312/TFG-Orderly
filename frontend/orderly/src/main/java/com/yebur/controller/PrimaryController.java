@@ -415,6 +415,7 @@ public class PrimaryController {
                     req.setProductId(visualDetail.getProductId());
                     req.setAmount(visualDetail.getAmount());
                     req.setUnitPrice(visualDetail.getUnitPrice());
+                    req.setStatus("PAID");
                     OrderDetailService.createOrderDetail(req);
                 }
 
@@ -503,6 +504,7 @@ public class PrimaryController {
                 createReq.setProductId(product.getId());
                 createReq.setAmount(1);
                 createReq.setUnitPrice(product.getPrice());
+                createReq.setStatus("PENDING");
                 OrderDetailService.createOrderDetail(createReq);
             }
 
@@ -793,6 +795,7 @@ public class PrimaryController {
                 createReq.setProductId(visualDetail.getProductId());
                 createReq.setAmount(visualDetail.getAmount());
                 createReq.setUnitPrice(visualDetail.getUnitPrice());
+                createReq.setStatus("PENDING");
                 OrderDetailService.createOrderDetail(createReq);
             } catch (Exception e) {
                 e.printStackTrace();

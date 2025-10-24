@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -70,6 +71,12 @@ public class OrderDetailController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
+
+    @PutMapping("change-status/{ids}/{status}")
+    public void updateStatus(@PathVariable List<Long> ids, @PathVariable String status){
+        orderDetailService.updateOrderDetailStatus(ids, status);
+    }
+    
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
