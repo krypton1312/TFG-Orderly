@@ -18,5 +18,8 @@ public interface OrderDetailServiceInterface {
 
     OrderDetailResponse updateOrderDetail(Long id, OrderDetailRequest orderDetail);
 
+    void updateOrderDetailStatus(List<Long> id, String status);
+
+
     void deleteOrderDetail(Long id);
 }

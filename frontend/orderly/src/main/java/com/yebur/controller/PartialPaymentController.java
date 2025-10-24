@@ -129,4 +129,9 @@ public class PartialPaymentController {
         orderDetails.add(item);
         refreshUI();
     }
+
+    @FXML
+    private void handlePayNoReceipt(){
+        
+    }
 }

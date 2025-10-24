@@ -8,9 +8,10 @@ public class OrderDetailResponse {
     private String comment;
     private int amount;
     private double unitPrice;
+    private String status;
 
     public OrderDetailResponse(Long id, Long productId, String productName, Long orderId, String comment, int amount,
-            double unitPrice) {
+            double unitPrice, String status) {
         this.id = id;
         this.productId = productId;
         this.productName = productName;
@@ -18,6 +19,7 @@ public class OrderDetailResponse {
         this.comment = comment;
         this.amount = amount;
         this.unitPrice = unitPrice;
+        this.status = status;
     }
 
     public OrderDetailResponse() {
@@ -85,6 +87,14 @@ public class OrderDetailResponse {
 
     public void setProductName(String productName) {
         this.productName = productName;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
     
 }
