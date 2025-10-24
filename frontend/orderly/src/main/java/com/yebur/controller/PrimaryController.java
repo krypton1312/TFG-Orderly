@@ -415,7 +415,7 @@ public class PrimaryController {
                     req.setProductId(visualDetail.getProductId());
                     req.setAmount(visualDetail.getAmount());
                     req.setUnitPrice(visualDetail.getUnitPrice());
-                    req.setStatus("PAID");
+                    req.setStatus("PENDING");
                     OrderDetailService.createOrderDetail(req);
                 }
 
@@ -477,7 +477,7 @@ public class PrimaryController {
 
         try {
             List<OrderDetailResponse> existingDetails = OrderDetailService
-                    .getOrderDetailsByOrderId(currentOrder.getId());
+                    .getUnpaidOrderDetailsByOrderId(currentOrder.getId());
 
             OrderDetailResponse existingDetail = existingDetails.stream()
                     .filter(d -> Objects.equals(d.getProductId(), product.getId()))
@@ -508,7 +508,7 @@ public class PrimaryController {
                 OrderDetailService.createOrderDetail(createReq);
             }
 
-            currentdetails = OrderDetailService.getOrderDetailsByOrderId(currentOrder.getId());
+            currentdetails = OrderDetailService.getUnpaidOrderDetailsByOrderId(currentOrder.getId());
             renderDetails(currentdetails, product);
         } catch (Exception e) {
             upsertVisualDetail(product, 1);
@@ -533,7 +533,7 @@ public class PrimaryController {
         }
 
         try {
-            currentdetails = OrderDetailService.getOrderDetailsByOrderId(order.getId());
+            currentdetails = OrderDetailService.getUnpaidOrderDetailsByOrderId(order.getId());
             renderDetails(currentdetails != null ? currentdetails : new ArrayList<>(), null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -842,6 +842,11 @@ public class PrimaryController {
 
             System.out.println(stage.getScene().getStylesheets());
             stage.initModality(Modality.APPLICATION_MODAL);
+
+            stage.setOnHiding(event -> {
+                handleChecksClick();
+            });
+
             stage.showAndWait();
         } catch (Exception e) {
             e.printStackTrace();

@@ -6,6 +6,7 @@ import java.util.List;
 import com.yebur.model.response.OrderDetailResponse;
 import com.yebur.model.response.OrderResponse;
 import com.yebur.model.response.RestTableResponse;
+import com.yebur.service.OrderDetailService;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -132,6 +133,21 @@ public class PartialPaymentController {
 
     @FXML
     private void handlePayNoReceipt(){
-        
+        List<Long> ids = new ArrayList<>();
+        for(OrderDetailResponse partialDetail: partialDetails){
+            ids.add(partialDetail.getId());
+        }
+        try{
+            OrderDetailService.changeOrderDetailStatus(ids, "PAID"); 
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        partialDetails.clear();
+        refreshUI();
+        if(orderDetails.isEmpty()){
+            Stage stage = (Stage) tableNameLabel.getScene().getWindow();
+            stage.close();
+        }
     }
 }

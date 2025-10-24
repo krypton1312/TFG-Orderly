@@ -1,11 +1,16 @@
 package com.yebur.backendorderly.overview;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.yebur.backendorderly.order.OrderResponse;
 import com.yebur.backendorderly.order.OrderService;
 import com.yebur.backendorderly.order.OrderStatus;
+import com.yebur.backendorderly.orderdetail.OrderDetailService;
 import com.yebur.backendorderly.resttable.RestTableResponse;
 import com.yebur.backendorderly.resttable.RestTableService;
 
@@ -17,6 +22,7 @@ public class OverviewService {
 
     private final RestTableService restTableService;
     private final OrderService orderService;
+    private final OrderDetailService orderDetailService;
 
     public List<TableWithOrderResponse> getOverview() {
         List<RestTableResponse> tables = restTableService.findAllRestTableDTO();
@@ -31,7 +37,13 @@ public class OverviewService {
                                  Objects.equals(o.getRestTable().getId(), table.getId()))
                     .findFirst();
             OrderSummary orderSummary = matchingOrder
-                    .map(o -> new OrderSummary(o.getId(), o.getTotal()))
+                    .map(o -> {
+                        var unpaidDetails = orderDetailService.findUnpaidOrderDetailDTOByOrderId(o.getId());
+                        double unpaidTotal = unpaidDetails.stream()
+                                .mapToDouble(d -> d.getUnitPrice() * d.getAmount())
+                                .sum();
+                        return new OrderSummary(o.getId(), unpaidTotal);
+                    })
                     .orElse(null);
 
             overview.add(new TableWithOrderResponse(

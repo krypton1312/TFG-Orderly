@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.catalina.connector.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,9 +14,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("/orderDetails")
@@ -50,6 +51,16 @@ public class OrderDetailController {
         return ResponseEntity.ok(details);
     }
 
+    @GetMapping("order/{orderId}/unpaid")
+    public ResponseEntity<List<OrderDetailResponse>> getUnpaidOrderDetailByOrderId(@PathVariable Long orderId){
+        List<OrderDetailResponse> details = orderDetailService.findUnpaidOrderDetailDTOByOrderId(orderId);
+        if (details.isEmpty() || details == null){
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+        return ResponseEntity.ok(details);
+    }
+    
+
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody OrderDetailRequest dto, BindingResult result) {
         if (result.hasErrors()) return validation(result);
@@ -72,8 +83,8 @@ public class OrderDetailController {
         }
     }
 
-    @PutMapping("change-status/{ids}/{status}")
-    public void updateStatus(@PathVariable List<Long> ids, @PathVariable String status){
+    @PutMapping("change-status/{status}")
+    public void updateStatus(@RequestBody List<Long> ids, @PathVariable String status){
         orderDetailService.updateOrderDetailStatus(ids, status);
     }
     

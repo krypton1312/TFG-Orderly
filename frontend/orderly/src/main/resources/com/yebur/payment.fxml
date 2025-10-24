@@ -210,14 +210,14 @@
     <!-- ===== Нижние кнопки ===== -->
     <bottom>
         <HBox spacing="15" alignment="CENTER" style="-fx-padding: 20 0 0 0;">
-            <Button text="Sin copia">
+            <Button text="Sin copia" onAction = "#handlePayNoReceipt">
                 <styleClass>
                     <String fx:value="action-btn" />
                     <String fx:value="green" />
                 </styleClass>
             </Button>
 
-            <Button text="Con copia" onAction = "#handlePayNoReceipt">
+            <Button text="Con copia">
                 <styleClass>
                     <String fx:value="action-btn" />
                     <String fx:value="blue" />

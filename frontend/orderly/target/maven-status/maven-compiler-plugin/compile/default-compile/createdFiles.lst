@@ -24,6 +24,7 @@ com\yebur\model\request\RestTableRequest.class
 com\yebur\service\ApiClient.class
 com\yebur\service\OverviewService.class
 com\yebur\app\App.class
+com\yebur\service\OrderDetailService$3.class
 com\yebur\service\ProductService.class
 com\yebur\model\response\OrderSummary.class
 com\yebur\model\response\OrderResponse.class

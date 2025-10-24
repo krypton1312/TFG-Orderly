@@ -7,8 +7,10 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.yebur.backendorderly.order.Order;
+import com.yebur.backendorderly.order.OrderRepository;
 import com.yebur.backendorderly.order.OrderRequest;
 import com.yebur.backendorderly.order.OrderService;
+import com.yebur.backendorderly.order.OrderStatus;
 import com.yebur.backendorderly.product.Product;
 import com.yebur.backendorderly.product.ProductService;
 
@@ -18,13 +20,14 @@ public class OrderDetailService implements OrderDetailServiceInterface {
     private final OrderDetailRepository orderDetailRepository;
     private final ProductService productService;
     private final OrderService orderService;
+    private final OrderRepository orderRepository;
 
     public OrderDetailService(OrderDetailRepository orderDetailRepository,
-            ProductService productService,
-            OrderService orderService) {
+            ProductService productService, OrderService orderService, OrderRepository orderRepository) {
         this.orderDetailRepository = orderDetailRepository;
         this.productService = productService;
         this.orderService = orderService;
+        this.orderRepository = orderRepository;
     }
 
     @Override
@@ -44,6 +47,10 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         return orderDetailRepository.findOrderDetailDTOById(id);
     }
 
+    public List<OrderDetailResponse> findUnpaidOrderDetailDTOByOrderId(Long orderId) {
+        return orderDetailRepository.findUnpaidOrderDetailDTOByOrderId(orderId);
+    }
+
     @Override
     public Optional<OrderDetail> findById(Long id) {
         return orderDetailRepository.findById(id);
@@ -56,7 +63,6 @@ public class OrderDetailService implements OrderDetailServiceInterface {
 
         OrderDetail saved = orderDetailRepository.save(orderDetail);
 
-        
         recalculateOrderTotal(saved.getOrder());
 
         return mapToResponse(saved);
@@ -109,10 +115,26 @@ public class OrderDetailService implements OrderDetailServiceInterface {
 
         for (Long id : ids) {
             OrderDetail detail = findById(id)
-                    .orElseThrow(() -> new RuntimeException("❌ OrderDetail not found with id " + id));
+                    .orElseThrow(() -> new RuntimeException("OrderDetail not found with id " + id));
 
             detail.setStatus(enumStatus);
             orderDetailRepository.save(detail);
+
+            Order order = orderService.findById(detail.getOrder().getId())
+                    .orElseThrow(() -> new RuntimeException("Order not found"));
+
+            boolean allPaid = true;
+            for (OrderDetail d : order.getOrderDetails()) {
+                if (d.getStatus() != OrderDetailStatus.PAID) {
+                    allPaid = false;
+                    break;
+                }
+            }
+
+            if (allPaid) {
+                order.setState(OrderStatus.PAID);
+                orderRepository.save(order);
+            }
         }
     }
 

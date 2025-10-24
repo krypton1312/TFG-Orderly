@@ -10,6 +10,8 @@ public interface OrderDetailServiceInterface {
 
     List<OrderDetailResponse> findAllOrderDetailDTOByOrderId(Long orderId);
 
+    List<OrderDetailResponse> findUnpaidOrderDetailDTOByOrderId(Long orderId);
+
     Optional<OrderDetail> findById(Long id);
 
     Optional<OrderDetailResponse> findOrderDetailDTOById(Long id);
