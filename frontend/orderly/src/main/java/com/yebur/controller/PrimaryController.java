@@ -415,7 +415,7 @@ public class PrimaryController {
                     req.setProductId(visualDetail.getProductId());
                     req.setAmount(visualDetail.getAmount());
                     req.setUnitPrice(visualDetail.getUnitPrice());
-                    req.setStatus("PAID");
+                    req.setStatus("PENDING");
                     OrderDetailService.createOrderDetail(req);
                 }
 
@@ -477,7 +477,7 @@ public class PrimaryController {
 
         try {
             List<OrderDetailResponse> existingDetails = OrderDetailService
-                    .getOrderDetailsByOrderId(currentOrder.getId());
+                    .getUnpaidOrderDetailsByOrderId(currentOrder.getId());
 
             OrderDetailResponse existingDetail = existingDetails.stream()
                     .filter(d -> Objects.equals(d.getProductId(), product.getId()))
@@ -508,7 +508,7 @@ public class PrimaryController {
                 OrderDetailService.createOrderDetail(createReq);
             }
 
-            currentdetails = OrderDetailService.getOrderDetailsByOrderId(currentOrder.getId());
+            currentdetails = OrderDetailService.getUnpaidOrderDetailsByOrderId(currentOrder.getId());
             renderDetails(currentdetails, product);
         } catch (Exception e) {
             upsertVisualDetail(product, 1);
@@ -533,7 +533,7 @@ public class PrimaryController {
         }
 
         try {
-            currentdetails = OrderDetailService.getOrderDetailsByOrderId(order.getId());
+            currentdetails = OrderDetailService.getUnpaidOrderDetailsByOrderId(order.getId());
             renderDetails(currentdetails != null ? currentdetails : new ArrayList<>(), null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -808,13 +808,15 @@ public class PrimaryController {
 
     @FXML
     private void handlePartialPaymentClick() {
-        if(visualDetails.isEmpty() && !hasActiveOrder()) {
-            return;
+        if(currentOrder == null){
+            if(visualDetails.isEmpty()) {
+                return;
+            }
         }
         try {
             URL fxml = getClass().getResource("/com/yebur/payment.fxml");
             if (fxml == null) {
-                System.err.println("❌ FXML файл не найден: /com/yebur/payment.fxml");
+                System.err.println("FXML not found: /com/yebur/payment.fxml");
                 return;
             }
 
@@ -835,13 +837,16 @@ public class PrimaryController {
             if (cssUrl != null) {
                 scene.getStylesheets().clear();
                 scene.getStylesheets().add(cssUrl.toExternalForm());
-                System.out.println("✅ CSS loaded: " + cssUrl);
             } else {
-                System.err.println("⚠️ CSS не найден: /com/yebur/styles/partialpayment.css");
+                System.err.println("CSS not found: /com/yebur/styles/partialpayment.css");
             }
 
-            System.out.println(stage.getScene().getStylesheets());
             stage.initModality(Modality.APPLICATION_MODAL);
+
+            stage.setOnHiding(event -> {
+                handleChecksClick();
+            });
+
             stage.showAndWait();
         } catch (Exception e) {
             e.printStackTrace();

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.catalina.connector.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,12 +17,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/orderDetails")
 public class OrderDetailController {
 
+    @Autowired
+    private ObjectMapper mapper;
+    
     private final OrderDetailService orderDetailService;
 
     public OrderDetailController(OrderDetailService orderDetailService) {
@@ -44,7 +49,16 @@ public class OrderDetailController {
     @GetMapping("/order/{orderId}")
     public ResponseEntity<List<OrderDetailResponse>> getOrderDetailsByOrderId(@PathVariable Long orderId) {
         List<OrderDetailResponse> details = orderDetailService.findAllOrderDetailDTOByOrderId(orderId);
-        if (details.isEmpty() || details == null){
+        if (details.isEmpty() || details == null) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+        return ResponseEntity.ok(details);
+    }
+
+    @GetMapping("order/{orderId}/unpaid")
+    public ResponseEntity<List<OrderDetailResponse>> getUnpaidOrderDetailByOrderId(@PathVariable Long orderId) {
+        List<OrderDetailResponse> details = orderDetailService.findUnpaidOrderDetailDTOByOrderId(orderId);
+        if (details.isEmpty() || details == null) {
             return ResponseEntity.ok(Collections.emptyList());
         }
         return ResponseEntity.ok(details);
@@ -52,7 +66,8 @@ public class OrderDetailController {
 
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody OrderDetailRequest dto, BindingResult result) {
-        if (result.hasErrors()) return validation(result);
+        if (result.hasErrors())
+            return validation(result);
         try {
             OrderDetailResponse response = orderDetailService.createOrderDetail(dto);
             return ResponseEntity.status(201).body(response);
@@ -61,9 +76,26 @@ public class OrderDetailController {
         }
     }
 
+    @PostMapping("/list")
+    public ResponseEntity<?> createList(@Valid @RequestBody List<OrderDetailRequest> dtos, BindingResult result) {
+        if (result.hasErrors()) {
+            return validation(result);
+        }
+        try {
+            List<OrderDetailResponse> responses = orderDetailService.createOrderDetailList(dtos);
+            return ResponseEntity.status(201).body(responses);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body("Error by creating detail: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Server internal error(orderDetail/list): " + e.getMessage());
+        }
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody OrderDetailRequest dto, BindingResult result) {
-        if (result.hasErrors()) return validation(result);
+    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody OrderDetailRequest dto,
+            BindingResult result) {
+        if (result.hasErrors())
+            return validation(result);
         try {
             OrderDetailResponse response = orderDetailService.updateOrderDetail(id, dto);
             return ResponseEntity.ok(response);
@@ -72,11 +104,35 @@ public class OrderDetailController {
         }
     }
 
-    @PutMapping("change-status/{ids}/{status}")
-    public void updateStatus(@PathVariable List<Long> ids, @PathVariable String status){
+    @PostMapping("/update-list")
+    public ResponseEntity<?> updateOrderDetailList(@RequestBody Map<String, Object> payload) {
+        try {
+            List<Long> ids = ((List<?>) payload.get("ids"))
+                    .stream()
+                    .map(obj -> Long.valueOf(obj.toString()))
+                    .toList();
+
+            List<OrderDetailRequest> dtos = ((List<?>) payload.get("details"))
+                    .stream()
+                    .map(obj -> mapper.convertValue(obj, OrderDetailRequest.class))
+                    .toList();
+
+            List<OrderDetailResponse> updated = orderDetailService.updateOrderDetailList(ids, dtos);
+            return ResponseEntity.ok(updated);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Unexpected error: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("change-status/{status}")
+    public void updateStatus(@RequestBody List<Long> ids, @PathVariable String status) {
         orderDetailService.updateOrderDetailStatus(ids, status);
     }
-    
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
@@ -90,9 +146,8 @@ public class OrderDetailController {
 
     private ResponseEntity<?> validation(BindingResult result) {
         Map<String, String> errors = new HashMap<>();
-        result.getFieldErrors().forEach(error ->
-            errors.put(error.getField(), "El campo: " + error.getField() + " " + error.getDefaultMessage())
-        );
+        result.getFieldErrors().forEach(error -> errors.put(error.getField(),
+                "El campo: " + error.getField() + " " + error.getDefaultMessage()));
         return ResponseEntity.badRequest().body(errors);
     }
 }

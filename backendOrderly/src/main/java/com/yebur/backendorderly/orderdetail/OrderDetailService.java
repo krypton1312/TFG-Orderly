@@ -1,14 +1,13 @@
 package com.yebur.backendorderly.orderdetail;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.yebur.backendorderly.order.Order;
-import com.yebur.backendorderly.order.OrderRequest;
-import com.yebur.backendorderly.order.OrderService;
+import com.yebur.backendorderly.order.*;
 import com.yebur.backendorderly.product.Product;
 import com.yebur.backendorderly.product.ProductService;
 
@@ -18,13 +17,16 @@ public class OrderDetailService implements OrderDetailServiceInterface {
     private final OrderDetailRepository orderDetailRepository;
     private final ProductService productService;
     private final OrderService orderService;
+    private final OrderRepository orderRepository;
 
     public OrderDetailService(OrderDetailRepository orderDetailRepository,
-            ProductService productService,
-            OrderService orderService) {
+                              ProductService productService,
+                              OrderService orderService,
+                              OrderRepository orderRepository) {
         this.orderDetailRepository = orderDetailRepository;
         this.productService = productService;
         this.orderService = orderService;
+        this.orderRepository = orderRepository;
     }
 
     @Override
@@ -44,25 +46,52 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         return orderDetailRepository.findOrderDetailDTOById(id);
     }
 
+    public List<OrderDetailResponse> findUnpaidOrderDetailDTOByOrderId(Long orderId) {
+        return orderDetailRepository.findUnpaidOrderDetailDTOByOrderId(orderId);
+    }
+
     @Override
     public Optional<OrderDetail> findById(Long id) {
         return orderDetailRepository.findById(id);
     }
 
     @Override
+    @Transactional
     public OrderDetailResponse createOrderDetail(OrderDetailRequest dto) {
         OrderDetail orderDetail = mapToEntity(dto);
         orderDetail.setCreatedAt(LocalDateTime.now());
-
         OrderDetail saved = orderDetailRepository.save(orderDetail);
 
-        
         recalculateOrderTotal(saved.getOrder());
+        checkAndUpdateOrderStatus(saved.getOrder().getId());
 
         return mapToResponse(saved);
     }
 
+    @Transactional
+    public List<OrderDetailResponse> createOrderDetailList(List<OrderDetailRequest> dtos) {
+        if (dtos == null || dtos.isEmpty()) {
+            throw new IllegalArgumentException("OrderDetailRequest list cannot be empty");
+        }
+
+        List<OrderDetail> entities = new ArrayList<>();
+        for (OrderDetailRequest dto : dtos) {
+            OrderDetail entity = mapToEntity(dto);
+            entity.setCreatedAt(LocalDateTime.now());
+            entities.add(entity);
+        }
+
+        List<OrderDetail> saved = orderDetailRepository.saveAll(entities);
+        saved.stream().map(OrderDetail::getOrder).distinct().forEach(o -> {
+            recalculateOrderTotal(o);
+            checkAndUpdateOrderStatus(o.getId());
+        });
+
+        return saved.stream().map(this::mapToResponse).toList();
+    }
+
     @Override
+    @Transactional
     public OrderDetailResponse updateOrderDetail(Long id, OrderDetailRequest dto) {
         OrderDetail existing = orderDetailRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("OrderDetail not found with id " + id));
@@ -70,6 +99,8 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         existing.setAmount(dto.getAmount());
         existing.setUnitPrice(dto.getUnitPrice());
         existing.setComment(dto.getComment());
+        existing.setStatus(OrderDetailStatus.valueOf(dto.getStatus().toUpperCase()));
+        existing.setCreatedAt(LocalDateTime.now());
 
         Product product = productService.findById(dto.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found with id " + dto.getProductId()));
@@ -79,16 +110,59 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 .orElseThrow(() -> new RuntimeException("Order not found with id " + dto.getOrderId()));
         existing.setOrder(order);
 
-        existing.setCreatedAt(LocalDateTime.now());
-
         OrderDetail saved = orderDetailRepository.save(existing);
 
-        recalculateOrderTotal(saved.getOrder());
+        recalculateOrderTotal(order);
+        checkAndUpdateOrderStatus(order.getId());
 
         return mapToResponse(saved);
     }
 
+    @Transactional
+    public List<OrderDetailResponse> updateOrderDetailList(List<Long> ids, List<OrderDetailRequest> dtos) {
+        if (ids == null || dtos == null || ids.isEmpty() || dtos.isEmpty()) {
+            throw new IllegalArgumentException("IDs and DTO lists cannot be empty");
+        }
+        if (ids.size() != dtos.size()) {
+            throw new IllegalArgumentException("IDs list and DTO list must have the same size");
+        }
+
+        List<OrderDetail> updatedEntities = new ArrayList<>();
+        for (int i = 0; i < ids.size(); i++) {
+            Long id = ids.get(i);
+            OrderDetailRequest dto = dtos.get(i);
+
+            OrderDetail existing = orderDetailRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("OrderDetail not found with id " + id));
+
+            existing.setAmount(dto.getAmount());
+            existing.setUnitPrice(dto.getUnitPrice());
+            existing.setComment(dto.getComment());
+            existing.setStatus(OrderDetailStatus.valueOf(dto.getStatus().toUpperCase()));
+            existing.setCreatedAt(LocalDateTime.now());
+
+            Product product = productService.findById(dto.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Product not found with id " + dto.getProductId()));
+            existing.setProduct(product);
+
+            Order order = orderService.findById(dto.getOrderId())
+                    .orElseThrow(() -> new RuntimeException("Order not found with id " + dto.getOrderId()));
+            existing.setOrder(order);
+
+            updatedEntities.add(existing);
+        }
+
+        List<OrderDetail> saved = orderDetailRepository.saveAll(updatedEntities);
+        saved.stream().map(OrderDetail::getOrder).distinct().forEach(o -> {
+            recalculateOrderTotal(o);
+            checkAndUpdateOrderStatus(o.getId());
+        });
+
+        return saved.stream().map(this::mapToResponse).toList();
+    }
+
     @Override
+    @Transactional
     public void deleteOrderDetail(Long id) {
         OrderDetail detail = orderDetailRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("OrderDetail not found with id " + id));
@@ -97,8 +171,10 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         orderDetailRepository.delete(detail);
 
         recalculateOrderTotal(order);
+        checkAndUpdateOrderStatus(order.getId());
     }
 
+    @Transactional
     public void updateOrderDetailStatus(List<Long> ids, String status) {
         OrderDetailStatus enumStatus;
         try {
@@ -107,12 +183,31 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             throw new RuntimeException("Unknown status: " + status);
         }
 
-        for (Long id : ids) {
-            OrderDetail detail = findById(id)
-                    .orElseThrow(() -> new RuntimeException("❌ OrderDetail not found with id " + id));
+        List<OrderDetail> details = orderDetailRepository.findAllById(ids);
+        if (details.size() != ids.size()) {
+            throw new RuntimeException("Some OrderDetail IDs were not found");
+        }
 
-            detail.setStatus(enumStatus);
-            orderDetailRepository.save(detail);
+        Map<Long, List<OrderDetail>> byOrder = details.stream()
+                .peek(d -> d.setStatus(enumStatus))
+                .collect(Collectors.groupingBy(d -> d.getOrder().getId()));
+
+        orderDetailRepository.saveAll(details);
+        orderDetailRepository.flush();
+
+        byOrder.keySet().forEach(this::checkAndUpdateOrderStatus);
+    }
+
+    private void checkAndUpdateOrderStatus(Long orderId) {
+        Order order = orderService.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found with id " + orderId));
+
+        boolean hasUnpaid = orderDetailRepository.existsByOrderIdAndStatusNot(orderId, OrderDetailStatus.PAID);
+        OrderStatus newState = hasUnpaid ? OrderStatus.OPEN : OrderStatus.PAID;
+
+        if (order.getState() != newState) {
+            order.setState(newState);
+            orderRepository.save(order);
         }
     }
 
@@ -124,7 +219,6 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 / 100.0;
 
         order.setTotal(newTotal);
-
         orderService.updateOrder(order.getId(), new OrderRequest(
                 order.getDatetime(),
                 order.getState().name(),

@@ -29,7 +29,7 @@ public interface OverviewRepository extends JpaRepository<Order, Long> {
             COALESCE(SUM(od.amount * od.unit_price), 0) AS total
         FROM orders o
         LEFT JOIN order_detail od ON o.id = od.order_id
-        WHERE o.rest_table_id IS NULL
+        WHERE o.rest_table_id IS NULL 
         GROUP BY o.id
         ORDER BY tableId NULLS LAST
         """,

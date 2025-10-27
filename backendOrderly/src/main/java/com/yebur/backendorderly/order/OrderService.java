@@ -74,7 +74,7 @@ public class OrderService implements OrderServiceInterface {
 
         order.setState(OrderStatus.valueOf(orderRequest.getState().toUpperCase()));
         order.setPaymentMethod(orderRequest.getPaymentMethod());
-        order.setTotal(orderRequest.getTotal());
+        order.setTotal(orderRequest.getTotal());        
 
         // Привязываем стол, если передан
         if (orderRequest.getIdTable() != null) {
