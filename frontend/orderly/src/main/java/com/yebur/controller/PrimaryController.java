@@ -808,13 +808,17 @@ public class PrimaryController {
 
     @FXML
     private void handlePartialPaymentClick() {
-        if(visualDetails.isEmpty() && !hasActiveOrder()) {
-            return;
+        if(currentOrder == null){
+            if(visualDetails.isEmpty()) {
+                System.out.println(visualDetails + " " + currentOrder);
+                System.out.println("fsd;lkf");
+                return;
+            }
         }
         try {
             URL fxml = getClass().getResource("/com/yebur/payment.fxml");
             if (fxml == null) {
-                System.err.println("❌ FXML файл не найден: /com/yebur/payment.fxml");
+                System.err.println("FXML not found: /com/yebur/payment.fxml");
                 return;
             }
 
@@ -837,7 +841,7 @@ public class PrimaryController {
                 scene.getStylesheets().add(cssUrl.toExternalForm());
                 System.out.println("✅ CSS loaded: " + cssUrl);
             } else {
-                System.err.println("⚠️ CSS не найден: /com/yebur/styles/partialpayment.css");
+                System.err.println("CSS not found: /com/yebur/styles/partialpayment.css");
             }
 
             System.out.println(stage.getScene().getStylesheets());

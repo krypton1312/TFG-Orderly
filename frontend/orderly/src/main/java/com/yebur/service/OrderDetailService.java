@@ -1,6 +1,8 @@
 package com.yebur.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -37,14 +39,36 @@ public class OrderDetailService {
     public static OrderDetailResponse createOrderDetail(OrderDetailRequest orderDetail) throws Exception {
         String jsonInput = mapper.writeValueAsString(orderDetail);
         String jsonResponse = ApiClient.post("/orderDetails", jsonInput);
-        System.out.println(jsonResponse);
         return mapper.readValue(jsonResponse, OrderDetailResponse.class);
     }
 
-    public static OrderDetailResponse updateOrderDetail(Long id, OrderDetailRequest orderDetail) throws Exception {
+    public static List<OrderDetailResponse> createOrderDetailList(List<OrderDetailRequest> orderDetails)
+            throws Exception {
+        String jsonInput = mapper.writeValueAsString(orderDetails);
+        String jsonResponse = ApiClient.post("/orderDetails/list", jsonInput);
+
+        return mapper.readValue(jsonResponse,
+                mapper.getTypeFactory().constructCollectionType(List.class, OrderDetailResponse.class));
+    }
+
+    public static OrderDetailResponse updateOrderDetail(Long id, OrderDetailRequest orderDetail)
+            throws Exception {
         String jsonInput = mapper.writeValueAsString(orderDetail);
         String jsonResponse = ApiClient.put("/orderDetails/" + id, jsonInput);
         return mapper.readValue(jsonResponse, OrderDetailResponse.class);
+    }
+
+    public static List<OrderDetailResponse> updateOrderDetailList(List<Long> ids, List<OrderDetailRequest> orderDetails) throws Exception {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("ids", ids);
+        payload.put("details", orderDetails);
+
+        String jsonInput = mapper.writeValueAsString(payload);
+        String jsonResponse = ApiClient.post("/orderDetails/update-list", jsonInput);
+
+        return mapper.readValue(
+                jsonResponse,
+                mapper.getTypeFactory().constructCollectionType(List.class, OrderDetailResponse.class));
     }
 
     public static void changeOrderDetailStatus(List<Long> ids, String status) throws Exception {
