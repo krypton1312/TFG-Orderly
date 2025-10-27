@@ -810,8 +810,6 @@ public class PrimaryController {
     private void handlePartialPaymentClick() {
         if(currentOrder == null){
             if(visualDetails.isEmpty()) {
-                System.out.println(visualDetails + " " + currentOrder);
-                System.out.println("fsd;lkf");
                 return;
             }
         }
@@ -839,12 +837,10 @@ public class PrimaryController {
             if (cssUrl != null) {
                 scene.getStylesheets().clear();
                 scene.getStylesheets().add(cssUrl.toExternalForm());
-                System.out.println("✅ CSS loaded: " + cssUrl);
             } else {
                 System.err.println("CSS not found: /com/yebur/styles/partialpayment.css");
             }
 
-            System.out.println(stage.getScene().getStylesheets());
             stage.initModality(Modality.APPLICATION_MODAL);
 
             stage.setOnHiding(event -> {
