@@ -493,6 +493,7 @@ public class PrimaryController {
                 updateReq.setProductId(product.getId());
                 updateReq.setAmount(newAmount);
                 updateReq.setUnitPrice(product.getPrice());
+                updateReq.setStatus("PENDING");
                 try {
                     OrderDetailService.updateOrderDetail(existingDetail.getId(), updateReq);
                 } catch (Exception e) {
