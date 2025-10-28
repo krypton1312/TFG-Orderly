@@ -1,6 +1,7 @@
 .root {
     -fx-font-family: 'Inter', sans-serif;
-    -fx-background-color: #c3c4c7; /* bg-gray-100 */
+    -fx-background-color: #c3c4c7;
+    /* bg-gray-100 */
 }
 
 /* Карточки */
@@ -8,7 +9,7 @@
     -fx-background-color: white;
     -fx-background-radius: 12;
     -fx-padding: 15;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 2);
 }
 
 
@@ -16,18 +17,22 @@
 .order-title {
     -fx-font-size: 18px;
     -fx-font-weight: bold;
-    -fx-text-fill: #111827; /* text-gray-900 */
+    -fx-text-fill: #111827;
+    /* text-gray-900 */
 }
 
 .order-subtitle {
     -fx-font-size: 14px;
-    -fx-text-fill: #6b7280; /* text-gray-500 */
+    -fx-text-fill: #6b7280;
+    /* text-gray-500 */
 }
+
 .order-total {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-text-fill: #111827;
 }
+
 /* сам ScrollPane */
 .order-scroll-pane {
     -fx-background-color: transparent;
@@ -36,13 +41,14 @@
 }
 
 /* область внутри ScrollPane */
-.order-scroll-pane > .viewport {
+.order-scroll-pane>.viewport {
     -fx-background-color: transparent;
 }
 
 /* сам VBox внутри */
 .order-items-box {
-    -fx-background-color: transparent; /* фон элементов заказов */
+    -fx-background-color: transparent;
+    /* фон элементов заказов */
     -fx-background-radius: 6;
 }
 
@@ -65,57 +71,70 @@
     -fx-background-radius: 6;
     -fx-cursor: hand;
 }
+
 .num-btn:hover {
     -fx-background-color: #e5e7eb;
 }
 
 .category-btn {
-    -fx-pref-width: 85;       /* фикс ширина */
-    -fx-pref-height: 75;       /* фикс высота */
+    -fx-pref-width: 85;
+    /* фикс ширина */
+    -fx-pref-height: 75;
+    /* фикс высота */
     -fx-text-fill: #374151;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-background-radius: 8;
-    -fx-border-color: #d1d5db;  /* тонкая граница */
+    -fx-border-color: #d1d5db;
+    /* тонкая граница */
     -fx-border-radius: 8;
     -fx-border-width: 1;
-    -fx-padding: 0;             /* убираем лишние отступы внутри */
+    -fx-padding: 0;
+    /* убираем лишние отступы внутри */
 }
 
 .category-btn:hover {
-    -fx-background-color: #e5e7eb; /* светло-серый при наведении */
+    -fx-background-color: #e5e7eb;
+    /* светло-серый при наведении */
 }
 
 .category-btn:selected,
 
 .category-btn.selected {
-    -fx-background-color: #3b82f6; /* синий акцент */
+    -fx-background-color: #3b82f6;
+    /* синий акцент */
     -fx-text-fill: white;
     -fx-border-color: transparent;
 }
 
 
 /* Продукты */
-.product-btn{
-    -fx-pref-width: 85;       /* фикс ширина */
-    -fx-pref-height: 75;       /* фикс высота */
+.product-btn {
+    -fx-pref-width: 85;
+    /* фикс ширина */
+    -fx-pref-height: 75;
+    /* фикс высота */
     -fx-text-fill: #374151;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-background-radius: 8;
-    -fx-border-color: #d1d5db;  /* тонкая граница */
+    -fx-border-color: #d1d5db;
+    /* тонкая граница */
     -fx-border-radius: 8;
     -fx-border-width: 1;
-    -fx-padding: 0;             /* убираем лишние отступы внутри */
+    -fx-padding: 0;
+    /* убираем лишние отступы внутри */
 }
+
 .product-btn:hover {
     -fx-border-color: #3b82f6;
-    -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3), 10, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.3), 10, 0, 0, 2);
 }
 
 /* Правая панель */
 .sidebar {
-    -fx-background-color: #1f2937; /* bg-gray-800 */
+    -fx-background-color: #1f2937;
+    /* bg-gray-800 */
     -fx-background-radius: 12;
 }
 
@@ -128,17 +147,38 @@
     -fx-padding: 12 15;
     -fx-cursor: hand;
 }
-.green { -fx-background-color: #22c55e; }
-.green:hover { -fx-background-color: #16a34a; }
 
-.blue { -fx-background-color: #3b82f6; }
-.blue:hover { -fx-background-color: #2563eb; }
+.green {
+    -fx-background-color: #22c55e;
+}
 
-.red { -fx-background-color: #ef4444; }
-.red:hover { -fx-background-color: #dc2626; }
+.green:hover {
+    -fx-background-color: #16a34a;
+}
 
-.dark { -fx-background-color: #374151; }
-.dark:hover { -fx-background-color: #4b5563; }
+.blue {
+    -fx-background-color: #3b82f6;
+}
+
+.blue:hover {
+    -fx-background-color: #2563eb;
+}
+
+.red {
+    -fx-background-color: #ef4444;
+}
+
+.red:hover {
+    -fx-background-color: #dc2626;
+}
+
+.dark {
+    -fx-background-color: #374151;
+}
+
+.dark:hover {
+    -fx-background-color: #4b5563;
+}
 
 /* ================================
    СТИЛЬ ТОЛЬКО ДЛЯ СПИСКА ЗАКАЗОВ
@@ -178,7 +218,7 @@
 }
 
 /* Количество — центрировано */
-.order-item-row .quantity-label .order-header-price .order-header-quantity{
+.order-item-row .quantity-label .order-header-price .order-header-quantity {
     -fx-text-alignment: center;
 }
 
@@ -186,17 +226,21 @@
 .scroll-bar {
     -fx-background-color: transparent;
 }
+
 .scroll-bar .thumb {
     -fx-background-color: #9ca3af;
     -fx-background-radius: 8;
 }
+
 .scroll-bar .thumb:hover {
     -fx-background-color: #6b7280;
 }
+
 .scroll-bar .track {
     -fx-background-color: #e5e7eb;
     -fx-background-radius: 8;
 }
+
 .order-total-bar {
     -fx-padding: 8 10 0 0;
     -fx-border-color: #e5e7eb transparent transparent transparent;
@@ -204,7 +248,8 @@
 }
 
 .order-total-bg {
-    -fx-background-color: rgba(107, 236, 107, 0.733); /* мягкий зелёный фон */
+    -fx-background-color: rgba(107, 236, 107, 0.733);
+    /* мягкий зелёный фон */
     -fx-background-radius: 8;
     -fx-padding: 5 10;
     -fx-spacing: 5;
@@ -214,6 +259,7 @@
     -fx-font-size: 15px;
     -fx-text-fill: #374151;
 }
+
 .order-total-value {
     -fx-font-size: 18px;
     -fx-font-weight: bold;
@@ -233,8 +279,11 @@
     -fx-font-weight: normal;
     -fx-opacity: 0.7;
 }
+
 .selected-row-order-item {
-    -fx-background-color: #d0ebff; /* голубая подсветка */
+    -fx-background-color: #d0ebff;
+    /* голубая подсветка */
     -fx-border-width: 2;
     -fx-border-radius: 4;
 }
+

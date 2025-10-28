@@ -29,8 +29,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -63,6 +66,9 @@ public class PrimaryController {
 
     @FXML
     private VBox orderVboxItems;
+
+    @FXML
+    private ScrollPane orderSP;
     @FXML
     private TextField displayField;
     @FXML
@@ -809,8 +815,8 @@ public class PrimaryController {
 
     @FXML
     private void handlePartialPaymentClick() {
-        if(currentOrder == null){
-            if(visualDetails.isEmpty()) {
+        if (currentOrder == null) {
+            if (visualDetails.isEmpty()) {
                 return;
             }
         }
@@ -846,6 +852,7 @@ public class PrimaryController {
 
             stage.setOnHiding(event -> {
                 handleChecksClick();
+                showPaymentBox(controller.getTotalCheck());
             });
 
             stage.showAndWait();
@@ -898,6 +905,86 @@ public class PrimaryController {
     private void handleCloseClick() {
         Stage stage = (Stage) categoryBox.getScene().getWindow();
         stage.close();
+    }
+
+    private void showPaymentBox(double[] paymentInfo) {
+        orderVboxItems.getChildren().clear();
+
+        double total = paymentInfo[0];
+        double recibido = paymentInfo[1];
+        double cambio = paymentInfo[2];
+
+        StackPane wrapper = new StackPane();
+        wrapper.setAlignment(Pos.CENTER);
+        wrapper.setPrefSize(orderVboxItems.getWidth(), orderVboxItems.getHeight());
+
+        VBox paymentVB = new VBox();
+        paymentVB.setAlignment(Pos.CENTER_LEFT);
+        paymentVB.setPadding(new javafx.geometry.Insets(15, 15, 15, 15));
+        paymentVB.setSpacing(10);
+        paymentVB.setStyle(
+                "-fx-background-color: white;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 4);" +
+                        "-fx-border-color: #f3f4f6;" +
+                        "-fx-border-radius: 12;");
+
+        paymentVB.setMaxWidth(orderVboxItems.getWidth() * 0.9);
+        paymentVB.setMaxHeight(orderVboxItems.getHeight()*0.9);
+        paymentVB.setPrefHeight(orderVboxItems.getHeight()*0.9);
+        paymentVB.setPrefWidth(orderVboxItems.getWidth() * 0.9);
+        StackPane.setAlignment(paymentVB, Pos.CENTER);
+        wrapper.setMargin(paymentVB, new javafx.geometry.Insets(10, 0, 0, 0));
+
+        Label title = new Label("💳 PAGO DE LA CUENTA");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #111827;");
+
+        Pane separator = new Pane();
+        separator.setStyle("-fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;");
+        separator.setPrefHeight(1);
+
+        HBox rowTotal = createPaymentRow("COBRADO:", String.format("%.2f €", total), "#000");
+        HBox rowRecibido = createPaymentRow("RECIBIDO:", String.format("%.2f €", recibido), "#000");
+        HBox rowCambio = createPaymentRow("CAMBIO:", String.format("%.2f €", cambio), "#16a34a");
+
+        if(recibido > 0){
+            paymentVB.getChildren().addAll(title, separator, rowTotal, rowRecibido, rowCambio);
+        }else{
+            paymentVB.getChildren().addAll(title, separator, rowTotal);
+        }
+        wrapper.getChildren().add(paymentVB);
+
+        orderVboxItems.getChildren().add(wrapper);
+
+        paymentVB.setOpacity(0);
+        paymentVB.setScaleX(0.9);
+        paymentVB.setScaleY(0.9);
+        javafx.animation.FadeTransition fade = new javafx.animation.FadeTransition(javafx.util.Duration.millis(300),
+                paymentVB);
+        fade.setFromValue(0);
+        fade.setToValue(1);
+        javafx.animation.ScaleTransition scale = new javafx.animation.ScaleTransition(javafx.util.Duration.millis(300),
+                paymentVB);
+        scale.setFromX(0.9);
+        scale.setFromY(0.9);
+        scale.setToX(1);
+        scale.setToY(1);
+        new javafx.animation.ParallelTransition(fade, scale).play();
+    }
+
+    private HBox createPaymentRow(String label, String value, String color) {
+        HBox row = new HBox(7);
+        row.setAlignment(Pos.CENTER_LEFT);
+
+        Label lblText = new Label(label);
+        lblText.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #000;");
+
+        Label lblValue = new Label(value);
+        lblValue.setStyle("-fx-font-size: 18px; -fx-text-fill: " + color + "; -fx-font-weight: bold;");
+
+        HBox.setHgrow(lblText, javafx.scene.layout.Priority.ALWAYS);
+        row.getChildren().addAll(lblText, lblValue);
+        return row;
     }
 
     public List<OrderDetailResponse> getCurrentdetails() {
