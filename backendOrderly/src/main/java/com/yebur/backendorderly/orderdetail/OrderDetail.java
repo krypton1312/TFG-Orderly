@@ -1,5 +1,6 @@
 package com.yebur.backendorderly.orderdetail;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.yebur.backendorderly.order.Order;
@@ -50,8 +51,8 @@ public class OrderDetail {
     @Column(nullable = false)
     private int amount;
 
-    @Column(nullable = false)
-    private double unitPrice;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal unitPrice;
     
     @Column
     private LocalDateTime createdAt;

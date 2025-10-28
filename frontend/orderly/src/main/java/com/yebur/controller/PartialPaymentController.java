@@ -150,15 +150,17 @@ public class PartialPaymentController {
 
             box.getChildren().add(row);
             total += totalLine;
-            if (total > 0) {
-                total_check = total;
-            }
         }
 
         if (isMainBox) {
             mainTotalLabel.setText(String.format("$%.2f", total));
         } else {
             partialTotalLabel.setText(String.format("$%.2f", total));
+
+            // ✅ сохраняем total_check только если реально есть товары
+            if (!details.isEmpty()) {
+                total_check = total;
+            }
         }
     }
 
@@ -244,8 +246,12 @@ public class PartialPaymentController {
 
     @FXML
     private void handlePayNoReceipt() {
+        if (partialDetails.isEmpty()) {
+            showError("Por favor, selecciona productos para cobrar");
+            return;
+        }
         if (selectedPaymentMethod.equals("")) {
-            showPaymentMethodError();
+            showError("Por favor, selecciona un método de pago.");
             return;
         }
         persistPartialDetails();
@@ -253,7 +259,7 @@ public class PartialPaymentController {
         refreshUI();
         showPaymentBox(getTotalCheck());
         displayField.clear();
-        
+
         anyPaymentDone = true;
         if (orderDetails.isEmpty()) {
             Stage stage = (Stage) tableNameLabel.getScene().getWindow();
@@ -267,8 +273,6 @@ public class PartialPaymentController {
 
         switch (buttonText) {
             case "C" -> displayField.clear();
-            case "+-" -> {
-            }
             default -> addDigit(buttonText);
         }
     }
@@ -373,7 +377,12 @@ public class PartialPaymentController {
     }
 
     public double[] getTotalCheck() {
-        double input = Double.parseDouble(!displayField.getText().isEmpty() ? displayField.getText() : "0");
+        double input;
+        if (selectedPaymentMethod.equals("CARD")) {
+            input = 0.0;
+        } else {
+            input = Double.parseDouble(!displayField.getText().isEmpty() ? displayField.getText() : "0");
+        }
         double change = input - total_check;
         return new double[] { total_check, input, change };
     }
@@ -476,7 +485,7 @@ public class PartialPaymentController {
         }
     }
 
-    private void showPaymentMethodError() {
+    private void showError(String message) {
         Stage dialog = new Stage();
         dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
         dialog.setTitle("Error");
@@ -485,8 +494,8 @@ public class PartialPaymentController {
         dialogVBox.setAlignment(Pos.CENTER);
         dialogVBox.setStyle("-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 10;");
 
-        Label message = new Label("Por favor, selecciona un método de pago.");
-        message.setStyle("-fx-font-size: 16px; -fx-text-fill: #1f2937; -fx-font-weight: bold;");
+        Label messageL = new Label(message);
+        messageL.setStyle("-fx-font-size: 16px; -fx-text-fill: #1f2937; -fx-font-weight: bold;");
 
         Button closeButton = new Button("OK");
         closeButton.setStyle("""
@@ -501,14 +510,14 @@ public class PartialPaymentController {
 
         closeButton.setOnAction(e -> dialog.close());
 
-        dialogVBox.getChildren().addAll(message, closeButton);
+        dialogVBox.getChildren().addAll(messageL, closeButton);
 
         Scene dialogScene = new Scene(dialogVBox, 400, 100);
         dialog.setScene(dialogScene);
         dialog.showAndWait();
     }
 
-    public boolean anyPaymentDone(){
+    public boolean anyPaymentDone() {
         return anyPaymentDone;
     }
 }

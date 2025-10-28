@@ -1,5 +1,7 @@
 package com.yebur.backendorderly.order;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -50,21 +52,27 @@ public class OrderService implements OrderServiceInterface {
     @Override
     public OrderResponse createOrder(OrderRequest orderRequest) {
         Order order = new Order();
+
         order.setState(OrderStatus.valueOf(orderRequest.getState().toUpperCase()));
         order.setPaymentMethod(Objects.requireNonNullElse(orderRequest.getPaymentMethod(), "N/A"));
-        order.setTotal(Objects.requireNonNullElse(orderRequest.getTotal(), 0.0));
+
+        BigDecimal total = Optional.ofNullable(orderRequest.getTotal())
+                .orElse(BigDecimal.ZERO)
+                .setScale(2, RoundingMode.HALF_UP);
+        order.setTotal(total);
+
         order.setDatetime(LocalDateTime.now());
 
-        // order.setEmployee(...);
-        // order.setClient(...);
         order.setRestTable(orderRequest.getIdTable() != null
                 ? restTableRepository.findById(orderRequest.getIdTable())
                         .orElseThrow(() -> new RuntimeException("Table not found"))
                 : null);
-        
-        OrderResponse savedOrder = findOrderDTOById(orderRepository.save(order).getId())
+
+        Order saved = orderRepository.save(order);
+
+        return findOrderDTOById(saved.getId())
+                .map(this::mapWithTable)
                 .orElseThrow(() -> new RuntimeException("Error creating order"));
-        return mapWithTable(savedOrder);
     }
 
     @Override
@@ -74,9 +82,12 @@ public class OrderService implements OrderServiceInterface {
 
         order.setState(OrderStatus.valueOf(orderRequest.getState().toUpperCase()));
         order.setPaymentMethod(orderRequest.getPaymentMethod());
-        order.setTotal(orderRequest.getTotal());        
 
-        // Привязываем стол, если передан
+        BigDecimal total = Optional.ofNullable(orderRequest.getTotal())
+                .orElse(BigDecimal.ZERO)
+                .setScale(2, RoundingMode.HALF_UP);
+        order.setTotal(total);
+
         if (orderRequest.getIdTable() != null) {
             order.setRestTable(restTableRepository.findById(orderRequest.getIdTable())
                     .orElseThrow(() -> new RuntimeException("Table not found")));
@@ -109,7 +120,7 @@ public class OrderService implements OrderServiceInterface {
                 order.getDatetime(),
                 order.getState(),
                 order.getPaymentMethod(),
-                order.getTotal(),
+                order.getTotal() != null ? order.getTotal().setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO,
                 order.getIdEmployee(),
                 order.getIdClient(),
                 tableResponse);

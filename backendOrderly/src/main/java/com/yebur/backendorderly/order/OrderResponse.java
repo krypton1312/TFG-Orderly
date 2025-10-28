@@ -1,5 +1,6 @@
 package com.yebur.backendorderly.order;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.yebur.backendorderly.resttable.RestTableResponse;
@@ -21,7 +22,7 @@ public class OrderResponse {
 
     private String paymentMethod;
 
-    private Double total;
+    private BigDecimal total;
 
     private Long idEmployee;
 
@@ -29,7 +30,7 @@ public class OrderResponse {
 
     private RestTableResponse restTable;
 
-    public OrderResponse(Long id, LocalDateTime datetime, String state, String paymentMethod, double total,
+    public OrderResponse(Long id, LocalDateTime datetime, String state, String paymentMethod, BigDecimal total,
             Long idEmployee, Long idClient, Long idRestTable) {
         this.id = id;
         this.datetime = datetime;

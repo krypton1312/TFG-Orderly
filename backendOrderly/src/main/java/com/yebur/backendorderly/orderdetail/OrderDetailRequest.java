@@ -1,5 +1,7 @@
 package com.yebur.backendorderly.orderdetail;
 
+import java.math.BigDecimal;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -22,7 +24,7 @@ public class OrderDetailRequest {
     private int amount;
     
     @Positive
-    private double unitPrice;
+    private BigDecimal unitPrice;
 
     private String status;
 

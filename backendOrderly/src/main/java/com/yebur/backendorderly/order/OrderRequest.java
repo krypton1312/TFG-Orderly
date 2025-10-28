@@ -1,5 +1,6 @@
 package com.yebur.backendorderly.order;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.validation.constraints.NotBlank;
@@ -21,7 +22,7 @@ public class OrderRequest {
     private String paymentMethod;
 
     @Positive
-    private double total;
+    private BigDecimal total;
 
     private Long idEmployee;
 

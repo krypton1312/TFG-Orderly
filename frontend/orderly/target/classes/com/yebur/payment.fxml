@@ -220,13 +220,13 @@
                                     maxWidth="Infinity" maxHeight="Infinity" />
 
                                 <Button text="0" styleClass="num-btn"
-                                    GridPane.columnIndex="0" GridPane.rowIndex="3"
+                                    GridPane.columnIndex="1" GridPane.rowIndex="3"
                                     maxWidth="Infinity" maxHeight="Infinity" />
                                 <Button text="." styleClass="num-btn"
-                                    GridPane.columnIndex="2" GridPane.rowIndex="3"
+                                    GridPane.columnIndex="0" GridPane.rowIndex="3"
                                     maxWidth="Infinity" maxHeight="Infinity" />
                                 <Button text="C"
-                                    GridPane.columnIndex="1" GridPane.rowIndex="3"
+                                    GridPane.columnIndex="2" GridPane.rowIndex="3"
                                     maxWidth="Infinity" maxHeight="Infinity">
                                     <styleClass>
                                         <String fx:value="action-btn" />

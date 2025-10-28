@@ -1,5 +1,7 @@
 package com.yebur.backendorderly.orderdetail;
 
+import java.math.BigDecimal;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,14 +21,14 @@ public class OrderDetailResponse {
     
     private int amount;
 
-    private double unitPrice;
+    private BigDecimal unitPrice;
 
     private String status;
 
     private String paymentMethod;
 
     public OrderDetailResponse(Long id, Long productId, String productName, Long orderId, String comment, int amount,
-            double unitPrice, OrderDetailStatus status, String paymentMethod) {
+            BigDecimal unitPrice, OrderDetailStatus status, String paymentMethod) {
         this.id = id;
         this.productId = productId;
         this.productName = productName;

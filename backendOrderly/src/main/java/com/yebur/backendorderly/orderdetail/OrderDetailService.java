@@ -1,5 +1,7 @@
 package com.yebur.backendorderly.orderdetail;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -97,7 +99,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 .orElseThrow(() -> new RuntimeException("OrderDetail not found with id " + id));
 
         existing.setAmount(dto.getAmount());
-        existing.setUnitPrice(dto.getUnitPrice());
+        existing.setUnitPrice(dto.getUnitPrice().setScale(2, RoundingMode.HALF_UP));
         existing.setComment(dto.getComment());
         existing.setStatus(OrderDetailStatus.valueOf(dto.getStatus().toUpperCase()));
         existing.setCreatedAt(LocalDateTime.now());
@@ -137,7 +139,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                     .orElseThrow(() -> new RuntimeException("OrderDetail not found with id " + id));
 
             existing.setAmount(dto.getAmount());
-            existing.setUnitPrice(dto.getUnitPrice());
+            existing.setUnitPrice(dto.getUnitPrice().setScale(2, RoundingMode.HALF_UP));
             existing.setComment(dto.getComment());
             existing.setStatus(OrderDetailStatus.valueOf(dto.getStatus().toUpperCase()));
             existing.setCreatedAt(LocalDateTime.now());
@@ -213,14 +215,15 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         }
     }
 
+    /** ✅ Пересчёт суммы заказа с BigDecimal */
     private void recalculateOrderTotal(Order order) {
-        double newTotal = Math.round(
-                orderDetailRepository.findAllByOrderId(order.getId()).stream()
-                        .mapToDouble(od -> od.getUnitPrice() * od.getAmount())
-                        .sum() * 100.0)
-                / 100.0;
+        BigDecimal newTotal = orderDetailRepository.findAllByOrderId(order.getId()).stream()
+                .map(od -> od.getUnitPrice().multiply(BigDecimal.valueOf(od.getAmount())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
 
         order.setTotal(newTotal);
+
         orderService.updateOrder(order.getId(), new OrderRequest(
                 order.getDatetime(),
                 order.getState().name(),
@@ -242,9 +245,9 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         detail.setProduct(product);
         detail.setOrder(order);
         detail.setAmount(dto.getAmount());
-        detail.setUnitPrice(dto.getUnitPrice());
+        detail.setUnitPrice(dto.getUnitPrice().setScale(2, RoundingMode.HALF_UP));
         detail.setComment(dto.getComment());
-        detail.setStatus(OrderDetailStatus.valueOf(dto.getStatus()));
+        detail.setStatus(OrderDetailStatus.valueOf(dto.getStatus().toUpperCase()));
         detail.setPaymentMethod(dto.getPaymentMethod());
         return detail;
     }
