@@ -2,7 +2,6 @@ package com.yebur.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.DoubleBinaryOperator;
 
 import com.yebur.model.request.OrderDetailRequest;
 import com.yebur.model.response.OrderDetailResponse;
@@ -15,6 +14,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -48,17 +48,26 @@ public class PartialPaymentController {
     @FXML
     private GridPane calculatorGP;
 
+    @FXML
+    private Button cardButton;
+
+    @FXML
+    private Button cashButton;
+
     private PrimaryController primaryController;
 
     private List<OrderDetailResponse> orderDetails;
     private List<OrderDetailResponse> partialDetails;
     private List<OrderDetailRequest> partialDetailsNew;
 
+    private String selectedPaymentMethod = "";
+
     private OrderResponse order;
     private RestTableResponse table;
     private double total_check;
 
     private boolean isPaymentBoxShown = false;
+    private boolean anyPaymentDone = false;
 
     @FXML
     public void initialize() {
@@ -72,6 +81,9 @@ public class PartialPaymentController {
             if (newVal)
                 displayField.deselect();
         });
+
+        cardButton.setOnAction(e -> selectPayment("card"));
+        cashButton.setOnAction(e -> selectPayment("cash"));
     }
 
     @FXML
@@ -188,7 +200,8 @@ public class PartialPaymentController {
                     item.getComment(),
                     amountToMove,
                     item.getUnitPrice(),
-                    "PAID");
+                    "PAID",
+                    selectedPaymentMethod);
             partialDetailsNew.add(newRequest);
         }
 
@@ -231,12 +244,17 @@ public class PartialPaymentController {
 
     @FXML
     private void handlePayNoReceipt() {
+        if (selectedPaymentMethod.equals("")) {
+            showPaymentMethodError();
+            return;
+        }
         persistPartialDetails();
         partialDetails.clear();
         refreshUI();
         showPaymentBox(getTotalCheck());
         displayField.clear();
-
+        
+        anyPaymentDone = true;
         if (orderDetails.isEmpty()) {
             Stage stage = (Stage) tableNameLabel.getScene().getWindow();
             stage.close();
@@ -273,7 +291,8 @@ public class PartialPaymentController {
                             od.getComment(),
                             od.getAmount(),
                             od.getUnitPrice(),
-                            od.getStatus()));
+                            od.getStatus(),
+                            selectedPaymentMethod));
                 }
             }
             for (OrderDetailResponse pd : partialDetails) {
@@ -285,7 +304,8 @@ public class PartialPaymentController {
                             pd.getComment(),
                             pd.getAmount(),
                             pd.getUnitPrice(),
-                            "PAID"));
+                            "PAID",
+                            selectedPaymentMethod));
                 }
             }
 
@@ -310,7 +330,8 @@ public class PartialPaymentController {
                                 req.getComment(),
                                 req.getAmount(),
                                 req.getUnitPrice(),
-                                "PAID"));
+                                "PAID",
+                                selectedPaymentMethod));
                     }
                 }
                 List<OrderDetailResponse> created = OrderDetailService.createOrderDetailList(aggregated);
@@ -358,7 +379,7 @@ public class PartialPaymentController {
     }
 
     private void showPaymentBox(double[] paymentInfo) {
-        
+
         partialOrderBox.getChildren().clear();
 
         double total = paymentInfo[0];
@@ -367,7 +388,7 @@ public class PartialPaymentController {
 
         StackPane wrapper = new StackPane();
         wrapper.setAlignment(Pos.CENTER);
-        wrapper.setPrefSize(partialOrderBox.getWidth(), partialOrderBox.getHeight()*0.5);
+        wrapper.setPrefSize(partialOrderBox.getWidth(), partialOrderBox.getHeight() * 0.5);
 
         VBox paymentVB = new VBox();
         paymentVB.setAlignment(Pos.CENTER_LEFT);
@@ -386,7 +407,7 @@ public class PartialPaymentController {
         paymentVB.setPrefWidth(partialOrderBox.getWidth() * 0.9);
 
         StackPane.setAlignment(paymentVB, Pos.CENTER);
-        StackPane.setMargin(paymentVB, new javafx.geometry.Insets(40, 0, 0, 0)); 
+        StackPane.setMargin(paymentVB, new javafx.geometry.Insets(40, 0, 0, 0));
 
         Label title = new Label("💳 PAGO DE LA SUBCUENTA");
         title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #111827;");
@@ -399,9 +420,9 @@ public class PartialPaymentController {
         HBox rowRecibido = createPaymentRow("RECIBIDO:", String.format("%.2f €", recibido), "#000");
         HBox rowCambio = createPaymentRow("CAMBIO:", String.format("%.2f €", cambio), "#16a34a");
 
-        if(recibido > 0){
+        if (recibido > 0) {
             paymentVB.getChildren().addAll(title, separator, rowTotal, rowRecibido, rowCambio);
-        }else{
+        } else {
             paymentVB.getChildren().addAll(title, separator, rowTotal);
         }
 
@@ -442,4 +463,52 @@ public class PartialPaymentController {
         return row;
     }
 
+    private void selectPayment(String method) {
+        cardButton.getStyleClass().removeAll("selected-card");
+        cashButton.getStyleClass().removeAll("selected-cash");
+
+        if (method.equals("card")) {
+            cardButton.getStyleClass().add("selected-card");
+            selectedPaymentMethod = "CARD";
+        } else {
+            cashButton.getStyleClass().add("selected-cash");
+            selectedPaymentMethod = "CASH";
+        }
+    }
+
+    private void showPaymentMethodError() {
+        Stage dialog = new Stage();
+        dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+        dialog.setTitle("Error");
+
+        VBox dialogVBox = new VBox(15);
+        dialogVBox.setAlignment(Pos.CENTER);
+        dialogVBox.setStyle("-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 10;");
+
+        Label message = new Label("Por favor, selecciona un método de pago.");
+        message.setStyle("-fx-font-size: 16px; -fx-text-fill: #1f2937; -fx-font-weight: bold;");
+
+        Button closeButton = new Button("OK");
+        closeButton.setStyle("""
+                    -fx-background-color: #f63b3bff;
+                    -fx-text-fill: white;
+                    -fx-font-weight: bold;
+                    -fx-background-radius: 8;
+                    -fx-cursor: hand;
+                    -fx-padding: 6 20;
+                """);
+        closeButton.setPrefSize(60, 40);
+
+        closeButton.setOnAction(e -> dialog.close());
+
+        dialogVBox.getChildren().addAll(message, closeButton);
+
+        Scene dialogScene = new Scene(dialogVBox, 400, 100);
+        dialog.setScene(dialogScene);
+        dialog.showAndWait();
+    }
+
+    public boolean anyPaymentDone(){
+        return anyPaymentDone;
+    }
 }

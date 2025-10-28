@@ -23,8 +23,10 @@ public class OrderDetailResponse {
 
     private String status;
 
+    private String paymentMethod;
+
     public OrderDetailResponse(Long id, Long productId, String productName, Long orderId, String comment, int amount,
-            double unitPrice, OrderDetailStatus status) {
+            double unitPrice, OrderDetailStatus status, String paymentMethod) {
         this.id = id;
         this.productId = productId;
         this.productName = productName;
@@ -33,7 +35,7 @@ public class OrderDetailResponse {
         this.amount = amount;
         this.unitPrice = unitPrice;
         this.status = (status != null) ? status.toString() : null;
+        this.paymentMethod = paymentMethod;
     }
-
     
 }

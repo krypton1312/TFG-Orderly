@@ -101,6 +101,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         existing.setComment(dto.getComment());
         existing.setStatus(OrderDetailStatus.valueOf(dto.getStatus().toUpperCase()));
         existing.setCreatedAt(LocalDateTime.now());
+        existing.setPaymentMethod(dto.getPaymentMethod());
 
         Product product = productService.findById(dto.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found with id " + dto.getProductId()));
@@ -140,6 +141,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             existing.setComment(dto.getComment());
             existing.setStatus(OrderDetailStatus.valueOf(dto.getStatus().toUpperCase()));
             existing.setCreatedAt(LocalDateTime.now());
+            existing.setPaymentMethod(dto.getPaymentMethod());
 
             Product product = productService.findById(dto.getProductId())
                     .orElseThrow(() -> new RuntimeException("Product not found with id " + dto.getProductId()));
@@ -243,6 +245,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         detail.setUnitPrice(dto.getUnitPrice());
         detail.setComment(dto.getComment());
         detail.setStatus(OrderDetailStatus.valueOf(dto.getStatus()));
+        detail.setPaymentMethod(dto.getPaymentMethod());
         return detail;
     }
 
@@ -255,6 +258,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 entity.getComment(),
                 entity.getAmount(),
                 entity.getUnitPrice(),
-                entity.getStatus());
+                entity.getStatus(),
+                entity.getPaymentMethod());
     }
 }

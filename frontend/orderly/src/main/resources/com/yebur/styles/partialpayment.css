@@ -234,3 +234,109 @@
     -fx-background-color: #e5e7eb;
     -fx-background-radius: 8;
 }
+/* ==============================
+   💳 Блоки оплаты и калькулятор
+   ============================== */
+
+/* Карточка формы оплаты */
+.payment-method-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12;
+    -fx-padding: 20;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 12, 0, 0, 3);
+}
+
+.header-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.payment-btn {
+    -fx-background-color: #e5e7eb;
+    -fx-text-fill: #111827;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-pref-width: 140;
+    -fx-pref-height: 60;
+    -fx-padding: 10 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 6, 0, 0, 2);
+    -fx-alignment: center;
+}
+
+.payment-btn:hover {
+    -fx-background-color: #d1d5db;
+}
+
+/* Активное состояние (radio-button эффект) */
+.payment-btn.selected-card {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+}
+
+.payment-btn.selected-cash {
+    -fx-background-color: #16a34a;
+    -fx-text-fill: white;
+}
+
+
+/* Отдельная карточка калькулятора */
+.calculator-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12;
+    -fx-padding: 15;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 12, 0, 0, 3);
+}
+
+/* Поле ввода в калькуляторе */
+.display {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #1f2937;
+    -fx-background-radius: 8;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 8;
+    -fx-padding: 10;
+}
+
+/* Кнопки калькулятора */
+.num-btn {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s ease;
+}
+
+.num-btn:hover {
+    -fx-background-color: #e5e7eb;
+    -fx-translate-y: -1;
+}
+
+.action-btn.red {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+}
+.action-btn.red:hover {
+    -fx-background-color: #dc2626;
+    -fx-translate-y: -1;
+}
+
+/* Эффект нажатия */
+.payment-btn:pressed,
+.num-btn:pressed,
+.action-btn:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+    -fx-opacity: 0.9;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.2, 0, 2);
+}

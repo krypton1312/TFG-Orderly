@@ -852,7 +852,9 @@ public class PrimaryController {
 
             stage.setOnHiding(event -> {
                 handleChecksClick();
-                showPaymentBox(controller.getTotalCheck());
+                if(controller.anyPaymentDone()){
+                    showPaymentBox(controller.getTotalCheck());
+                }
             });
 
             stage.showAndWait();

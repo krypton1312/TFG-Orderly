@@ -60,4 +60,6 @@ public class OrderDetail {
     @Enumerated(EnumType.STRING) 
     private OrderDetailStatus status;
 
+    @Column
+    private String paymentMethod;
 }

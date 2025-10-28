@@ -9,9 +9,10 @@ public class OrderDetailResponse {
     private int amount;
     private double unitPrice;
     private String status;
+    private String paymentMethod;
 
     public OrderDetailResponse(Long id, Long productId, String productName, Long orderId, String comment, int amount,
-            double unitPrice, String status) {
+            double unitPrice, String status, String paymentMethod) {
         this.id = id;
         this.productId = productId;
         this.productName = productName;
@@ -20,11 +21,13 @@ public class OrderDetailResponse {
         this.amount = amount;
         this.unitPrice = unitPrice;
         this.status = status;
+        this.paymentMethod = paymentMethod;
     }
 
     public OrderDetailResponse() {
     }
 
+    
     public Long getId() {
         return id;
     }
@@ -95,6 +98,14 @@ public class OrderDetailResponse {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
     
 }
