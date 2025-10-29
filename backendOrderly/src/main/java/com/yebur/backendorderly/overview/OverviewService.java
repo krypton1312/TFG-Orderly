@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.yebur.backendorderly.order.OrderResponse;
 import com.yebur.backendorderly.order.OrderService;
 import com.yebur.backendorderly.order.OrderStatus;
+import com.yebur.backendorderly.orderdetail.OrderDetailResponse;
 import com.yebur.backendorderly.orderdetail.OrderDetailService;
 import com.yebur.backendorderly.resttable.RestTableResponse;
 import com.yebur.backendorderly.resttable.RestTableService;
@@ -77,6 +78,29 @@ public class OverviewService {
                     new OrderSummary(order.getId(), unpaidTotal.doubleValue())));
         }
 
+        return overview;
+    }
+
+    public List<OrderWithOrderDetailResponse> getOrderWithOrderDetails(){
+        List<OrderWithOrderDetailResponse> overview = new ArrayList<>();
+
+        List<OrderResponse> orders = orderService.findAllOrderDTOByStatus(OrderStatus.OPEN);
+        for(OrderResponse order : orders){
+                OrderWithOrderDetailResponse orderwithdetails = new OrderWithOrderDetailResponse();
+                orderwithdetails.setId(order.getId());
+                orderwithdetails.setDatetime(order.getDatetime());
+                
+                List<OrderDetailResponse> details = orderDetailService.findUnpaidOrderDetailDTOByOrderId(order.getId());
+                List<OrderDetailSummary> ods = new ArrayList<>(); 
+                for(OrderDetailResponse detail: details){
+                        OrderDetailSummary detailsSummary = new OrderDetailSummary(detail.getId(), detail.getProductName(), detail.getComment() ,detail.getAmount(), detail.getStatus());
+                        ods.add(detailsSummary);
+                }
+                orderwithdetails.setDetails(ods);
+
+                orderwithdetails.setTableName(order.getRestTable() == null ? "Sin mesa" : order.getRestTable().getName());
+                overview.add(orderwithdetails);
+        }
         return overview;
     }
 

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
+
 @RestController
 @RequestMapping("/overview")
 @RequiredArgsConstructor
@@ -20,4 +21,10 @@ public class OverviewController {
     public ResponseEntity<List<TableWithOrderResponse>> getOverview() {
         return ResponseEntity.ok(overviewService.getOverview());
     }
+
+    @GetMapping("/tablet")
+    public ResponseEntity<List<OrderWithOrderDetailResponse>> getOverviewTablet() {
+        return ResponseEntity.ok(overviewService.getOrderWithOrderDetails());
+    }
+    
 }
