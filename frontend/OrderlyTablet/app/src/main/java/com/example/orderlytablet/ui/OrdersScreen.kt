@@ -57,16 +57,6 @@ fun OrdersScreen(viewModel: OrdersViewModel = viewModel()) {
 
         is OrdersUiState.Success -> {
             val orders = (uiState as OrdersUiState.Success).orders
-
-            if (orders.isEmpty()) {
-                Box(
-
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "No hay pedidos activos.")
-                }
-            } else {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -133,7 +123,15 @@ fun OrdersScreen(viewModel: OrdersViewModel = viewModel()) {
                         }*/
                     }
                     HorizontalDivider(thickness = 1.dp, color = Color(0x11000000))
+                    if (orders.isEmpty()) {
+                        Box(
 
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "No hay pedidos activos.")
+                        }
+                    } else {
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = 280.dp),
                         modifier = Modifier
@@ -144,7 +142,7 @@ fun OrdersScreen(viewModel: OrdersViewModel = viewModel()) {
                         contentPadding = PaddingValues(8.dp)
 
                     ) {
-                        items(orders) { order -> OrderCard(order) }
+                        items(orders) { order -> OrderCard(order, viewModel) }
                     }
                 }
             }

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+
 sealed class OrdersUiState {
     object Loading : OrdersUiState()
     data class Success(val orders: List<OrderWithOrderDetailResponse>) : OrdersUiState()
@@ -17,7 +18,6 @@ sealed class OrdersUiState {
 }
 
 class OrdersViewModel : ViewModel() {
-
     private val _uiState = MutableStateFlow<OrdersUiState>(OrdersUiState.Loading)
     val uiState: StateFlow<OrdersUiState> = _uiState
 
@@ -52,6 +52,17 @@ class OrdersViewModel : ViewModel() {
             }
         }
     }
+
+    fun updateOrderDetailStatus(ids: List<Long>, newStatus: String) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.instance.updateOrderDetailStatus(newStatus, ids)
+            } catch (e: Exception) {
+                Log.e("OrdersViewModel", "❌ Ошибка запроса PUT: ${e.message}")
+            }
+        }
+    }
+
 
     override fun onCleared() {
         super.onCleared()

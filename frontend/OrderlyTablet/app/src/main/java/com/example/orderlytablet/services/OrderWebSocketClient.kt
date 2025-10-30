@@ -34,7 +34,7 @@ class OrderWebSocketClient {
                     val event = json.optString("event")
 
                     if (event == "ORDER_CHANGED") {
-                        onOrderChanged() // 🔥 вызываем callback
+                        onOrderChanged()
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()

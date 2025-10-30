@@ -6,7 +6,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.orderlytablet.response.OrderDetailSummary
 import com.example.orderlytablet.response.OrderWithOrderDetailResponse
 import com.example.orderlytablet.ui.components.OrderCard
-
+/*
 @Composable
 fun OrderCardPreview() {
     OrderCard(
@@ -29,3 +29,4 @@ fun PreviewOrderCard() {
         OrderCardPreview()
     }
 }
+*/

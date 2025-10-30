@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.orderlytablet.response.OrderWithOrderDetailResponse
+import com.example.orderlytablet.ui.screens.OrdersViewModel
 
 @Composable
 fun StatusDropdown(
@@ -25,13 +26,13 @@ fun StatusDropdown(
     var expanded by remember { mutableStateOf(false) }
     var selectedStatus by remember { mutableStateOf(currentStatus) }
 
-    val statusOptions = listOf("pending", "preparing", "ready", "delivered")
+    val statusOptions = listOf("PENDING", "SENT", "IN_PROGRESS", "SERVED")
 
-    val statusColor = when (selectedStatus.lowercase()) {
-        "pending" -> Color(0xFF9E9E9E)
-        "preparing" -> Color(0xFFFFC107)
-        "ready" -> Color(0xFF4CAF50)
-        "delivered" -> Color(0xFF2196F3)
+    val statusColor = when (selectedStatus) {
+        "PENDING" -> Color(0xFF9E9E9E)
+        "SENT" -> Color(0xFFFFC107)
+        "IN_PROGRESS" -> Color(0xFF4CAF50)
+        "SERVED" -> Color(0xFF2196F3)
         else -> Color.Gray
     }
 
@@ -75,7 +76,7 @@ fun StatusDropdown(
 }
 
 @Composable
-fun OrderCard(order: OrderWithOrderDetailResponse) {
+fun OrderCard(order: OrderWithOrderDetailResponse, viewModel: OrdersViewModel) {
     Card(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp),
@@ -144,7 +145,7 @@ fun OrderCard(order: OrderWithOrderDetailResponse) {
                                 currentStatus = detail.status,
                                 onStatusChange = { newStatus ->
                                     detail.status = newStatus
-                                    // TODO: обновление через ViewModel
+                                    viewModel.updateOrderDetailStatus(listOf(detail.id), newStatus)
                                 }
                             )
                         }
