@@ -130,7 +130,7 @@ public class OverviewService {
                         }
                 }
 
-                overview.sort(Comparator.comparing(OrderWithOrderDetailResponse::getDatetime).reversed());
+                overview.sort(Comparator.comparing(OrderWithOrderDetailResponse::getDatetime));
 
                 return overview;
         }

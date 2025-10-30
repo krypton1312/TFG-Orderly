@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yebur.backendorderly.order.*;
+import com.yebur.backendorderly.overview.OrdersTabletWebSocketHandler;
 import com.yebur.backendorderly.product.Product;
 import com.yebur.backendorderly.product.ProductService;
 
@@ -17,18 +18,20 @@ import com.yebur.backendorderly.product.ProductService;
 public class OrderDetailService implements OrderDetailServiceInterface {
 
     private final OrderDetailRepository orderDetailRepository;
+    private final OrdersTabletWebSocketHandler ordersTabletHandler;
     private final ProductService productService;
     private final OrderService orderService;
     private final OrderRepository orderRepository;
 
     public OrderDetailService(OrderDetailRepository orderDetailRepository,
-                              ProductService productService,
-                              OrderService orderService,
-                              OrderRepository orderRepository) {
+            ProductService productService,
+            OrderService orderService,
+            OrderRepository orderRepository, OrdersTabletWebSocketHandler ordersTabletHandler) {
         this.orderDetailRepository = orderDetailRepository;
         this.productService = productService;
         this.orderService = orderService;
         this.orderRepository = orderRepository;
+        this.ordersTabletHandler = ordersTabletHandler;
     }
 
     @Override
@@ -67,6 +70,9 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         recalculateOrderTotal(saved.getOrder());
         checkAndUpdateOrderStatus(saved.getOrder().getId());
 
+        ordersTabletHandler.broadcast(Map.of(
+                "event", "ORDER_CHANGED"));
+
         return mapToResponse(saved);
     }
 
@@ -88,6 +94,9 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             recalculateOrderTotal(o);
             checkAndUpdateOrderStatus(o.getId());
         });
+
+        ordersTabletHandler.broadcast(Map.of(
+                "event", "ORDER_CHANGED"));
 
         return saved.stream().map(this::mapToResponse).toList();
     }
@@ -117,6 +126,9 @@ public class OrderDetailService implements OrderDetailServiceInterface {
 
         recalculateOrderTotal(order);
         checkAndUpdateOrderStatus(order.getId());
+
+        ordersTabletHandler.broadcast(Map.of(
+                "event", "ORDER_CHANGED"));
 
         return mapToResponse(saved);
     }
@@ -162,6 +174,9 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             checkAndUpdateOrderStatus(o.getId());
         });
 
+        ordersTabletHandler.broadcast(Map.of(
+                "event", "ORDER_CHANGED"));
+
         return saved.stream().map(this::mapToResponse).toList();
     }
 
@@ -175,6 +190,10 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         orderDetailRepository.delete(detail);
 
         recalculateOrderTotal(order);
+
+        ordersTabletHandler.broadcast(Map.of(
+                "event", "ORDER_CHANGED"));
+        
         checkAndUpdateOrderStatus(order.getId());
     }
 
@@ -200,6 +219,9 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         orderDetailRepository.flush();
 
         byOrder.keySet().forEach(this::checkAndUpdateOrderStatus);
+
+        ordersTabletHandler.broadcast(Map.of(
+                "event", "ORDER_CHANGED"));
     }
 
     private void checkAndUpdateOrderStatus(Long orderId) {
@@ -212,6 +234,8 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         if (order.getState() != newState) {
             order.setState(newState);
             orderRepository.save(order);
+            ordersTabletHandler.broadcast(Map.of(
+                "event", "ORDER_CHANGED"));
         }
     }
 

@@ -4,12 +4,14 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.yebur.backendorderly.overview.OrdersTabletWebSocketHandler;
 import com.yebur.backendorderly.resttable.RestTableRepository;
 import com.yebur.backendorderly.resttable.RestTableResponse;
 import com.yebur.backendorderly.resttable.RestTableService;
@@ -23,6 +25,7 @@ public class OrderService implements OrderServiceInterface {
     private final OrderRepository orderRepository;
     private final RestTableRepository restTableRepository;
     private final RestTableService restTableService;
+    private final OrdersTabletWebSocketHandler ordersTabletWebSocketHandler;
 
     @Override
     public List<OrderResponse> findAllOrderDTO() {
@@ -103,7 +106,11 @@ public class OrderService implements OrderServiceInterface {
         if (!orderRepository.existsById(id)) {
             throw new RuntimeException("Order not found with id " + id);
         }
+
         orderRepository.deleteById(id);
+        
+        ordersTabletWebSocketHandler.broadcast(Map.of(
+                "event", "ORDER_CHANGED"));
     }
 
     private OrderResponse mapWithTable(OrderResponse order) {

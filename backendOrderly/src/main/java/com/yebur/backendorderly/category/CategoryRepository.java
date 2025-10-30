@@ -15,15 +15,15 @@ public interface CategoryRepository extends JpaRepository<Category, Long>{
     @Override
     List<Category> findAll();
 
-    @Query("SELECT new com.yebur.backendorderly.category.CategoryResponse(c.id, c.name, c.color, c.index) FROM Category c")
+    @Query("SELECT new com.yebur.backendorderly.category.CategoryResponse(c.id, c.name, c.color, c.index) FROM Category c ORDER BY c.index ASC")
     List<CategoryResponse> findAllCategoryDTO();
 
-    @Query("SELECT new com.yebur.backendorderly.category.CategoryResponse(c.id, c.name, c.color, c.index) FROM Category c")
+    @Query("SELECT new com.yebur.backendorderly.category.CategoryResponse(c.id, c.name, c.color, c.index) FROM Category c ORDER BY c.index ASC")
     Page<CategoryResponse> findAllCategoryDTOPage(Pageable pageable);
     
     @Override
     Optional<Category> findById(Long id);
 
-    @Query("SELECT new com.yebur.backendorderly.category.CategoryResponse(c.id, c.name, c.color, c.index) FROM Category c WHERE c.id = :id")
+    @Query("SELECT new com.yebur.backendorderly.category.CategoryResponse(c.id, c.name, c.color, c.index) FROM Category c WHERE c.id = :id ORDER BY c.index ASC")
     Optional<CategoryResponse> findCategoryDTOById(Long id);
 } 
