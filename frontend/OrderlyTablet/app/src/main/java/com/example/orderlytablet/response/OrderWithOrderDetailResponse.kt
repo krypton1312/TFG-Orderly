@@ -12,5 +12,5 @@ data class OrderDetailSummary(
     val productName: String,
     val comment: String,
     val amount: Int,
-    val status: String
+    var status: String
 )

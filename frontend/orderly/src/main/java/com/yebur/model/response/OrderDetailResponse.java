@@ -1,5 +1,7 @@
 package com.yebur.model.response;
 
+import java.time.LocalDateTime;
+
 public class OrderDetailResponse {
     private Long id;
     private Long productId;
@@ -10,9 +12,10 @@ public class OrderDetailResponse {
     private double unitPrice;
     private String status;
     private String paymentMethod;
+    private LocalDateTime createdAt;
 
     public OrderDetailResponse(Long id, Long productId, String productName, Long orderId, String comment, int amount,
-            double unitPrice, String status, String paymentMethod) {
+            double unitPrice, String status, String paymentMethod, LocalDateTime createdAt) {
         this.id = id;
         this.productId = productId;
         this.productName = productName;
@@ -22,6 +25,7 @@ public class OrderDetailResponse {
         this.unitPrice = unitPrice;
         this.status = status;
         this.paymentMethod = paymentMethod;
+        this.createdAt = createdAt;
     }
 
     public OrderDetailResponse() {
@@ -106,6 +110,14 @@ public class OrderDetailResponse {
 
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
     
 }
