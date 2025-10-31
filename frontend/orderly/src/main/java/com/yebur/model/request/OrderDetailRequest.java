@@ -91,6 +91,5 @@ public class OrderDetailRequest {
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
-
     
 }

@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class OrderWithOrderDetailResponse {
-    private Long id;
+    private String overviewId;
+    private Long orderId;
     private String tableName;
     private List<OrderDetailSummary> details;
     private LocalDateTime datetime;
@@ -25,4 +26,5 @@ class OrderDetailSummary {
     private String comment;
     private int amount;
     private String status;
+    private String destination;
 }

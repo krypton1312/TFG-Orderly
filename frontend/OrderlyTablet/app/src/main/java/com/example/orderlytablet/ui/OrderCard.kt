@@ -91,7 +91,7 @@ fun OrderCard(order: OrderWithOrderDetailResponse, viewModel: OrdersViewModel) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Order #${order.id}",
+                    text = "Order #${order.orderId}",
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
                 )

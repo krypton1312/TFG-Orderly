@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.orderlytablet.response.OrderWithOrderDetailResponse
 import com.example.orderlytablet.services.OrderWebSocketClient
 import com.example.orderlytablet.services.RetrofitClient
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -18,6 +19,19 @@ sealed class OrdersUiState {
 }
 
 class OrdersViewModel : ViewModel() {
+    // В ViewModel
+    var isRefreshing = MutableStateFlow(false)
+        private set
+
+    fun refreshOrders() {
+        viewModelScope.launch {
+            isRefreshing.value = true
+            loadOrders()
+            delay(500) // немного подержать эффект
+            isRefreshing.value = false
+        }
+    }
+
     private val _uiState = MutableStateFlow<OrdersUiState>(OrdersUiState.Loading)
     val uiState: StateFlow<OrdersUiState> = _uiState
 
@@ -36,7 +50,7 @@ class OrdersViewModel : ViewModel() {
 
         wsClient.connect(serverUrl) {
             Log.d("OrdersViewModel", "📡 Received ORDER_CHANGED → Reloading orders")
-            loadOrders()
+            refreshOrders()
         }
     }
 

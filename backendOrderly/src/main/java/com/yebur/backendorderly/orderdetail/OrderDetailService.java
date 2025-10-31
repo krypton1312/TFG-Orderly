@@ -10,9 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yebur.backendorderly.order.*;
-import com.yebur.backendorderly.overview.OrdersTabletWebSocketHandler;
 import com.yebur.backendorderly.product.Product;
+import com.yebur.backendorderly.product.ProductDestination;
 import com.yebur.backendorderly.product.ProductService;
+import com.yebur.backendorderly.websocket.OrdersTabletWebSocketHandler;
 
 @Service("orderDetailService")
 public class OrderDetailService implements OrderDetailServiceInterface {
@@ -287,6 +288,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 entity.getUnitPrice(),
                 entity.getStatus(),
                 entity.getPaymentMethod(),
-                entity.getCreatedAt());
+                entity.getCreatedAt(),
+                entity.getProduct().getDestination());
     }
 }

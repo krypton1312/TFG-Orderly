@@ -29,5 +29,4 @@ public class OrderDetailRequest {
     private String status;
 
     private String paymentMethod;
-
 }

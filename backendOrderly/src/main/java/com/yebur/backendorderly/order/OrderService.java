@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.yebur.backendorderly.overview.OrdersTabletWebSocketHandler;
 import com.yebur.backendorderly.resttable.RestTableRepository;
 import com.yebur.backendorderly.resttable.RestTableResponse;
 import com.yebur.backendorderly.resttable.RestTableService;
+import com.yebur.backendorderly.websocket.OrdersTabletWebSocketHandler;
 
 import lombok.RequiredArgsConstructor;
 

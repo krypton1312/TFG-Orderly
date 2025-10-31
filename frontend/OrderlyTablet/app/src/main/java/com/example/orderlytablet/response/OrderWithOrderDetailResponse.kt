@@ -1,7 +1,8 @@
 package com.example.orderlytablet.response
 
 data class OrderWithOrderDetailResponse(
-    val id: Long,
+    val overviewId: String,
+    val orderId: Long,
     val tableName: String,
     val details: List<OrderDetailSummary>,
     val datetime: String
@@ -12,5 +13,6 @@ data class OrderDetailSummary(
     val productName: String,
     val comment: String,
     val amount: Int,
-    var status: String
+    var status: String,
+    val destination:String
 )

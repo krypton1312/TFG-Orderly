@@ -13,9 +13,10 @@ public class OrderDetailResponse {
     private String status;
     private String paymentMethod;
     private LocalDateTime createdAt;
+    private String destination;
 
     public OrderDetailResponse(Long id, Long productId, String productName, Long orderId, String comment, int amount,
-            double unitPrice, String status, String paymentMethod, LocalDateTime createdAt) {
+            double unitPrice, String status, String paymentMethod, LocalDateTime createdAt, String destination) {
         this.id = id;
         this.productId = productId;
         this.productName = productName;
@@ -26,8 +27,10 @@ public class OrderDetailResponse {
         this.status = status;
         this.paymentMethod = paymentMethod;
         this.createdAt = createdAt;
+        this.destination = destination;
     }
 
+    
     public OrderDetailResponse() {
     }
 
@@ -119,5 +122,14 @@ public class OrderDetailResponse {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-    
+
+
+    public String getDestination() {
+        return destination;
+    }
+
+
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
 }

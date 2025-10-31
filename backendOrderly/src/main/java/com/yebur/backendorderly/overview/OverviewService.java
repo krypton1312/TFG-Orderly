@@ -110,7 +110,8 @@ public class OverviewService {
                         // Для каждой группы создаём отдельную карточку заказа
                         for (Map.Entry<LocalDateTime, List<OrderDetailResponse>> entry : groupedDetails.entrySet()) {
                                 OrderWithOrderDetailResponse orderWithDetails = new OrderWithOrderDetailResponse();
-                                orderWithDetails.setId(order.getId());
+                                orderWithDetails.setOverviewId(order.getId() + "_" + entry.getKey().toString());
+                                orderWithDetails.setOrderId(order.getId());
                                 orderWithDetails.setTableName(
                                                 order.getRestTable() == null ? "Sin mesa"
                                                                 : order.getRestTable().getName());
@@ -122,7 +123,8 @@ public class OverviewService {
                                                                 detail.getProductName(),
                                                                 detail.getComment(),
                                                                 detail.getAmount(),
-                                                                detail.getStatus()))
+                                                                detail.getStatus(),
+                                                                detail.getDestination()))
                                                 .collect(Collectors.toList());
 
                                 orderWithDetails.setDetails(ods);

@@ -4,8 +4,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yebur.model.request.RestTableRequest;
-import com.yebur.model.response.RestTableResponse;
 import com.yebur.model.response.TableWithOrderResponse;
 
 public class OverviewService {

@@ -3,6 +3,8 @@ package com.yebur.backendorderly.orderdetail;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.yebur.backendorderly.product.ProductDestination;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -30,8 +32,10 @@ public class OrderDetailResponse {
 
     private LocalDateTime createdAt;
 
+    private String destination;
+
     public OrderDetailResponse(Long id, Long productId, String productName, Long orderId, String comment, int amount,
-            BigDecimal unitPrice, OrderDetailStatus status, String paymentMethod, LocalDateTime createdAt) {
+            BigDecimal unitPrice, OrderDetailStatus status, String paymentMethod, LocalDateTime createdAt, ProductDestination destination) {
         this.id = id;
         this.productId = productId;
         this.productName = productName;
@@ -42,6 +46,7 @@ public class OrderDetailResponse {
         this.status = (status != null) ? status.toString() : null;
         this.paymentMethod = paymentMethod;
         this.createdAt = createdAt;
+        this.destination = destination.toString();
     }
     
 }
