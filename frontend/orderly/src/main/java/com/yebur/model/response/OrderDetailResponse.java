@@ -14,9 +14,10 @@ public class OrderDetailResponse {
     private String paymentMethod;
     private LocalDateTime createdAt;
     private String destination;
+    private String batchId;
 
     public OrderDetailResponse(Long id, Long productId, String productName, Long orderId, String comment, int amount,
-            double unitPrice, String status, String paymentMethod, LocalDateTime createdAt, String destination) {
+            double unitPrice, String status, String paymentMethod, LocalDateTime createdAt, String destination, String batchId) {
         this.id = id;
         this.productId = productId;
         this.productName = productName;
@@ -28,6 +29,7 @@ public class OrderDetailResponse {
         this.paymentMethod = paymentMethod;
         this.createdAt = createdAt;
         this.destination = destination;
+        this.batchId = batchId;
     }
 
     
@@ -131,5 +133,15 @@ public class OrderDetailResponse {
 
     public void setDestination(String destination) {
         this.destination = destination;
+    }
+
+
+    public String getBatchId() {
+        return batchId;
+    }
+
+
+    public void setBatchId(String batchId) {
+        this.batchId = batchId;
     }
 }

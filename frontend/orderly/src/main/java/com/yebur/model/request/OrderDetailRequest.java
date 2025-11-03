@@ -8,11 +8,12 @@ public class OrderDetailRequest {
     private double unitPrice;
     private String status;
     private String paymentMethod;
+    private String batchId;
 
     public OrderDetailRequest() {
     }
 
-    public OrderDetailRequest(Long productId, Long orderId, String comment, int amount, double unitPrice, String status, String paymentMethod) {
+    public OrderDetailRequest(Long productId, Long orderId, String comment, int amount, double unitPrice, String status, String paymentMethod, String batchId) {
         this.productId = productId;
         this.orderId = orderId;
         this.comment = comment;
@@ -20,6 +21,7 @@ public class OrderDetailRequest {
         this.unitPrice = unitPrice;
         this.status = status;
         this.paymentMethod = paymentMethod;
+        this.batchId = batchId;
     }
 
     
@@ -90,6 +92,14 @@ public class OrderDetailRequest {
 
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public String getBatchId() {
+        return batchId;
+    }
+
+    public void setBatchId(String batchId) {
+        this.batchId = batchId;
     }
     
 }

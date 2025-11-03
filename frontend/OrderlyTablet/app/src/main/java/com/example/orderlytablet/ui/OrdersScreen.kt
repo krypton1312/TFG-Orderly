@@ -32,7 +32,6 @@ fun OrdersScreen(viewModel: OrdersViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
 
-    // 🔹 Загружаем данные при старте
     LaunchedEffect(Unit) {
         viewModel.loadOrders()
     }

@@ -3,6 +3,7 @@ package com.yebur.backendorderly.overview;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -89,34 +90,28 @@ public class OverviewService {
 
         public List<OrderWithOrderDetailResponse> getOrderWithOrderDetails() {
                 List<OrderWithOrderDetailResponse> overview = new ArrayList<>();
-
-                // Получаем все открытые заказы
                 List<OrderResponse> orders = orderService.findAllOrderDTOByStatus(OrderStatus.OPEN);
 
                 for (OrderResponse order : orders) {
-
-                        // Получаем все детали по заказу
                         List<OrderDetailResponse> details = orderDetailService
                                         .findUnpaidOrderDetailDTOByOrderId(order.getId());
 
-                        // Группируем детали по времени добавления (до минуты)
-                        Map<LocalDateTime, List<OrderDetailResponse>> groupedDetails = details.stream()
-                                        .collect(Collectors.groupingBy(
-                                                        detail -> detail.getCreatedAt().withSecond(0).withNano(0) // округляем
-                                                                                                                  // до
-                                                                                                                  // минуты
-                                        ));
+                        Map<String, List<OrderDetailResponse>> groupedDetails = details.stream()
+                                        .collect(Collectors.groupingBy(OrderDetailResponse::getBatchId));
 
-                        // Для каждой группы создаём отдельную карточку заказа
-                        for (Map.Entry<LocalDateTime, List<OrderDetailResponse>> entry : groupedDetails.entrySet()) {
+
+                        for (Map.Entry<String, List<OrderDetailResponse>> entry : groupedDetails.entrySet()) {
                                 OrderWithOrderDetailResponse orderWithDetails = new OrderWithOrderDetailResponse();
-                                orderWithDetails.setOverviewId(order.getId() + "_" + entry.getKey().toString());
+
+                                orderWithDetails.setOverviewId(order.getId() + "_" + entry.getKey());
                                 orderWithDetails.setOrderId(order.getId());
                                 orderWithDetails.setTableName(
                                                 order.getRestTable() == null ? "Sin mesa"
                                                                 : order.getRestTable().getName());
-                                orderWithDetails.setDatetime(entry.getKey());
 
+                                LocalDateTime groupTime = entry.getValue().get(0).getCreatedAt();
+                                orderWithDetails.setDatetime(groupTime);
+                                
                                 List<OrderDetailSummary> ods = entry.getValue().stream()
                                                 .map(detail -> new OrderDetailSummary(
                                                                 detail.getId(),

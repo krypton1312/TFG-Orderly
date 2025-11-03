@@ -194,7 +194,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
 
         ordersTabletHandler.broadcast(Map.of(
                 "event", "ORDER_CHANGED"));
-        
+
         checkAndUpdateOrderStatus(order.getId());
     }
 
@@ -212,17 +212,21 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             throw new RuntimeException("Some OrderDetail IDs were not found");
         }
 
-        Map<Long, List<OrderDetail>> byOrder = details.stream()
-                .peek(d -> d.setStatus(enumStatus))
-                .collect(Collectors.groupingBy(d -> d.getOrder().getId()));
+        for (OrderDetail detail : details) {
+            detail.setStatus(enumStatus);
+            orderDetailRepository.save(detail);
 
-        orderDetailRepository.saveAll(details);
-        orderDetailRepository.flush();
+            if (enumStatus == OrderDetailStatus.SERVED || enumStatus == OrderDetailStatus.PAID) {
+                mergeSimilarDetails(detail, enumStatus);
+            }
+        }
 
-        byOrder.keySet().forEach(this::checkAndUpdateOrderStatus);
+        details.stream()
+                .map(d -> d.getOrder().getId())
+                .distinct()
+                .forEach(this::checkAndUpdateOrderStatus);
 
-        ordersTabletHandler.broadcast(Map.of(
-                "event", "ORDER_CHANGED"));
+        ordersTabletHandler.broadcast(Map.of("event", "ORDER_CHANGED"));
     }
 
     private void checkAndUpdateOrderStatus(Long orderId) {
@@ -236,11 +240,10 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             order.setState(newState);
             orderRepository.save(order);
             ordersTabletHandler.broadcast(Map.of(
-                "event", "ORDER_CHANGED"));
+                    "event", "ORDER_CHANGED"));
         }
     }
 
-    /** ✅ Пересчёт суммы заказа с BigDecimal */
     private void recalculateOrderTotal(Order order) {
         BigDecimal newTotal = orderDetailRepository.findAllByOrderId(order.getId()).stream()
                 .map(od -> od.getUnitPrice().multiply(BigDecimal.valueOf(od.getAmount())))
@@ -259,6 +262,35 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 order.getRestTable() != null ? order.getRestTable().getId() : null));
     }
 
+    @Transactional
+    protected void mergeSimilarDetails(OrderDetail detail, OrderDetailStatus status) {
+        List<OrderDetail> duplicates = orderDetailRepository.findAllByOrderId(detail.getOrder().getId()).stream()
+                .filter(d -> !Objects.equals(d.getId(), detail.getId()) &&
+                        d.getStatus() == status &&
+                        d.getProduct().getId().equals(detail.getProduct().getId()) &&
+                        d.getUnitPrice().compareTo(detail.getUnitPrice()) == 0)
+                .collect(Collectors.toList());
+
+        if (duplicates.isEmpty())
+            return;
+
+        OrderDetail main = duplicates.get(0);
+
+        int totalAmount = main.getAmount() + detail.getAmount()
+                + duplicates.stream().skip(1).mapToInt(OrderDetail::getAmount).sum();
+
+        main.setAmount(totalAmount);
+
+        List<OrderDetail> toDelete = new ArrayList<>(duplicates);
+        toDelete.add(detail);
+        toDelete.remove(main);
+
+        orderDetailRepository.deleteAll(toDelete);
+        orderDetailRepository.save(main);
+
+        recalculateOrderTotal(main.getOrder());
+    }
+
     private OrderDetail mapToEntity(OrderDetailRequest dto) {
         Product product = productService.findById(dto.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found with id " + dto.getProductId()));
@@ -274,6 +306,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         detail.setComment(dto.getComment());
         detail.setStatus(OrderDetailStatus.valueOf(dto.getStatus().toUpperCase()));
         detail.setPaymentMethod(dto.getPaymentMethod());
+        detail.setBatchId(dto.getBatchId());
         return detail;
     }
 
@@ -289,6 +322,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 entity.getStatus(),
                 entity.getPaymentMethod(),
                 entity.getCreatedAt(),
-                entity.getProduct().getDestination());
+                entity.getProduct().getDestination(),
+                entity.getBatchId());
     }
 }

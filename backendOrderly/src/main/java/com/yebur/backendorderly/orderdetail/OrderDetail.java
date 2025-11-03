@@ -2,6 +2,7 @@ package com.yebur.backendorderly.orderdetail;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.yebur.backendorderly.order.Order;
 import com.yebur.backendorderly.product.Product;
@@ -17,6 +18,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -63,4 +65,14 @@ public class OrderDetail {
 
     @Column
     private String paymentMethod;
+
+    @Column
+    private String batchId;
+
+    @PrePersist
+    public void prePersist(){
+        if(batchId == null){
+            batchId = UUID.randomUUID().toString();
+        }
+    }
 }

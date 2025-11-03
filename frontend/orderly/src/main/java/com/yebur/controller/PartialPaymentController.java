@@ -157,7 +157,6 @@ public class PartialPaymentController {
         } else {
             partialTotalLabel.setText(String.format("$%.2f", total));
 
-            // ✅ сохраняем total_check только если реально есть товары
             if (!details.isEmpty()) {
                 total_check = total;
             }
@@ -203,7 +202,8 @@ public class PartialPaymentController {
                     amountToMove,
                     item.getUnitPrice(),
                     "PAID",
-                    selectedPaymentMethod);
+                    selectedPaymentMethod,
+                    item.getBatchId());
             partialDetailsNew.add(newRequest);
         }
 
@@ -296,7 +296,8 @@ public class PartialPaymentController {
                             od.getAmount(),
                             od.getUnitPrice(),
                             od.getStatus(),
-                            selectedPaymentMethod));
+                            selectedPaymentMethod,
+                            od.getBatchId()));
                 }
             }
             for (OrderDetailResponse pd : partialDetails) {
@@ -309,7 +310,8 @@ public class PartialPaymentController {
                             pd.getAmount(),
                             pd.getUnitPrice(),
                             "PAID",
-                            selectedPaymentMethod));
+                            selectedPaymentMethod,
+                            pd.getBatchId()));
                 }
             }
 
@@ -335,7 +337,8 @@ public class PartialPaymentController {
                                 req.getAmount(),
                                 req.getUnitPrice(),
                                 "PAID",
-                                selectedPaymentMethod));
+                                selectedPaymentMethod,
+                                req.getBatchId()));
                     }
                 }
                 List<OrderDetailResponse> created = OrderDetailService.createOrderDetailList(aggregated);

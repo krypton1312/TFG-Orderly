@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import com.yebur.app.App;
 import com.yebur.model.request.OrderDetailRequest;
@@ -58,6 +59,7 @@ public class PrimaryController {
     private RestTableResponse selectedTable = null;
     private final List<OrderDetailResponse> visualDetails = new ArrayList<>();
     private TableWithOrderResponse currentOverviewItem = null;
+    private String currentBatchId;
     private Boolean isOverviewMode = false;
 
     private boolean isTransferMode = false;
@@ -422,6 +424,7 @@ public class PrimaryController {
                     req.setAmount(visualDetail.getAmount());
                     req.setUnitPrice(visualDetail.getUnitPrice());
                     req.setStatus("PENDING");
+                    req.setBatchId(currentBatchId);
                     OrderDetailService.createOrderDetail(req);
                 }
 
@@ -473,6 +476,7 @@ public class PrimaryController {
                 currentOrder = newOrder;
                 orderIdLabel.setText("Cuenta #" + newOrder.getId());
                 tableNameLabel.setText(selectedTable.getName());
+                this.currentBatchId = UUID.randomUUID().toString();
             } catch (Exception e) {
                 e.printStackTrace();
                 upsertVisualDetail(product, 1);
@@ -482,52 +486,46 @@ public class PrimaryController {
         }
 
         try {
-            List<OrderDetailResponse> existingDetails = OrderDetailService
-                    .getUnpaidOrderDetailsByOrderId(currentOrder.getId());
-
-            OrderDetailResponse existingDetail = existingDetails.stream()
+            OrderDetailResponse existingVisual = currentdetails.stream()
                     .filter(d -> Objects.equals(d.getProductId(), product.getId()))
                     .findFirst()
                     .orElse(null);
 
-            if (existingDetail != null) {
-                int newAmount = existingDetail.getAmount() + 1;
-                existingDetail.setAmount(newAmount);
-
-                OrderDetailRequest updateReq = new OrderDetailRequest();
-                updateReq.setOrderId(currentOrder.getId());
-                updateReq.setProductId(product.getId());
-                updateReq.setAmount(newAmount);
-                updateReq.setUnitPrice(product.getPrice());
-                updateReq.setStatus("PENDING");
-                try {
-                    OrderDetailService.updateOrderDetail(existingDetail.getId(), updateReq);
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
+            if (existingVisual != null) {
+                existingVisual.setAmount(existingVisual.getAmount() + 1);
             } else {
-                OrderDetailRequest createReq = new OrderDetailRequest();
-                createReq.setOrderId(currentOrder.getId());
-                createReq.setProductId(product.getId());
-                createReq.setAmount(1);
-                createReq.setUnitPrice(product.getPrice());
-                createReq.setStatus("PENDING");
-                OrderDetailService.createOrderDetail(createReq);
+                OrderDetailResponse newVisual = new OrderDetailResponse();
+                newVisual.setProductId(product.getId());
+                newVisual.setProductName(product.getName());
+                newVisual.setAmount(1);
+                newVisual.setUnitPrice(product.getPrice());
+                currentdetails.add(newVisual);
             }
 
-            currentdetails = OrderDetailService.getUnpaidOrderDetailsByOrderId(currentOrder.getId());
+            OrderDetailRequest createReq = new OrderDetailRequest();
+            createReq.setOrderId(currentOrder.getId());
+            createReq.setProductId(product.getId());
+            createReq.setAmount(1);
+            createReq.setUnitPrice(product.getPrice());
+            createReq.setStatus("PENDING");
+            createReq.setBatchId(currentBatchId);
+
+            OrderDetailService.createOrderDetail(createReq);
+
             renderDetails(currentdetails, product);
+
         } catch (Exception e) {
+            e.printStackTrace();
             upsertVisualDetail(product, 1);
             renderDetails(visualDetails, product);
         }
-
     }
 
     private void openOrder(OrderResponse order) {
         if (order == null)
             return;
         this.currentOrder = order;
+        this.currentBatchId = UUID.randomUUID().toString();
         this.visualDetails.clear();
 
         orderIdLabel.setText("Cuenta #" + order.getId());
@@ -803,6 +801,7 @@ public class PrimaryController {
                 createReq.setAmount(visualDetail.getAmount());
                 createReq.setUnitPrice(visualDetail.getUnitPrice());
                 createReq.setStatus("PENDING");
+                createReq.setBatchId(currentBatchId);
                 OrderDetailService.createOrderDetail(createReq);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -852,7 +851,7 @@ public class PrimaryController {
 
             stage.setOnHiding(event -> {
                 handleChecksClick();
-                if(controller.anyPaymentDone()){
+                if (controller.anyPaymentDone()) {
                     showPaymentBox(controller.getTotalCheck());
                 }
             });
@@ -932,8 +931,8 @@ public class PrimaryController {
                         "-fx-border-radius: 12;");
 
         paymentVB.setMaxWidth(orderVboxItems.getWidth() * 0.9);
-        paymentVB.setMaxHeight(orderVboxItems.getHeight()*0.9);
-        paymentVB.setPrefHeight(orderVboxItems.getHeight()*0.9);
+        paymentVB.setMaxHeight(orderVboxItems.getHeight() * 0.9);
+        paymentVB.setPrefHeight(orderVboxItems.getHeight() * 0.9);
         paymentVB.setPrefWidth(orderVboxItems.getWidth() * 0.9);
         StackPane.setAlignment(paymentVB, Pos.CENTER);
         wrapper.setMargin(paymentVB, new javafx.geometry.Insets(10, 0, 0, 0));
@@ -949,9 +948,9 @@ public class PrimaryController {
         HBox rowRecibido = createPaymentRow("RECIBIDO:", String.format("%.2f €", recibido), "#000");
         HBox rowCambio = createPaymentRow("CAMBIO:", String.format("%.2f €", cambio), "#16a34a");
 
-        if(recibido > 0){
+        if (recibido > 0) {
             paymentVB.getChildren().addAll(title, separator, rowTotal, rowRecibido, rowCambio);
-        }else{
+        } else {
             paymentVB.getChildren().addAll(title, separator, rowTotal);
         }
         wrapper.getChildren().add(paymentVB);
