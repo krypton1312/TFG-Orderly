@@ -1,24 +1,25 @@
 package com.example.orderlytablet.services
 
 import android.util.Log
+import kotlinx.coroutines.*
 import okhttp3.*
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 class OrderWebSocketClient {
+
     private val client = OkHttpClient.Builder()
-        .pingInterval(1, TimeUnit.SECONDS)
+        .pingInterval(20, TimeUnit.SECONDS)
         .build()
 
     private var webSocket: WebSocket? = null
 
+    // 🔹 Передаем callback с типизированным событием
     fun connect(
         serverUrl: String,
-        onOrderChanged: () -> Unit
+        onEventReceived: (WsEvent) -> Unit
     ) {
-        val request = Request.Builder()
-            .url(serverUrl)
-            .build()
+        val request = Request.Builder().url(serverUrl).build()
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
 
@@ -27,17 +28,17 @@ class OrderWebSocketClient {
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
-                Log.d("WebSocket", "📩 Message received: $text")
-
+                Log.d("WebSocket", "📩 WS message: $text")
                 try {
                     val json = JSONObject(text)
-                    val event = json.optString("event")
-
-                    if (event == "ORDER_CHANGED") {
-                        onOrderChanged()
-                    }
+                    val type = json.optString("type", "")
+                    val orderId = json.optLong("orderId", -1)
+                    val overviewId = json.optString("overviewId", null)
+                    val ts = json.optString("ts", "")
+                    val event = WsEvent(type, orderId, overviewId, ts)
+                    onEventReceived(event)
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Log.e("WebSocket", "⚠️ Parse error: ${e.message}")
                 }
             }
 
@@ -54,4 +55,11 @@ class OrderWebSocketClient {
     fun disconnect() {
         webSocket?.close(1000, "Client disconnected")
     }
+
+    data class WsEvent(
+        val type: String,
+        val orderId: Long,
+        val overviewId: String?,
+        val ts: String
+    )
 }

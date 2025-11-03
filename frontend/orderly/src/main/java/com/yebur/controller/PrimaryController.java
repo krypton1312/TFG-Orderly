@@ -499,6 +499,7 @@ public class PrimaryController {
                 newVisual.setProductName(product.getName());
                 newVisual.setAmount(1);
                 newVisual.setUnitPrice(product.getPrice());
+                newVisual.setBatchId(currentBatchId);
                 currentdetails.add(newVisual);
             }
 
@@ -604,6 +605,7 @@ public class PrimaryController {
             d.setProductName(product.getName());
             d.setUnitPrice(product.getPrice());
             d.setAmount(delta);
+            d.setBatchId(currentBatchId);
             visualDetails.add(d);
         } else if (exist != null) {
             int newAmt = Math.max(0, exist.getAmount() + delta);

@@ -20,11 +20,13 @@ import com.example.orderlytablet.ui.screens.OrdersViewModel
 
 @Composable
 fun StatusDropdown(
+    detailId: Long, // 👈 уникальный ID детали
     currentStatus: String,
     onStatusChange: (String) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedStatus by remember { mutableStateOf(currentStatus) }
+    // Привязываем состояние к ID детали, чтобы не "прыгало" между элементами
+    var expanded by remember(detailId) { mutableStateOf(false) }
+    var selectedStatus by remember(detailId) { mutableStateOf(currentStatus) }
 
     val statusOptions = listOf("PENDING", "SENT", "IN_PROGRESS", "SERVED")
 
@@ -85,6 +87,7 @@ fun OrderCard(order: OrderWithOrderDetailResponse, viewModel: OrdersViewModel) {
             .fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+
             // 🔹 Заголовок карточки
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -104,25 +107,21 @@ fun OrderCard(order: OrderWithOrderDetailResponse, viewModel: OrdersViewModel) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 🔹 Общий блок с деталями
+            // 🔹 Секция с деталями
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color(0xFFF7F7F7), shape = RoundedCornerShape(12.dp))
                     .padding(12.dp)
             ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     order.details.forEach { detail ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column(
-                                modifier = Modifier.weight(1f)
-                            ) {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = "${detail.amount}x ${detail.productName}",
                                     fontSize = 18.sp,
@@ -140,8 +139,9 @@ fun OrderCard(order: OrderWithOrderDetailResponse, viewModel: OrdersViewModel) {
                                 }
                             }
 
-                            // 🔹 Новый выпадающий статус
+                            // 🔹 Выпадающий список со статусами
                             StatusDropdown(
+                                detailId = detail.id, // 👈 теперь у каждого уникальный state
                                 currentStatus = detail.status,
                                 onStatusChange = { newStatus ->
                                     detail.status = newStatus

@@ -6,11 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.orderlytablet.response.OrderWithOrderDetailResponse
 import com.example.orderlytablet.services.OrderWebSocketClient
 import com.example.orderlytablet.services.RetrofitClient
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-
 
 sealed class OrdersUiState {
     object Loading : OrdersUiState()
@@ -19,50 +17,101 @@ sealed class OrdersUiState {
 }
 
 class OrdersViewModel : ViewModel() {
-    // В ViewModel
+
+    private val wsClient = OrderWebSocketClient()
+
+    private val _uiState = MutableStateFlow<OrdersUiState>(OrdersUiState.Loading)
+    val uiState: StateFlow<OrdersUiState> = _uiState
+
     var isRefreshing = MutableStateFlow(false)
         private set
+
+    private var reloadJob: Job? = null
+    var isSingleUpdate = false
+
+    init {
+        connectWebSocket()
+        loadOrders()
+    }
+
+    private fun connectWebSocket() {
+        val serverUrl = "ws://10.0.2.2:8080/ws/overview/tablet"
+
+        wsClient.connect(serverUrl) { event ->
+            Log.d("OrdersViewModel", "📡 WS Event: ${event.type}")
+
+            when (event.type) {
+                "ORDER_DETAIL_CREATED",
+                "ORDER_DETAIL_UPDATED",
+                "ORDER_DETAIL_DELETED",
+                "ORDER_DETAIL_STATUS_CHANGED" -> {
+                    if (event.overviewId != null) {
+                        updateSingleOrder(event.overviewId)
+                    } else {
+                        reloadDebounced()
+                    }
+                }
+                "ORDER_TOTAL_CHANGED",
+                "ORDER_CREATED",
+                "ORDER_DELETED" -> reloadDebounced()
+            }
+        }
+    }
+
+    private fun reloadDebounced(delayMs: Long = 700) {
+        reloadJob?.cancel()
+        reloadJob = viewModelScope.launch {
+            delay(delayMs)
+            refreshOrders()
+        }
+    }
 
     fun refreshOrders() {
         viewModelScope.launch {
             isRefreshing.value = true
             loadOrders()
-            delay(500) // немного подержать эффект
+            delay(300)
             isRefreshing.value = false
-        }
-    }
-
-    private val _uiState = MutableStateFlow<OrdersUiState>(OrdersUiState.Loading)
-    val uiState: StateFlow<OrdersUiState> = _uiState
-
-    // 🔹 Наш WebSocket клиент
-    private val wsClient = OrderWebSocketClient()
-
-    init {
-        // Подключаем WebSocket при инициализации ViewModel
-        connectWebSocket()
-        // Загружаем заказы при первом запуске
-        loadOrders()
-    }
-
-    private fun connectWebSocket() {
-        val serverUrl = "ws://10.0.2.2:8080/ws/overview/tablet" // ⚠️ замени на свой IP
-
-        wsClient.connect(serverUrl) {
-            Log.d("OrdersViewModel", "📡 Received ORDER_CHANGED → Reloading orders")
-            refreshOrders()
         }
     }
 
     fun loadOrders() {
         viewModelScope.launch {
             try {
-                _uiState.value = OrdersUiState.Loading
                 val result = RetrofitClient.instance.getOrdersWithDetails()
                 _uiState.value = OrdersUiState.Success(result)
             } catch (e: Exception) {
-                e.printStackTrace()
-                _uiState.value = OrdersUiState.Error("❌ Не удалось загрузить заказы: ${e.localizedMessage}")
+                Log.e("OrdersViewModel", "❌ Failed to load: ${e.message}")
+                _uiState.value = OrdersUiState.Error("Не удалось загрузить заказы: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    private fun updateSingleOrder(overviewId: String) {
+        viewModelScope.launch {
+            try {
+                val currentState = _uiState.value
+                if (currentState is OrdersUiState.Success) {
+                    isSingleUpdate = true
+                    val refreshedOrders = RetrofitClient.instance.getOrdersWithDetails()
+                    val updatedOrder = refreshedOrders.find { it.overviewId == overviewId }
+
+                    val newList = if (updatedOrder != null) {
+                        currentState.orders.map {
+                            if (it.overviewId == overviewId) updatedOrder else it
+                        }
+                    } else {
+                        currentState.orders.filterNot { it.overviewId == overviewId }
+                    }
+
+                    _uiState.value = OrdersUiState.Success(newList)
+                    isSingleUpdate = false
+                } else {
+                    loadOrders()
+                }
+            } catch (e: Exception) {
+                Log.e("OrdersViewModel", "⚠️ Ошибка updateSingleOrder: ${e.message}")
+                isSingleUpdate = false
             }
         }
     }
@@ -70,17 +119,16 @@ class OrdersViewModel : ViewModel() {
     fun updateOrderDetailStatus(ids: List<Long>, newStatus: String) {
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.instance.updateOrderDetailStatus(newStatus, ids)
+                RetrofitClient.instance.updateOrderDetailStatus(newStatus, ids)
             } catch (e: Exception) {
-                Log.e("OrdersViewModel", "❌ Ошибка запроса PUT: ${e.message}")
+                Log.e("OrdersViewModel", "❌ Ошибка PUT: ${e.message}")
             }
         }
     }
 
-
     override fun onCleared() {
-        super.onCleared()
         wsClient.disconnect()
+        super.onCleared()
         Log.d("OrdersViewModel", "🔌 WebSocket disconnected")
     }
 }

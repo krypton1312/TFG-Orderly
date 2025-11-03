@@ -3,17 +3,27 @@ package com.yebur.backendorderly.orderdetail;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.yebur.backendorderly.order.*;
+import com.yebur.backendorderly.order.Order;
+import com.yebur.backendorderly.order.OrderRepository;
+import com.yebur.backendorderly.order.OrderRequest;
+import com.yebur.backendorderly.order.OrderService;
+import com.yebur.backendorderly.order.OrderStatus;
 import com.yebur.backendorderly.product.Product;
-import com.yebur.backendorderly.product.ProductDestination;
 import com.yebur.backendorderly.product.ProductService;
 import com.yebur.backendorderly.websocket.OrdersTabletWebSocketHandler;
+import com.yebur.backendorderly.websocket.WsEvent;
+import com.yebur.backendorderly.websocket.WsEventType;
+import com.yebur.backendorderly.websocket.WsNotifier;
 
 @Service("orderDetailService")
 public class OrderDetailService implements OrderDetailServiceInterface {
@@ -23,16 +33,21 @@ public class OrderDetailService implements OrderDetailServiceInterface {
     private final ProductService productService;
     private final OrderService orderService;
     private final OrderRepository orderRepository;
+    private final WsNotifier wsNotifier;
 
-    public OrderDetailService(OrderDetailRepository orderDetailRepository,
+    public OrderDetailService(
+            OrderDetailRepository orderDetailRepository,
             ProductService productService,
             OrderService orderService,
-            OrderRepository orderRepository, OrdersTabletWebSocketHandler ordersTabletHandler) {
+            OrderRepository orderRepository,
+            OrdersTabletWebSocketHandler ordersTabletHandler,
+            WsNotifier wsNotifier) {
         this.orderDetailRepository = orderDetailRepository;
         this.productService = productService;
         this.orderService = orderService;
         this.orderRepository = orderRepository;
         this.ordersTabletHandler = ordersTabletHandler;
+        this.wsNotifier = wsNotifier;
     }
 
     @Override
@@ -56,6 +71,10 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         return orderDetailRepository.findUnpaidOrderDetailDTOByOrderId(orderId);
     }
 
+    public List<OrderDetailResponse> findOrderDetailTablet(Long orderId) {
+        return orderDetailRepository.findOrderDetailTablet(orderId);
+    }
+
     @Override
     public Optional<OrderDetail> findById(Long id) {
         return orderDetailRepository.findById(id);
@@ -64,15 +83,42 @@ public class OrderDetailService implements OrderDetailServiceInterface {
     @Override
     @Transactional
     public OrderDetailResponse createOrderDetail(OrderDetailRequest dto) {
-        OrderDetail orderDetail = mapToEntity(dto);
-        orderDetail.setCreatedAt(LocalDateTime.now());
-        OrderDetail saved = orderDetailRepository.save(orderDetail);
+        Order order = orderRepository.findById(dto.getOrderId())
+                .orElseThrow(() -> new RuntimeException("Order not found with id " + dto.getOrderId()));
+
+        Product product = productService.findById(dto.getProductId())
+                .orElseThrow(() -> new RuntimeException("Product not found with id " + dto.getProductId()));
+
+        Optional<OrderDetail> existingOpt = orderDetailRepository.findAllByOrderId(order.getId()).stream()
+                .filter(d -> Objects.equals(d.getProduct().getId(), product.getId()) &&
+                        d.getUnitPrice().compareTo(dto.getUnitPrice()) == 0 &&
+                        d.getStatus() == OrderDetailStatus.PENDING &&
+                        Objects.equals(d.getBatchId(), dto.getBatchId()))
+                .findFirst();
+
+        OrderDetail saved;
+
+        if (existingOpt.isPresent()) {
+            OrderDetail existing = existingOpt.get();
+            existing.setAmount(existing.getAmount() + dto.getAmount());
+            saved = orderDetailRepository.save(existing);
+
+            notifyDetailChanged(WsEventType.ORDER_DETAIL_UPDATED, saved);
+        } else {
+            OrderDetail orderDetail = mapToEntity(dto);
+            orderDetail.setOrder(order);
+            orderDetail.setProduct(product);
+            orderDetail.setStatus(OrderDetailStatus.PENDING);
+            orderDetail.setCreatedAt(LocalDateTime.now());
+
+            saved = orderDetailRepository.save(orderDetail);
+
+            notifyDetailChanged(WsEventType.ORDER_DETAIL_CREATED, saved);
+        }
 
         recalculateOrderTotal(saved.getOrder());
         checkAndUpdateOrderStatus(saved.getOrder().getId());
-
-        ordersTabletHandler.broadcast(Map.of(
-                "event", "ORDER_CHANGED"));
+        notifyOrderTotalChanged(saved.getOrder());
 
         return mapToResponse(saved);
     }
@@ -96,8 +142,8 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             checkAndUpdateOrderStatus(o.getId());
         });
 
-        ordersTabletHandler.broadcast(Map.of(
-                "event", "ORDER_CHANGED"));
+        saved.forEach(d -> notifyDetailChanged(WsEventType.ORDER_DETAIL_CREATED, d));
+        saved.stream().map(OrderDetail::getOrder).distinct().forEach(this::notifyOrderTotalChanged);
 
         return saved.stream().map(this::mapToResponse).toList();
     }
@@ -128,8 +174,8 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         recalculateOrderTotal(order);
         checkAndUpdateOrderStatus(order.getId());
 
-        ordersTabletHandler.broadcast(Map.of(
-                "event", "ORDER_CHANGED"));
+        notifyDetailChanged(WsEventType.ORDER_DETAIL_UPDATED, saved);
+        notifyOrderTotalChanged(order);
 
         return mapToResponse(saved);
     }
@@ -175,8 +221,8 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             checkAndUpdateOrderStatus(o.getId());
         });
 
-        ordersTabletHandler.broadcast(Map.of(
-                "event", "ORDER_CHANGED"));
+        saved.forEach(d -> notifyDetailChanged(WsEventType.ORDER_DETAIL_UPDATED, d));
+        saved.stream().map(OrderDetail::getOrder).distinct().forEach(this::notifyOrderTotalChanged);
 
         return saved.stream().map(this::mapToResponse).toList();
     }
@@ -191,11 +237,10 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         orderDetailRepository.delete(detail);
 
         recalculateOrderTotal(order);
-
-        ordersTabletHandler.broadcast(Map.of(
-                "event", "ORDER_CHANGED"));
-
         checkAndUpdateOrderStatus(order.getId());
+
+        notifyDetailChanged(WsEventType.ORDER_DETAIL_DELETED, detail);
+        notifyOrderTotalChanged(order);
     }
 
     @Transactional
@@ -219,14 +264,19 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             if (enumStatus == OrderDetailStatus.SERVED || enumStatus == OrderDetailStatus.PAID) {
                 mergeSimilarDetails(detail, enumStatus);
             }
+
+            notifyDetailChanged(WsEventType.ORDER_DETAIL_STATUS_CHANGED, detail);
         }
+
+        details.stream()
+                .map(d -> d.getOrder())
+                .distinct()
+                .forEach(this::notifyOrderTotalChanged);
 
         details.stream()
                 .map(d -> d.getOrder().getId())
                 .distinct()
                 .forEach(this::checkAndUpdateOrderStatus);
-
-        ordersTabletHandler.broadcast(Map.of("event", "ORDER_CHANGED"));
     }
 
     private void checkAndUpdateOrderStatus(Long orderId) {
@@ -239,8 +289,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         if (order.getState() != newState) {
             order.setState(newState);
             orderRepository.save(order);
-            ordersTabletHandler.broadcast(Map.of(
-                    "event", "ORDER_CHANGED"));
+            notifyOrderTotalChanged(order);
         }
     }
 
@@ -289,6 +338,8 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         orderDetailRepository.save(main);
 
         recalculateOrderTotal(main.getOrder());
+        notifyDetailChanged(WsEventType.ORDER_DETAIL_UPDATED, main);
+        notifyOrderTotalChanged(main.getOrder());
     }
 
     private OrderDetail mapToEntity(OrderDetailRequest dto) {
@@ -324,5 +375,34 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 entity.getCreatedAt(),
                 entity.getProduct().getDestination(),
                 entity.getBatchId());
+    }
+
+    private void notifyDetailChanged(WsEventType type, OrderDetail detail) {
+        String dest = detail.getProduct() != null && detail.getProduct().getDestination() != null
+                ? detail.getProduct().getDestination().name()
+                : null;
+
+        String overviewId = detail.getOrder().getId() + "-" + detail.getBatchId();
+
+        WsEvent event = new WsEvent(
+                type,
+                detail.getOrder().getId(),
+                overviewId,
+                List.of(detail.getId()),
+                dest != null ? Set.of(dest) : null,
+                null);
+
+        wsNotifier.send(event);
+    }
+
+    private void notifyOrderTotalChanged(Order order) {
+        WsEvent event = new WsEvent(
+                WsEventType.ORDER_TOTAL_CHANGED,
+                order.getId(),
+                null,
+                null,
+                null,
+                null);
+        wsNotifier.send(event);
     }
 }

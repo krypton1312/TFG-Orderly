@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,7 +13,9 @@ import org.springframework.stereotype.Service;
 import com.yebur.backendorderly.resttable.RestTableRepository;
 import com.yebur.backendorderly.resttable.RestTableResponse;
 import com.yebur.backendorderly.resttable.RestTableService;
-import com.yebur.backendorderly.websocket.OrdersTabletWebSocketHandler;
+import com.yebur.backendorderly.websocket.WsEvent;
+import com.yebur.backendorderly.websocket.WsEventType;
+import com.yebur.backendorderly.websocket.WsNotifier;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +26,7 @@ public class OrderService implements OrderServiceInterface {
     private final OrderRepository orderRepository;
     private final RestTableRepository restTableRepository;
     private final RestTableService restTableService;
-    private final OrdersTabletWebSocketHandler ordersTabletWebSocketHandler;
+    private final WsNotifier wsNotifier;
 
     @Override
     public List<OrderResponse> findAllOrderDTO() {
@@ -73,6 +74,8 @@ public class OrderService implements OrderServiceInterface {
 
         Order saved = orderRepository.save(order);
 
+        notifyOrderChanged(WsEventType.ORDER_CREATED, saved);
+
         return findOrderDTOById(saved.getId())
                 .map(this::mapWithTable)
                 .orElseThrow(() -> new RuntimeException("Error creating order"));
@@ -98,19 +101,21 @@ public class OrderService implements OrderServiceInterface {
             order.setRestTable(null);
         }
 
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+
+        notifyOrderChanged(WsEventType.ORDER_TOTAL_CHANGED, saved);
+
+        return saved;
     }
 
     @Override
     public void deleteOrder(Long id) {
-        if (!orderRepository.existsById(id)) {
-            throw new RuntimeException("Order not found with id " + id);
-        }
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found with id " + id));
 
         orderRepository.deleteById(id);
-        
-        ordersTabletWebSocketHandler.broadcast(Map.of(
-                "event", "ORDER_CHANGED"));
+
+        notifyOrderChanged(WsEventType.ORDER_DELETED, order);
     }
 
     private OrderResponse mapWithTable(OrderResponse order) {
@@ -131,5 +136,18 @@ public class OrderService implements OrderServiceInterface {
                 order.getIdEmployee(),
                 order.getIdClient(),
                 tableResponse);
+    }
+
+    // 🔹 вспомогательный метод для уведомлений WS
+    private void notifyOrderChanged(WsEventType type, Order order) {
+        WsEvent event = new WsEvent(
+                type,
+                order.getId(),
+                null,
+                null,
+                null,
+                null           
+        );
+        wsNotifier.send(event);
     }
 }

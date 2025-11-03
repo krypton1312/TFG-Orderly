@@ -94,7 +94,7 @@ public class OverviewService {
 
                 for (OrderResponse order : orders) {
                         List<OrderDetailResponse> details = orderDetailService
-                                        .findUnpaidOrderDetailDTOByOrderId(order.getId());
+                                        .findOrderDetailTablet(order.getId());
 
                         Map<String, List<OrderDetailResponse>> groupedDetails = details.stream()
                                         .collect(Collectors.groupingBy(OrderDetailResponse::getBatchId));
@@ -111,7 +111,7 @@ public class OverviewService {
 
                                 LocalDateTime groupTime = entry.getValue().get(0).getCreatedAt();
                                 orderWithDetails.setDatetime(groupTime);
-                                
+
                                 List<OrderDetailSummary> ods = entry.getValue().stream()
                                                 .map(detail -> new OrderDetailSummary(
                                                                 detail.getId(),

@@ -123,6 +123,7 @@ fun OrdersScreen(viewModel: OrdersViewModel = viewModel()) {
 
                     HorizontalDivider(thickness = 1.dp, color = Color(0x11000000))
 
+                    // 🔹 Фильтрация заказов по вкладкам
                     val displayedOrders = remember(selectedTabIndex, orders) {
                         orders.map { order ->
                             val filteredDetails = when (selectedTabIndex) {
@@ -131,11 +132,8 @@ fun OrdersScreen(viewModel: OrdersViewModel = viewModel()) {
                                 3 -> order.details.filter { it.destination.equals("KITCHEN", ignoreCase = true) }
                                 else -> order.details
                             }
-                            order.copy(
-                                overviewId = order.overviewId,
-                                details = filteredDetails
-                            )
-                        }.filter { it.details.isNotEmpty() } // показываем только те, где есть детали
+                            order.copy(details = filteredDetails)
+                        }.filter { it.details.isNotEmpty() }
                     }
 
                     // 🔹 Контент
@@ -162,30 +160,15 @@ fun OrdersScreen(viewModel: OrdersViewModel = viewModel()) {
                             ) { _, order ->
                                 AnimatedVisibility(
                                     visible = true,
-                                    enter = fadeIn(animationSpec = tween(durationMillis = 350)),
-                                    exit = fadeOut(animationSpec = tween(durationMillis = 350))
+                                    enter = fadeIn(animationSpec = tween(300)),
+                                    exit = fadeOut(animationSpec = tween(300))
                                 ) {
-                                    OrderCard(
-                                        order = order,
-                                        viewModel = viewModel
-                                    )
+                                    OrderCard(order = order, viewModel = viewModel)
                                 }
                             }
                         }
                     }
                 }
-            }
-        }
-
-        // 🔹 Мягкая анимация обновления (Overlay)
-        if (isRefreshing) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White.copy(alpha = 0.4f)),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = Color(0xFF3F51B5))
             }
         }
     }
