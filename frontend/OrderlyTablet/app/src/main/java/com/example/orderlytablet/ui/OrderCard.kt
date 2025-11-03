@@ -20,11 +20,11 @@ import com.example.orderlytablet.ui.screens.OrdersViewModel
 
 @Composable
 fun StatusDropdown(
-    detailId: Long, // 👈 уникальный ID детали
+    detailId: Long,
     currentStatus: String,
     onStatusChange: (String) -> Unit
 ) {
-    // Привязываем состояние к ID детали, чтобы не "прыгало" между элементами
+
     var expanded by remember(detailId) { mutableStateOf(false) }
     var selectedStatus by remember(detailId) { mutableStateOf(currentStatus) }
 

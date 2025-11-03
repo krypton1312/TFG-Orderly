@@ -795,6 +795,7 @@ public class PrimaryController {
     }
 
     private void attachVisualDetailsToOrder(OrderResponse order) {
+        currentBatchId = UUID.randomUUID().toString();
         for (OrderDetailResponse visualDetail : visualDetails) {
             try {
                 OrderDetailRequest createReq = new OrderDetailRequest();
@@ -804,6 +805,8 @@ public class PrimaryController {
                 createReq.setUnitPrice(visualDetail.getUnitPrice());
                 createReq.setStatus("PENDING");
                 createReq.setBatchId(currentBatchId);
+                System.out.println(currentBatchId);
+                System.out.println(createReq.toString());
                 OrderDetailService.createOrderDetail(createReq);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -950,7 +953,7 @@ public class PrimaryController {
         HBox rowRecibido = createPaymentRow("RECIBIDO:", String.format("%.2f €", recibido), "#000");
         HBox rowCambio = createPaymentRow("CAMBIO:", String.format("%.2f €", cambio), "#16a34a");
 
-        if (recibido > 0) {
+        if (cambio > 0) {
             paymentVB.getChildren().addAll(title, separator, rowTotal, rowRecibido, rowCambio);
         } else {
             paymentVB.getChildren().addAll(title, separator, rowTotal);

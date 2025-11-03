@@ -101,5 +101,13 @@ public class OrderDetailRequest {
     public void setBatchId(String batchId) {
         this.batchId = batchId;
     }
+
+    @Override
+    public String toString() {
+        return "OrderDetailRequest [productId=" + productId + ", orderId=" + orderId + ", comment=" + comment
+                + ", amount=" + amount + ", unitPrice=" + unitPrice + ", status=" + status + ", paymentMethod="
+                + paymentMethod + ", batchId=" + batchId + "]";
+    }
+    
     
 }

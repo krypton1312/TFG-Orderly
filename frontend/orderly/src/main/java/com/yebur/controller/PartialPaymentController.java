@@ -387,6 +387,7 @@ public class PartialPaymentController {
             input = Double.parseDouble(!displayField.getText().isEmpty() ? displayField.getText() : "0");
         }
         double change = input - total_check;
+        System.out.println(change);
         return new double[] { total_check, input, change };
     }
 
