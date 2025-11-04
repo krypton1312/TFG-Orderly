@@ -16,8 +16,8 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"));
-        String css = App.class.getResource("/com/yebur/styles/primary.css").toExternalForm();
+        scene = new Scene(loadFXML("portal"));
+        String css = App.class.getResource("/com/yebur/styles/portal.css").toExternalForm();
         scene.getStylesheets().add(css);
 
         stage.setTitle("Orderly POS");

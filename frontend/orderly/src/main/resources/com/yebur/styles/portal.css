@@ -1,0 +1,156 @@
+/* ========================== */
+/* 🌐 Общие стили приложения */
+/* ========================== */
+.root {
+    -fx-background-color: #f5f7fa;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* ========================== */
+/* 📊 Верхняя панель Dashboard */
+/* ========================== */
+.dashboard-header {
+    -fx-background-color: #ffffff;
+    -fx-padding: 15 30 15 30;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #e2e6ea;
+    -fx-alignment: center-left;
+}
+
+.dashboard-header .main-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #212529;
+}
+
+/* ========================== */
+/* 📚 Левая панель */
+/* ========================== */
+.sidebar {
+    -fx-background-color: #ffffff;
+    -fx-padding: 30 20 20 20;
+    -fx-border-width: 0 1 0 0;
+    -fx-border-color: #e2e6ea;
+}
+
+.sidebar-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2b2b2b;
+}
+
+.sidebar-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6c757d;
+    -fx-padding: 0 0 20 0;
+}
+
+/* ========================== */
+/* 🔹 Кнопки в боковой панели */
+/* ========================== */
+.sidebar .button {
+    -fx-pref-width: Infinity;
+    -fx-max-width: Infinity;
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-color: transparent;
+    -fx-text-fill: #495057;
+    -fx-font-size: 15px;
+    -fx-padding: 10 0 10 20;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+/* наведение */
+.sidebar .button:hover {
+    -fx-background-color: #e9ecef;
+    -fx-text-fill: #007bff;
+}
+
+/* активная кнопка */
+.nav-item-selected {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+}
+
+/* logout */
+.nav-item-logout {
+    -fx-text-fill: #dc3545;
+    -fx-font-size: 15px;
+    -fx-padding: 8 0 8 10;
+    -fx-cursor: hand;
+}
+
+.section-title {
+    -fx-font-size: 12px;
+    -fx-text-fill: #adb5bd;
+    -fx-padding: 10 0 5 0;
+}
+
+/* ========================== */
+/* 🧭 Центральная часть */
+/* ========================== */
+.main-area {
+    -fx-padding: 0;
+}
+
+.content-area {
+    -fx-padding: 30 40 40 40;
+}
+
+/* Заголовки и тексты */
+.main-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #212529;
+}
+
+.subtitle {
+    -fx-font-size: 16px;
+    -fx-text-fill: #6c757d;
+}
+
+.description {
+    -fx-font-size: 14px;
+    -fx-text-fill: #adb5bd;
+    -fx-padding: 0 0 30 0;
+}
+
+/* ========================== */
+/* 🧱 Карточки */
+/* ========================== */
+.card {
+    -fx-background-color: #ffffff;
+    -fx-pref-width: 220;
+    -fx-pref-height: 120;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 10, 0, 0, 3);
+    -fx-cursor: hand;
+    -fx-alignment: center;
+    -fx-transition: all 0.2s ease;
+}
+
+.card:hover {
+    -fx-background-color: #007bff;
+}
+
+.card:hover .card-text {
+    -fx-text-fill: white;
+}
+
+.card-text {
+    -fx-font-size: 16px;
+    -fx-text-fill: #007bff;
+    -fx-font-weight: 600;
+}
+
+/* ========================== */
+/* ⚙️ Прочее */
+/* ========================== */
+.bottom-section {
+    -fx-padding: 20 0 0 0;
+    -fx-spacing: 10;
+}

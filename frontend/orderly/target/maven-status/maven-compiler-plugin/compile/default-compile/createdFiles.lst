@@ -20,6 +20,7 @@ com\yebur\model\response\RestTableResponse.class
 com\yebur\model\request\OrderDetailRequest.class
 com\yebur\service\OrderDetailService.class
 com\yebur\service\OverviewService$1.class
+com\yebur\controller\PortalController.class
 com\yebur\model\request\RestTableRequest.class
 com\yebur\service\ApiClient.class
 com\yebur\service\OverviewService.class
