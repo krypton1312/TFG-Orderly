@@ -1,6 +1,8 @@
 package com.yebur.backendorderly.product;
 
 
+import java.math.BigDecimal;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,7 +20,7 @@ public class ProductRequest {
     private String name;
 
     @Positive
-    private Double price;
+    private BigDecimal price;
 
     @Min(0)
     private Integer stock;

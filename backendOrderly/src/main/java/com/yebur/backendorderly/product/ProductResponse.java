@@ -1,5 +1,7 @@
 package com.yebur.backendorderly.product;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +15,7 @@ public class ProductResponse {
 
     private String name;
 
-    private Double price;
+    private BigDecimal price;
 
     private Integer stock;
 

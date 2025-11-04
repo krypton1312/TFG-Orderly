@@ -1,9 +1,11 @@
 package com.yebur.model.request;
 
+import java.math.BigDecimal;
+
 public class OrderRequest {
     private String state;
     private String paymentMethod;
-    private double total;
+    private BigDecimal total;
     private Long idEmployee;
     private Long idClient;
     private Long idTable;
@@ -15,7 +17,7 @@ public class OrderRequest {
 
     public OrderRequest(String state, Long idTable) {
         this.state = state;
-        this.total = 0.0;
+        this.total = new BigDecimal("0.00");
         this.paymentMethod = null;
         this.idClient = null;
         this.idTable = idTable;
@@ -36,10 +38,10 @@ public class OrderRequest {
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
-    public double getTotal() {
+    public BigDecimal getTotal() {
         return total;
     }
-    public void setTotal(double total) {
+    public void setTotal(BigDecimal total) {
         this.total = total;
     }
     public Long getIdEmployee() {

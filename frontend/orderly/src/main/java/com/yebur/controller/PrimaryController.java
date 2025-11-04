@@ -1,8 +1,12 @@
 package com.yebur.controller;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -86,6 +90,7 @@ public class PrimaryController {
     private Long selectedCategoryId;
     private int categoryPageSize;
     private int productPageSize;
+    private NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.GERMANY);
 
     @FXML
     public void initialize() {
@@ -96,6 +101,7 @@ public class PrimaryController {
                 e.printStackTrace();
             }
             reloadCategories();
+            orderTotalValue.setText(currencyFormatter.format(BigDecimal.ZERO));
         });
     }
 
@@ -549,7 +555,8 @@ public class PrimaryController {
 
     private void renderDetails(List<OrderDetailResponse> details, ProductResponse product) {
         orderVboxItems.getChildren().clear();
-        double total = 0;
+
+        BigDecimal total = BigDecimal.ZERO;
 
         for (OrderDetailResponse d : details) {
             HBox row = new HBox(10);
@@ -565,18 +572,20 @@ public class PrimaryController {
             nameLabel.setPrefWidth(340);
             nameLabel.setWrapText(true);
 
-            Label priceLabel = new Label(String.format("$%.2f", d.getUnitPrice()));
+            BigDecimal unitPrice = d.getUnitPrice();
+            Label priceLabel = new Label(currencyFormatter.format(unitPrice));
             priceLabel.setPrefWidth(100);
 
-            double totalLine = d.getUnitPrice() * d.getAmount();
-            Label totalLabel = new Label(String.format("$%.2f", totalLine));
+            BigDecimal totalLine = unitPrice
+                    .multiply(BigDecimal.valueOf(d.getAmount()))
+                    .setScale(2, RoundingMode.HALF_UP);
+            Label totalLabel = new Label(currencyFormatter.format(totalLine));
             totalLabel.setPrefWidth(100);
 
             row.getChildren().addAll(qty, nameLabel, priceLabel, totalLabel);
 
             row.setOnMouseClicked(event -> {
                 boolean isSelected = row.getStyleClass().contains("selected-row-order-item");
-
                 if (!isSelected) {
                     row.getStyleClass().add("selected-row-order-item");
                     selectedOrderDetailIndexes.add(details.indexOf(d));
@@ -587,11 +596,10 @@ public class PrimaryController {
             });
 
             orderVboxItems.getChildren().add(row);
-            total += totalLine;
+            total = total.add(totalLine);
         }
 
-        orderTotalValue.setText(String.format("$%.2f", total));
-
+        orderTotalValue.setText(currencyFormatter.format(total));
     }
 
     private void upsertVisualDetail(ProductResponse product, int delta) {
@@ -623,13 +631,13 @@ public class PrimaryController {
         orderVboxItems.getChildren().clear();
         visualDetails.clear();
         currentdetails.clear();
-        orderTotalValue.setText("0.00");
+        orderTotalValue.setText("0,00€");
         if (hasActiveOrder()) {
             try {
                 OrderService.deleteOrder(currentOrder.getId());
                 currentOrder = null;
                 orderIdLabel.setText("");
-                orderTotalValue.setText("$0,00");
+                orderTotalValue.setText("0,00€");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -658,7 +666,7 @@ public class PrimaryController {
                 currentOrder = null;
                 orderIdLabel.setText("");
                 tableNameLabel.setText("");
-                orderTotalValue.setText("$0.00");
+                orderTotalValue.setText("0,00€");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -819,11 +827,9 @@ public class PrimaryController {
 
     @FXML
     private void handlePartialPaymentClick() {
-        if (currentOrder == null) {
-            if (visualDetails.isEmpty()) {
-                return;
-            }
-        }
+        if (currentOrder == null && visualDetails.isEmpty())
+            return;
+
         try {
             URL fxml = getClass().getResource("/com/yebur/payment.fxml");
             if (fxml == null) {
@@ -848,20 +854,18 @@ public class PrimaryController {
             if (cssUrl != null) {
                 scene.getStylesheets().clear();
                 scene.getStylesheets().add(cssUrl.toExternalForm());
-            } else {
-                System.err.println("CSS not found: /com/yebur/styles/partialpayment.css");
             }
 
             stage.initModality(Modality.APPLICATION_MODAL);
-
             stage.setOnHiding(event -> {
-                handleChecksClick();
                 if (controller.anyPaymentDone()) {
-                    showPaymentBox(controller.getTotalCheck());
+                    javafx.application.Platform.runLater(() -> showPaymentBox(controller.getTotalCheck()));
                 }
+                handleChecksClick();
             });
 
             stage.showAndWait();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -913,12 +917,12 @@ public class PrimaryController {
         stage.close();
     }
 
-    private void showPaymentBox(double[] paymentInfo) {
+    private void showPaymentBox(BigDecimal[] paymentInfo) {
         orderVboxItems.getChildren().clear();
 
-        double total = paymentInfo[0];
-        double recibido = paymentInfo[1];
-        double cambio = paymentInfo[2];
+        BigDecimal total = paymentInfo[0].setScale(2, RoundingMode.HALF_UP);
+        BigDecimal input = paymentInfo[1].setScale(2, RoundingMode.HALF_UP);
+        BigDecimal change = paymentInfo[2].setScale(2, RoundingMode.HALF_UP);
 
         StackPane wrapper = new StackPane();
         wrapper.setAlignment(Pos.CENTER);
@@ -949,11 +953,11 @@ public class PrimaryController {
         separator.setStyle("-fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;");
         separator.setPrefHeight(1);
 
-        HBox rowTotal = createPaymentRow("COBRADO:", String.format("%.2f €", total), "#000");
-        HBox rowRecibido = createPaymentRow("RECIBIDO:", String.format("%.2f €", recibido), "#000");
-        HBox rowCambio = createPaymentRow("CAMBIO:", String.format("%.2f €", cambio), "#16a34a");
+        HBox rowTotal = createPaymentRow("COBRADO:", currencyFormatter.format(total), "#000");
+        HBox rowRecibido = createPaymentRow("RECIBIDO:", currencyFormatter.format(input), "#000");
+        HBox rowCambio = createPaymentRow("CAMBIO:", currencyFormatter.format(change), "#16a34a");
 
-        if (cambio > 0) {
+        if (change.compareTo(BigDecimal.ZERO) > 0) {
             paymentVB.getChildren().addAll(title, separator, rowTotal, rowRecibido, rowCambio);
         } else {
             paymentVB.getChildren().addAll(title, separator, rowTotal);

@@ -1,5 +1,6 @@
 package com.yebur.model.response;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class OrderDetailResponse {
@@ -9,7 +10,7 @@ public class OrderDetailResponse {
     private Long orderId;
     private String comment;
     private int amount;
-    private double unitPrice;
+    private BigDecimal unitPrice;
     private String status;
     private String paymentMethod;
     private LocalDateTime createdAt;
@@ -17,7 +18,7 @@ public class OrderDetailResponse {
     private String batchId;
 
     public OrderDetailResponse(Long id, Long productId, String productName, Long orderId, String comment, int amount,
-            double unitPrice, String status, String paymentMethod, LocalDateTime createdAt, String destination, String batchId) {
+            BigDecimal unitPrice, String status, String paymentMethod, LocalDateTime createdAt, String destination, String batchId) {
         this.id = id;
         this.productId = productId;
         this.productName = productName;
@@ -77,11 +78,11 @@ public class OrderDetailResponse {
         this.amount = amount;
     }
 
-    public double getUnitPrice() {
+    public BigDecimal getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(double unitPrice) {
+    public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
     }
 

@@ -1,5 +1,7 @@
 package com.yebur.backendorderly.overview;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,5 +20,5 @@ public class TableWithOrderResponse {
 @AllArgsConstructor
 class OrderSummary {
     private Long orderId;
-    private double total;
+    private BigDecimal total;
 }

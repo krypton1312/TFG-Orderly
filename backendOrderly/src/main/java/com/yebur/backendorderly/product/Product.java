@@ -1,5 +1,6 @@
 package com.yebur.backendorderly.product;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +38,8 @@ public class Product {
     @Column(nullable = false)
     private String name;
     
-    @Column(nullable = false)
-    private double price;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
 
     @Column
     private int stock;

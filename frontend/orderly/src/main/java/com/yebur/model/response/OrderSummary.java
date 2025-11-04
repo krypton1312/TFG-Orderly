@@ -1,13 +1,15 @@
 package com.yebur.model.response;
 
+import java.math.BigDecimal;
+
 public class OrderSummary {
     private Long orderId;
-    private double total;
+    private BigDecimal total;
     
     public OrderSummary() {
     }
 
-    public OrderSummary(Long orderId, double total) {
+    public OrderSummary(Long orderId, BigDecimal total) {
         this.orderId = orderId;
         this.total = total;
     }
@@ -20,11 +22,11 @@ public class OrderSummary {
         this.orderId = orderId;
     }
 
-    public double getTotal() {
+    public BigDecimal getTotal() {
         return total;
     }
 
-    public void setTotal(double total) {
+    public void setTotal(BigDecimal total) {
         this.total = total;
     }
     

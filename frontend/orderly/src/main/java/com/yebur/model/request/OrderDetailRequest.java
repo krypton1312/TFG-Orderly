@@ -1,11 +1,13 @@
 package com.yebur.model.request;
 
+import java.math.BigDecimal;
+
 public class OrderDetailRequest {
     private Long productId;
     private Long orderId;
     private String comment;
     private int amount;
-    private double unitPrice;
+    private BigDecimal unitPrice;
     private String status;
     private String paymentMethod;
     private String batchId;
@@ -13,7 +15,7 @@ public class OrderDetailRequest {
     public OrderDetailRequest() {
     }
 
-    public OrderDetailRequest(Long productId, Long orderId, String comment, int amount, double unitPrice, String status, String paymentMethod, String batchId) {
+    public OrderDetailRequest(Long productId, Long orderId, String comment, int amount, BigDecimal unitPrice, String status, String paymentMethod, String batchId) {
         this.productId = productId;
         this.orderId = orderId;
         this.comment = comment;
@@ -65,12 +67,12 @@ public class OrderDetailRequest {
     }
 
 
-    public double getUnitPrice() {
+    public BigDecimal getUnitPrice() {
         return unitPrice;
     }
 
 
-    public void setUnitPrice(double unitPrice) {
+    public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
     }
 

@@ -1,7 +1,11 @@
 package com.yebur.controller;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import com.yebur.model.request.OrderDetailRequest;
 import com.yebur.model.response.OrderDetailResponse;
@@ -64,10 +68,14 @@ public class PartialPaymentController {
 
     private OrderResponse order;
     private RestTableResponse table;
-    private double total_check;
 
     private boolean isPaymentBoxShown = false;
     private boolean anyPaymentDone = false;
+
+    private BigDecimal total_check = BigDecimal.ZERO;
+    private BigDecimal input = BigDecimal.ZERO;
+
+    private final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.GERMANY);
 
     @FXML
     public void initialize() {
@@ -103,7 +111,6 @@ public class PartialPaymentController {
         this.partialDetails = new ArrayList<>();
         this.partialDetailsNew = new ArrayList<>();
         this.table = primaryController.getSelectedTable();
-        System.out.println(table);
         tableNameLabel.setText((this.table != null ? table.getName() + " - " : "") + "Cuenta #" + order.getId());
         refreshUI();
     }
@@ -115,7 +122,7 @@ public class PartialPaymentController {
 
     private void renderDetails(List<OrderDetailResponse> details, VBox box, boolean isMainBox) {
         box.getChildren().clear();
-        double total = 0.0;
+        BigDecimal total = BigDecimal.ZERO;
 
         for (OrderDetailResponse d : details) {
             HBox row = new HBox(10);
@@ -128,11 +135,14 @@ public class PartialPaymentController {
             nameLabel.setPrefWidth(235);
             nameLabel.setWrapText(true);
 
-            Label priceLabel = new Label(String.format("$%.2f", d.getUnitPrice()));
+            BigDecimal unitPrice = d.getUnitPrice().setScale(2, RoundingMode.HALF_UP);
+            Label priceLabel = new Label(currencyFormatter.format(unitPrice));
             priceLabel.setPrefWidth(100);
 
-            double totalLine = d.getUnitPrice() * d.getAmount();
-            Label totalLabel = new Label(String.format("$%.2f", totalLine));
+            BigDecimal totalLine = unitPrice
+                    .multiply(BigDecimal.valueOf(d.getAmount()))
+                    .setScale(2, RoundingMode.HALF_UP);
+            Label totalLabel = new Label(currencyFormatter.format(totalLine));
             totalLabel.setPrefWidth(100);
 
             row.getChildren().addAll(qtyLabel, nameLabel, priceLabel, totalLabel);
@@ -149,14 +159,13 @@ public class PartialPaymentController {
             });
 
             box.getChildren().add(row);
-            total += totalLine;
+            total = total.add(totalLine);
         }
 
         if (isMainBox) {
-            mainTotalLabel.setText(String.format("$%.2f", total));
+            mainTotalLabel.setText(currencyFormatter.format(total));
         } else {
-            partialTotalLabel.setText(String.format("$%.2f", total));
-
+            partialTotalLabel.setText(currencyFormatter.format(total));
             if (!details.isEmpty()) {
                 total_check = total;
             }
@@ -168,30 +177,29 @@ public class PartialPaymentController {
         if (amountToMove <= 0)
             return;
 
+        OrderDetailResponse existing = partialDetails.stream()
+                .filter(p -> p.getProductId().equals(item.getProductId()))
+                .findFirst()
+                .orElse(null);
+
         if (amountToMove >= item.getAmount()) {
-            OrderDetailResponse copy = copyResponse(item);
-            copy.setStatus("PAID");
-            partialDetails.add(copy);
+            if (existing != null) {
+                existing.setAmount(existing.getAmount() + item.getAmount());
+            } else {
+                OrderDetailResponse copy = copyResponse(item);
+                copy.setStatus("PAID");
+                partialDetails.add(copy);
+            }
             orderDetails.remove(item);
         } else {
             item.setAmount(item.getAmount() - amountToMove);
 
-            OrderDetailResponse existing = partialDetails.stream()
-                    .filter(p -> p.getProductId().equals(item.getProductId()))
-                    .findFirst()
-                    .orElse(null);
-
             if (existing != null) {
                 existing.setAmount(existing.getAmount() + amountToMove);
             } else {
-                OrderDetailResponse uiCopy = new OrderDetailResponse();
-                uiCopy.setProductId(item.getProductId());
-                uiCopy.setProductName(item.getProductName());
+                OrderDetailResponse uiCopy = copyResponse(item);
                 uiCopy.setAmount(amountToMove);
-                uiCopy.setUnitPrice(item.getUnitPrice());
                 uiCopy.setStatus("PAID");
-                uiCopy.setComment(item.getComment());
-                uiCopy.setOrderId(item.getOrderId());
                 partialDetails.add(uiCopy);
             }
 
@@ -250,10 +258,18 @@ public class PartialPaymentController {
             showError("Por favor, selecciona productos para cobrar");
             return;
         }
-        if (selectedPaymentMethod.equals("")) {
+        if (selectedPaymentMethod.isEmpty()) {
             showError("Por favor, selecciona un método de pago.");
             return;
         }
+
+        try {
+            input = new BigDecimal(displayField.getText().isEmpty() ? "0" : displayField.getText())
+                    .setScale(2, RoundingMode.HALF_UP);
+        } catch (NumberFormatException e) {
+            input = BigDecimal.ZERO;
+        }
+
         persistPartialDetails();
         partialDetails.clear();
         refreshUI();
@@ -318,6 +334,7 @@ public class PartialPaymentController {
             if (!idsToUpdate.isEmpty()) {
                 OrderDetailService.updateOrderDetailList(idsToUpdate, reqsToUpdate);
             }
+
             if (!partialDetailsNew.isEmpty()) {
                 List<OrderDetailRequest> aggregated = new ArrayList<>();
 
@@ -330,15 +347,7 @@ public class PartialPaymentController {
                     if (existing != null) {
                         existing.setAmount(existing.getAmount() + req.getAmount());
                     } else {
-                        aggregated.add(new OrderDetailRequest(
-                                req.getProductId(),
-                                req.getOrderId(),
-                                req.getComment(),
-                                req.getAmount(),
-                                req.getUnitPrice(),
-                                "PAID",
-                                selectedPaymentMethod,
-                                req.getBatchId()));
+                        aggregated.add(req);
                     }
                 }
                 List<OrderDetailResponse> created = OrderDetailService.createOrderDetailList(aggregated);
@@ -355,11 +364,11 @@ public class PartialPaymentController {
     }
 
     private int parseInputAmount() {
-        String input = displayField.getText().trim();
-        if (input.isEmpty())
+        String inputStr = displayField.getText().trim();
+        if (inputStr.isEmpty())
             return 1;
         try {
-            return Integer.parseInt(input);
+            return Integer.parseInt(inputStr);
         } catch (NumberFormatException e) {
             displayField.clear();
             return -1;
@@ -379,25 +388,20 @@ public class PartialPaymentController {
         return copy;
     }
 
-    public double[] getTotalCheck() {
-        double input;
+    public BigDecimal[] getTotalCheck() {
         if (selectedPaymentMethod.equals("CARD")) {
-            input = 0.0;
-        } else {
-            input = Double.parseDouble(!displayField.getText().isEmpty() ? displayField.getText() : "0");
+            input = BigDecimal.ZERO;
         }
-        double change = input - total_check;
-        System.out.println(change);
-        return new double[] { total_check, input, change };
+        BigDecimal change = input.subtract(total_check).setScale(2, RoundingMode.HALF_UP);
+        return new BigDecimal[] { total_check, input, change };
     }
 
-    private void showPaymentBox(double[] paymentInfo) {
-
+    private void showPaymentBox(BigDecimal[] paymentInfo) {
         partialOrderBox.getChildren().clear();
 
-        double total = paymentInfo[0];
-        double recibido = paymentInfo[1];
-        double cambio = paymentInfo[2];
+        BigDecimal total = paymentInfo[0];
+        BigDecimal recibido = paymentInfo[1];
+        BigDecimal cambio = paymentInfo[2];
 
         StackPane wrapper = new StackPane();
         wrapper.setAlignment(Pos.CENTER);
@@ -429,18 +433,17 @@ public class PartialPaymentController {
         separator.setStyle("-fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;");
         separator.setPrefHeight(1);
 
-        HBox rowTotal = createPaymentRow("COBRADO:", String.format("%.2f €", total), "#000");
-        HBox rowRecibido = createPaymentRow("RECIBIDO:", String.format("%.2f €", recibido), "#000");
-        HBox rowCambio = createPaymentRow("CAMBIO:", String.format("%.2f €", cambio), "#16a34a");
+        HBox rowTotal = createPaymentRow("COBRADO:", currencyFormatter.format(total), "#000");
+        HBox rowRecibido = createPaymentRow("RECIBIDO:", currencyFormatter.format(recibido), "#000");
+        HBox rowCambio = createPaymentRow("CAMBIO:", currencyFormatter.format(cambio), "#16a34a");
 
-        if (recibido > 0) {
+        if (recibido.compareTo(BigDecimal.ZERO) > 0) {
             paymentVB.getChildren().addAll(title, separator, rowTotal, rowRecibido, rowCambio);
         } else {
             paymentVB.getChildren().addAll(title, separator, rowTotal);
         }
 
         wrapper.getChildren().add(paymentVB);
-
         partialOrderBox.getChildren().add(wrapper);
 
         paymentVB.setOpacity(0);
@@ -511,7 +514,6 @@ public class PartialPaymentController {
                     -fx-padding: 6 20;
                 """);
         closeButton.setPrefSize(60, 40);
-
         closeButton.setOnAction(e -> dialog.close());
 
         dialogVBox.getChildren().addAll(messageL, closeButton);

@@ -56,7 +56,7 @@ public class OverviewService {
                                                                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                                                                 .setScale(2, RoundingMode.HALF_UP);
 
-                                                return new OrderSummary(o.getId(), unpaidTotal.doubleValue());
+                                                return new OrderSummary(o.getId(), unpaidTotal);
                                         })
                                         .orElse(null);
 
@@ -82,7 +82,7 @@ public class OverviewService {
                         overview.add(new TableWithOrderResponse(
                                         null,
                                         "Sin mesa",
-                                        new OrderSummary(order.getId(), unpaidTotal.doubleValue())));
+                                        new OrderSummary(order.getId(), unpaidTotal)));
                 }
 
                 return overview;
