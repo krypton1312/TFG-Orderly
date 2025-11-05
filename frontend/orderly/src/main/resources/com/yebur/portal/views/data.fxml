@@ -26,23 +26,22 @@
             <VBox alignment="CENTER" spacing="10">
                 <StackPane alignment="CENTER" scaleX="1.4" scaleY="1.4">
                     <SVGPath styleClass="icon"
-                        content="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14
-                         M7.5 4.27l9 5.15
-                         M3.29 7L12 12L20.71 7
-                         M12 22V12
-                         M20.27 17.27L22 19" />
-                    <Circle styleClass="icon" centerX="18.5" centerY="15.5" radius="2.5" />
+                        content="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z M12 22V12 M3.29 7L12 12L20.71 7 M7.5 4.27l9 5.15" />
                 </StackPane>
                 <Label text="Productos" styleClass="card-text" />
             </VBox>
         </StackPane>
 
 
+
         <!-- Categorías -->
         <StackPane styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="0">
             <VBox alignment="CENTER" spacing="10">
-                <SVGPath content="M4 6h16v12H4z" fill="#f97316" scaleX="1.5" scaleY="1.5" />
-                <Label text="Categorías" styleClass="card-text" />
+                <StackPane alignment="CENTER" scaleX="1.4" scaleY="1.4">
+                    <SVGPath styleClass="icon"
+                        content="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193 M10.5 6a0.5 0.5 0 1 1 0 1a0.5 0.5 0 0 1 0-1z" />
+                </StackPane>
+                <Label text="Categorias" styleClass="card-text" />
             </VBox>
         </StackPane>
 

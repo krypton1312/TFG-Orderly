@@ -10,6 +10,7 @@ public class DataController {
 
     @FXML
     public void initialize() {
+         
         root.getStylesheets().add(getClass().getResource("/com/yebur/portal/views/data.css").toExternalForm());
     }
 }
