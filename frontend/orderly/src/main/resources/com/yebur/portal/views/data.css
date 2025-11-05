@@ -1,0 +1,37 @@
+.card {
+    -fx-background-color: #ffffff;
+    -fx-pref-width: 220;
+    -fx-pref-height: 120;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.03), 8, 0, 0, 4);
+    -fx-cursor: hand;
+    -fx-alignment: center;
+    -fx-transition: all 0.25s ease;
+    -fx-border-color: transparent;
+}
+
+.card:hover {
+    -fx-background-color: #fff7ed; /* orange-50 */
+    -fx-effect: dropshadow(three-pass-box, rgba(234, 88, 12, 0.15), 15, 0, 0, 6);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.card:hover .card-text {
+    -fx-text-fill: #000000; /* orange-600 */
+}
+
+.card-text {
+    -fx-font-size: 16px;
+    -fx-text-fill: #000000; /* orange-400 */
+    -fx-font-weight: bold;
+}
+
+.icon {
+    -fx-stroke: #f97316;           /* цвет акцента */
+    -fx-fill: transparent;         /* без заливки */
+    -fx-stroke-width: 2;           /* толщина как в Lucide */
+    -fx-stroke-line-cap: round;    /* закруглённые концы */
+    -fx-stroke-line-join: round;   /* закруглённые стыки */
+}

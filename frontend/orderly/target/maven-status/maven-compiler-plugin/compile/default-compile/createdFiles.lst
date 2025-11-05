@@ -3,7 +3,6 @@ com\yebur\ui\CustomDialog.class
 com\yebur\model\request\OrderRequest.class
 com\yebur\service\ProductService$2.class
 com\yebur\service\OrderDetailService$2.class
-com\yebur\controller\PrimaryController.class
 module-info.class
 com\yebur\service\ProductService$1.class
 com\yebur\service\CategoryService.class
@@ -27,8 +26,10 @@ com\yebur\service\OverviewService.class
 com\yebur\app\App.class
 com\yebur\service\OrderDetailService$3.class
 com\yebur\service\ProductService.class
+com\yebur\controller\DataController.class
 com\yebur\model\response\OrderSummary.class
 com\yebur\model\response\OrderResponse.class
 com\yebur\service\OrderDetailService$1.class
+com\yebur\controller\PosController.class
 com\yebur\model\response\OrderDetailResponse.class
 com\yebur\model\response\TableWithOrderResponse.class

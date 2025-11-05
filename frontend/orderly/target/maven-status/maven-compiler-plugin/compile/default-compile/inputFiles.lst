@@ -1,10 +1,10 @@
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\OrderDetailResponse.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\OrderDetailService.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\RestTableRequest.java
-C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\PrimaryController.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\TableWithOrderResponse.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\RestTableResponse.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\ui\CustomDialog.java
+C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\DataController.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\OrderRequest.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\CategoryResponse.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\OrderService.java
@@ -16,6 +16,7 @@ C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\s
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\CategoryService.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\OrderResponse.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\ProductResponse.java
+C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\PosController.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\OverviewService.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\RestTableService.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\OrderDetailRequest.java

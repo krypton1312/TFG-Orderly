@@ -1,5 +1,7 @@
 package com.yebur.app;
 
+import java.io.IOException;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -8,7 +10,6 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.io.IOException;
 
 public class App extends Application {
 
@@ -16,6 +17,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+
         scene = new Scene(loadFXML("portal"));
         String css = App.class.getResource("/com/yebur/portal/portal.css").toExternalForm();
         scene.getStylesheets().add(css);
@@ -42,4 +44,5 @@ public class App extends Application {
     public static void main(String[] args) {
         launch();
     }
+    
 }

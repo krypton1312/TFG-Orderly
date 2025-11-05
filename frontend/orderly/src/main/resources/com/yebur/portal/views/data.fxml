@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.Group?>
+
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+    fx:controller="com.yebur.controller.DataController"
+    alignment="CENTER"
+    spacing="40"
+    styleClass="content-area"
+    fx:id="root">
+
+    <GridPane hgap="40" vgap="40" alignment="CENTER">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50" />
+            <ColumnConstraints percentWidth="50" />
+        </columnConstraints>
+
+        <!-- Productos -->
+        <StackPane styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <VBox alignment="CENTER" spacing="10">
+                <StackPane alignment="CENTER" scaleX="1.4" scaleY="1.4">
+                    <SVGPath styleClass="icon"
+                        content="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14
+                         M7.5 4.27l9 5.15
+                         M3.29 7L12 12L20.71 7
+                         M12 22V12
+                         M20.27 17.27L22 19" />
+                    <Circle styleClass="icon" centerX="18.5" centerY="15.5" radius="2.5" />
+                </StackPane>
+                <Label text="Productos" styleClass="card-text" />
+            </VBox>
+        </StackPane>
+
+
+        <!-- Categorías -->
+        <StackPane styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <VBox alignment="CENTER" spacing="10">
+                <SVGPath content="M4 6h16v12H4z" fill="#f97316" scaleX="1.5" scaleY="1.5" />
+                <Label text="Categorías" styleClass="card-text" />
+            </VBox>
+        </StackPane>
+
+        <!-- Suplementos -->
+        <StackPane styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <VBox alignment="CENTER" spacing="10">
+                <SVGPath content="M12 2v20M2 12h20" fill="#f97316" scaleX="1.5" scaleY="1.5" />
+                <Label text="Suplementos" styleClass="card-text" />
+            </VBox>
+        </StackPane>
+
+        <!-- Mesas -->
+        <StackPane styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <VBox alignment="CENTER" spacing="10">
+                <SVGPath content="M3 3h18v2H3zM3 19h18v2H3zM11 5h2v14h-2z" fill="#f97316"
+                    scaleX="1.5" scaleY="1.5" />
+                <Label text="Mesas" styleClass="card-text" />
+            </VBox>
+        </StackPane>
+    </GridPane>
+</VBox>

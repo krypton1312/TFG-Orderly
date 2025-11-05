@@ -9,7 +9,8 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
     fx:controller="com.yebur.controller.PortalController"
-    prefWidth="1280" prefHeight="768">
+    prefWidth="1280" prefHeight="768"
+    fx:id="mainPane">
 
     <left>
         <VBox prefWidth="220" spacing="10" styleClass="sidebar" fillWidth="true">
@@ -30,16 +31,14 @@
             </HBox>
 
             <!-- Кнопки меню -->
-            <VBox spacing="5" fillWidth="true">
+            <VBox spacing="5" fillWidth="true" fx:id="sidebarNavButtonsVBox">
                 <Button text="Inicio">
                     <styleClass>
                         <String fx:value="button" />
                         <String fx:value="nav-item-selected" />
                     </styleClass>
                 </Button>
-                <Button text="Gestion de productos" styleClass="nav-item" />
-                <Button text="Gestion de empleados" styleClass="nav-item" />
-                <Button text="Gestion de clientes" styleClass="nav-item" />
+                <Button text="Gestion de datos" styleClass="nav-item" onAction="#showDataView" />
                 <Button text="Cierres" styleClass="nav-item" />
                 <Button text="Analisis" styleClass="nav-item" />
             </VBox>
@@ -55,7 +54,14 @@
 
     <!-- Центральная панель -->
     <center>
-        
+        <VBox alignment="TOP_CENTER" spacing="0" styleClass="main-area">
+
+            <HBox alignment="CENTER_LEFT" styleClass="dashboard-header">
+                <Label text="Dashboard" styleClass="main-title" fx:id="titleLabel"/>
+            </HBox>
+            
+            <AnchorPane fx:id="centerContent"/> 
+        </VBox>
     </center>
 
 </BorderPane>

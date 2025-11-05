@@ -8,6 +8,7 @@ module com.yebur {
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.annotation;
 
+
     opens com.yebur.app to javafx.fxml;
     opens com.yebur.controller to javafx.fxml;
     opens com.yebur.model.response to javafx.base;
