@@ -45,7 +45,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class PrimaryController {
+public class PosController {
 
     @FXML
     private TilePane categoryBox;
@@ -831,9 +831,9 @@ public class PrimaryController {
             return;
 
         try {
-            URL fxml = getClass().getResource("/com/yebur/payment.fxml");
+            URL fxml = getClass().getResource("/com/yebur/payment/payment.fxml");
             if (fxml == null) {
-                System.err.println("FXML not found: /com/yebur/payment.fxml");
+                System.err.println("FXML not found: /com/yebur/payment/payment.fxml");
                 return;
             }
 
@@ -850,7 +850,7 @@ public class PrimaryController {
             stage.setResizable(false);
             stage.setScene(scene);
 
-            URL cssUrl = App.class.getResource("/com/yebur/styles/partialpayment.css");
+            URL cssUrl = App.class.getResource("/com/yebur/payment/partialpayment.css");
             if (cssUrl != null) {
                 scene.getStylesheets().clear();
                 scene.getStylesheets().add(cssUrl.toExternalForm());

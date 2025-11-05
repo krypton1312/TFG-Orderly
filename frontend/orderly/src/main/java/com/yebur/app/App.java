@@ -17,7 +17,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         scene = new Scene(loadFXML("portal"));
-        String css = App.class.getResource("/com/yebur/styles/portal.css").toExternalForm();
+        String css = App.class.getResource("/com/yebur/portal/portal.css").toExternalForm();
         scene.getStylesheets().add(css);
 
         stage.setTitle("Orderly POS");
@@ -34,7 +34,7 @@ public class App extends Application {
 
     private static Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(
-            App.class.getResource("/com/yebur/" + fxml + ".fxml")
+            App.class.getResource("/com/yebur/portal/" + fxml + ".fxml")
         );
         return fxmlLoader.load();
     }

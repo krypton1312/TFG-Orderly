@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+    fx:controller="com.yebur.controller.PortalController"
+    prefWidth="1280" prefHeight="768">
+
+    <left>
+        <VBox prefWidth="220" spacing="10" styleClass="sidebar" fillWidth="true">
+
+            <HBox alignment="CENTER_LEFT" spacing="12" styleClass="sidebar-header">
+                <StackPane alignment="CENTER">
+                    <ImageView fx:id="logoImage"
+                        fitWidth="36" fitHeight="36"
+                        preserveRatio="true"
+                        smooth="true"
+                        styleClass="sidebar-logo" />
+                </StackPane>
+
+                <VBox alignment="CENTER_LEFT" spacing="2">
+                    <Label text="Orderly" styleClass="sidebar-title" />
+                    <Label text="Cafeteria El Divan" styleClass="sidebar-subtitle" />
+                </VBox>
+            </HBox>
+
+            <!-- Кнопки меню -->
+            <VBox spacing="5" fillWidth="true">
+                <Button text="Inicio">
+                    <styleClass>
+                        <String fx:value="button" />
+                        <String fx:value="nav-item-selected" />
+                    </styleClass>
+                </Button>
+                <Button text="Gestion de productos" styleClass="nav-item" />
+                <Button text="Gestion de empleados" styleClass="nav-item" />
+                <Button text="Gestion de clientes" styleClass="nav-item" />
+                <Button text="Cierres" styleClass="nav-item" />
+                <Button text="Analisis" styleClass="nav-item" />
+            </VBox>
+
+            <!-- Нижние кнопки -->
+            <VBox fx:id="bottomButtons" alignment="BOTTOM_LEFT" spacing="10"
+                styleClass="bottom-section">
+                <Button text="Configuracion" styleClass="nav-item" />
+                <Button text="Salir" styleClass="nav-item-logout" />
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- Центральная панель -->
+    <center>
+        
+    </center>
+
+</BorderPane>

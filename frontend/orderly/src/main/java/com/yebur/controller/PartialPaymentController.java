@@ -58,7 +58,7 @@ public class PartialPaymentController {
     @FXML
     private Button cashButton;
 
-    private PrimaryController primaryController;
+    private PosController primaryController;
 
     private List<OrderDetailResponse> orderDetails;
     private List<OrderDetailResponse> partialDetails;
@@ -100,7 +100,7 @@ public class PartialPaymentController {
         stage.close();
     }
 
-    public void setPrimaryController(PrimaryController primaryController) {
+    public void setPrimaryController(PosController primaryController) {
         this.primaryController = primaryController;
         loadData();
     }

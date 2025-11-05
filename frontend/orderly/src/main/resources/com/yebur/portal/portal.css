@@ -1,9 +1,9 @@
 /* ========================== */
-/* 🌐 Общие стили приложения */
+/* 🌐 Общие стили приложения (Tailwind Soft) */
 /* ========================== */
 .root {
-    -fx-background-color: #f5f7fa;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-color: linear-gradient(to bottom, #fffaf7, #fff6ef);
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
 }
 
 /* ========================== */
@@ -13,14 +13,14 @@
     -fx-background-color: #ffffff;
     -fx-padding: 15 30 15 30;
     -fx-border-width: 0 0 1 0;
-    -fx-border-color: #e2e6ea;
+    -fx-border-color: #f3f4f6;
     -fx-alignment: center-left;
 }
 
 .dashboard-header .main-title {
     -fx-font-size: 24px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #212529;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1f2937; /* gray-800 */
 }
 
 /* ========================== */
@@ -30,19 +30,33 @@
     -fx-background-color: #ffffff;
     -fx-padding: 30 20 20 20;
     -fx-border-width: 0 1 0 0;
-    -fx-border-color: #e2e6ea;
+    -fx-border-color: #f3f4f6; /* gray-100 */
+}
+
+/* 🔸 Заголовок с логотипом */
+.sidebar-header {
+    -fx-spacing: 12;
+    -fx-padding: -20 0 5 0;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #f3f4f6;
+    -fx-alignment: CENTER;
+}
+
+.sidebar-logo {
+    -fx-alignment: center;
+    -fx-fit-width: 40;
+    -fx-fit-height: 40;
 }
 
 .sidebar-title {
     -fx-font-size: 20px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #2b2b2b;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1f2937; /* gray-800 */
 }
 
 .sidebar-subtitle {
     -fx-font-size: 13px;
-    -fx-text-fill: #6c757d;
-    -fx-padding: 0 0 20 0;
+    -fx-text-fill: #6b7280; /* gray-500 */
 }
 
 /* ========================== */
@@ -53,31 +67,31 @@
     -fx-max-width: Infinity;
     -fx-alignment: CENTER_LEFT;
     -fx-background-color: transparent;
-    -fx-text-fill: #495057;
+    -fx-text-fill: #374151; /* gray-700 */
     -fx-font-size: 15px;
     -fx-padding: 10 0 10 20;
-    -fx-background-radius: 6;
+    -fx-background-radius: 8;
     -fx-cursor: hand;
     -fx-border-width: 0;
+    -fx-font-weight: 500;
 }
 
 /* наведение */
 .sidebar .button:hover {
-    -fx-background-color: #e9ecef;
-    -fx-text-fill: #007bff;
+    -fx-background-color: #fff7ed; /* orange-50 */
+    -fx-text-fill: #ea580c; /* orange-600 */
 }
 
 /* активная кнопка */
-.nav-item-selected {
-    -fx-background-color: #007bff;
-    -fx-text-fill: white;
+.sidebar .button.nav-item-selected {
+    -fx-background-color: #fed7aa; /* orange-200 */
+    -fx-text-fill: #9a3412; /* orange-800 */
     -fx-font-weight: bold;
-    -fx-background-radius: 6;
 }
 
 /* logout */
 .nav-item-logout {
-    -fx-text-fill: #dc3545;
+    -fx-text-fill: #dc2626; /* red-600 */
     -fx-font-size: 15px;
     -fx-padding: 8 0 8 10;
     -fx-cursor: hand;
@@ -85,7 +99,7 @@
 
 .section-title {
     -fx-font-size: 12px;
-    -fx-text-fill: #adb5bd;
+    -fx-text-fill: #9ca3af; /* gray-400 */
     -fx-padding: 10 0 5 0;
 }
 
@@ -103,18 +117,18 @@
 /* Заголовки и тексты */
 .main-title {
     -fx-font-size: 28px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #212529;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1f2937; /* gray-800 */
 }
 
 .subtitle {
     -fx-font-size: 16px;
-    -fx-text-fill: #6c757d;
+    -fx-text-fill: #6b7280; /* gray-500 */
 }
 
 .description {
     -fx-font-size: 14px;
-    -fx-text-fill: #adb5bd;
+    -fx-text-fill: #9ca3af; /* gray-400 */
     -fx-padding: 0 0 30 0;
 }
 
@@ -125,26 +139,30 @@
     -fx-background-color: #ffffff;
     -fx-pref-width: 220;
     -fx-pref-height: 120;
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 10, 0, 0, 3);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.03), 8, 0, 0, 4);
     -fx-cursor: hand;
     -fx-alignment: center;
-    -fx-transition: all 0.2s ease;
+    -fx-transition: all 0.25s ease;
+    -fx-border-color: transparent;
 }
 
 .card:hover {
-    -fx-background-color: #007bff;
+    -fx-background-color: #fff7ed; /* orange-50 */
+    -fx-effect: dropshadow(three-pass-box, rgba(234, 88, 12, 0.15), 15, 0, 0, 6);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
 }
 
 .card:hover .card-text {
-    -fx-text-fill: white;
+    -fx-text-fill: #000000; /* orange-600 */
 }
 
 .card-text {
     -fx-font-size: 16px;
-    -fx-text-fill: #007bff;
-    -fx-font-weight: 600;
+    -fx-text-fill: #000000; /* orange-400 */
+    -fx-font-weight: bold;
 }
 
 /* ========================== */
