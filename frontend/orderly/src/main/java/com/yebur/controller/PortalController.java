@@ -46,7 +46,7 @@ public class PortalController {
 
     @FXML
     private void showDataView(ActionEvent event) {
-        titleLabel.setText("Gestión de productos");
+        titleLabel.setText("Gestion de datos");
 
         clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
 

@@ -9,7 +9,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
     fx:controller="com.yebur.controller.PortalController"
-    prefWidth="1280" prefHeight="768"
+    prefWidth="1024" prefHeight="768"
     fx:id="mainPane">
 
     <left>
@@ -43,11 +43,18 @@
                 <Button text="Analisis" styleClass="nav-item" />
             </VBox>
 
+            <Pane VBox.vgrow="ALWAYS" />
+
             <!-- Нижние кнопки -->
             <VBox fx:id="bottomButtons" alignment="BOTTOM_LEFT" spacing="10"
                 styleClass="bottom-section">
                 <Button text="Configuracion" styleClass="nav-item" />
-                <Button text="Salir" styleClass="nav-item-logout" />
+                <Button text="Salir">
+                    <styleClass>
+                        <String fx:value="button" />
+                        <String fx:value="nav-item-logout" />
+                    </styleClass>
+                </Button>
             </VBox>
         </VBox>
     </left>
@@ -57,10 +64,10 @@
         <VBox alignment="TOP_CENTER" spacing="0" styleClass="main-area">
 
             <HBox alignment="CENTER_LEFT" styleClass="dashboard-header">
-                <Label text="Dashboard" styleClass="main-title" fx:id="titleLabel"/>
+                <Label text="Dashboard" styleClass="main-title" fx:id="titleLabel" />
             </HBox>
-            
-            <AnchorPane fx:id="centerContent"/> 
+
+            <AnchorPane fx:id="centerContent" />
         </VBox>
     </center>
 

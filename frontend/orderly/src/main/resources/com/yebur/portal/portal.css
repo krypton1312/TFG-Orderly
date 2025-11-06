@@ -90,11 +90,17 @@
 }
 
 /* logout */
-.nav-item-logout {
+.sidebar .button.nav-item-logout {
     -fx-text-fill: #dc2626; /* red-600 */
     -fx-font-size: 15px;
-    -fx-padding: 8 0 8 10;
     -fx-cursor: hand;
+}
+.sidebar .button.nav-item-logout:hover {
+    -fx-text-fill: #dc2626; /* red-600 */
+    -fx-font-size: 15px;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+    -fx-background-color: #eb7f7f77;
 }
 
 .section-title {
@@ -138,4 +144,7 @@
 .bottom-section {
     -fx-padding: 20 0 0 0;
     -fx-spacing: 10;
+    -fx-alignment: bottom-center;
+    -fx-border-width: 2 0 0 0;
+    -fx-border-color: #f3f4f6;
 }

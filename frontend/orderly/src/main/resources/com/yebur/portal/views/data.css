@@ -35,3 +35,11 @@
     -fx-stroke-line-cap: round;    /* закруглённые концы */
     -fx-stroke-line-join: round;   /* закруглённые стыки */
 }
+
+.icon-table {
+    -fx-stroke: #f97316;           /* цвет акцента */
+    -fx-fill: transparent;         /* без заливки */
+    -fx-stroke-width: 1;           /* толщина как в Lucide */
+    -fx-stroke-line-cap: round;    /* закруглённые концы */
+    -fx-stroke-line-join: round;   /* закруглённые стыки */
+}

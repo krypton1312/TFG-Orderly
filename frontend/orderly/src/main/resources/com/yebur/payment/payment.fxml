@@ -14,7 +14,7 @@
 <BorderPane xmlns="http://javafx.com/javafx/8"
     xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="com.yebur.controller.PartialPaymentController"
-    prefWidth="1280" prefHeight="768"
+    prefWidth="1024" prefHeight="768"
     style="-fx-padding: 20;">
 
     <!-- ===== Верхняя панель ===== -->

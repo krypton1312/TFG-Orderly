@@ -5,7 +5,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.*?>
 
-<GridPane hgap="10" prefHeight="768.0" prefWidth="1280.0" style="-fx-padding: 10;" vgap="10" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.yebur.controller.PosController">
+<GridPane hgap="10" prefHeight="768.0" prefWidth="1024.0" style="-fx-padding: 10;" vgap="10"
+    xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.yebur.controller.PosController">
 
     <!-- ==== Настройка сетки ==== -->
     <columnConstraints>
@@ -25,95 +27,145 @@
     </rowConstraints>
     <children>
 
-            <!-- ==== Верхняя левая часть (OrderItems) ==== -->
-    <VBox fx:id="orderVbox" spacing="10" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="0">
-        <children>
-            <HBox>
-                <Label fx:id="tableNameLabel" styleClass="order-title" text="" />
-                <Pane HBox.hgrow="ALWAYS" /> <!-- Разделитель -->
-                <Label fx:id="orderIdLabel" styleClass="order-title" text="" />
-            </HBox>
-            <!-- Заголовок таблицы -->
-            <HBox alignment="CENTER_LEFT" style="-fx-border-color: transparent transparent #e5e7eb transparent; -fx-border-width: 0 0 1 0;">
-                <Label prefWidth="40" text="Uds" />
-                <Label prefWidth="340" text="Producto" />
-                <Label prefWidth="100" text="Precio unitario" />
-                <Label prefWidth="100" text="Precio total" />
-            </HBox>
-
-            <!-- Список заказов -->
-            <ScrollPane fx:id="orderSP"
-                        styleClass="order-scroll-pane"
-                        fitToWidth="true"
-                        prefHeight="250">
-                <content>
-                    <VBox fx:id="orderVboxItems"
-                        styleClass="order-items-box"
-                        spacing="5" />
-                </content>
-            </ScrollPane>
-            <HBox alignment="CENTER_RIGHT" styleClass="order-total-bar">
-                <HBox alignment="CENTER_RIGHT" styleClass="order-total-bg">
-                    <Label text="Total:" styleClass="order-total-label" />
-                    <Label fx:id="orderTotalValue" text="0.00" styleClass="order-total-value" />
+        <!-- ==== Верхняя левая часть (OrderItems) ==== -->
+        <VBox fx:id="orderVbox" spacing="10" styleClass="card" GridPane.columnIndex="0"
+            GridPane.rowIndex="0">
+            <children>
+                <HBox>
+                    <Label fx:id="tableNameLabel" styleClass="order-title" text="" />
+                    <Pane HBox.hgrow="ALWAYS" /> <!-- Разделитель -->
+                    <Label fx:id="orderIdLabel" styleClass="order-title" text="" />
                 </HBox>
-            </HBox>
-        </children>
-    </VBox>
+                <!-- Заголовок таблицы -->
+                <HBox alignment="CENTER_LEFT"
+                    style="-fx-border-color: transparent transparent #e5e7eb transparent; -fx-border-width: 0 0 1 0;">
+                    <Label prefWidth="40" text="Uds" />
+                    <Label prefWidth="340" text="Producto" />
+                    <Label prefWidth="100" text="Precio unitario" />
+                    <Label prefWidth="100" text="Precio total" />
+                </HBox>
+
+                <!-- Список заказов -->
+                <ScrollPane fx:id="orderSP"
+                    styleClass="order-scroll-pane"
+                    fitToWidth="true"
+                    prefHeight="250">
+                    <content>
+                        <VBox fx:id="orderVboxItems"
+                            styleClass="order-items-box"
+                            spacing="5" />
+                    </content>
+                </ScrollPane>
+                <HBox alignment="CENTER_RIGHT" styleClass="order-total-bar">
+                    <HBox alignment="CENTER_RIGHT" styleClass="order-total-bg">
+                        <Label text="Total:" styleClass="order-total-label" />
+                        <Label fx:id="orderTotalValue" text="0.00" styleClass="order-total-value" />
+                    </HBox>
+                </HBox>
+            </children>
+        </VBox>
 
 
         <!-- ==== Верхняя правая часть (Калькулятор) ==== -->
-        <VBox prefHeight="200" prefWidth="300" spacing="10" styleClass="card" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS">
+        <VBox prefHeight="200" prefWidth="260" spacing="10" styleClass="card"
+            GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0"
+            GridPane.vgrow="ALWAYS">
             <children>
-                <!-- Поле ввода также растягивается по ширине -->
-                <TextField fx:id="displayField" maxWidth="Infinity" styleClass="display" VBox.vgrow="NEVER" />
 
-                <!-- Грид тянется на всю оставшуюся высоту -->
-                <GridPane hgap="10" vgap="10" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" VBox.vgrow="ALWAYS">
+                <TextField fx:id="displayField" maxWidth="Infinity" styleClass="display"
+                    VBox.vgrow="NEVER" />
+
+                <GridPane hgap="10" vgap="10"
+                    GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                    VBox.vgrow="ALWAYS">
                     <columnConstraints>
-                        <ColumnConstraints hgrow="ALWAYS" />
-                        <ColumnConstraints hgrow="ALWAYS" />
-                        <ColumnConstraints hgrow="ALWAYS" />
+                        <ColumnConstraints percentWidth="33.33" hgrow="ALWAYS" />
+                        <ColumnConstraints percentWidth="33.33" hgrow="ALWAYS" />
+                        <ColumnConstraints percentWidth="33.33" hgrow="ALWAYS" />
                     </columnConstraints>
+
                     <rowConstraints>
-                        <RowConstraints vgrow="ALWAYS" />
-                        <RowConstraints vgrow="ALWAYS" />
-                        <RowConstraints vgrow="ALWAYS" />
-                        <RowConstraints vgrow="ALWAYS" />
+                        <RowConstraints percentHeight="25" vgrow="ALWAYS" />
+                        <RowConstraints percentHeight="25" vgrow="ALWAYS" />
+                        <RowConstraints percentHeight="25" vgrow="ALWAYS" />
+                        <RowConstraints percentHeight="25" vgrow="ALWAYS" />
                     </rowConstraints>
+
+                    <!-- Кнопки -->
                     <children>
-                        <Button fx:id="numberbut7" maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="7" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <Button fx:id="numberbut8" maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="8" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                        <Button fx:id="numberbut9" maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="9" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                        <Button text="7" styleClass="num-btn"
+                            GridPane.columnIndex="0" GridPane.rowIndex="0"
+                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                            maxHeight="Infinity" maxWidth="Infinity" />
+                        <Button text="8" styleClass="num-btn"
+                            GridPane.columnIndex="1" GridPane.rowIndex="0"
+                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                            maxHeight="Infinity" maxWidth="Infinity" />
+                        <Button text="9" styleClass="num-btn"
+                            GridPane.columnIndex="2" GridPane.rowIndex="0"
+                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                            maxHeight="Infinity" maxWidth="Infinity" />
 
-                        <Button fx:id="numberbut4" maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="4" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <Button fx:id="numberbut5" maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="5" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Button fx:id="numberbut6" maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="6" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <Button text="4" styleClass="num-btn"
+                            GridPane.columnIndex="0" GridPane.rowIndex="1"
+                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                            maxHeight="Infinity" maxWidth="Infinity" />
+                        <Button text="5" styleClass="num-btn"
+                            GridPane.columnIndex="1" GridPane.rowIndex="1"
+                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                            maxHeight="Infinity" maxWidth="Infinity" />
+                        <Button text="6" styleClass="num-btn"
+                            GridPane.columnIndex="2" GridPane.rowIndex="1"
+                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                            maxHeight="Infinity" maxWidth="Infinity" />
 
-                        <Button fx:id="numberbut1" maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="1" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                        <Button fx:id="numberbut2" maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="2" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Button fx:id="numberbut3" maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="3" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <Button text="1" styleClass="num-btn"
+                            GridPane.columnIndex="0" GridPane.rowIndex="2"
+                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                            maxHeight="Infinity" maxWidth="Infinity" />
+                        <Button text="2" styleClass="num-btn"
+                            GridPane.columnIndex="1" GridPane.rowIndex="2"
+                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                            maxHeight="Infinity" maxWidth="Infinity" />
+                        <Button text="3" styleClass="num-btn"
+                            GridPane.columnIndex="2" GridPane.rowIndex="2"
+                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                            maxHeight="Infinity" maxWidth="Infinity" />
 
-                        <Button fx:id="numberbut0" maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="0" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                        <Button fx:id="numberbutPoint" maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="." GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <Button fx:id="numberbutDelete" maxHeight="Infinity" maxWidth="Infinity" styleClass="num-btn" text="del" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        <Button text="0" styleClass="num-btn"
+                            GridPane.columnIndex="0" GridPane.rowIndex="3"
+                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                            maxHeight="Infinity" maxWidth="Infinity" />
+                        <Button text="." styleClass="num-btn"
+                            GridPane.columnIndex="1" GridPane.rowIndex="3"
+                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                            maxHeight="Infinity" maxWidth="Infinity" />
+                        <Button text="del" styleClass="num-btn"
+                            GridPane.columnIndex="2" GridPane.rowIndex="3"
+                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                            maxHeight="Infinity" maxWidth="Infinity" />
                     </children>
+
                 </GridPane>
+
             </children>
         </VBox>
+
 
         <!-- ==== Нижняя часть (Категории + Продукты) ==== -->
         <HBox spacing="10" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="1">
             <children>
                 <!-- Левая панель (категории) -->
-                <VBox maxWidth="310" minWidth="310" prefHeight="369.0" prefWidth="280.0" spacing="10" styleClass="card">
+                <VBox maxWidth="310" minWidth="310" prefHeight="369.0" prefWidth="280.0"
+                    spacing="10" styleClass="card">
                     <children>
                         <TilePane fx:id="categoryBox" hgap="10" prefColumns="3" vgap="10" />
                     </children>
                 </VBox>
 
                 <!-- Правая панель (продукты) -->
-                <TilePane fx:id="productBox" alignment="TOP_LEFT" hgap="10" prefColumns="5" prefHeight="369.0" styleClass="card" vgap="10" HBox.hgrow="ALWAYS">
+                <TilePane fx:id="productBox" alignment="TOP_LEFT" hgap="10" prefColumns="5"
+                    prefHeight="369.0" styleClass="card" vgap="10" HBox.hgrow="ALWAYS">
                     <!-- кнопки продуктов будут динамически -->
                 </TilePane>
             </children>
@@ -121,7 +173,8 @@
 
 
         <!-- ==== Правая панель ==== -->
-        <VBox spacing="10" styleClass="sidebar" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.rowSpan="2">
+        <VBox spacing="10" styleClass="sidebar" GridPane.columnIndex="2" GridPane.rowIndex="0"
+            GridPane.rowSpan="2">
             <padding>
                 <Insets bottom="20" left="20" right="20" top="20" />
             </padding>
@@ -146,7 +199,7 @@
                         <String fx:value="red" />
                     </styleClass>
                 </Button>
-                
+
                 <Button text="Borrar" onAction="#handleClearOrderClick">
                     <styleClass>
                         <String fx:value="action-btn" />
