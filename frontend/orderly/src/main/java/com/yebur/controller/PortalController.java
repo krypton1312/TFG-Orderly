@@ -16,6 +16,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class PortalController {
@@ -126,4 +127,8 @@ public class PortalController {
         }
     }
 
+    public void handleCloseButton(ActionEvent actionEvent) {
+        Stage stage = (Stage) sidebarNavButtonsVBox.getScene().getWindow();
+        stage.close();
+    }
 }

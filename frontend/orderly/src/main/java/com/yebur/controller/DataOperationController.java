@@ -6,6 +6,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -34,9 +36,16 @@ public class DataOperationController {
     @FXML
     private VBox mainContainerVB;
 
+    @FXML
+    private VBox dynamicFormVB;
+
+    @FXML
+    private Button submitButton;
+
     private ToggleButton selectedButton;
 
     private List<CategoryResponse> categories;
+
 
     private GridPane gridPane = new GridPane();
     @FXML
@@ -71,12 +80,12 @@ public class DataOperationController {
         }catch(Exception ex){
             ex.getMessage();
         }
-        if(gridPane.getChildren().isEmpty()){
-            gridPane.getChildren().clear();
-        }
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        gridPane.setPadding(new Insets(10,0,10,0));
+
+        clearGridPane();
+
+        gridPane.setHgap(15);
+        gridPane.setVgap(20);
+        gridPane.setPadding(new Insets(20,20, 20,20));
         gridPane.setAlignment(Pos.CENTER);
 
         switch (this.selectedButton.getId()) {
@@ -93,7 +102,13 @@ public class DataOperationController {
                 Label nameLabel = new Label("Nombre del producto:");
                 TextField nameTextField = new TextField();
                 name.getChildren().addAll(nameLabel, nameTextField);
-                gridPane.add(name, 0, 0, 2, 1);
+                gridPane.add(name, 0, 0);
+
+                VBox index = new VBox(5);
+                Label indexLabel = new Label("Index:");
+                TextField indexTextField = new TextField();
+                index.getChildren().addAll(indexLabel, indexTextField);
+                gridPane.add(index, 1, 0);
 
                 VBox price = new VBox(5);
                 Label priceLabel = new Label("Precio:");
@@ -139,8 +154,34 @@ public class DataOperationController {
                 destination.getChildren().addAll(destinationLabel, destinationComboBox);
                 gridPane.add(destination, 1, 2);
 
-                mainContainerVB.getChildren().add(gridPane);
+                submitButton.setText("Crear producto");
+                dynamicFormVB.getChildren().setAll(gridPane);
+
+                applyFormStyles(gridPane);
             }
         }
+    }
+
+    private void applyFormStyles(Parent parent) {
+        for (Node node : parent.getChildrenUnmodifiable()) {
+            if (node instanceof Label) {
+                node.getStyleClass().add("form-label");
+            } else if (node instanceof TextField) {
+                node.getStyleClass().add("form-textfield");
+            } else if (node instanceof ComboBox<?>) {
+                node.getStyleClass().add("form-combobox");
+            }
+
+            if (node instanceof Parent child) {
+                applyFormStyles(child);
+            }
+        }
+    }
+
+
+    private void clearGridPane() {
+        gridPane.getChildren().clear();
+        gridPane.getColumnConstraints().clear();
+        gridPane.getRowConstraints().clear();
     }
 }

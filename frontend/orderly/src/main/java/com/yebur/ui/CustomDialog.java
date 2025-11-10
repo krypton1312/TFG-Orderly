@@ -82,7 +82,7 @@ public class CustomDialog {
         scene.setFill(Color.TRANSPARENT);
         try {
             scene.getStylesheets()
-                    .add(CustomDialog.class.getResource("/com/yebur/styles/customdialog.css").toExternalForm());
+                    .add(CustomDialog.class.getResource("/com/yebur/pos/customdialog.css").toExternalForm());
         } catch (Exception e) {
             System.err.println("⚠️ Не удалось загрузить customdialog.css");
         }

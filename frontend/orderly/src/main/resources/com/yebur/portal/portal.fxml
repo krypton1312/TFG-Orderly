@@ -49,7 +49,7 @@
             <VBox fx:id="bottomButtons" alignment="BOTTOM_LEFT" spacing="10"
                 styleClass="bottom-section">
                 <Button text="Configuracion" styleClass="nav-item" />
-                <Button text="Salir">
+                <Button text="Salir" onAction="#handleCloseButton">
                     <styleClass>
                         <String fx:value="button" />
                         <String fx:value="nav-item-logout" />

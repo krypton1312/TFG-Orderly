@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.control.Button?>
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.yebur.controller.DataOperationController"
       alignment="CENTER"
@@ -44,5 +45,13 @@
                 </graphic>
             </ToggleButton>
         </HBox>
+
+        <VBox fx:id="dynamicFormVB"/>
+        <HBox>
+            <Pane HBox.hgrow="ALWAYS" />
+            <Button fx:id="submitButton" styleClass="submit-button"/>
+        </HBox>
+
+
     </VBox>
 </VBox>
