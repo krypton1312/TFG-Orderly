@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.layout.Pane?>
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.yebur.controller.DataOperationController"
+      alignment="CENTER"
+      spacing="10"
+      styleClass="content-area"
+      fx:id="root">
+    <VBox fx:id="mainContainerVB" alignment="CENTER" styleClass="main-container">
+        <HBox alignment="CENTER" spacing="15" maxWidth="Infinity" styleClass="toggle-container">
+            <ToggleButton fx:id="addBtn"
+                          text="Añadir"
+                          selected="true"
+                          styleClass="tab-toggle">
+                <graphic>
+                    <SVGPath content="M12 5v14m7-7H5" styleClass="tab-icon"/>
+                </graphic>
+            </ToggleButton>
+
+            <Pane HBox.hgrow="ALWAYS" />
+
+            <ToggleButton fx:id="editBtn"
+                          text="Editar"
+                          styleClass="tab-toggle">
+                <graphic>
+                    <SVGPath content="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"
+                             styleClass="tab-icon"/>
+                </graphic>
+            </ToggleButton>
+
+            <Pane HBox.hgrow="ALWAYS" />
+
+            <ToggleButton fx:id="deleteBtn"
+                          text="Eliminar"
+                          styleClass="tab-toggle">
+                <graphic>
+                    <SVGPath content="M3 6h18M9 6V4h6v2m2 0v14H7V6z"
+                             styleClass="tab-icon"/>
+                </graphic>
+            </ToggleButton>
+        </HBox>
+    </VBox>
+</VBox>

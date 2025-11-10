@@ -85,6 +85,7 @@ public class PosController {
             }
             reloadCategories();
             orderTotalValue.setText(currencyFormatter.format(BigDecimal.ZERO));
+            displayField.setEditable(false);
         });
     }
 

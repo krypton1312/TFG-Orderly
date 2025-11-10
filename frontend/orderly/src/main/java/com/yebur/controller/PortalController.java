@@ -43,6 +43,7 @@ public class PortalController {
                 32, 32, true, false // width, height, preserveRatio, smooth
         ));
 
+        showStartView();
     }
 
     @FXML
@@ -65,6 +66,22 @@ public class PortalController {
 
         Button clickedButton = (Button) event.getSource();
         clickedButton.getStyleClass().add("nav-item-selected");
+
+        loadCenterContent("/com/yebur/portal/views/start.fxml");
+    }
+
+    private void showStartView() {
+        titleLabel.setText("Inicio");
+
+        clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
+
+        // Ищем кнопку с текстом "Inicio", чтобы визуально выделить её
+        for (Node node : sidebarNavButtonsVBox.getChildren()) {
+            if (node instanceof Button button && "Inicio".equals(button.getText())) {
+                button.getStyleClass().add("nav-item-selected");
+                break;
+            }
+        }
 
         loadCenterContent("/com/yebur/portal/views/start.fxml");
     }
