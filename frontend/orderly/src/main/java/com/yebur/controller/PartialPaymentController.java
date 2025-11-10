@@ -1,18 +1,10 @@
 package com.yebur.controller;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import com.yebur.model.request.OrderDetailRequest;
 import com.yebur.model.response.OrderDetailResponse;
 import com.yebur.model.response.OrderResponse;
 import com.yebur.model.response.RestTableResponse;
 import com.yebur.service.OrderDetailService;
-
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,12 +14,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class PartialPaymentController {
 
@@ -125,43 +120,79 @@ public class PartialPaymentController {
         BigDecimal total = BigDecimal.ZERO;
 
         for (OrderDetailResponse d : details) {
-            HBox row = new HBox(10);
+            // Каждая строка — GridPane
+            GridPane row = new GridPane();
             row.getStyleClass().add("order-item-row");
+            row.setHgap(10);
 
+            // Колонки 10% / 60% / 15% / 15% — как в FXML-заголовке
+            ColumnConstraints col1 = new ColumnConstraints();
+            col1.setPercentWidth(10);
+            col1.setHalignment(javafx.geometry.HPos.CENTER);
+
+            ColumnConstraints col2 = new ColumnConstraints();
+            col2.setPercentWidth(50);
+            col2.setHgrow(javafx.scene.layout.Priority.ALWAYS);
+
+            ColumnConstraints col3 = new ColumnConstraints();
+            col3.setPercentWidth(20);
+            col3.setHalignment(javafx.geometry.HPos.CENTER);
+
+            ColumnConstraints col4 = new ColumnConstraints();
+            col4.setPercentWidth(20);
+            col4.setHalignment(javafx.geometry.HPos.CENTER);
+
+            row.getColumnConstraints().addAll(col1, col2, col3, col4);
+
+            // 🏷️ 1. Колонка — количество
             Label qtyLabel = new Label("x" + d.getAmount());
-            qtyLabel.setPrefWidth(60);
+            qtyLabel.setAlignment(Pos.CENTER);
+            qtyLabel.setMaxWidth(Double.MAX_VALUE);
+            GridPane.setHalignment(qtyLabel, javafx.geometry.HPos.CENTER);
+            row.add(qtyLabel, 0, 0);
 
-            Label nameLabel = new Label(d.getProductName());
-            nameLabel.setPrefWidth(235);
+            // 🏷️ 2. Колонка — название продукта
+            String name = d.getProductName() != null ? d.getProductName() : "Producto #" + d.getProductId();
+            Label nameLabel = new Label(name);
             nameLabel.setWrapText(true);
+            nameLabel.setMaxWidth(Double.MAX_VALUE);
+            GridPane.setHgrow(nameLabel, javafx.scene.layout.Priority.ALWAYS);
+            row.add(nameLabel, 1, 0);
 
+            // 🏷️ 3. Колонка — цена за единицу
             BigDecimal unitPrice = d.getUnitPrice().setScale(2, RoundingMode.HALF_UP);
             Label priceLabel = new Label(currencyFormatter.format(unitPrice));
-            priceLabel.setPrefWidth(100);
+            priceLabel.setAlignment(Pos.CENTER_RIGHT);
+            priceLabel.setMaxWidth(Double.MAX_VALUE);
+            GridPane.setHalignment(priceLabel, javafx.geometry.HPos.CENTER);
+            row.add(priceLabel, 2, 0);
 
-            BigDecimal totalLine = unitPrice
-                    .multiply(BigDecimal.valueOf(d.getAmount()))
-                    .setScale(2, RoundingMode.HALF_UP);
+            // 🏷️ 4. Колонка — сумма по позиции
+            BigDecimal totalLine = unitPrice.multiply(BigDecimal.valueOf(d.getAmount())).setScale(2, RoundingMode.HALF_UP);
             Label totalLabel = new Label(currencyFormatter.format(totalLine));
-            totalLabel.setPrefWidth(100);
+            totalLabel.setAlignment(Pos.CENTER_RIGHT);
+            totalLabel.setMaxWidth(Double.MAX_VALUE);
+            GridPane.setHalignment(totalLabel, javafx.geometry.HPos.CENTER);
+            row.add(totalLabel, 3, 0);
 
-            row.getChildren().addAll(qtyLabel, nameLabel, priceLabel, totalLabel);
-
+            // 🖱️ Событие клика
             row.setOnMouseClicked(event -> {
                 if (isMainBox) {
-                    if (isPaymentBoxShown) {
-                        partialDetails.clear();
-                    }
+                    if (isPaymentBoxShown) partialDetails.clear();
                     moveItemToPartial(d);
                 } else {
                     moveItemToMain(d);
                 }
             });
 
+            // Добавляем строку в VBox
             box.getChildren().add(row);
+
+            // Считаем итог
             total = total.add(totalLine);
         }
 
+        // Обновляем общий итог
         if (isMainBox) {
             mainTotalLabel.setText(currencyFormatter.format(total));
         } else {
@@ -171,6 +202,7 @@ public class PartialPaymentController {
             }
         }
     }
+
 
     private void moveItemToPartial(OrderDetailResponse item) {
         int amountToMove = parseInputAmount();

@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
+
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.SVGPath?>
-<?import javafx.scene.shape.Circle?>
-<?import javafx.scene.Group?>
-
-
 <VBox xmlns:fx="http://javafx.com/fxml"
-    fx:controller="com.yebur.controller.DataController"
-    alignment="CENTER"
-    spacing="40"
-    styleClass="content-area"
-    fx:id="root">
+      fx:controller="com.yebur.controller.DataController"
+      alignment="CENTER"
+      spacing="40"
+      styleClass="content-area"
+      fx:id="root">
 
     <GridPane hgap="40" vgap="40" alignment="CENTER">
         <columnConstraints>

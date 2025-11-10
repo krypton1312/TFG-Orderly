@@ -32,7 +32,7 @@
 
             <!-- Кнопки меню -->
             <VBox spacing="5" fillWidth="true" fx:id="sidebarNavButtonsVBox">
-                <Button text="Inicio">
+                <Button text="Inicio" onAction="#showStartView">
                     <styleClass>
                         <String fx:value="button" />
                         <String fx:value="nav-item-selected" />

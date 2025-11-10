@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.yebur.controller.StartController"
+      alignment="CENTER"
+      spacing="40"
+      styleClass="content-area"
+      fx:id="root">
+    <GridPane hgap="10" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="33" />
+            <ColumnConstraints percentWidth="33" />
+            <ColumnConstraints percentWidth="34" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints percentHeight="33" />
+            <RowConstraints percentHeight="33" />
+            <RowConstraints percentHeight="34" />
+        </rowConstraints>
+
+        <children>
+            <!-- Этот VBox растянется на всю первую строку -->
+            <VBox style="-fx-background-color: lightblue;"
+                  GridPane.columnIndex="0"
+                  GridPane.rowIndex="0"
+                  GridPane.columnSpan="3"
+                  GridPane.vgrow="ALWAYS"
+                  GridPane.hgrow="ALWAYS">
+                <Button text="Abrir TPV"/>
+            </VBox>
+
+            <!-- А эти кнопки займут нижние ячейки -->
+            <Button text="A" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <Button text="B" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Button text="C" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+
+            <Button text="D" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+            <Button text="E" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Button text="F" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+        </children>
+    </GridPane>
+</VBox>

@@ -256,13 +256,13 @@
 .payment-btn {
     -fx-background-color: #e5e7eb;
     -fx-text-fill: #111827;
-    -fx-font-size: 18px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-background-radius: 10;
     -fx-cursor: hand;
-    -fx-pref-width: 140;
+    -fx-pref-width: 180;
     -fx-pref-height: 60;
-    -fx-padding: 10 20;
+    -fx-padding: 5 10;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 6, 0, 0, 2);
     -fx-alignment: center;
 }

@@ -47,14 +47,23 @@
                 <HBox alignment="CENTER">
                     <Label text="Cuenta" styleClass="order-title" />
                 </HBox>
+                <GridPane hgap="10" alignment="CENTER_LEFT"
+                          styleClass="order-header"
+                          VBox.vgrow="NEVER">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="10" halignment="CENTER" />
+                        <ColumnConstraints percentWidth="50" hgrow="ALWAYS" />
+                        <ColumnConstraints percentWidth="20" halignment="CENTER" />
+                        <ColumnConstraints percentWidth="20" halignment="CENTER" />
+                    </columnConstraints>
 
-                <HBox alignment="CENTER_LEFT" styleClass="order-header">
-                    <Label minWidth="60" prefWidth="40" text="Uds"
-                        styleClass="order-header-quantity" />
-                    <Label prefWidth="235" text="Producto" />
-                    <Label prefWidth="100" text="Precio" styleClass="order-header-price" />
-                    <Label prefWidth="100" text="Total" styleClass="order-header-price" />
-                </HBox>
+                    <children>
+                        <Label text="Uds" GridPane.columnIndex="0" styleClass="order-header-quantity" />
+                        <Label text="Producto" GridPane.columnIndex="1"/>
+                        <Label text="Precio" GridPane.columnIndex="2" styleClass="order-header-price" />
+                        <Label text="Total" GridPane.columnIndex="3" styleClass="order-header-price" />
+                    </children>
+                </GridPane>
 
                 <!-- Растяжение вниз: fitToHeight + VBox.vgrow -->
                 <ScrollPane fx:id="mainOrderSP"
@@ -86,12 +95,23 @@
                     <Label text="Subcuenta" styleClass="order-title" />
                 </HBox>
 
-                <HBox alignment="CENTER_LEFT" styleClass="order-header">
-                    <Label minWidth="35" prefWidth="40" text="Uds" />
-                    <Label prefWidth="260" text="Producto" />
-                    <Label prefWidth="100" text="Precio" />
-                    <Label prefWidth="100" text="Total" />
-                </HBox>
+                <GridPane hgap="10" alignment="CENTER_LEFT"
+                          styleClass="order-header"
+                          VBox.vgrow="NEVER">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="10" halignment="CENTER" />
+                        <ColumnConstraints percentWidth="50" hgrow="ALWAYS" />
+                        <ColumnConstraints percentWidth="20" halignment="CENTER" />
+                        <ColumnConstraints percentWidth="20" halignment="CENTER" />
+                    </columnConstraints>
+
+                    <children>
+                        <Label text="Uds" GridPane.columnIndex="0" styleClass="order-header-quantity" />
+                        <Label text="Producto" GridPane.columnIndex="1"/>
+                        <Label text="Precio" GridPane.columnIndex="2" styleClass="order-header-price" />
+                        <Label text="Total" GridPane.columnIndex="3" styleClass="order-header-price" />
+                    </children>
+                </GridPane>
 
                 <!-- Растяжение вниз: fitToHeight + VBox.vgrow -->
                 <ScrollPane fx:id="partialOrderSP"

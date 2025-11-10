@@ -31,5 +31,6 @@ com\yebur\model\response\OrderSummary.class
 com\yebur\model\response\OrderResponse.class
 com\yebur\service\OrderDetailService$1.class
 com\yebur\controller\PosController.class
+com\yebur\controller\StartController.class
 com\yebur\model\response\OrderDetailResponse.class
 com\yebur\model\response\TableWithOrderResponse.class

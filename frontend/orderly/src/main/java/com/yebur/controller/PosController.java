@@ -1,33 +1,14 @@
 package com.yebur.controller;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.net.URL;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.UUID;
-
 import com.yebur.app.App;
 import com.yebur.model.request.OrderDetailRequest;
 import com.yebur.model.request.OrderRequest;
-import com.yebur.model.response.CategoryResponse;
-import com.yebur.model.response.OrderDetailResponse;
-import com.yebur.model.response.OrderResponse;
-import com.yebur.model.response.ProductResponse;
-import com.yebur.model.response.RestTableResponse;
-import com.yebur.model.response.TableWithOrderResponse;
-import com.yebur.service.CategoryService;
-import com.yebur.service.OrderDetailService;
-import com.yebur.service.OrderService;
-import com.yebur.service.OverviewService;
-import com.yebur.service.ProductService;
+import com.yebur.model.response.*;
+import com.yebur.service.*;
 import com.yebur.ui.CustomDialog;
-
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -36,14 +17,16 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.TilePane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.net.URL;
+import java.text.NumberFormat;
+import java.util.*;
 
 public class PosController {
 
@@ -555,35 +538,61 @@ public class PosController {
 
     private void renderDetails(List<OrderDetailResponse> details, ProductResponse product) {
         orderVboxItems.getChildren().clear();
-
         BigDecimal total = BigDecimal.ZERO;
 
         for (OrderDetailResponse d : details) {
-            HBox row = new HBox(10);
+            // Создаём адаптивную строку
+            GridPane row = new GridPane();
             row.getStyleClass().add("order-item-row");
+            row.setHgap(10);
 
+            // Настраиваем колонки — те же пропорции, что и в заголовке
+            if (row.getColumnConstraints().isEmpty()) {
+                ColumnConstraints col1 = new ColumnConstraints();
+                col1.setPercentWidth(10);
+                col1.setHalignment(HPos.CENTER);
+
+                ColumnConstraints col2 = new ColumnConstraints();
+                col2.setPercentWidth(60);
+                col2.setHgrow(Priority.ALWAYS);
+
+                ColumnConstraints col3 = new ColumnConstraints();
+                col3.setPercentWidth(15);
+                col3.setHalignment(HPos.CENTER);
+
+                ColumnConstraints col4 = new ColumnConstraints();
+                col4.setPercentWidth(15);
+                col4.setHalignment(HPos.CENTER);
+
+                row.getColumnConstraints().addAll(col1, col2, col3, col4);
+            }
+
+            // Создаём ячейки
             Label qty = new Label("x" + d.getAmount());
-            qty.setPrefWidth(40);
-            qty.setAlignment(Pos.CENTER);
+            qty.setAlignment(Pos.CENTER_LEFT);
 
             String name = d.getProductName() != null ? d.getProductName()
                     : (product != null ? product.getName() : "Producto #" + d.getProductId());
             Label nameLabel = new Label(name);
-            nameLabel.setPrefWidth(340);
             nameLabel.setWrapText(true);
 
             BigDecimal unitPrice = d.getUnitPrice();
             Label priceLabel = new Label(currencyFormatter.format(unitPrice));
-            priceLabel.setPrefWidth(100);
+            priceLabel.setAlignment(Pos.CENTER_RIGHT);
 
             BigDecimal totalLine = unitPrice
                     .multiply(BigDecimal.valueOf(d.getAmount()))
                     .setScale(2, RoundingMode.HALF_UP);
             Label totalLabel = new Label(currencyFormatter.format(totalLine));
-            totalLabel.setPrefWidth(100);
+            totalLabel.setAlignment(Pos.CENTER_RIGHT);
 
-            row.getChildren().addAll(qty, nameLabel, priceLabel, totalLabel);
+            // Добавляем в сетку
+            row.add(qty, 0, 0);
+            row.add(nameLabel, 1, 0);
+            row.add(priceLabel, 2, 0);
+            row.add(totalLabel, 3, 0);
 
+            // Реакция на клик (выделение)
             row.setOnMouseClicked(event -> {
                 boolean isSelected = row.getStyleClass().contains("selected-row-order-item");
                 if (!isSelected) {
@@ -601,6 +610,7 @@ public class PosController {
 
         orderTotalValue.setText(currencyFormatter.format(total));
     }
+
 
     private void upsertVisualDetail(ProductResponse product, int delta) {
         OrderDetailResponse exist = visualDetails.stream()

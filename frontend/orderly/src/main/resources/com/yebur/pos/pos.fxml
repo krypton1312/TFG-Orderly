@@ -12,11 +12,11 @@
     <!-- ==== Настройка сетки ==== -->
     <columnConstraints>
         <!-- Левая часть (orderItems + категории) -->
-        <ColumnConstraints percentWidth="54.0" />
+        <ColumnConstraints percentWidth="50.0" />
         <!-- Центральная часть (калькулятор + продукты) -->
-        <ColumnConstraints percentWidth="27.0" />
+        <ColumnConstraints percentWidth="24.0" />
         <!-- Правая панель -->
-        <ColumnConstraints percentWidth="19.0" />
+        <ColumnConstraints percentWidth="26.0" />
     </columnConstraints>
 
     <rowConstraints>
@@ -37,13 +37,24 @@
                     <Label fx:id="orderIdLabel" styleClass="order-title" text="" />
                 </HBox>
                 <!-- Заголовок таблицы -->
-                <HBox alignment="CENTER_LEFT"
-                    style="-fx-border-color: transparent transparent #e5e7eb transparent; -fx-border-width: 0 0 1 0;">
-                    <Label prefWidth="40" text="Uds" />
-                    <Label prefWidth="340" text="Producto" />
-                    <Label prefWidth="100" text="Precio unitario" />
-                    <Label prefWidth="100" text="Precio total" />
-                </HBox>
+                <GridPane hgap="10" alignment="CENTER_LEFT"
+                          style="-fx-border-color: transparent transparent #e5e7eb transparent;
+                         -fx-border-width: 0 0 1 0;"
+                          VBox.vgrow="NEVER">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="10" halignment="CENTER" />
+                        <ColumnConstraints percentWidth="60" hgrow="ALWAYS" />
+                        <ColumnConstraints percentWidth="15" halignment="CENTER" />
+                        <ColumnConstraints percentWidth="15" halignment="CENTER" />
+                    </columnConstraints>
+
+                    <children>
+                        <Label text="Uds" GridPane.columnIndex="0" style="-fx-font-weight: bold;" />
+                        <Label text="Producto" GridPane.columnIndex="1" style="-fx-font-weight: bold;" />
+                        <Label text="Unitario" GridPane.columnIndex="2" style="-fx-font-weight: bold;" />
+                        <Label text="Total" GridPane.columnIndex="3" style="-fx-font-weight: bold;" />
+                    </children>
+                </GridPane>
 
                 <!-- Список заказов -->
                 <ScrollPane fx:id="orderSP"
@@ -156,7 +167,7 @@
         <HBox spacing="10" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="1">
             <children>
                 <!-- Левая панель (категории) -->
-                <VBox maxWidth="310" minWidth="310" prefHeight="369.0" prefWidth="280.0"
+                <VBox maxWidth="290" minWidth="270" prefHeight="369.0" prefWidth="280.0"
                     spacing="10" styleClass="card">
                     <children>
                         <TilePane fx:id="categoryBox" hgap="10" prefColumns="3" vgap="10" />

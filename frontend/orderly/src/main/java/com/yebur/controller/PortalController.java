@@ -42,6 +42,7 @@ public class PortalController {
                 getClass().getResourceAsStream("/com/yebur/icons/logo.png"),
                 32, 32, true, false // width, height, preserveRatio, smooth
         ));
+
     }
 
     @FXML
@@ -54,6 +55,18 @@ public class PortalController {
         clickedButton.getStyleClass().add("nav-item-selected");
 
         loadCenterContent("/com/yebur/portal/views/data.fxml");
+    }
+
+    @FXML
+    private void showStartView(ActionEvent event) {
+        titleLabel.setText("Inicio");
+
+        clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
+
+        Button clickedButton = (Button) event.getSource();
+        clickedButton.getStyleClass().add("nav-item-selected");
+
+        loadCenterContent("/com/yebur/portal/views/start.fxml");
     }
 
     private void loadCenterContent(String fxmlPath) {
