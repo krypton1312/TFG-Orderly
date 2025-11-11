@@ -3,6 +3,7 @@ package com.yebur.backendorderly.product;
 import java.util.List;
 import java.util.Optional;
 
+import com.yebur.backendorderly.category.CategoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -11,9 +12,11 @@ import org.springframework.stereotype.Service;
 public class ProductService implements ProductServiceInterface {
     
     private final ProductRepository productRepository;
+    private final CategoryService categoryService;
 
-    public ProductService(ProductRepository productRepository){
+    public ProductService(ProductRepository productRepository, CategoryService categoryService) {
         this.productRepository = productRepository;
+        this.categoryService = categoryService;
     }
 
     @Override
@@ -46,8 +49,8 @@ public class ProductService implements ProductServiceInterface {
     }
 
     @Override
-    public Product createProduct(Product product) {
-        return productRepository.save(product);
+    public ProductResponse createProduct(ProductRequest product) {
+        return productRepository.save(mapToEntity(product));
     }
 
     @Override
@@ -65,5 +68,30 @@ public class ProductService implements ProductServiceInterface {
     @Override
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
+    }
+
+    private Product mapToEntity(ProductRequest req){
+        Product product = new Product();
+        product.setName(req.getName());
+        product.setPrice(req.getPrice());
+        product.setStock(req.getStock());
+        product.setCategory(categoryService.findById(req.getCategoryId()));
+        product.setDestination(mapProductDestination(req.getDestination()));
+        return product;
+    }
+
+    private ProductDestination mapProductDestination(String destination){
+        switch (destination){
+            case "Bebidas" ->{
+                return ProductDestination.DRINKS;
+            }
+            case "Barra" ->{
+                return ProductDestination.BAR;
+            }
+            case "Cocina" ->{
+                return ProductDestination.KITCHEN;
+            }
+        }
+        return null;
     }
 }

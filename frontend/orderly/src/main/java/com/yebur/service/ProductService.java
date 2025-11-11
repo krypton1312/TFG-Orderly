@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yebur.model.request.ProductRequest;
 import com.yebur.model.response.ProductResponse;
 
 public class ProductService {
@@ -24,7 +25,7 @@ public class ProductService {
         return mapper.readValue(json, new TypeReference<List<ProductResponse>>() {});
     }
 
-    public static ProductResponse createProduct(ProductResponse product) throws Exception {
+    public static ProductResponse createProduct(ProductRequest product) throws Exception {
         String jsonInput = mapper.writeValueAsString(product);
         String jsonResponse = ApiClient.post("/products", jsonInput);
         return mapper.readValue(jsonResponse, ProductResponse.class);

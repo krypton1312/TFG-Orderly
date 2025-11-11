@@ -20,7 +20,7 @@ public interface ProductServiceInterface {
 
     List<ProductResponse> findProductDTOByCategoryId(Long categoryId);
 
-    Product createProduct(Product product);
+    ProductResponse createProduct(ProductRequest product);
 
     Product updateProduct(Long id, Product product);
 

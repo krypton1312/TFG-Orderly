@@ -27,4 +27,6 @@ public class ProductRequest {
     
     @NotNull
     private Long categoryId;
+
+    private String destination;
 }

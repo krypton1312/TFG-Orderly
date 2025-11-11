@@ -9,6 +9,7 @@ module com.yebur {
     requires com.fasterxml.jackson.annotation;
     requires javafx.graphics;
     requires javafx.base;
+    requires static lombok;
 
 
     opens com.yebur.app to javafx.fxml;

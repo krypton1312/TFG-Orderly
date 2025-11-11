@@ -11,6 +11,7 @@ com\yebur\controller\PartialPaymentController.class
 com\yebur\service\OverviewService$1.class
 com\yebur\service\ProductService.class
 com\yebur\controller\DataOperationController.class
+com\yebur\model\request\ProductRequest.class
 com\yebur\model\response\OrderSummary.class
 com\yebur\model\response\OrderResponse.class
 com\yebur\service\OrderDetailService$1.class

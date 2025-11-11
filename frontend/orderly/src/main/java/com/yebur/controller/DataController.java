@@ -16,11 +16,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DataController {
-
     @FXML
     private VBox root;
 
     private AnchorPane parentPane;
+
+    @FXML
+    public VBox productVBox;
+    @FXML
+    public VBox categoryVBox;
+    @FXML
+    public VBox suplementVBox;
+    @FXML
+    public VBox tableVBox;
 
     private final Map<String, Node> loadedViews = new HashMap<>();
 
@@ -36,19 +44,35 @@ public class DataController {
     }
 
     public void showDataOperationView(MouseEvent mouseEvent) {
-        loadCenterContent("/com/yebur/portal/views/dataOperation.fxml");
+        Object source = mouseEvent.getSource();
+
+        if (source == productVBox) {
+            System.out.println("Нажали на Productos");
+            loadCenterContent("/com/yebur/portal/views/dataOperation.fxml", "product");
+        }
+        else if (source == categoryVBox) {
+            System.out.println("Нажали на Categorías");
+            loadCenterContent("/com/yebur/portal/views/dataOperation.fxml", "category");
+        }
+        else if (source == suplementVBox) {
+            System.out.println("Нажали на Suplementos");
+            loadCenterContent("/com/yebur/portal/views/dataOperation.fxml", "suplement");
+        }
+        else if (source == tableVBox) {
+            System.out.println("Нажали на Mesas");
+            loadCenterContent("/com/yebur/portal/views/dataOperation.fxml", "table");
+        }
     }
 
-    private void loadCenterContent(String fxmlPath) {
+    private void loadCenterContent(String fxmlPath, String elementType) {
         try {
-            Node content;
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Node content = loader.load();
 
-            if (loadedViews.containsKey(fxmlPath)) {
-                content = loadedViews.get(fxmlPath);
-            } else {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-                content = loader.load();
-                loadedViews.put(fxmlPath, content);
+            Object controller = loader.getController();
+
+            if (controller instanceof DataOperationController dataOperationController) {
+                dataOperationController.setSelectedItem(elementType);
             }
 
             parentPane.getChildren().setAll(content);
@@ -61,8 +85,10 @@ public class DataController {
 
         } catch (IOException e) {
             e.printStackTrace();
+            System.err.println("Ошибка загрузки FXML: " + fxmlPath);
         }
     }
+
 
     private void applyFadeTransition(Node node) {
         FadeTransition fade = new FadeTransition(Duration.millis(250), node);
