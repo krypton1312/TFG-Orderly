@@ -12,11 +12,14 @@ public class ProductRequest {
 
     private Long categoryId;
 
-    public ProductRequest(String name, BigDecimal price, Integer stock, Long categoryId) {
+    private String destination;
+
+    public ProductRequest(String name, BigDecimal price, Integer stock, Long categoryId, String destination) {
         this.name = name;
         this.price = price;
         this.stock = stock;
         this.categoryId = categoryId;
+        this.destination = destination;
     }
 
     public ProductRequest() {
@@ -54,6 +57,13 @@ public class ProductRequest {
         this.categoryId = categoryId;
     }
 
+    public String getDestination() {
+        return destination;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
     @Override
     public String toString() {
         return "ProductRequest{" +

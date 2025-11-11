@@ -59,7 +59,7 @@ public class ProductResponse {
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
     }
-    
+
     @Override
     public String toString() {
         return "Product [id=" + id + ", name=" + name + ", price=" + price + ", categoryId=" + categoryId + "]";

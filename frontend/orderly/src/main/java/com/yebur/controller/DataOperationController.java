@@ -376,7 +376,8 @@ public class DataOperationController {
                                 nameTextField.getText(),
                                 new BigDecimal(priceTextField.getText()),
                                 Integer.parseInt(stockTextField.getText()),
-                                categoryComboBox.getSelectionModel().getSelectedItem().getId());
+                                categoryComboBox.getSelectionModel().getSelectedItem().getId(),
+                                destinationComboBox.getSelectionModel().getSelectedItem());
                         try {
                             ProductService.createProduct(product);
                         }catch (Exception ex){

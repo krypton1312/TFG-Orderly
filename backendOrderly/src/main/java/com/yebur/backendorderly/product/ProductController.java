@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -70,34 +71,23 @@ public class ProductController {
             return validation(result);
         }
 
-        Category category = categoryService.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found with id " + request.getCategoryId()));
-
-        Product product = new Product();
-        product.setName(request.getName());
-        product.setPrice(request.getPrice());
-        product.setStock(request.getStock());
-        product.setCategory(category);
-
-        productService.createProduct(product);
-
-        return ResponseEntity.status(201).body(request);
+        return ResponseEntity.status(201).body(productService.createProduct(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@Valid @RequestBody Product product, BindingResult result, @PathVariable Long id){
-        if(result.hasErrors()){
+    public ResponseEntity<?> update(@Valid @RequestBody ProductRequest product, BindingResult result, @PathVariable Long id) {
+        if (result.hasErrors()) {
             return validation(result);
         }
-        
-        Product updatedProduct = productService.updateProduct(id, product);
-        Optional<Product> productOptional = Optional.ofNullable(updatedProduct);
 
-        if(productOptional.isPresent()){
-            return ResponseEntity.ok(productOptional.orElseThrow());
+        try {
+            ProductResponse updatedProduct = productService.updateProduct(id, product);
+            return ResponseEntity.ok(updatedProduct);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-        return ResponseEntity.notFound().build();
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id){
