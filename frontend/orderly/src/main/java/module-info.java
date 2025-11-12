@@ -10,6 +10,7 @@ module com.yebur {
     requires javafx.graphics;
     requires javafx.base;
     requires static lombok;
+    requires java.desktop;
 
 
     opens com.yebur.app to javafx.fxml;

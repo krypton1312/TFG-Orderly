@@ -1,5 +1,7 @@
 package com.yebur.model.response;
 
+import javafx.scene.paint.Color;
+
 public class CategoryResponse {
     private Long id;
     private String name;

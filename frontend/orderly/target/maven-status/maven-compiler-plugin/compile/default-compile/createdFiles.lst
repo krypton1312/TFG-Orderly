@@ -1,5 +1,7 @@
+com\yebur\controller\DataOperationController$3.class
 com\yebur\service\CategoryService$1.class
 com\yebur\ui\CustomDialog.class
+com\yebur\controller\DataOperationController$ActionType.class
 com\yebur\service\ProductService$2.class
 com\yebur\service\OrderDetailService$2.class
 com\yebur\service\CategoryService.class
@@ -25,6 +27,7 @@ com\yebur\service\RestTableService$1.class
 com\yebur\controller\DataOperationController$1.class
 com\yebur\service\OrderService.class
 com\yebur\service\RestTableService.class
+com\yebur\controller\DataOperationController$EntityType.class
 com\yebur\service\CategoryService$2.class
 com\yebur\controller\DataOperationController$2.class
 com\yebur\model\response\RestTableResponse.class

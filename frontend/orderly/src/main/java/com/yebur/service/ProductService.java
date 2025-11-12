@@ -31,7 +31,7 @@ public class ProductService {
         return mapper.readValue(jsonResponse, ProductResponse.class);
     }
 
-    public static ProductResponse updateProduct(Long id, ProductResponse product) throws Exception {
+    public static ProductResponse updateProduct(Long id, ProductRequest product) throws Exception {
         String jsonInput = mapper.writeValueAsString(product);
         String jsonResponse = ApiClient.put("/products/" + id, jsonInput);
         return mapper.readValue(jsonResponse, ProductResponse.class);

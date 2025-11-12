@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class ProductResponse {
 
     private Long id;
@@ -20,4 +19,15 @@ public class ProductResponse {
     private Integer stock;
 
     private Long categoryId;
+
+    private String destination;
+
+    public ProductResponse(Long id, String name, BigDecimal price, Integer stock, Long categoryId, ProductDestination destination) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.stock = stock;
+        this.categoryId = categoryId;
+        this.destination = (destination != null) ? destination.toString() : null;
+    }
 }

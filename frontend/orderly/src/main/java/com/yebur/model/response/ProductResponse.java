@@ -8,18 +8,26 @@ public class ProductResponse {
     private BigDecimal price;
     private Integer stock;
     private Long categoryId;
-
+    private String destination;
     public ProductResponse() {
     }
 
-    public ProductResponse(Long id, String name, BigDecimal price, Integer stock, Long categoryId) {
+    public ProductResponse(Long id, String name, BigDecimal price, Integer stock, Long categoryId, String destination) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.stock = stock;
         this.categoryId = categoryId;
+        this.destination = destination;
     }
 
+    public String getDestination() {
+        return destination;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
     public Long getId() {
         return id;
     }
