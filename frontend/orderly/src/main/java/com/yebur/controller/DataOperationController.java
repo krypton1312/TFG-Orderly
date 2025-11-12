@@ -284,6 +284,7 @@ public class DataOperationController {
 
     private void handleProductSubmit() throws Exception {
         ProductRequest product = buildProductRequest();
+        System.out.println(product.getDestination());
         switch (selectedAction) {
             case ADD -> ProductService.createProduct(product);
             case EDIT -> {

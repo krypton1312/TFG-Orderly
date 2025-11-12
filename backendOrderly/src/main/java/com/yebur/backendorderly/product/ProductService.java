@@ -65,6 +65,7 @@ public class ProductService implements ProductServiceInterface {
         existingProduct.setStock(req.getStock());
         Category category = categoryService.findById(req.getCategoryId()).orElseThrow(() -> new RuntimeException("Category not found with id " + req.getCategoryId()));
         existingProduct.setCategory(category);
+        existingProduct.setDestination(mapProductDestination(req.getDestination()));
 
         return findProductDTOById(productRepository.save(existingProduct).getId()).orElseThrow(() -> new RuntimeException("Product not found"));
     }

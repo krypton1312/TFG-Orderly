@@ -30,4 +30,20 @@ public class ProductResponse {
         this.categoryId = categoryId;
         this.destination = (destination != null) ? destination.toString() : null;
     }
+
+    private String destinationMapped(ProductDestination destination) {
+        switch (destination) {
+            case BAR -> {
+                return "Barra";
+            }
+            case DRINKS ->  {
+                return "Bebidas";
+            }
+            case KITCHEN ->  {
+                return "Cocina";
+            }default -> {
+                return null;
+            }
+        }
+    }
 }
