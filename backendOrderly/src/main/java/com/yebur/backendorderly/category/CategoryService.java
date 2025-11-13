@@ -42,23 +42,34 @@ public class CategoryService implements CategoryServiceInterface {
     }
 
     @Override
-    public Category createCategory(Category category) {
-        return categoryRepository.save(category);
+    public CategoryResponse createCategory(CategoryRequest category) {
+        Category save = categoryRepository.save(mapToEntity(category));
+        return findCategoryDTOById(save.getId()).orElseThrow(() -> new RuntimeException("Category Not Found"));
     }
 
     @Override
-    public Category updateCategory(Long id, Category category) {
+    public CategoryResponse updateCategory(Long id, CategoryRequest category) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id " + id));
 
         existingCategory.setName(category.getName());
         existingCategory.setColor(category.getColor());
         existingCategory.setIndex(category.getIndex());
-        return categoryRepository.save(existingCategory);
+        categoryRepository.save(existingCategory);
+        return findCategoryDTOById(existingCategory.getId()).orElseThrow(() -> new RuntimeException("Category Not Found Id: " + existingCategory.getId()));
     }
 
     @Override
     public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
     }
+
+    private Category mapToEntity(CategoryRequest request) {
+        Category category = new Category();
+        category.setName(request.getName());
+        category.setColor(request.getColor());
+        category.setIndex(request.getIndex());
+        return category;
+    }
 }
+

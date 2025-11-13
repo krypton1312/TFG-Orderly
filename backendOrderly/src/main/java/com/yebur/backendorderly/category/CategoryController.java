@@ -60,7 +60,7 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody Category category, BindingResult result){
+    public ResponseEntity<?> create(@Valid @RequestBody CategoryRequest category, BindingResult result){
         if(result.hasErrors()){
             return validation(result);
         }
@@ -69,18 +69,12 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@Valid @RequestBody Category category, BindingResult result, @PathVariable Long id){
+    public ResponseEntity<?> update(@Valid @RequestBody CategoryRequest category, BindingResult result, @PathVariable Long id){
         if(result.hasErrors()){
             return validation(result);
         }
-        
-        Category updatedCategory = categoryService.updateCategory(id, category);
-        Optional<Category> categoryOptional = Optional.ofNullable(updatedCategory);
 
-        if(categoryOptional.isPresent()){
-            return ResponseEntity.ok(categoryOptional.orElseThrow());
-        }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(categoryService.updateCategory(id, category));
     }
 
     @DeleteMapping("/{id}")

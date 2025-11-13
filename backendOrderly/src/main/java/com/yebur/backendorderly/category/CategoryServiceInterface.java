@@ -18,9 +18,9 @@ public interface CategoryServiceInterface {
 
     Optional<CategoryResponse> findCategoryDTOById(Long id);
     
-    Category createCategory(Category category);
+    CategoryResponse createCategory(CategoryRequest category);
     
-    Category updateCategory(Long id, Category category);
+    CategoryResponse updateCategory(Long id, CategoryRequest category);
 
     void deleteCategory(Long id);
 }

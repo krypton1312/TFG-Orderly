@@ -23,7 +23,7 @@ public class App extends Application {
         scene.getStylesheets().add(css);
 
         stage.setTitle("Orderly POS");
-        stage.initStyle(StageStyle.UNDECORATED);
+        stage.initStyle(StageStyle.DECORATED);
         stage.setScene(scene);
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/com/yebur/icons/icon.png")));
         stage.show();

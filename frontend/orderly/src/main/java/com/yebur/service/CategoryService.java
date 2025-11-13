@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yebur.model.request.CategoryRequest;
 import com.yebur.model.response.CategoryResponse;
 
 public class CategoryService {
@@ -19,13 +20,13 @@ public class CategoryService {
         return mapper.readValue(json, new TypeReference<List<CategoryResponse>>() {});
     }
 
-    public static CategoryResponse createCategory(CategoryResponse category) throws Exception {
+    public static CategoryResponse createCategory(CategoryRequest category) throws Exception {
         String jsonInput = mapper.writeValueAsString(category);
         String jsonResponse = ApiClient.post("/categories", jsonInput);
         return mapper.readValue(jsonResponse, CategoryResponse.class);
     }
 
-    public static CategoryResponse updateCategory(Long id, CategoryResponse category) throws Exception {
+    public static CategoryResponse updateCategory(Long id, CategoryRequest category) throws Exception {
         String jsonInput = mapper.writeValueAsString(category);
         String jsonResponse = ApiClient.put("/categories/" + id, jsonInput);
         return mapper.readValue(jsonResponse, CategoryResponse.class);

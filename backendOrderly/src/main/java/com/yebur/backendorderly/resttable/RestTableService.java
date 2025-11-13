@@ -64,8 +64,8 @@ public class RestTableService implements RestTableServiceInterface {
 
     private List<RestTableResponse> getNameOfTableList(List<RestTableResponse> tables) {
         for (RestTableResponse table : tables) {
-            if (table.getNumber() > 100) {
-                table.setName("Mesa T" + (table.getNumber() - 100));
+            if (table.getNumber() > 1000) {
+                table.setName("Mesa T" + (table.getNumber() - 1000));
             } else {
                 table.setName("Mesa " + table.getNumber());
             }

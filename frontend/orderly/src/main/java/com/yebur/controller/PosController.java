@@ -284,7 +284,7 @@ public class PosController {
         currentdetails.clear();
         orderIdLabel.setText("");
         tableNameLabel.setText("");
-        orderTotalValue.setText("$0,00");
+        orderTotalValue.setText(currencyFormatter.format(BigDecimal.ZERO));
         selectedTable = null;
         if (productPageSize <= 0)
             productPageSize = getMaximumProducts();
@@ -364,7 +364,7 @@ public class PosController {
                 nameLabel = new Label(item.getTableName());
             }
 
-            totalLabel = new Label("$" + item.getOrder().getTotal());
+            totalLabel = new Label(currencyFormatter.format(item.getOrder().getTotal()));
 
             nameLabel.getStyleClass().add("tablewithorder-name-label");
             totalLabel.getStyleClass().add("tablewithorder-total-label");

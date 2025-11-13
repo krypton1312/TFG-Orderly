@@ -1,5 +1,6 @@
 package com.yebur.controller;
 
+import com.yebur.model.request.CategoryRequest;
 import com.yebur.model.request.ProductRequest;
 import com.yebur.model.response.CategoryResponse;
 import com.yebur.model.response.ProductResponse;
@@ -31,7 +32,7 @@ import java.util.List;
 public class DataOperationController {
 
     // ---------- ENUMS ----------
-    private enum EntityType {PRODUCT, CATEGORY}
+    private enum EntityType {PRODUCT, CATEGORY, TABLE}
 
     private enum ActionType {ADD, EDIT, DELETE}
 
@@ -131,6 +132,7 @@ public class DataOperationController {
         switch (selectedEntity) {
             case PRODUCT -> setupProductUI();
             case CATEGORY -> setupCategoryUI();
+            case TABLE -> setupTableUI();
         }
 
         submitButton.setOnAction(event -> handleSubmitButton());
@@ -152,6 +154,14 @@ public class DataOperationController {
             case EDIT -> showCategoryEditForm();
             case DELETE -> showCategoryDeleteForm();
         }
+    }
+
+    private void setupTableUI() {/*
+        switch (selectedAction) {
+            case ADD -> showTableAddForm();
+            case EDIT -> showTableEditForm();
+            case DELETE -> showTableDeleteForm();
+        }*/
     }
 
     // ---------- PRODUCT FORMS ----------
@@ -326,8 +336,17 @@ public class DataOperationController {
     }
 
     private void handleCategorySubmit() throws Exception {
+        CategoryRequest category = buildCategoryRequest();
+        Stage stage = (Stage) submitButton.getScene().getWindow();
+        anyModificationDone = false;
+
         switch (selectedAction) {
-            case ADD -> System.out.println("Создать категорию");
+            case ADD -> {
+                if(confirmDataModification(stage, "Confirme creacion de la nueva categoria")){
+                    CategoryService.createCategory(category);
+                    anyModificationDone = true;
+                }
+            }
             case EDIT -> System.out.println("Редактировать категорию");
             case DELETE -> System.out.println("Удалить категорию");
         }
@@ -343,6 +362,14 @@ public class DataOperationController {
                 Integer.parseInt(stockTextField.getText()),
                 categoryComboBox.getSelectionModel().getSelectedItem().getId(),
                 destinationComboBox.getSelectionModel().getSelectedItem()
+        );
+    }
+
+    private CategoryRequest buildCategoryRequest() {
+        return new CategoryRequest(
+                nameTextField.getText(),
+                getSelectedColortoHex(colorPicker.getValue()),
+                Integer.parseInt(indexTextField.getText())
         );
     }
 
@@ -644,6 +671,13 @@ public class DataOperationController {
                 null
         );
         return result == 1;
+    }
+    private String getSelectedColortoHex(Color color) {
+        return String.format("#%02X%02X%02X",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255)
+        );
     }
 
 }
