@@ -28,22 +28,18 @@ public class ProductResponse {
         this.price = price;
         this.stock = stock;
         this.categoryId = categoryId;
-        this.destination = (destination != null) ? destination.toString() : null;
+        this.destination = destinationMapped(destination);
     }
 
     private String destinationMapped(ProductDestination destination) {
-        switch (destination) {
-            case BAR -> {
-                return "Barra";
-            }
-            case DRINKS ->  {
-                return "Bebidas";
-            }
-            case KITCHEN ->  {
-                return "Cocina";
-            }default -> {
-                return null;
-            }
+        if (destination == null) {
+            return null;
         }
+        return switch (destination) {
+            case BAR -> "Barra";
+            case DRINKS -> "Bebidas";
+            case KITCHEN -> "Cocina";
+        };
     }
+
 }

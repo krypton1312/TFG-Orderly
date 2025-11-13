@@ -5,6 +5,7 @@ import com.yebur.model.response.CategoryResponse;
 import com.yebur.model.response.ProductResponse;
 import com.yebur.service.CategoryService;
 import com.yebur.service.ProductService;
+import com.yebur.ui.CustomDialog;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -21,6 +22,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Popup;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.math.BigDecimal;
@@ -70,6 +72,8 @@ public class DataOperationController {
     private ObservableList<?> items;
     private FilteredList<?> filteredItems;
     private ListView<?> listItemsView;
+
+    private boolean anyModificationDone = false;
 
     // ---------- INITIALIZATION ----------
     @FXML
@@ -279,23 +283,44 @@ public class DataOperationController {
         } catch (Exception e) {
             System.err.println("❌ Error: " + e.getMessage());
         }
-        clearFormFields(gridPane);
+        if(anyModificationDone){
+            clearFormFields(gridPane);
+        }
     }
 
     private void handleProductSubmit() throws Exception {
         ProductRequest product = buildProductRequest();
-        System.out.println(product.getDestination());
+        Stage stage = (Stage) submitButton.getScene().getWindow();
+        anyModificationDone = false;
+
         switch (selectedAction) {
-            case ADD -> ProductService.createProduct(product);
-            case EDIT -> {
-                if (selectedItemPopup instanceof ProductResponse p)
-                    ProductService.updateProduct(p.getId(), product);
+
+            case ADD -> {
+                if (confirmDataModification(stage, "Confirme la creación del nuevo elemento")) {
+                    ProductService.createProduct(product);
+                    anyModificationDone = true;
+                }
             }
+
+            case EDIT -> {
+                if (selectedItemPopup instanceof ProductResponse p &&
+                        confirmDataModification(stage, "Confirme la modificación del producto")) {
+
+                    ProductService.updateProduct(p.getId(), product);
+                    anyModificationDone = true;
+                }
+            }
+
             case DELETE -> {
-                if (selectedItemPopup instanceof ProductResponse p)
+                if (selectedItemPopup instanceof ProductResponse p &&
+                        confirmDataModification(stage, "¿Está seguro de que desea eliminar este producto?")) {
+
                     ProductService.deleteProduct(p.getId());
+                    anyModificationDone = true;
+                }
             }
         }
+
 
         refreshEntityList();
     }
@@ -431,6 +456,7 @@ public class DataOperationController {
         destination = new VBox(5);
         destinationLabel = new Label("Destinacion:");
         destinationComboBox = new ComboBox<>();
+        destination.setMaxWidth(Double.MAX_VALUE);
         destinationComboBox.getItems().addAll("Bebidas", "Barra", "Cocina");
         destinationComboBox.setPromptText("Selecciona un destino");
         destination.getChildren().addAll(destinationLabel, destinationComboBox);
@@ -606,6 +632,18 @@ public class DataOperationController {
                 System.err.println(e.getMessage());
             }
         });
+    }
+
+    private boolean confirmDataModification(Stage stage, String message) {
+        int result = CustomDialog.show(
+                stage,
+                "Confirmación",
+                message,
+                "Confirmar",
+                "Cancelar",
+                null
+        );
+        return result == 1;
     }
 
 }

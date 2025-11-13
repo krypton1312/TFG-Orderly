@@ -48,6 +48,7 @@ public class CustomDialog {
 
         Label messageLabel = new Label(message);
         messageLabel.setWrapText(true);
+        messageLabel.setAlignment(Pos.CENTER);
         messageLabel.getStyleClass().add("dialog-message");
 
         HBox buttons = new HBox(20);
@@ -66,15 +67,18 @@ public class CustomDialog {
             result[0] = 0;
             dialog.close();
         });
+        if(cancelText != null) {
+            Button cancelButton = new Button(cancelText);
+            cancelButton.getStyleClass().addAll("dialog-button", "dialog-button-cancel");
+            cancelButton.setOnAction(e -> {
+                result[0] = -1;
+                dialog.close();
+            });
+            buttons.getChildren().addAll(yesButton, noButton, cancelButton);
+        }else{
+            buttons.getChildren().addAll(yesButton, noButton);
+        }
 
-        Button cancelButton = new Button(cancelText);
-        cancelButton.getStyleClass().addAll("dialog-button", "dialog-button-cancel");
-        cancelButton.setOnAction(e -> {
-            result[0] = -1;
-            dialog.close();
-        });
-
-        buttons.getChildren().addAll(yesButton, noButton, cancelButton);
         box.getChildren().addAll(titleLabel, messageLabel, buttons);
         overlay.getChildren().add(box);
 
