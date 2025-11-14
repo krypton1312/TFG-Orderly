@@ -120,4 +120,17 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 1);
 }
 
+.table-buttons{
+    -fx-background-color: #f5f7fa;
+    -fx-background-radius: 10px;
+    -fx-text-fill: black;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.table-buttons-pressed {
+    -fx-background-color: #fed7aa;
+    -fx-text-fill: #9a3412;
+}
+
 

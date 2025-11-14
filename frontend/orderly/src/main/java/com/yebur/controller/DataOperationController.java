@@ -2,10 +2,12 @@ package com.yebur.controller;
 
 import com.yebur.model.request.CategoryRequest;
 import com.yebur.model.request.ProductRequest;
+import com.yebur.model.request.RestTableRequest;
 import com.yebur.model.response.CategoryResponse;
 import com.yebur.model.response.ProductResponse;
 import com.yebur.service.CategoryService;
 import com.yebur.service.ProductService;
+import com.yebur.service.RestTableService;
 import com.yebur.ui.CustomDialog;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -61,12 +63,15 @@ public class DataOperationController {
     private Object selectedItemPopup;
 
     // ---------- UI ELEMENTS ----------
-    private VBox findItem, name, color, index, price, stock, category, destination;
-    private Label findItemLabel, nameLabel, colorLabel, indexLabel, priceLabel, stockLabel, categoryLabel, destinationLabel;
+    private VBox findItem, name, color, index, price, stock, category, destination, tablePosition;
+    private HBox tableButtons;
+    private Label findItemLabel, nameLabel, colorLabel, indexLabel, priceLabel, stockLabel, categoryLabel, destinationLabel, tablePositionLabel;
     private TextField findItemTextField, nameTextField, indexTextField, priceTextField, stockTextField;
     private ColorPicker colorPicker;
     private ComboBox<CategoryResponse> categoryComboBox;
     private ComboBox<String> destinationComboBox;
+    private Button tablePositionOutside;
+    private Button tablePositionInside;
     private GridPane gridPane = new GridPane();
 
     // ---------- LIST SUPPORT ----------
@@ -75,6 +80,7 @@ public class DataOperationController {
     private ListView<?> listItemsView;
 
     private boolean anyModificationDone = false;
+    private boolean isTableInside;
 
     // ---------- INITIALIZATION ----------
     @FXML
@@ -156,12 +162,12 @@ public class DataOperationController {
         }
     }
 
-    private void setupTableUI() {/*
+    private void setupTableUI() {
         switch (selectedAction) {
             case ADD -> showTableAddForm();
-            case EDIT -> showTableEditForm();
-            case DELETE -> showTableDeleteForm();
-        }*/
+            //case EDIT -> showTableEditForm();
+            //case DELETE -> showTableDeleteForm();
+        }
     }
 
     // ---------- PRODUCT FORMS ----------
@@ -282,6 +288,16 @@ public class DataOperationController {
         submitButton.setText("Eliminar categoria");
     }
 
+    private void showTableAddForm(){
+        createGridPane();
+        gridPane.add(index, 0, 0, 2, 1);
+        indexLabel.setText("Numero de la mesa:");
+        gridPane.add(tablePosition, 0, 1, 2, 1);
+        dynamicFormVB.getChildren().setAll(gridPane);
+        submitButton.setText("Crear tabla");
+        applyFormStyles(gridPane);
+    }
+
     // ---------- SUBMIT HANDLER ----------
     private void handleSubmitButton() {
         if (verifyNotBlank()) return;
@@ -289,6 +305,7 @@ public class DataOperationController {
             switch (selectedEntity) {
                 case PRODUCT -> handleProductSubmit();
                 case CATEGORY -> handleCategorySubmit();
+                case TABLE -> handleTableSubmit();
             }
         } catch (Exception e) {
             System.err.println("❌ Error: " + e.getMessage());
@@ -347,8 +364,41 @@ public class DataOperationController {
                     anyModificationDone = true;
                 }
             }
-            case EDIT -> System.out.println("Редактировать категорию");
-            case DELETE -> System.out.println("Удалить категорию");
+            case EDIT -> {
+                if (selectedItemPopup instanceof CategoryResponse p &&
+                        confirmDataModification(stage, "Confirme la modificación de la categoria")) {
+                    CategoryService.updateCategory(p.getId(), category);
+                    anyModificationDone = true;
+                }
+            }
+            case DELETE -> {
+                if (selectedItemPopup instanceof CategoryResponse p &&
+                        confirmDataModification(stage, "¿Está seguro de que desea eliminar este producto?")) {
+                    CategoryService.deleteCategory(p.getId());
+                    anyModificationDone = true;
+                }
+            }
+        }
+
+        refreshEntityList();
+    }
+
+    private void handleTableSubmit() {
+        RestTableRequest table = buildTableRequest();
+        Stage stage = (Stage) submitButton.getScene().getWindow();
+        anyModificationDone = false;
+
+        switch (selectedAction) {
+            case ADD -> {
+                if(confirmDataModification(stage, "Confirme creacion de la nueva tabla")){
+                    try{
+                        RestTableService.createTable(table);
+                        anyModificationDone = true;
+                    }catch (Exception e){
+
+                    }
+                }
+            }
         }
 
         refreshEntityList();
@@ -373,10 +423,16 @@ public class DataOperationController {
         );
     }
 
+    private RestTableRequest buildTableRequest() {
+        int number = Integer.parseInt(indexTextField.getText());
+        return new RestTableRequest(isTableInside ? number : 1000 + number,"AVAILABLE");
+    }
+
     private void clearFormFields(Pane root) {
         for (Node node : root.getChildren()) {
             if (node instanceof TextField tf) tf.clear();
             else if (node instanceof ComboBox<?> cb) cb.getSelectionModel().clearSelection();
+            else if (node instanceof Button button) button.getStyleClass().remove("table-buttons-pressed");
             else if (node instanceof Pane pane) clearFormFields(pane);
         }
     }
@@ -488,23 +544,71 @@ public class DataOperationController {
         destinationComboBox.setPromptText("Selecciona un destino");
         destination.getChildren().addAll(destinationLabel, destinationComboBox);
 
+        tablePosition = new VBox(5);
+        tablePositionLabel = new Label("Posiсion:");
+        tableButtons = new HBox(5);
+
+        tablePositionInside = new Button("Dentro");
+        tablePositionInside.setMaxWidth(Double.MAX_VALUE);
+        tablePositionOutside = new Button("Fuera");
+        tablePositionOutside.setMaxWidth(Double.MAX_VALUE);
+        tableButtons.getChildren().addAll(tablePositionInside, tablePositionOutside);
+        tableButtons.setPrefWidth(Double.MAX_VALUE);
+        tableButtons.setAlignment(Pos.CENTER);
+        HBox.setHgrow(tablePositionInside, Priority.ALWAYS);
+        HBox.setHgrow(tablePositionOutside, Priority.ALWAYS);
+        tablePosition.getChildren().addAll(tablePositionLabel, tableButtons);
+
+
         addClickHandler(nameTextField);
         addClickHandler(priceTextField);
         addClickHandler(stockTextField);
         addClickHandler(categoryComboBox);
         addClickHandler(indexTextField);
         addClickHandler(destinationComboBox);
+        addClickHandler(tableButtons);
+        addTableButtonsHandler(tableButtons);
     }
 
     private void addClickHandler(Node node) {
         node.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> node.getStyleClass().remove("blank-element"));
     }
 
+    private void addTableButtonsHandler(Node node) {
+        node.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+
+            for (Node item : tableButtons.getChildren()) {
+                item.getStyleClass().remove("table-buttons-pressed");
+            }
+
+            Node clicked = (Node) e.getTarget();
+            while (clicked != null && !(clicked instanceof Button)) {
+                clicked = clicked.getParent();
+            }
+
+            if (clicked instanceof Button) {
+                if(clicked ==  tablePositionOutside) {
+                    isTableInside = false;
+                }else{
+                    isTableInside = true;
+                }
+                clicked.getStyleClass().add("table-buttons-pressed");
+            }
+        });
+    }
+
+
     private void applyFormStyles(Parent parent) {
         for (Node node : parent.getChildrenUnmodifiable()) {
             if (node instanceof Label) node.getStyleClass().add("form-label");
             else if (node instanceof TextField) node.getStyleClass().add("form-textfield");
             else if (node instanceof ComboBox<?>) node.getStyleClass().add("form-combobox");
+            else if(node instanceof HBox){
+                ((HBox) node).getChildren();
+                for(Node child : ((HBox) node).getChildren()){
+                    if(child instanceof Button) child.getStyleClass().add("table-buttons");
+                }
+            }
             if (node instanceof Parent p) applyFormStyles(p);
         }
     }

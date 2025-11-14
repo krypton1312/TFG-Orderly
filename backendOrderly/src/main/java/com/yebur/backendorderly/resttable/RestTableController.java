@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -62,8 +63,9 @@ public class RestTableController {
 
         try {
             return ResponseEntity.status(HttpStatus.CREATED).body(restTableService.createRestTable(table));
-        } catch (Exception e) {
-            e.printStackTrace();
+        }catch (DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Mesa con este numero ya existe."));
+        }catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

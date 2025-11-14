@@ -23,6 +23,7 @@ com\yebur\model\response\OrderDetailResponse.class
 com\yebur\model\request\OrderRequest.class
 module-info.class
 com\yebur\service\ProductService$1.class
+com\yebur\model\request\CategoryRequest.class
 com\yebur\service\RestTableService$1.class
 com\yebur\controller\DataOperationController$1.class
 com\yebur\service\OrderService.class

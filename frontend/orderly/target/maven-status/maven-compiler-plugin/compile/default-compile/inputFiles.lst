@@ -10,6 +10,7 @@ C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\c
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\ApiClient.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\ProductRequest.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\OrderResponse.java
+C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\CategoryRequest.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\DataOperationController.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\OrderDetailRequest.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\ProductService.java

@@ -1,9 +1,9 @@
 package com.yebur.backendorderly.resttable;
 
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
-
-import org.springframework.stereotype.Service;
 
 @Service("restTableService")
 public class RestTableService implements RestTableServiceInterface {
@@ -37,12 +37,18 @@ public class RestTableService implements RestTableServiceInterface {
     @Override
     public RestTableResponse createRestTable(RestTableRequest restTable) {
         RestTable newRestTable = new RestTable();
+
         newRestTable.setNumber(restTable.getNumber());
         newRestTable.setStatus(TableStatus.valueOf(restTable.getStatus()));
+
         newRestTable = restTableRepository.save(newRestTable);
-        return findRestTableDTOById(newRestTable.getId()).map(this::applyTableNameLogic)
-            .orElseThrow(() -> new RuntimeException("Error: id of new RestTable not found"));
+
+
+        return findRestTableDTOById(newRestTable.getId())
+                .map(this::applyTableNameLogic)
+                .orElseThrow(() -> new RuntimeException("Error: id of new RestTable not found"));
     }
+
 
     @Override
     public RestTableResponse updateRestTable(Long id, RestTableRequest restTable) {
