@@ -356,7 +356,7 @@ public class PosController {
 
         for (TableWithOrderResponse item : currentOverview) {
             Label nameLabel;
-            Label totalLabel;
+            Label totalLabel = null;
 
             if (item.getTableId() == null) {
                 nameLabel = new Label("Cuenta #" + item.getOrder().getOrderId());
@@ -364,7 +364,9 @@ public class PosController {
                 nameLabel = new Label(item.getTableName());
             }
 
-            totalLabel = new Label(currencyFormatter.format(item.getOrder().getTotal()));
+            BigDecimal total = item.getOrder().getTotal() == null ? BigDecimal.ZERO : item.getOrder().getTotal();
+            totalLabel = new Label(currencyFormatter.format(total));
+
 
             nameLabel.getStyleClass().add("tablewithorder-name-label");
             totalLabel.getStyleClass().add("tablewithorder-total-label");
