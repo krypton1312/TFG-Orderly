@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static com.yebur.ui.CustomDialog.showError;
+
 public class PartialPaymentController {
 
     @FXML
@@ -120,12 +122,10 @@ public class PartialPaymentController {
         BigDecimal total = BigDecimal.ZERO;
 
         for (OrderDetailResponse d : details) {
-            // Каждая строка — GridPane
             GridPane row = new GridPane();
             row.getStyleClass().add("order-item-row");
             row.setHgap(10);
 
-            // Колонки 10% / 60% / 15% / 15% — как в FXML-заголовке
             ColumnConstraints col1 = new ColumnConstraints();
             col1.setPercentWidth(10);
             col1.setHalignment(javafx.geometry.HPos.CENTER);
@@ -151,7 +151,6 @@ public class PartialPaymentController {
             GridPane.setHalignment(qtyLabel, javafx.geometry.HPos.CENTER);
             row.add(qtyLabel, 0, 0);
 
-            // 🏷️ 2. Колонка — название продукта
             String name = d.getProductName() != null ? d.getProductName() : "Producto #" + d.getProductId();
             Label nameLabel = new Label(name);
             nameLabel.setWrapText(true);
@@ -159,7 +158,6 @@ public class PartialPaymentController {
             GridPane.setHgrow(nameLabel, javafx.scene.layout.Priority.ALWAYS);
             row.add(nameLabel, 1, 0);
 
-            // 🏷️ 3. Колонка — цена за единицу
             BigDecimal unitPrice = d.getUnitPrice().setScale(2, RoundingMode.HALF_UP);
             Label priceLabel = new Label(currencyFormatter.format(unitPrice));
             priceLabel.setAlignment(Pos.CENTER_RIGHT);
@@ -167,7 +165,6 @@ public class PartialPaymentController {
             GridPane.setHalignment(priceLabel, javafx.geometry.HPos.CENTER);
             row.add(priceLabel, 2, 0);
 
-            // 🏷️ 4. Колонка — сумма по позиции
             BigDecimal totalLine = unitPrice.multiply(BigDecimal.valueOf(d.getAmount())).setScale(2, RoundingMode.HALF_UP);
             Label totalLabel = new Label(currencyFormatter.format(totalLine));
             totalLabel.setAlignment(Pos.CENTER_RIGHT);
@@ -175,7 +172,6 @@ public class PartialPaymentController {
             GridPane.setHalignment(totalLabel, javafx.geometry.HPos.CENTER);
             row.add(totalLabel, 3, 0);
 
-            // 🖱️ Событие клика
             row.setOnMouseClicked(event -> {
                 if (isMainBox) {
                     if (isPaymentBoxShown) partialDetails.clear();
@@ -185,14 +181,11 @@ public class PartialPaymentController {
                 }
             });
 
-            // Добавляем строку в VBox
             box.getChildren().add(row);
 
-            // Считаем итог
             total = total.add(totalLine);
         }
 
-        // Обновляем общий итог
         if (isMainBox) {
             mainTotalLabel.setText(currencyFormatter.format(total));
         } else {
@@ -522,37 +515,6 @@ public class PartialPaymentController {
             cashButton.getStyleClass().add("selected-cash");
             selectedPaymentMethod = "CASH";
         }
-    }
-
-    private void showError(String message) {
-        Stage dialog = new Stage();
-        dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-        dialog.setTitle("Error");
-
-        VBox dialogVBox = new VBox(15);
-        dialogVBox.setAlignment(Pos.CENTER);
-        dialogVBox.setStyle("-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 10;");
-
-        Label messageL = new Label(message);
-        messageL.setStyle("-fx-font-size: 16px; -fx-text-fill: #1f2937; -fx-font-weight: bold;");
-
-        Button closeButton = new Button("OK");
-        closeButton.setStyle("""
-                    -fx-background-color: #f63b3bff;
-                    -fx-text-fill: white;
-                    -fx-font-weight: bold;
-                    -fx-background-radius: 8;
-                    -fx-cursor: hand;
-                    -fx-padding: 6 20;
-                """);
-        closeButton.setPrefSize(60, 40);
-        closeButton.setOnAction(e -> dialog.close());
-
-        dialogVBox.getChildren().addAll(messageL, closeButton);
-
-        Scene dialogScene = new Scene(dialogVBox, 400, 100);
-        dialog.setScene(dialogScene);
-        dialog.showAndWait();
     }
 
     public boolean anyPaymentDone() {

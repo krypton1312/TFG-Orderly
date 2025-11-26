@@ -1,5 +1,7 @@
 package com.yebur.service;
 
+import com.yebur.model.response.ApiException;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -12,7 +14,7 @@ public class ApiClient {
 
     private ApiClient() {}
 
-    public static String get(String endpoint) throws IOException {
+    public static String get(String endpoint) throws IOException, ApiException {
         URL url = URI.create(BASE_URL + endpoint).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
@@ -21,7 +23,7 @@ public class ApiClient {
         return readResponse(conn);
     }
 
-    public static String post(String endpoint, String jsonInput) throws IOException {
+    public static String post(String endpoint, String jsonInput) throws IOException, ApiException {
         URL url = URI.create(BASE_URL + endpoint).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
@@ -35,7 +37,7 @@ public class ApiClient {
         return readResponse(conn);
     }
 
-    public static String put(String endpoint, String jsonInput) throws IOException {
+    public static String put(String endpoint, String jsonInput) throws IOException, ApiException {
         URL url = URI.create(BASE_URL + endpoint).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("PUT");
@@ -49,7 +51,7 @@ public class ApiClient {
         return readResponse(conn);
     }
 
-    public static String delete(String endpoint) throws IOException {
+    public static String delete(String endpoint) throws IOException, ApiException {
         URL url = URI.create(BASE_URL + endpoint).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("DELETE");
@@ -57,23 +59,23 @@ public class ApiClient {
         return readResponse(conn);
     }
 
-    private static String readResponse(HttpURLConnection conn) throws IOException {
+    private static String readResponse(HttpURLConnection conn) throws IOException, ApiException {
         int status = conn.getResponseCode();
-        InputStream stream = null;
+        InputStream stream;
 
         if (status >= 200 && status < 300) {
             stream = conn.getInputStream();
         } else {
             stream = conn.getErrorStream();
             if (stream == null) {
-                System.err.println("⚠️ Server returned HTTP " + status + " (no response body)");
                 conn.disconnect();
-                return null;
+                throw new ApiException(status, "");
             }
         }
 
         StringBuilder response = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(stream, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 response.append(line.trim());
@@ -82,11 +84,13 @@ public class ApiClient {
             conn.disconnect();
         }
 
-        if (status < 200 || status >= 300) {
-            System.err.println("⚠️ HTTP error " + status + ": " + response);
-        }
+        String body = response.toString();
 
-        String result = response.toString();
-        return result.isEmpty() ? null : result;
+        if (status >= 200 && status < 300) {
+            return body.isEmpty() ? null : body;
+        } else {
+            // кидаем исключение с кодом и текстом
+            throw new ApiException(status, body);
+        }
     }
 }

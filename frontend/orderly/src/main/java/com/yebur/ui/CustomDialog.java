@@ -116,4 +116,35 @@ public class CustomDialog {
 
         return result[0];
     }
+
+    public static void showError(String message) {
+        Stage dialog = new Stage();
+        dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+        dialog.setTitle("Error");
+
+        VBox dialogVBox = new VBox(15);
+        dialogVBox.setAlignment(Pos.CENTER);
+        dialogVBox.setStyle("-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 10;");
+
+        Label messageL = new Label(message);
+        messageL.setStyle("-fx-font-size: 16px; -fx-text-fill: #1f2937; -fx-font-weight: bold;");
+
+        Button closeButton = new Button("OK");
+        closeButton.setStyle("""
+                    -fx-background-color: #f63b3bff;
+                    -fx-text-fill: white;
+                    -fx-font-weight: bold;
+                    -fx-background-radius: 8;
+                    -fx-cursor: hand;
+                    -fx-padding: 6 20;
+                """);
+        closeButton.setPrefSize(60, 40);
+        closeButton.setOnAction(e -> dialog.close());
+
+        dialogVBox.getChildren().addAll(messageL, closeButton);
+
+        Scene dialogScene = new Scene(dialogVBox, 400, 100);
+        dialog.setScene(dialogScene);
+        dialog.showAndWait();
+    }
 }

@@ -31,6 +31,8 @@ import javafx.util.Duration;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static com.yebur.ui.CustomDialog.showError;
+
 public class DataOperationController {
 
     // ---------- ENUMS ----------
@@ -395,7 +397,7 @@ public class DataOperationController {
                         RestTableService.createTable(table);
                         anyModificationDone = true;
                     }catch (Exception e){
-
+                        showError(e.getMessage());
                     }
                 }
             }
