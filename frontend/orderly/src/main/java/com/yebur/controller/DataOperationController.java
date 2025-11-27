@@ -5,6 +5,7 @@ import com.yebur.model.request.ProductRequest;
 import com.yebur.model.request.RestTableRequest;
 import com.yebur.model.response.CategoryResponse;
 import com.yebur.model.response.ProductResponse;
+import com.yebur.model.response.RestTableResponse;
 import com.yebur.service.CategoryService;
 import com.yebur.service.ProductService;
 import com.yebur.service.RestTableService;
@@ -167,7 +168,7 @@ public class DataOperationController {
     private void setupTableUI() {
         switch (selectedAction) {
             case ADD -> showTableAddForm();
-            //case EDIT -> showTableEditForm();
+            case EDIT -> showTableEditForm();
             //case DELETE -> showTableDeleteForm();
         }
     }
@@ -300,6 +301,44 @@ public class DataOperationController {
         applyFormStyles(gridPane);
     }
 
+    private void showTableEditForm() {
+        createGridPane();
+        gridPane.add(findItem, 0, 0, 2, 1);
+        findItemLabel.setText("Buscar mesa: ");
+        gridPane.add(index, 0, 1);
+        indexLabel.setText("Numero del mesa:");
+        tablePositionLabel.setText("Posicion de la mesa:");
+        gridPane.add(tablePosition, 0, 2, 2, 1);
+
+        submitButton.setText("Modificar mesa");
+        dynamicFormVB.getChildren().setAll(gridPane);
+        applyFormStyles(gridPane);
+
+        try {
+            setupDynamicList(
+                    RestTableService.getAllRestTables(),
+                    RestTableResponse::getName,
+                    restTable -> {
+                        selectedItemPopup = restTable;
+                        if(restTable.getName().contains("T")){
+                            indexTextField.setText(restTable.getName().substring(restTable.getName().indexOf("T")+1));
+                            tablePositionInside.getStyleClass().remove("table-buttons-pressed");
+                            tablePositionOutside.getStyleClass().add("table-buttons-pressed");
+                            isTableInside = false;
+                        }else{
+                            indexTextField.setText(restTable.getName().substring(restTable.getName().indexOf(" ")+1));
+                            tablePositionOutside.getStyleClass().remove("table-buttons-pressed");
+                            tablePositionInside.getStyleClass().add("table-buttons-pressed");
+                            isTableInside = true;
+                        }
+                    },
+                    true
+            );
+        } catch (Exception ex) {
+            System.err.println(ex.getMessage());
+        }
+    }
+
     // ---------- SUBMIT HANDLER ----------
     private void handleSubmitButton() {
         if (verifyNotBlank()) return;
@@ -395,6 +434,18 @@ public class DataOperationController {
                 if(confirmDataModification(stage, "Confirme creacion de la nueva tabla")){
                     try{
                         RestTableService.createTable(table);
+                        anyModificationDone = true;
+                    }catch (Exception e){
+                        showError(e.getMessage());
+                    }
+                }
+            }
+            case EDIT -> {
+                if(selectedItemPopup instanceof RestTableResponse rt &&
+                        confirmDataModification(stage, "Confirme la modificacion de la tabla")){
+                    System.out.println(rt+"\n"+table);
+                    try{
+                        RestTableService.updateTable(rt.getId(),table);
                         anyModificationDone = true;
                     }catch (Exception e){
                         showError(e.getMessage());

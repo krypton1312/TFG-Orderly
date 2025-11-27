@@ -80,6 +80,8 @@ public class RestTableController {
         try {
             RestTableResponse updated = restTableService.updateRestTable(id, table);
             return ResponseEntity.ok(updated);
+        }catch (DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Mesa con este numero ya existe."));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
