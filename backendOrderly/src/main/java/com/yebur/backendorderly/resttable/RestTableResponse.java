@@ -14,14 +14,31 @@ public class RestTableResponse {
 
     private String status;
 
-    public RestTableResponse(Long id, int number, TableStatus statusEnum) {
+    private String position;
+
+    public RestTableResponse(Long id, int number, TableStatus statusEnum, RestTablePosition position) {
         this.id = id;
         this.number = number;
-        this.status = statusEnum.toString();
-
+        this.status = translateTableStatic(statusEnum);
+        this.position = position.toString();
     }
-    
-    public RestTableResponse(Long id) {
-        this.id = id;
+
+    public RestTableResponse(Long id) {this.id = id;}
+
+    private String translateTableStatic(TableStatus status) {
+        switch (status) {
+            case AVAILABLE->{
+                return "Disponible";
+            }
+            case OCCUPIED->{
+                return "Ocupado";
+            }
+            case RESERVED->{
+                return "Reservado";
+            }
+            default ->{
+                return "Fuera de servicio";
+            }
+        }
     }
 }

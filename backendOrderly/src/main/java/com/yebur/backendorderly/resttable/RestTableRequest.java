@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RestTableRequest {
     private int number;
-
+    private String position;
     private String status;
 }

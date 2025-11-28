@@ -46,7 +46,7 @@ public class RestTableService {
     public static RestTableResponse updateTable(Long id, RestTableRequest table) throws Exception {
         String jsonInput = mapper.writeValueAsString(table);
         try {
-            String jsonResponse = ApiClient.put("/tables/" + id, jsonInput);
+            String jsonResponse = ApiClient.put("/tables/id/" + id, jsonInput);
             return mapper.readValue(jsonResponse, RestTableResponse.class);
         } catch (ApiException e) {
             if (e.getStatusCode() == 400) {
@@ -60,7 +60,7 @@ public class RestTableService {
 
     public static void deleteTable(Long id) throws Exception {
         try {
-            ApiClient.delete("/tables/" + id);
+            ApiClient.delete("/tables/id/" + id);
         } catch (ApiException e) {
             throw new RuntimeException("Не удалось удалить стол: " + e.getMessage());
         }

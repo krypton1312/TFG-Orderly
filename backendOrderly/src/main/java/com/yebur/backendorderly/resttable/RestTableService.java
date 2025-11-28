@@ -39,7 +39,8 @@ public class RestTableService implements RestTableServiceInterface {
         RestTable newRestTable = new RestTable();
 
         newRestTable.setNumber(restTable.getNumber());
-        newRestTable.setStatus(TableStatus.valueOf(restTable.getStatus()));
+        newRestTable.setStatus(TableStatus.valueOf(translateTableStatic(restTable.getStatus())));
+        newRestTable.setPosition(RestTablePosition.valueOf(restTable.getPosition()));
 
         newRestTable = restTableRepository.save(newRestTable);
 
@@ -55,7 +56,9 @@ public class RestTableService implements RestTableServiceInterface {
         RestTable updateTable = findById(id).orElseThrow(() -> new RuntimeException("Table not found with id " + id));
 
         updateTable.setNumber(restTable.getNumber());
-        updateTable.setStatus(TableStatus.valueOf(restTable.getStatus()));
+        updateTable.setStatus(TableStatus.valueOf(translateTableStatic(restTable.getStatus())));
+        updateTable.setPosition(RestTablePosition.valueOf(restTable.getPosition()));
+        restTableRepository.save(updateTable);
         return findRestTableDTOById(updateTable.getId()).map(this::applyTableNameLogic)
             .orElseThrow(() -> new RuntimeException("Error: id of updated RestTable not found"));
     }
@@ -70,8 +73,8 @@ public class RestTableService implements RestTableServiceInterface {
 
     private List<RestTableResponse> getNameOfTableList(List<RestTableResponse> tables) {
         for (RestTableResponse table : tables) {
-            if (table.getNumber() > 1000) {
-                table.setName("Mesa T" + (table.getNumber() - 1000));
+            if (table.getPosition().equals("OUTSIDE")) {
+                table.setName("Mesa T" + (table.getNumber()));
             } else {
                 table.setName("Mesa " + table.getNumber());
             }
@@ -81,12 +84,28 @@ public class RestTableService implements RestTableServiceInterface {
     }
 
     private RestTableResponse applyTableNameLogic(RestTableResponse table) {
-        if (table.getNumber() > 100) {
-            table.setName("Mesa T" + (table.getNumber() - 100));
+        if (table.getPosition().equals("OUTSIDE")) {
+            table.setName("Mesa T" + (table.getNumber()));
         } else {
             table.setName("Mesa " + table.getNumber());
         }
         return table;
     }
 
+    private String translateTableStatic(String status) {
+        switch (status) {
+            case "Disponible" -> {
+                return "AVAILABLE";
+            }
+            case "Ocupado" -> {
+                return "OCCUPIED";
+            }
+            case "Reservado" -> {
+                return "RESERVED";
+            }
+            default -> {
+                return "OUT_OF_SERVICE";
+            }
+        }
+    }
 }

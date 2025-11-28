@@ -9,14 +9,17 @@ public class RestTableResponse {
 
     private String status;
 
+    private String position;
+
     public RestTableResponse() {
     }
 
-    public RestTableResponse(Long id, int number, String name, String status) {
+    public RestTableResponse(Long id, int number, String name, String status, String position) {
         this.id = id;
         this.number = number;
         this.name = name;
         this.status = status;
+        this.position = position;
     }
 
     public Long getId() {
@@ -51,10 +54,22 @@ public class RestTableResponse {
         this.status = status;
     }
 
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
     @Override
     public String toString() {
-        return "RestTableResponse [id=" + id + ", number=" + number + ", name=" + name + ", status=" + status + "]";
+        return "RestTableResponse{" +
+                "id=" + id +
+                ", number=" + number +
+                ", name='" + name + '\'' +
+                ", status='" + status + '\'' +
+                ", position='" + position + '\'' +
+                '}';
     }
-    
-    
 }

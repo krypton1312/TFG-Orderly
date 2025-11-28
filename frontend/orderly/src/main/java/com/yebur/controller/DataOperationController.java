@@ -66,13 +66,14 @@ public class DataOperationController {
     private Object selectedItemPopup;
 
     // ---------- UI ELEMENTS ----------
-    private VBox findItem, name, color, index, price, stock, category, destination, tablePosition;
+    private VBox findItem, name, color, index, price, stock, category, destination, tablePosition, tableStatus;
     private HBox tableButtons;
-    private Label findItemLabel, nameLabel, colorLabel, indexLabel, priceLabel, stockLabel, categoryLabel, destinationLabel, tablePositionLabel;
+    private Label findItemLabel, nameLabel, colorLabel, indexLabel, priceLabel, stockLabel, categoryLabel, destinationLabel, tablePositionLabel, tableStatusLabel;
     private TextField findItemTextField, nameTextField, indexTextField, priceTextField, stockTextField;
     private ColorPicker colorPicker;
     private ComboBox<CategoryResponse> categoryComboBox;
     private ComboBox<String> destinationComboBox;
+    private ComboBox<String> tableStatusComboBox;
     private Button tablePositionOutside;
     private Button tablePositionInside;
     private GridPane gridPane = new GridPane();
@@ -169,7 +170,7 @@ public class DataOperationController {
         switch (selectedAction) {
             case ADD -> showTableAddForm();
             case EDIT -> showTableEditForm();
-            //case DELETE -> showTableDeleteForm();
+            case DELETE -> showTableDeleteForm();
         }
     }
 
@@ -293,8 +294,10 @@ public class DataOperationController {
 
     private void showTableAddForm(){
         createGridPane();
-        gridPane.add(index, 0, 0, 2, 1);
+        gridPane.add(index, 0, 0);
         indexLabel.setText("Numero de la mesa:");
+        gridPane.add(tableStatus, 1, 0);
+        tableStatusLabel.setText("Estado de la mesa:");
         gridPane.add(tablePosition, 0, 1, 2, 1);
         dynamicFormVB.getChildren().setAll(gridPane);
         submitButton.setText("Crear tabla");
@@ -307,6 +310,8 @@ public class DataOperationController {
         findItemLabel.setText("Buscar mesa: ");
         gridPane.add(index, 0, 1);
         indexLabel.setText("Numero del mesa:");
+        gridPane.add(tableStatus, 1, 1);
+        tableStatusLabel.setText("Estado de la mesa:");
         tablePositionLabel.setText("Posicion de la mesa:");
         gridPane.add(tablePosition, 0, 2, 2, 1);
 
@@ -320,23 +325,33 @@ public class DataOperationController {
                     RestTableResponse::getName,
                     restTable -> {
                         selectedItemPopup = restTable;
-                        if(restTable.getName().contains("T")){
-                            indexTextField.setText(restTable.getName().substring(restTable.getName().indexOf("T")+1));
+                        indexTextField.setText(String.valueOf(restTable.getNumber()));
+                        tableStatusComboBox.setValue(restTable.getStatus());
+                        if(restTable.getPosition().equals("OUTSIDE")){
                             tablePositionInside.getStyleClass().remove("table-buttons-pressed");
                             tablePositionOutside.getStyleClass().add("table-buttons-pressed");
                             isTableInside = false;
                         }else{
-                            indexTextField.setText(restTable.getName().substring(restTable.getName().indexOf(" ")+1));
                             tablePositionOutside.getStyleClass().remove("table-buttons-pressed");
                             tablePositionInside.getStyleClass().add("table-buttons-pressed");
                             isTableInside = true;
                         }
+
                     },
                     true
             );
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
+    }
+
+    private void showTableDeleteForm() {
+        showTableEditForm();
+        nameTextField.setEditable(false);
+        indexTextField.setEditable(false);
+        tablePositionInside.setDisable(true);
+        tablePositionOutside.setDisable(true);
+        submitButton.setText("Eliminar mesa");
     }
 
     // ---------- SUBMIT HANDLER ----------
@@ -443,9 +458,19 @@ public class DataOperationController {
             case EDIT -> {
                 if(selectedItemPopup instanceof RestTableResponse rt &&
                         confirmDataModification(stage, "Confirme la modificacion de la tabla")){
-                    System.out.println(rt+"\n"+table);
                     try{
                         RestTableService.updateTable(rt.getId(),table);
+                        anyModificationDone = true;
+                    }catch (Exception e){
+                        showError(e.getMessage());
+                    }
+                }
+            }
+            case DELETE -> {
+                if(selectedItemPopup instanceof RestTableResponse rt &&
+                        confirmDataModification(stage, "¿Está seguro de que desea eliminar este producto?")){
+                    try{
+                        RestTableService.deleteTable(rt.getId());
                         anyModificationDone = true;
                     }catch (Exception e){
                         showError(e.getMessage());
@@ -478,7 +503,7 @@ public class DataOperationController {
 
     private RestTableRequest buildTableRequest() {
         int number = Integer.parseInt(indexTextField.getText());
-        return new RestTableRequest(isTableInside ? number : 1000 + number,"AVAILABLE");
+        return new RestTableRequest(number,tableStatusComboBox.getSelectionModel().getSelectedItem(), isTableInside ? "INSIDE" : "OUTSIDE");
     }
 
     private void clearFormFields(Pane root) {
@@ -594,6 +619,7 @@ public class DataOperationController {
         destinationComboBox = new ComboBox<>();
         destination.setMaxWidth(Double.MAX_VALUE);
         destinationComboBox.getItems().addAll("Bebidas", "Barra", "Cocina");
+        destinationComboBox.setPrefWidth(Double.MAX_VALUE);
         destinationComboBox.setPromptText("Selecciona un destino");
         destination.getChildren().addAll(destinationLabel, destinationComboBox);
 
@@ -611,6 +637,13 @@ public class DataOperationController {
         HBox.setHgrow(tablePositionInside, Priority.ALWAYS);
         HBox.setHgrow(tablePositionOutside, Priority.ALWAYS);
         tablePosition.getChildren().addAll(tablePositionLabel, tableButtons);
+
+        tableStatus = new VBox(5);
+        tableStatusLabel = new Label("Estado:");
+        tableStatusComboBox = new ComboBox<>();
+        tableStatusComboBox.setMaxWidth(Double.MAX_VALUE);
+        tableStatusComboBox.getItems().addAll("Disponible", "Reservado", "Fuera de servicio");
+        tableStatus.getChildren().addAll(tableStatusLabel, tableStatusComboBox);
 
 
         addClickHandler(nameTextField);
@@ -806,6 +839,29 @@ public class DataOperationController {
                                         try {
                                             colorPicker.setValue(Color.web(category.getColor()));
                                         } catch (Exception ignored) {}
+                                    },
+                                    false
+                            );
+                        }
+                    }
+                    case TABLE ->  {
+                        if (selectedAction == ActionType.EDIT || selectedAction == ActionType.DELETE) {
+                            setupDynamicList(
+                                    RestTableService.getAllRestTables(),
+                                    RestTableResponse::getName,
+                                    restTable -> {
+                                        selectedItemPopup = restTable;
+                                        if(restTable.getPosition().equals("OUTSIDE")){
+                                            indexTextField.setText(String.valueOf(restTable.getNumber()));
+                                            tablePositionInside.getStyleClass().remove("table-buttons-pressed");
+                                            tablePositionOutside.getStyleClass().add("table-buttons-pressed");
+                                            isTableInside = false;
+                                        }else{
+                                            indexTextField.setText(String.valueOf(restTable.getNumber()));
+                                            tablePositionOutside.getStyleClass().remove("table-buttons-pressed");
+                                            tablePositionInside.getStyleClass().add("table-buttons-pressed");
+                                            isTableInside = true;
+                                        }
                                     },
                                     false
                             );
