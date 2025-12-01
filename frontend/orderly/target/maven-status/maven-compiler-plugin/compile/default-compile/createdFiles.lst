@@ -22,7 +22,10 @@ com\yebur\controller\PosController.class
 com\yebur\controller\StartController.class
 com\yebur\model\response\OrderDetailResponse.class
 com\yebur\model\request\OrderRequest.class
+com\yebur\service\SupplementService$1.class
+com\yebur\model\request\SupplementRequest.class
 com\yebur\model\response\ErrorResponse.class
+com\yebur\model\response\SupplementResponse.class
 module-info.class
 com\yebur\service\ProductService$1.class
 com\yebur\model\request\CategoryRequest.class
@@ -33,9 +36,11 @@ com\yebur\service\RestTableService.class
 com\yebur\controller\DataOperationController$EntityType.class
 com\yebur\service\CategoryService$2.class
 com\yebur\controller\DataOperationController$2.class
+com\yebur\service\SupplementService.class
 com\yebur\model\response\RestTableResponse.class
 com\yebur\model\request\OrderDetailRequest.class
 com\yebur\service\OrderDetailService.class
+com\yebur\service\SupplementService$2.class
 com\yebur\controller\PortalController.class
 com\yebur\model\request\RestTableRequest.class
 com\yebur\service\ApiClient.class

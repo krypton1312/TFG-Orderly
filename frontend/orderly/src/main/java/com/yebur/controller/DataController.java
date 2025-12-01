@@ -56,7 +56,7 @@ public class DataController {
         }
         else if (source == suplementVBox) {
             System.out.println("Нажали на Suplementos");
-            loadCenterContent("/com/yebur/portal/views/dataOperation.fxml", "suplement");
+            loadCenterContent("/com/yebur/portal/views/dataOperation.fxml", "supplement");
         }
         else if (source == tableVBox) {
             System.out.println("Нажали на Mesas");

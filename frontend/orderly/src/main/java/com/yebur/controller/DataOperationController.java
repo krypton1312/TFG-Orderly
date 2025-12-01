@@ -3,12 +3,14 @@ package com.yebur.controller;
 import com.yebur.model.request.CategoryRequest;
 import com.yebur.model.request.ProductRequest;
 import com.yebur.model.request.RestTableRequest;
+import com.yebur.model.request.SupplementRequest;
 import com.yebur.model.response.CategoryResponse;
 import com.yebur.model.response.ProductResponse;
 import com.yebur.model.response.RestTableResponse;
 import com.yebur.service.CategoryService;
 import com.yebur.service.ProductService;
 import com.yebur.service.RestTableService;
+import com.yebur.service.SupplementService;
 import com.yebur.ui.CustomDialog;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -25,6 +27,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -37,7 +40,7 @@ import static com.yebur.ui.CustomDialog.showError;
 public class DataOperationController {
 
     // ---------- ENUMS ----------
-    private enum EntityType {PRODUCT, CATEGORY, TABLE}
+    private enum EntityType {PRODUCT, CATEGORY, TABLE, SUPPLEMENT}
 
     private enum ActionType {ADD, EDIT, DELETE}
 
@@ -66,16 +69,17 @@ public class DataOperationController {
     private Object selectedItemPopup;
 
     // ---------- UI ELEMENTS ----------
-    private VBox findItem, name, color, index, price, stock, category, destination, tablePosition, tableStatus;
+    private VBox findItem, name, color, index, price, stock, category, destination, tablePosition, tableStatus, supplementCategoriesVBox, supplementProductsVBox;
     private HBox tableButtons;
-    private Label findItemLabel, nameLabel, colorLabel, indexLabel, priceLabel, stockLabel, categoryLabel, destinationLabel, tablePositionLabel, tableStatusLabel;
-    private TextField findItemTextField, nameTextField, indexTextField, priceTextField, stockTextField;
+    private Label findItemLabel, nameLabel, colorLabel, indexLabel, priceLabel, stockLabel, categoryLabel, destinationLabel, tablePositionLabel, tableStatusLabel, supplementCategoriesLabel, supplementProductsLabel;
+    private TextField findItemTextField, nameTextField, indexTextField, priceTextField, stockTextField, supplementCategoriesTextField, supplementProductsTextField;
     private ColorPicker colorPicker;
     private ComboBox<CategoryResponse> categoryComboBox;
     private ComboBox<String> destinationComboBox;
     private ComboBox<String> tableStatusComboBox;
     private Button tablePositionOutside;
     private Button tablePositionInside;
+    private FlowPane selectedCategoriesPane, selectedProductsPane;
     private GridPane gridPane = new GridPane();
 
     // ---------- LIST SUPPORT ----------
@@ -85,6 +89,16 @@ public class DataOperationController {
 
     private boolean anyModificationDone = false;
     private boolean isTableInside;
+
+    private final ObservableList<CategoryResponse> selectedCategoriesForSupplement = FXCollections.observableArrayList();
+    private final ObservableList<ProductResponse> selectedProductsForSupplement = FXCollections.observableArrayList();
+    private static final String TRASH_SVG =
+            "M10 11 V17 " +
+                    "M14 11 V17 " +
+                    "M19 6 V20 A2 2 0 0 1 17 22 H7 A2 2 0 0 1 5 20 V6 " +
+                    "M3 6 H21 " +
+                    "M8 6 V4 A2 2 0 0 1 10 2 H14 A2 2 0 0 1 16 4 V6";
+
 
     // ---------- INITIALIZATION ----------
     @FXML
@@ -143,6 +157,7 @@ public class DataOperationController {
             case PRODUCT -> setupProductUI();
             case CATEGORY -> setupCategoryUI();
             case TABLE -> setupTableUI();
+            case SUPPLEMENT -> setupSupplementUI();
         }
 
         submitButton.setOnAction(event -> handleSubmitButton());
@@ -171,6 +186,14 @@ public class DataOperationController {
             case ADD -> showTableAddForm();
             case EDIT -> showTableEditForm();
             case DELETE -> showTableDeleteForm();
+        }
+    }
+
+    private void setupSupplementUI() {
+        switch (selectedAction) {
+            case ADD -> showSupplementAddForm();
+            //case EDIT -> showSupplementEditForm();
+            //case DELETE -> showSupplementDeleteForm();
         }
     }
 
@@ -207,6 +230,7 @@ public class DataOperationController {
         try {
             setupDynamicList(
                     ProductService.getAllProducts(),
+                    findItemTextField,
                     ProductResponse::getName,
                     product -> {
                         selectedItemPopup = product;
@@ -267,6 +291,7 @@ public class DataOperationController {
         try {
             setupDynamicList(
                     CategoryService.getAllCategories(),
+                    findItemTextField,
                     CategoryResponse::getName,
                     category -> {
                         selectedItemPopup = category;
@@ -322,6 +347,7 @@ public class DataOperationController {
         try {
             setupDynamicList(
                     RestTableService.getAllRestTables(),
+                    findItemTextField,
                     RestTableResponse::getName,
                     restTable -> {
                         selectedItemPopup = restTable;
@@ -354,6 +380,56 @@ public class DataOperationController {
         submitButton.setText("Eliminar mesa");
     }
 
+    private void showSupplementAddForm() {
+        createGridPane();
+
+        gridPane.add(name, 0, 0);
+        nameLabel.setText("Nombre del suplemento:");
+        gridPane.add(price, 1, 0);
+
+        gridPane.add(supplementCategoriesVBox, 0, 1, 2, 1);
+        gridPane.add(supplementProductsVBox, 0, 2, 2, 1);
+        try {
+            setupDynamicList(
+                    categories,
+                    supplementCategoriesTextField,
+                    CategoryResponse::getName,
+                    category -> {
+                        if (!selectedCategoriesForSupplement.contains(category)) {
+                            selectedCategoriesForSupplement.add(category);
+                            addCategoryChip(category);
+                        }
+                        supplementCategoriesTextField.clear();
+                    },
+                    false
+            );
+        } catch (Exception e) {
+            System.err.println("Error setting up supplement categories list: " + e.getMessage());
+        }
+        try {
+            List<ProductResponse> products = ProductService.getAllProducts();
+            setupDynamicList(
+                    products,
+                    supplementProductsTextField,
+                    ProductResponse::getName,
+                    product -> {
+                        if (!selectedProductsForSupplement.contains(product)) {
+                            selectedProductsForSupplement.add(product);
+                            addProductChip(product);
+                        }
+                        supplementProductsTextField.clear();
+                    },
+                    false
+            );
+        } catch (Exception e) {
+            System.err.println("Error setting up supplement products list: " + e.getMessage());
+        }
+
+        submitButton.setText("Crear suplemento");
+        dynamicFormVB.getChildren().setAll(gridPane);
+        applyFormStyles(gridPane);
+    }
+
     // ---------- SUBMIT HANDLER ----------
     private void handleSubmitButton() {
         if (verifyNotBlank()) return;
@@ -362,6 +438,7 @@ public class DataOperationController {
                 case PRODUCT -> handleProductSubmit();
                 case CATEGORY -> handleCategorySubmit();
                 case TABLE -> handleTableSubmit();
+                case SUPPLEMENT -> handleSupplementSubmit();
             }
         } catch (Exception e) {
             System.err.println("❌ Error: " + e.getMessage());
@@ -482,6 +559,25 @@ public class DataOperationController {
         refreshEntityList();
     }
 
+    private void handleSupplementSubmit() throws Exception {
+        SupplementRequest supplement = buildSupplementRequest();
+        Stage stage = (Stage) submitButton.getScene().getWindow();
+        anyModificationDone = false;
+        switch (selectedAction) {
+            case ADD -> {
+                if(confirmDataModification(stage, "Confirme creacion del nuevo suplemento")){
+                    try{
+                        System.out.println(supplement);
+                        SupplementService.createSupplement(supplement);
+                        anyModificationDone = true;
+                    }catch (Exception e){
+                        showError("El supplemento ya existe");
+                    }
+                }
+            }
+        }
+    }
+
     // ---------- HELPERS ----------
     private ProductRequest buildProductRequest() {
         return new ProductRequest(
@@ -500,6 +596,24 @@ public class DataOperationController {
                 Integer.parseInt(indexTextField.getText())
         );
     }
+
+    private SupplementRequest buildSupplementRequest() {
+        List<Long> categoryIds = selectedCategoriesForSupplement.stream()
+                .map(CategoryResponse::getId)
+                .toList();
+
+        List<Long> productIds = selectedProductsForSupplement.stream()
+                .map(ProductResponse::getId)
+                .toList();
+
+        return new SupplementRequest(
+                nameTextField.getText(),
+                new BigDecimal(priceTextField.getText()),
+                categoryIds,
+                productIds
+        );
+    }
+
 
     private RestTableRequest buildTableRequest() {
         int number = Integer.parseInt(indexTextField.getText());
@@ -521,6 +635,9 @@ public class DataOperationController {
             if (vbox instanceof VBox vb) {
                 for (Node child : vb.getChildren()) {
                     if (child instanceof TextField tf && tf.getText().trim().isEmpty()) {
+                        if (tf == supplementCategoriesTextField || tf == supplementProductsTextField) {
+                            continue;
+                        }
                         child.getStyleClass().add("blank-element");
                         isAnyElementBlank = true;
                     } else if (child instanceof ComboBox<?> cb && cb.getSelectionModel().getSelectedItem() == null) {
@@ -645,6 +762,19 @@ public class DataOperationController {
         tableStatusComboBox.getItems().addAll("Disponible", "Reservado", "Fuera de servicio");
         tableStatus.getChildren().addAll(tableStatusLabel, tableStatusComboBox);
 
+        supplementCategoriesVBox = new VBox(5);
+        supplementCategoriesLabel = new Label("Categorias:");
+        supplementCategoriesTextField = new TextField();
+        selectedCategoriesPane = new FlowPane(5, 5);
+        selectedCategoriesPane.setPrefWrapLength(300);
+        supplementCategoriesVBox.getChildren().addAll(supplementCategoriesLabel, supplementCategoriesTextField, selectedCategoriesPane);
+
+        supplementProductsVBox = new VBox(5);
+        supplementProductsLabel = new Label("Productos:");
+        supplementProductsTextField = new TextField();
+        selectedProductsPane = new FlowPane(5, 5);
+        selectedProductsPane.setPrefWrapLength(300);
+        supplementProductsVBox.getChildren().addAll(supplementProductsLabel, supplementProductsTextField, selectedProductsPane);
 
         addClickHandler(nameTextField);
         addClickHandler(priceTextField);
@@ -653,8 +783,77 @@ public class DataOperationController {
         addClickHandler(indexTextField);
         addClickHandler(destinationComboBox);
         addClickHandler(tableButtons);
+        addClickHandler(supplementCategoriesTextField);
+        addClickHandler(supplementProductsTextField);
         addTableButtonsHandler(tableButtons);
     }
+
+    private HBox createChip(String text, Runnable onRemove) {
+        HBox chip = new HBox(4);
+        chip.setAlignment(Pos.CENTER_LEFT);
+        chip.getStyleClass().add("chip");
+
+        Label label = new Label(text);
+        label.getStyleClass().add("chip-text");
+
+        Button removeBtn = new Button();
+        removeBtn.getStyleClass().add("chip-remove");
+        removeBtn.setFocusTraversable(false);
+        removeBtn.setMinSize(16, 16);
+        removeBtn.setPrefSize(16, 16);
+        removeBtn.setMaxSize(16, 16);
+        removeBtn.setPadding(Insets.EMPTY);
+
+        SVGPath icon = new SVGPath();
+        icon.setContent(TRASH_SVG);
+        icon.setFill(Color.TRANSPARENT);
+        icon.setStroke(Color.web("#555555"));
+        icon.setStrokeWidth(1.7);
+        icon.setScaleX(0.55);
+        icon.setScaleY(0.55);
+
+        removeBtn.setGraphic(icon);
+
+        removeBtn.setOnAction(e -> {
+            onRemove.run();
+        });
+
+        HBox.setMargin(removeBtn, new Insets(0, 2, 0, 4));
+
+        chip.getChildren().addAll(label, removeBtn);
+        return chip;
+    }
+
+    private void addCategoryChip(CategoryResponse category) {
+        final HBox[] chipRef = new HBox[1];
+
+        chipRef[0] = createChip(
+                category.getName(),
+                () -> {
+                    selectedCategoriesForSupplement.remove(category);
+                    selectedCategoriesPane.getChildren().remove(chipRef[0]);
+                }
+        );
+
+        selectedCategoriesPane.getChildren().add(chipRef[0]);
+    }
+
+
+    private void addProductChip(ProductResponse product) {
+        final HBox[] chipRef = new HBox[1];
+
+        chipRef[0] = createChip(
+                product.getName(),
+                () -> {
+                    selectedProductsForSupplement.remove(product);
+                    selectedProductsPane.getChildren().remove(chipRef[0]);
+                }
+        );
+
+        selectedProductsPane.getChildren().add(chipRef[0]);
+    }
+
+
 
     private void addClickHandler(Node node) {
         node.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> node.getStyleClass().remove("blank-element"));
@@ -702,6 +901,7 @@ public class DataOperationController {
     // ---------- DYNAMIC LIST ----------
     private <T> void setupDynamicList(
             List<T> data,
+            TextField textField,
             java.util.function.Function<T, String> displayTextExtractor,
             java.util.function.Consumer<T> onItemSelected,
             boolean suppressPopup
@@ -712,7 +912,7 @@ public class DataOperationController {
         listView.setPrefHeight(150);
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-        findItemTextField.widthProperty().addListener((obs, o, n) -> listView.setPrefWidth(n.doubleValue()));
+        textField.widthProperty().addListener((obs, o, n) -> listView.setPrefWidth(n.doubleValue()));
 
         listView.setStyle("""
         -fx-background-color: white;
@@ -738,15 +938,15 @@ public class DataOperationController {
         final boolean[] suppressFilter = {false};
 
         Runnable showPopup = () -> Platform.runLater(() -> {
-            if (findItemTextField.getScene() == null) return;
-            Bounds b = findItemTextField.localToScreen(findItemTextField.getBoundsInLocal());
+            if (textField.getScene() == null) return;
+            Bounds b = textField.localToScreen(textField.getBoundsInLocal());
             if (b == null) return;
-            listView.setPrefWidth(findItemTextField.getWidth());
+            listView.setPrefWidth(textField.getWidth());
             if (popup.isShowing()) popup.hide();
-            popup.show(findItemTextField.getScene().getWindow(), b.getMinX(), b.getMaxY() + 2);
+            popup.show(textField.getScene().getWindow(), b.getMinX(), b.getMaxY() + 2);
         });
 
-        findItemTextField.textProperty().addListener((obs, oldVal, newVal) -> {
+        textField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (suppressFilter[0]) return;
             // 🔹 Если обновляем список после submit — не показываем popup автоматически
             if (suppressPopup && !popup.isShowing()) return;
@@ -770,7 +970,7 @@ public class DataOperationController {
             suppressFilter[0] = true;
 
             String text = displayTextExtractor.apply(newSel);
-            if (text != null) findItemTextField.setText(text);
+            if (text != null) textField.setText(text);
             submitButton.requestFocus();
 
             Platform.runLater(() -> {
@@ -784,7 +984,7 @@ public class DataOperationController {
             });
         });
 
-        findItemTextField.focusedProperty().addListener((o, oldV, newV) -> {
+        textField.focusedProperty().addListener((o, oldV, newV) -> {
             if (newV) {
                 if (findItemTextField.getText() == null || findItemTextField.getText().isEmpty()) {
                     filteredList.setPredicate(i -> true);
@@ -809,6 +1009,7 @@ public class DataOperationController {
                         if (selectedAction == ActionType.EDIT || selectedAction == ActionType.DELETE) {
                             setupDynamicList(
                                     ProductService.getAllProducts(),
+                                    findItemTextField,
                                     ProductResponse::getName,
                                     product -> {
                                         selectedItemPopup = product;
@@ -831,6 +1032,7 @@ public class DataOperationController {
                         if (selectedAction == ActionType.EDIT || selectedAction == ActionType.DELETE) {
                             setupDynamicList(
                                     CategoryService.getAllCategories(),
+                                    findItemTextField,
                                     CategoryResponse::getName,
                                     category -> {
                                         selectedItemPopup = category;
@@ -848,6 +1050,7 @@ public class DataOperationController {
                         if (selectedAction == ActionType.EDIT || selectedAction == ActionType.DELETE) {
                             setupDynamicList(
                                     RestTableService.getAllRestTables(),
+                                    findItemTextField,
                                     RestTableResponse::getName,
                                     restTable -> {
                                         selectedItemPopup = restTable;

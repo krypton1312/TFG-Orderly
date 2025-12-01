@@ -1,6 +1,7 @@
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\TableWithOrderResponse.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\RestTableResponse.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\ui\CustomDialog.java
+C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\SupplementService.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\DataController.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\OrderRequest.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\CategoryResponse.java
@@ -8,6 +9,7 @@ C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\s
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\StartController.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\PortalController.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\ApiClient.java
+C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\SupplementRequest.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\ProductRequest.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\OrderResponse.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\CategoryRequest.java
@@ -19,6 +21,7 @@ C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\m
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\OrderDetailService.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\RestTableRequest.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\PartialPaymentController.java
+C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\SupplementResponse.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\ErrorResponse.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\OrderSummary.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\app\App.java

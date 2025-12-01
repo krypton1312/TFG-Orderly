@@ -27,7 +27,6 @@ public class OrderService {
     public static OrderResponse createOrder(OrderRequest order) throws Exception{
         String jsonInput = mapper.writeValueAsString(order);
         String jsonResponse = ApiClient.post("/orders", jsonInput);
-        System.out.println(jsonResponse);
         return mapper.readValue(jsonResponse, OrderResponse.class);
     }
 
