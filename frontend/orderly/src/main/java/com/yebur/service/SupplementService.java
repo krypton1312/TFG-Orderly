@@ -26,15 +26,15 @@ public class SupplementService {
     }
 
 
-    public static SupplementResponse createSupplement(SupplementRequest Supplement) throws Exception {
-        String jsonInput = mapper.writeValueAsString(Supplement);
+    public static SupplementResponse createSupplement(SupplementRequest supplement) throws Exception {
+        String jsonInput = mapper.writeValueAsString(supplement);
         System.out.println(jsonInput);
         String jsonResponse = ApiClient.post("/supplements", jsonInput);
         return mapper.readValue(jsonResponse, SupplementResponse.class);
     }
 
-    public static SupplementResponse updateSupplement(Long id, SupplementRequest Supplement) throws Exception {
-        String jsonInput = mapper.writeValueAsString(Supplement);
+    public static SupplementResponse updateSupplement(Long id, SupplementRequest supplement) throws Exception {
+        String jsonInput = mapper.writeValueAsString(supplement);
         String jsonResponse = ApiClient.put("/supplements/id/" + id, jsonInput);
         return mapper.readValue(jsonResponse, SupplementResponse.class);
     }

@@ -28,9 +28,19 @@ public class Supplement {
     @Column
     private BigDecimal price;
 
-    @ManyToMany(mappedBy = "supplements")
+    @ManyToMany
+    @JoinTable(
+            name = "categories_supplements",
+            joinColumns = @JoinColumn(name = "supplement_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
     private List<Category> categories = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "supplements")
+    @ManyToMany
+    @JoinTable(
+            name = "products_supplements",
+            joinColumns = @JoinColumn(name = "supplement_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
     private List<Product> products = new ArrayList<>();
 }

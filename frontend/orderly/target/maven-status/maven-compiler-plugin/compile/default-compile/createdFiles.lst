@@ -2,6 +2,7 @@ com\yebur\controller\DataOperationController$3.class
 com\yebur\service\CategoryService$1.class
 com\yebur\ui\CustomDialog.class
 com\yebur\controller\DataOperationController$ActionType.class
+com\yebur\model\response\ProductResponseSummary.class
 com\yebur\service\ProductService$2.class
 com\yebur\model\response\ApiException.class
 com\yebur\service\OrderDetailService$2.class
@@ -38,6 +39,7 @@ com\yebur\service\CategoryService$2.class
 com\yebur\controller\DataOperationController$2.class
 com\yebur\service\SupplementService.class
 com\yebur\model\response\RestTableResponse.class
+com\yebur\model\response\CategoryResponseSummary.class
 com\yebur\model\request\OrderDetailRequest.class
 com\yebur\service\OrderDetailService.class
 com\yebur\service\SupplementService$2.class

@@ -70,14 +70,28 @@ public class SupplementService implements SupplementServiceInterface{
     }
 
     public SupplementResponse mapEntityToResponse(Supplement supplement) {
+
         SupplementResponse supplementResponse = new SupplementResponse();
         supplementResponse.setId(supplement.getId());
         supplementResponse.setName(supplement.getName());
         supplementResponse.setPrice(supplement.getPrice());
-        supplementResponse.setCategoriesId(supplement.getCategories().stream().map(Category::getId).toList());
-        supplementResponse.setProductId(supplement.getProducts().stream().map(Product::getId).toList());
+
+        supplementResponse.setCategories(
+                supplement.getCategories()
+                        .stream()
+                        .map(c -> new CategoryResponseSummary(c.getId(), c.getName()))
+                        .toList()
+        );
+
+        supplementResponse.setProducts(
+                supplement.getProducts()
+                        .stream()
+                        .map(p -> new ProductResponseSummary(p.getId(), p.getName()))
+                        .toList()
+        );
 
         return supplementResponse;
     }
+
 
 }

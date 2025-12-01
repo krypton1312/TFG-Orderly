@@ -16,10 +16,12 @@ C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\m
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\DataOperationController.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\OrderDetailRequest.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\ProductService.java
+C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\ProductResponseSummary.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\ApiException.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\OrderDetailResponse.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\OrderDetailService.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\RestTableRequest.java
+C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\CategoryResponseSummary.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\PartialPaymentController.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\SupplementResponse.java
 C:\Users\YEHORBURLACHENKO\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\ErrorResponse.java

@@ -43,7 +43,7 @@ public class SupplementController {
         }
     }
 
-    @PutMapping("/id/id")
+    @PutMapping("/id/{id}")
     public ResponseEntity<?> updateSupplementDTO(@PathVariable Long id, @RequestBody SupplementRequest supplementRequest, BindingResult result){
         if(result.hasErrors()){
             return validation(result);

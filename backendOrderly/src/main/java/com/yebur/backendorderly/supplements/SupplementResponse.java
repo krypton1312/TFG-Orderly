@@ -1,5 +1,6 @@
 package com.yebur.backendorderly.supplements;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,17 +9,28 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class SupplementResponse {
     private Long id;
     private String name;
     private BigDecimal price;
-    private List<Long> categoriesId;
-    private List<Long> productId;
+    private List<CategoryResponseSummary> categories;
+    private List<ProductResponseSummary> products;
 
-    public SupplementResponse(Long id, String name, BigDecimal price) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-    }
+}
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+class CategoryResponseSummary{
+    private Long id;
+    private String name;
+}
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+class ProductResponseSummary{
+    private Long id;
+    private String name;
 }

@@ -44,11 +44,6 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private ProductDestination destination;
 
-    @ManyToMany
-    @JoinTable(
-            name = "products_supplements",
-            joinColumns = @JoinColumn(name="product_id"),
-            inverseJoinColumns = @JoinColumn(name="supplement_id")
-    )
+    @ManyToMany(mappedBy = "products")
     private List<Supplement> supplements = new ArrayList<>();
 }

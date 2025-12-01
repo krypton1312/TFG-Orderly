@@ -1,5 +1,9 @@
 package com.yebur.model.response;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -7,16 +11,18 @@ public class SupplementResponse {
     private Long id;
     private String name;
     private BigDecimal price;
-    private List<Long> categoriesId;
-    private List<Long> productId;
+    private List<CategoryResponseSummary> categories;
+    private List<ProductResponseSummary> products;
 
-    public SupplementResponse(Long id, String name, BigDecimal price) {
+    public SupplementResponse() {
+    }
+
+    public SupplementResponse(Long id, String name, BigDecimal price, List<CategoryResponseSummary> categories, List<ProductResponseSummary> products) {
         this.id = id;
         this.name = name;
         this.price = price;
-    }
-
-    public SupplementResponse() {
+        this.categories = categories;
+        this.products = products;
     }
 
     public Long getId() {
@@ -43,30 +49,19 @@ public class SupplementResponse {
         this.price = price;
     }
 
-    public List<Long> getCategoriesId() {
-        return categoriesId;
+    public List<CategoryResponseSummary> getCategories() {
+        return categories;
     }
 
-    public void setCategoriesId(List<Long> categoriesId) {
-        this.categoriesId = categoriesId;
+    public void setCategories(List<CategoryResponseSummary> categories) {
+        this.categories = categories;
     }
 
-    public List<Long> getProductId() {
-        return productId;
+    public List<ProductResponseSummary> getProducts() {
+        return products;
     }
 
-    public void setProductId(List<Long> productId) {
-        this.productId = productId;
-    }
-
-    @Override
-    public String toString() {
-        return "SupplementResponse{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", price=" + price +
-                ", categoriesId=" + categoriesId +
-                ", productId=" + productId +
-                '}';
+    public void setProducts(List<ProductResponseSummary> products) {
+        this.products = products;
     }
 }

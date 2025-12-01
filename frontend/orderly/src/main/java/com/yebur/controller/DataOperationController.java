@@ -4,9 +4,7 @@ import com.yebur.model.request.CategoryRequest;
 import com.yebur.model.request.ProductRequest;
 import com.yebur.model.request.RestTableRequest;
 import com.yebur.model.request.SupplementRequest;
-import com.yebur.model.response.CategoryResponse;
-import com.yebur.model.response.ProductResponse;
-import com.yebur.model.response.RestTableResponse;
+import com.yebur.model.response.*;
 import com.yebur.service.CategoryService;
 import com.yebur.service.ProductService;
 import com.yebur.service.RestTableService;
@@ -192,7 +190,7 @@ public class DataOperationController {
     private void setupSupplementUI() {
         switch (selectedAction) {
             case ADD -> showSupplementAddForm();
-            //case EDIT -> showSupplementEditForm();
+            case EDIT -> showSupplementEditForm();
             //case DELETE -> showSupplementDeleteForm();
         }
     }
@@ -430,6 +428,109 @@ public class DataOperationController {
         applyFormStyles(gridPane);
     }
 
+    private void showSupplementEditForm() {
+        createGridPane();
+
+        // ----- разметка -----
+        gridPane.add(findItem, 0, 0, 2, 1);
+        findItemLabel.setText("Buscar suplemento:");
+
+        gridPane.add(name, 0, 1);
+        nameLabel.setText("Nombre del suplemento:");
+        gridPane.add(price, 1, 1);
+
+        gridPane.add(supplementCategoriesVBox, 0, 2, 2, 1);
+        gridPane.add(supplementProductsVBox, 0, 3, 2, 1); // 💡 раньше у тебя было (0,2,2,1) и для категорий, и для продуктов
+
+        submitButton.setText("Modificar suplemento");
+        dynamicFormVB.getChildren().setAll(gridPane);
+        applyFormStyles(gridPane);
+
+        try {
+            setupDynamicList(
+                    SupplementService.getAllSupplements(),
+                    findItemTextField,
+                    SupplementResponse::getName,
+                    supplement -> {
+                        selectedItemPopup = supplement;
+                        nameTextField.setText(supplement.getName());
+                        priceTextField.setText(String.valueOf(supplement.getPrice()));
+
+                        selectedCategoriesForSupplement.clear();
+                        selectedCategoriesPane.getChildren().clear();
+                        selectedProductsForSupplement.clear();
+                        selectedProductsPane.getChildren().clear();
+
+                        if (supplement.getCategories() != null) {
+                            for (CategoryResponseSummary c : supplement.getCategories()) {
+                                CategoryResponse cr = new CategoryResponse();
+                                cr.setId(c.getId());
+                                cr.setName(c.getName());
+
+                                if (!selectedCategoriesForSupplement.contains(cr)) {
+                                    selectedCategoriesForSupplement.add(cr);
+                                    addCategoryChip(cr);
+                                }
+                            }
+                        }
+                        if (supplement.getProducts() != null) {
+                            for (ProductResponseSummary p : supplement.getProducts()) {
+
+                                ProductResponse pr = new ProductResponse();
+                                pr.setId(p.getId());
+                                pr.setName(p.getName());
+
+                                if (!selectedProductsForSupplement.contains(pr)) {
+                                    selectedProductsForSupplement.add(pr);
+                                    addProductChip(pr);
+                                }
+                            }
+                        }
+                    },
+                    true
+            );
+        } catch (Exception e) {
+            System.err.println("Error setting up supplement list: " + e.getMessage());
+        }
+
+        try {
+            setupDynamicList(
+                    categories,
+                    supplementCategoriesTextField,
+                    CategoryResponse::getName,
+                    category -> {
+                        if (!selectedCategoriesForSupplement.contains(category)) {
+                            selectedCategoriesForSupplement.add(category);
+                            addCategoryChip(category);
+                        }
+                        supplementCategoriesTextField.clear();
+                    },
+                    false
+            );
+        } catch (Exception e) {
+            System.err.println("Error setting up supplement categories list: " + e.getMessage());
+        }
+
+        try {
+            List<ProductResponse> products = ProductService.getAllProducts();
+            setupDynamicList(
+                    products,
+                    supplementProductsTextField,
+                    ProductResponse::getName,
+                    product -> {
+                        if (!selectedProductsForSupplement.contains(product)) {
+                            selectedProductsForSupplement.add(product);
+                            addProductChip(product);
+                        }
+                        supplementProductsTextField.clear();
+                    },
+                    false
+            );
+        } catch (Exception e) {
+            System.err.println("Error setting up supplement products list: " + e.getMessage());
+        }
+    }
+
     // ---------- SUBMIT HANDLER ----------
     private void handleSubmitButton() {
         if (verifyNotBlank()) return;
@@ -573,6 +674,13 @@ public class DataOperationController {
                     }catch (Exception e){
                         showError("El supplemento ya existe");
                     }
+                }
+            }
+            case EDIT -> {
+                if (selectedItemPopup instanceof SupplementResponse s &&
+                        confirmDataModification(stage, "Confirme la modificación del suplemento")) {
+                    SupplementService.updateSupplement(s.getId(), supplement);
+                    anyModificationDone = true;
                 }
             }
         }
@@ -838,6 +946,20 @@ public class DataOperationController {
         selectedCategoriesPane.getChildren().add(chipRef[0]);
     }
 
+    private void addCategoryChip(CategoryResponseSummary category) {
+        final HBox[] chipRef = new HBox[1];
+
+        chipRef[0] = createChip(
+                category.getName(),
+                () -> {
+                    selectedCategoriesForSupplement.remove(category);
+                    selectedCategoriesPane.getChildren().remove(chipRef[0]);
+                }
+        );
+
+        selectedCategoriesPane.getChildren().add(chipRef[0]);
+    }
+
 
     private void addProductChip(ProductResponse product) {
         final HBox[] chipRef = new HBox[1];
@@ -853,7 +975,19 @@ public class DataOperationController {
         selectedProductsPane.getChildren().add(chipRef[0]);
     }
 
+    private void addProductChip(ProductResponseSummary product) {
+        final HBox[] chipRef = new HBox[1];
 
+        chipRef[0] = createChip(
+                product.getName(),
+                () -> {
+                    selectedProductsForSupplement.remove(product);
+                    selectedProductsPane.getChildren().remove(chipRef[0]);
+                }
+        );
+
+        selectedProductsPane.getChildren().add(chipRef[0]);
+    }
 
     private void addClickHandler(Node node) {
         node.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> node.getStyleClass().remove("blank-element"));

@@ -36,11 +36,6 @@ public class Category {
     @OneToMany(mappedBy = "category")
     private List<Product> products;
 
-    @ManyToMany
-    @JoinTable(
-            name = "categories_supplements",
-            joinColumns = @JoinColumn(name="category_id"),
-            inverseJoinColumns = @JoinColumn(name = "supplement_id")
-    )
+    @ManyToMany(mappedBy = "categories")
     private List<Supplement> supplements = new ArrayList<>();
 }
