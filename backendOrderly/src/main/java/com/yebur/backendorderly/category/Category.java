@@ -1,16 +1,12 @@
 package com.yebur.backendorderly.category;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.yebur.backendorderly.product.Product;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.yebur.backendorderly.supplements.Supplement;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,4 +35,12 @@ public class Category {
 
     @OneToMany(mappedBy = "category")
     private List<Product> products;
+
+    @ManyToMany
+    @JoinTable(
+            name = "categories_supplements",
+            joinColumns = @JoinColumn(name="category_id"),
+            inverseJoinColumns = @JoinColumn(name = "supplement_id")
+    )
+    private List<Supplement> supplements = new ArrayList<>();
 }

@@ -16,6 +16,8 @@ public interface CategoryServiceInterface {
 
     Optional<Category> findById(Long id);
 
+    List<Category> findAllByIds(List<Long> ids);
+
     Optional<CategoryResponse> findCategoryDTOById(Long id);
     
     CategoryResponse createCategory(CategoryRequest category);

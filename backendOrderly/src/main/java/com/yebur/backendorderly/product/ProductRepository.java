@@ -24,6 +24,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Override
     Optional<Product> findById(Long id);
 
+    List<Product> findByIdIn(List<Long> ids);
+
     @Query("SELECT new com.yebur.backendorderly.product.ProductResponse(p.id, p.name, p.price, p.stock, p.category.id, p.destination) FROM Product p WHERE p.id = :id")
     Optional<ProductResponse> findProductDTOById(Long id);
 

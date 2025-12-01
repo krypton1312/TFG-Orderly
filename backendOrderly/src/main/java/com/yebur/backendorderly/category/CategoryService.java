@@ -42,6 +42,10 @@ public class CategoryService implements CategoryServiceInterface {
     }
 
     @Override
+    public List<Category> findAllByIds(List<Long> ids){
+        return categoryRepository.findByIdIn(ids);
+    }
+    @Override
     public CategoryResponse createCategory(CategoryRequest category) {
         Category save = categoryRepository.save(mapToEntity(category));
         return findCategoryDTOById(save.getId()).orElseThrow(() -> new RuntimeException("Category Not Found"));

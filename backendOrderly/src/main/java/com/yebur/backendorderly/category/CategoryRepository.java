@@ -24,6 +24,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long>{
     @Override
     Optional<Category> findById(Long id);
 
+    List<Category> findByIdIn(List<Long> ids);
+
     @Query("SELECT new com.yebur.backendorderly.category.CategoryResponse(c.id, c.name, c.color, c.index) FROM Category c WHERE c.id = :id ORDER BY c.index ASC")
     Optional<CategoryResponse> findCategoryDTOById(Long id);
 } 

@@ -50,6 +50,11 @@ public class ProductService implements ProductServiceInterface {
     }
 
     @Override
+    public List<Product> findByIds(List<Long> ids) {
+        return productRepository.findByIdIn(ids);
+    }
+
+    @Override
     public ProductResponse createProduct(ProductRequest product) {
         Product newProduct = productRepository.save(mapToEntity(product));
         return findProductDTOById(newProduct.getId()).orElseThrow(() -> new RuntimeException("Product not found"));
