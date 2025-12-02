@@ -85,6 +85,9 @@ public class DataOperationController {
     private FilteredList<?> filteredItems;
     private ListView<?> listItemsView;
 
+    private final ObservableList<SupplementResponse> supplementResponses =
+            FXCollections.observableArrayList();
+
     private boolean anyModificationDone = false;
     private boolean isTableInside;
 
@@ -97,6 +100,7 @@ public class DataOperationController {
                     "M3 6 H21 " +
                     "M8 6 V4 A2 2 0 0 1 10 2 H14 A2 2 0 0 1 16 4 V6";
 
+    private boolean isDeleteModeOn = false;
 
     // ---------- INITIALIZATION ----------
     @FXML
@@ -191,7 +195,7 @@ public class DataOperationController {
         switch (selectedAction) {
             case ADD -> showSupplementAddForm();
             case EDIT -> showSupplementEditForm();
-            //case DELETE -> showSupplementDeleteForm();
+            case DELETE -> showSupplementDeleteForm();
         }
     }
 
@@ -430,8 +434,8 @@ public class DataOperationController {
 
     private void showSupplementEditForm() {
         createGridPane();
+        isDeleteModeOn = false;
 
-        // ----- разметка -----
         gridPane.add(findItem, 0, 0, 2, 1);
         findItemLabel.setText("Buscar suplemento:");
 
@@ -447,19 +451,15 @@ public class DataOperationController {
         applyFormStyles(gridPane);
 
         try {
+            loadSupplementResponses();
             setupDynamicList(
-                    SupplementService.getAllSupplements(),
+                    supplementResponses,
                     findItemTextField,
                     SupplementResponse::getName,
                     supplement -> {
                         selectedItemPopup = supplement;
                         nameTextField.setText(supplement.getName());
                         priceTextField.setText(String.valueOf(supplement.getPrice()));
-
-                        selectedCategoriesForSupplement.clear();
-                        selectedCategoriesPane.getChildren().clear();
-                        selectedProductsForSupplement.clear();
-                        selectedProductsPane.getChildren().clear();
 
                         if (supplement.getCategories() != null) {
                             for (CategoryResponseSummary c : supplement.getCategories()) {
@@ -531,6 +531,16 @@ public class DataOperationController {
         }
     }
 
+    private void showSupplementDeleteForm(){
+        showSupplementEditForm();
+        isDeleteModeOn = true;
+        nameTextField.setEditable(false);
+        priceTextField.setEditable(false);
+        supplementCategoriesTextField.setEditable(false);
+        supplementProductsTextField.setEditable(false);
+        submitButton.setText("Eliminar supplemento");
+
+    }
     // ---------- SUBMIT HANDLER ----------
     private void handleSubmitButton() {
         if (verifyNotBlank()) return;
@@ -666,10 +676,11 @@ public class DataOperationController {
         anyModificationDone = false;
         switch (selectedAction) {
             case ADD -> {
+
                 if(confirmDataModification(stage, "Confirme creacion del nuevo suplemento")){
                     try{
                         System.out.println(supplement);
-                        SupplementService.createSupplement(supplement);
+                        System.out.println(SupplementService.createSupplement(supplement));
                         anyModificationDone = true;
                     }catch (Exception e){
                         showError("El supplemento ya existe");
@@ -683,7 +694,15 @@ public class DataOperationController {
                     anyModificationDone = true;
                 }
             }
+            case DELETE -> {
+                if (selectedItemPopup instanceof SupplementResponse s && confirmDataModification(stage, "Confirme la modificacion del suplemento")) {
+                    SupplementService.deleteSupplement(s.getId());
+                    anyModificationDone = true;
+                }
+            }
         }
+
+        refreshEntityList();
     }
 
     // ---------- HELPERS ----------
@@ -735,6 +754,10 @@ public class DataOperationController {
             else if (node instanceof Button button) button.getStyleClass().remove("table-buttons-pressed");
             else if (node instanceof Pane pane) clearFormFields(pane);
         }
+        selectedCategoriesForSupplement.clear();
+        selectedProductsForSupplement.clear();
+        selectedCategoriesPane.getChildren().clear();
+        selectedProductsPane.getChildren().clear();
     }
 
     private boolean verifyNotBlank() {
@@ -911,6 +934,9 @@ public class DataOperationController {
         removeBtn.setPrefSize(16, 16);
         removeBtn.setMaxSize(16, 16);
         removeBtn.setPadding(Insets.EMPTY);
+        if(isDeleteModeOn){
+            removeBtn.setDisable(true);
+        }
 
         SVGPath icon = new SVGPath();
         icon.setContent(TRASH_SVG);
@@ -1134,6 +1160,106 @@ public class DataOperationController {
         this.listItemsView = listView;
     }
 
+    private <T> void setupDynamicList(
+            ObservableList<T> obsList,
+            TextField textField,
+            java.util.function.Function<T, String> displayTextExtractor,
+            java.util.function.Consumer<T> onItemSelected,
+            boolean suppressPopup
+    ) {
+        FilteredList<T> filteredList = new FilteredList<>(obsList, s -> true);
+        ListView<T> listView = new ListView<>(filteredList);
+        listView.setPrefHeight(150);
+        listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        textField.widthProperty().addListener((obs, o, n) -> listView.setPrefWidth(n.doubleValue()));
+
+        listView.setStyle("""
+        -fx-background-color: white;
+        -fx-border-color: #ccc;
+        -fx-border-radius: 6;
+        -fx-background-radius: 6;
+        -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 2);
+    """);
+
+        listView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(T item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : displayTextExtractor.apply(item));
+            }
+        });
+
+        Popup popup = new Popup();
+        popup.setAutoHide(true);
+        popup.setAutoFix(true);
+        popup.getContent().add(listView);
+
+        final boolean[] suppressFilter = {false};
+
+        Runnable showPopup = () -> Platform.runLater(() -> {
+            if (textField.getScene() == null) return;
+            Bounds b = textField.localToScreen(textField.getBoundsInLocal());
+            if (b == null) return;
+            listView.setPrefWidth(textField.getWidth());
+            if (popup.isShowing()) popup.hide();
+            popup.show(textField.getScene().getWindow(), b.getMinX(), b.getMaxY() + 2);
+        });
+
+        textField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (suppressFilter[0]) return;
+            if (suppressPopup && !popup.isShowing()) return;
+
+            if (newVal == null || newVal.isEmpty()) {
+                filteredList.setPredicate(i -> true);
+            } else {
+                filteredList.setPredicate(i -> {
+                    String text = displayTextExtractor.apply(i);
+                    return text != null && text.toLowerCase().contains(newVal.toLowerCase());
+                });
+            }
+
+            listView.getSelectionModel().clearSelection();
+            if (!filteredList.isEmpty()) showPopup.run();
+            else popup.hide();
+        });
+
+        listView.getSelectionModel().selectedItemProperty().addListener((o, oldSel, newSel) -> {
+            if (newSel == null) return;
+            suppressFilter[0] = true;
+
+            String text = displayTextExtractor.apply(newSel);
+            if (text != null) textField.setText(text);
+            submitButton.requestFocus();
+
+            Platform.runLater(() -> {
+                if (popup.isShowing()) popup.hide();
+                onItemSelected.accept(newSel);
+                listView.getSelectionModel().clearSelection();
+
+                PauseTransition d = new PauseTransition(Duration.millis(150));
+                d.setOnFinished(e -> suppressFilter[0] = false);
+                d.play();
+            });
+        });
+
+        textField.focusedProperty().addListener((o, oldV, newV) -> {
+            if (newV) {
+                if (textField.getText() == null || textField.getText().isEmpty()) {
+                    filteredList.setPredicate(i -> true);
+                    if (!filteredList.isEmpty()) showPopup.run();
+                }
+            } else {
+                popup.hide();
+            }
+        });
+
+        this.items = obsList;
+        this.filteredItems = filteredList;
+        this.listItemsView = listView;
+    }
+
+
     // ---------- REFRESH ENTITY LIST ----------
     private void refreshEntityList() {
         Platform.runLater(() -> {
@@ -1204,6 +1330,11 @@ public class DataOperationController {
                             );
                         }
                     }
+                    case SUPPLEMENT ->  {
+                        if (selectedAction == ActionType.EDIT || selectedAction == ActionType.DELETE) {
+                            loadSupplementResponses();
+                        }
+                    }
                 }
             } catch (Exception e) {
                 System.err.println(e.getMessage());
@@ -1230,4 +1361,7 @@ public class DataOperationController {
         );
     }
 
+    private void loadSupplementResponses() throws Exception {
+        supplementResponses.setAll(SupplementService.getAllSupplements());
+    }
 }

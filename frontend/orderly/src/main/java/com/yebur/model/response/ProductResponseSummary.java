@@ -27,4 +27,12 @@ public class ProductResponseSummary {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "ProductResponseSummary{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

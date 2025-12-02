@@ -64,4 +64,15 @@ public class SupplementResponse {
     public void setProducts(List<ProductResponseSummary> products) {
         this.products = products;
     }
+
+    @Override
+    public String toString() {
+        return "SupplementResponse{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", categories=" + categories +
+                ", products=" + products +
+                '}';
+    }
 }

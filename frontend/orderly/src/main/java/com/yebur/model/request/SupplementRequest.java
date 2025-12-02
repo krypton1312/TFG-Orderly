@@ -5,10 +5,10 @@ import java.util.List;
 public class SupplementRequest {
     private String name;
     private BigDecimal price;
-    private List<Long> products_ids;
     private List<Long> categories_ids;
+    private List<Long> products_ids;
 
-    public SupplementRequest(String name, BigDecimal price, List<Long> products_ids, List<Long> categories_ids) {
+    public SupplementRequest(String name, BigDecimal price, List<Long> categories_ids,List<Long> products_ids) {
         this.name = name;
         this.price = price;
         this.categories_ids = categories_ids;

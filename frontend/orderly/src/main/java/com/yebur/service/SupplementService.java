@@ -12,6 +12,7 @@ public class SupplementService {
 
     public static List<SupplementResponse> getAllSupplements() throws Exception {
         String json = ApiClient.get("/supplements");
+        System.out.println("getAllSupplements: " + json);
         return mapper.readValue(json, new TypeReference<List<SupplementResponse>>() {});
     }
 
