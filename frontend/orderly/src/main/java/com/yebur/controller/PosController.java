@@ -1011,11 +1011,11 @@ public class PosController {
     }
 
     public List<OrderDetailResponse> getCurrentdetails() {
-        return currentdetails;
+        return currentdetails.isEmpty() ? visualDetails : currentdetails;
     }
 
     public OrderResponse getCurrentOrder() {
-        return currentOrder;
+        return hasActiveOrder() ? currentOrder : null;
     }
 
     public RestTableResponse getSelectedTable() {

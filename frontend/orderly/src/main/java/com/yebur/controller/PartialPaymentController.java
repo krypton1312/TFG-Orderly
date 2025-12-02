@@ -1,10 +1,12 @@
 package com.yebur.controller;
 
 import com.yebur.model.request.OrderDetailRequest;
+import com.yebur.model.request.OrderRequest;
 import com.yebur.model.response.OrderDetailResponse;
 import com.yebur.model.response.OrderResponse;
 import com.yebur.model.response.RestTableResponse;
 import com.yebur.service.OrderDetailService;
+import com.yebur.service.OrderService;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -104,11 +106,14 @@ public class PartialPaymentController {
 
     public void loadData() {
         this.order = primaryController.getCurrentOrder();
-        this.orderDetails = new ArrayList<>(primaryController.getCurrentdetails());
+        this.orderDetails = primaryController.getCurrentdetails();
         this.partialDetails = new ArrayList<>();
         this.partialDetailsNew = new ArrayList<>();
         this.table = primaryController.getSelectedTable();
-        tableNameLabel.setText((this.table != null ? table.getName() + " - " : "") + "Cuenta #" + order.getId());
+        tableNameLabel.setText(
+                order != null ?
+                        (this.table != null ? table.getName() + " - " : "") + "Cuenta #" + order.getId()
+                        : " " );
         refreshUI();
     }
 
@@ -293,6 +298,32 @@ public class PartialPaymentController {
                     .setScale(2, RoundingMode.HALF_UP);
         } catch (NumberFormatException e) {
             input = BigDecimal.ZERO;
+        }
+
+        if(input.compareTo(total_check) < 0 && selectedPaymentMethod.equals("cash")) {
+            showError("Importe no puede ser menor que la cuenta.");
+            return;
+        }
+
+        if(order == null){
+            try{
+                OrderResponse order = OrderService.createOrder(new OrderRequest("PAID", null));
+                for(OrderDetailResponse item : partialDetails) {
+                    OrderDetailRequest newRequest = new OrderDetailRequest();
+                    newRequest.setProductId(item.getProductId());
+                    newRequest.setOrderId(order.getId());
+                    newRequest.setComment(item.getComment());
+                    newRequest.setAmount(item.getAmount());
+                    newRequest.setUnitPrice(item.getUnitPrice());
+                    newRequest.setStatus("PAID");
+                    newRequest.setBatchId(null);
+                    newRequest.setPaymentMethod(selectedPaymentMethod);
+                    partialDetailsNew.add(newRequest);
+                }
+                OrderDetailService.createOrderDetailList(partialDetailsNew);
+            }catch(Exception e){
+                System.out.println(e.getMessage());
+            }
         }
 
         persistPartialDetails();
