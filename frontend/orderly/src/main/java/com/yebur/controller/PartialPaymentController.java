@@ -234,8 +234,8 @@ public class PartialPaymentController {
                     item.getComment(),
                     amountToMove,
                     item.getUnitPrice(),
-                    "PAID",
-                    selectedPaymentMethod,
+                    item.getStatus(),
+                    item.getPaymentMethod(),
                     item.getBatchId());
             partialDetailsNew.add(newRequest);
         }
