@@ -47,19 +47,15 @@ public class DataController {
         Object source = mouseEvent.getSource();
 
         if (source == productVBox) {
-            System.out.println("Нажали на Productos");
             loadCenterContent("/com/yebur/portal/views/dataOperation.fxml", "product");
         }
         else if (source == categoryVBox) {
-            System.out.println("Нажали на Categorías");
             loadCenterContent("/com/yebur/portal/views/dataOperation.fxml", "category");
         }
         else if (source == suplementVBox) {
-            System.out.println("Нажали на Suplementos");
             loadCenterContent("/com/yebur/portal/views/dataOperation.fxml", "supplement");
         }
         else if (source == tableVBox) {
-            System.out.println("Нажали на Mesas");
             loadCenterContent("/com/yebur/portal/views/dataOperation.fxml", "table");
         }
     }
