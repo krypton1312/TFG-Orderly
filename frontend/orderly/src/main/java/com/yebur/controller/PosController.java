@@ -27,6 +27,7 @@ import java.math.RoundingMode;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PosController {
 
@@ -37,6 +38,8 @@ public class PosController {
 
     private List<CategoryResponse> allCategories;
     private List<ProductResponse> allProducts;
+    private List<SupplementResponse> allSupplements;
+    private ProductsWithSupplements allProductsWithSupplements;
     private List<CategoryResponse> categories;
     private List<ProductResponse> productsByCategory;
     private List<TableWithOrderResponse> overview;
@@ -192,21 +195,43 @@ public class PosController {
         isOverviewMode = false;
 
         try {
-            this.allProducts = ProductService.getProductsByCategory(selectedCategoryId);
+            this.allProductsWithSupplements = OverviewService.getProductsWithSupplements(selectedCategoryId);
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
 
-        if (allProducts == null || allProducts.isEmpty()) {
+        // безопасно достаём списки из DTO
+        List<ProductResponse> products =
+                allProductsWithSupplements != null && allProductsWithSupplements.getProducts() != null
+                        ? allProductsWithSupplements.getProducts()
+                        : Collections.emptyList();
+
+        List<SupplementResponse> supplements =
+                allProductsWithSupplements != null && allProductsWithSupplements.getSupplements() != null
+                        ? allProductsWithSupplements.getSupplements()
+                        : Collections.emptyList();
+
+        // если очень хочется, можно сохранить products в поле, чтобы не ломать остальной код
+        this.allProducts = products;
+        this.allSupplements = supplements;
+
+        // единый список для пагинации: сначала продукты, потом suplementos
+        List<Object> allItems = new ArrayList<>();
+        allItems.addAll(products);
+        allItems.addAll(supplements);
+
+        if (allItems.isEmpty()) {
             return;
         }
 
         final int S = Math.max(1, slots);
-        final int N = allProducts.size();
+        final int N = allItems.size();
 
         int start = 0;
         int remaining = N;
+
+        // логика страниц как у тебя было
         for (int p = 0; p < currentProductPage && remaining > 0; p++) {
             int capPrev;
             if (p == 0) {
@@ -242,7 +267,7 @@ public class PosController {
         }
 
         int end = Math.min(start + capacity, N);
-        this.productsByCategory = allProducts.subList(start, end);
+        List<Object> pageItems = allItems.subList(start, end);
 
         if (hasPrev) {
             Button prevBtn = new Button("←");
@@ -254,18 +279,25 @@ public class PosController {
             productBox.getChildren().add(prevBtn);
         }
 
-        for (ProductResponse product : this.productsByCategory) {
-            Button btn = new Button(product.getName());
+        for (Object obj : pageItems) {
+            Button btn = new Button();
             btn.getStyleClass().add("product-btn");
             btn.setStyle("-fx-background-color: " + (color != null ? color : "#f9fafb"));
-            btn.setOnAction(e -> onProductClick(product));
-            productBox.getChildren().add(btn);
-        }
-        if (hasNext) {
-            if (!productBox.getChildren().isEmpty()) {
-                productBox.getChildren().remove(productBox.getChildren().size() - 1);
-            }
+            if (obj instanceof ProductResponse) {
+                ProductResponse product = (ProductResponse) obj;
+                btn.setText(product.getName());
+                btn.setOnAction(e -> onProductClick(product));
+                productBox.getChildren().add(btn);
 
+            } else if (obj instanceof SupplementResponse) {
+                SupplementResponse supplement = (SupplementResponse) obj;
+                btn.setText(supplement.getName());
+                btn.setOnAction(e -> onSupplementClick(supplement));
+                productBox.getChildren().add(btn);
+            }
+        }
+
+        if (hasNext) {
             Button nextBtn = new Button("→");
             nextBtn.getStyleClass().add("product-btn");
             nextBtn.setOnAction(e -> {
@@ -275,6 +307,7 @@ public class PosController {
             productBox.getChildren().add(nextBtn);
         }
     }
+
 
     @FXML
     private void handleChecksClick() {
@@ -514,6 +547,98 @@ public class PosController {
         }
     }
 
+    private void onSupplementClick(SupplementResponse supplement) {
+        if (visualDetails.isEmpty() && currentdetails.isEmpty()) {
+            return;
+        }
+
+        if (currentOrder == null) {
+            List<OrderDetailResponse> selectedDetails =
+                    getSelectedDetails(visualDetails, selectedOrderDetailIndexes);
+
+            if (!selectedDetails.isEmpty()) {
+                boolean anyApplied = false;
+
+                for (OrderDetailResponse visualDetail : selectedDetails) {
+                    String name = visualDetail.getProductName();
+                    boolean alreadyHasThisSupplement = name != null && name.contains(supplement.getName());
+
+                    boolean matchesProduct =
+                            supplement.getProducts() != null &&
+                                    supplement.getProducts().stream()
+                                            .anyMatch(p -> Objects.equals(p.getId(), visualDetail.getProductId()));
+
+                    if (!alreadyHasThisSupplement && matchesProduct) {
+                        applySupplementToVisualDetail(visualDetail, supplement);
+                        anyApplied = true;
+                    }
+                }
+
+                if (anyApplied) {
+                    groupSameVisualElements(visualDetails);
+                    renderDetails(visualDetails, null);
+                } else {
+                    System.out.println("No selected details suitable for this supplement");
+                }
+
+                return;
+            }
+
+            OrderDetailResponse odr = null;
+
+            for (OrderDetailResponse visualDetail : visualDetails.reversed()) {
+                String name = visualDetail.getProductName();
+                boolean alreadyHasThisSupplement = name != null && name.contains(supplement.getName());
+
+                boolean matchesProduct =
+                        supplement.getProducts() != null &&
+                                supplement.getProducts().stream()
+                                        .anyMatch(p -> Objects.equals(p.getId(), visualDetail.getProductId()));
+
+                if (!alreadyHasThisSupplement && matchesProduct) {
+                    odr = visualDetail;
+                    System.out.println("FOUND (fallback): " + odr);
+                    break;
+                }
+            }
+
+            if (odr == null) {
+                System.out.println("odr is null (no suitable item found)");
+                return;
+            }
+
+            applySupplementToVisualDetail(odr, supplement);
+            groupSameVisualElements(visualDetails);
+            renderDetails(visualDetails, null);
+        }
+    }
+
+    private void applySupplementToVisualDetail(OrderDetailResponse odr, SupplementResponse supplement) {
+        if (odr.getAmount() > 1) {
+            OrderDetailResponse newOdr = new OrderDetailResponse(
+                    odr.getId(),
+                    odr.getProductId(),
+                    odr.getProductName() + " " + supplement.getName(),
+                    odr.getOrderId(),
+                    odr.getComment(),
+                    1,
+                    odr.getUnitPrice().add(supplement.getPrice()),
+                    odr.getStatus(),
+                    odr.getPaymentMethod(),
+                    odr.getCreatedAt(),
+                    odr.getDestination(),
+                    odr.getBatchId()
+            );
+
+            odr.setAmount(odr.getAmount() - 1);
+            visualDetails.add(newOdr);
+        } else {
+            odr.setProductName(odr.getProductName() + " " + supplement.getName());
+            odr.setUnitPrice(odr.getUnitPrice().add(supplement.getPrice()));
+        }
+    }
+
+
     private void openOrder(OrderResponse order) {
         if (order == null)
             return;
@@ -614,10 +739,28 @@ public class PosController {
         orderTotalValue.setText(currencyFormatter.format(total));
     }
 
+    private void groupSameVisualElements(List<OrderDetailResponse> details) {
+        Map<String, OrderDetailResponse> grouped = new LinkedHashMap<>();
+
+        for (OrderDetailResponse d : details) {
+            String key = d.getProductId() + "|" + (d.getProductName() != null ? d.getProductName() : "");
+
+            if (grouped.containsKey(key)) {
+                OrderDetailResponse existing = grouped.get(key);
+                existing.setAmount(existing.getAmount() + d.getAmount());
+            } else {
+                grouped.put(key, d);
+            }
+        }
+
+        details.clear();
+        details.addAll(grouped.values());
+    }
 
     private void upsertVisualDetail(ProductResponse product, int delta) {
         OrderDetailResponse exist = visualDetails.stream()
                 .filter(d -> Objects.equals(d.getProductId(), product.getId()))
+                .filter(d -> Objects.equals(d.getProductName(), product.getName()))
                 .findFirst().orElse(null);
 
         if (exist == null && delta > 0) {
@@ -709,23 +852,36 @@ public class PosController {
         }
     }
 
+    private List<OrderDetailResponse> getSelectedDetails(List<OrderDetailResponse> details, List<Integer> selectedIndexes) {
+        if (details == null || details.isEmpty() || selectedIndexes == null || selectedIndexes.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Integer> sorted = new ArrayList<>(selectedIndexes);
+        sorted.sort((a, b) -> b - a);
+
+        List<OrderDetailResponse> selected = new ArrayList<>();
+
+        for (Integer index : sorted) {
+            if (index >= 0 && index < details.size()) {
+                selected.add(details.get(index));
+            }
+        }
+
+        return selected;
+    }
+
     private void removeSelectedDetails() {
-        if (selectedOrderDetailIndexes == null || selectedOrderDetailIndexes.isEmpty()) {
+        List<OrderDetailResponse> selected = getSelectedDetails(currentdetails, selectedOrderDetailIndexes);
+
+        if (selected.isEmpty()) {
             return;
         }
 
-        selectedOrderDetailIndexes.sort((a, b) -> b - a);
-
-        for (Integer index : selectedOrderDetailIndexes) {
-            if (index < 0 || index >= currentdetails.size()) {
-                continue;
-            }
-
-            OrderDetailResponse detailToRemove = currentdetails.get(index);
-            currentdetails.remove(detailToRemove);
+        for (OrderDetailResponse detail : selected) {
+            currentdetails.remove(detail);
 
             try {
-                OrderDetailService.deleteOrderDetail(detailToRemove.getId());
+                OrderDetailService.deleteOrderDetail(detail.getId());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -734,11 +890,12 @@ public class PosController {
         selectedOrderDetailIndexes.clear();
 
         for (Node node : orderVboxItems.getChildren()) {
-            node.getStyleClass().remove("selected-row");
+            node.getStyleClass().remove("selected-row-order-item");
         }
 
         renderDetails(currentdetails, null);
     }
+
 
     @FXML
     private void handleNewOrderClick() {

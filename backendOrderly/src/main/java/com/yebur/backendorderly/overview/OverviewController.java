@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +26,11 @@ public class OverviewController {
     @GetMapping("/tablet")
     public ResponseEntity<List<OrderWithOrderDetailResponse>> getOverviewTablet() {
         return ResponseEntity.ok(overviewService.getOrderWithOrderDetails());
+    }
+
+    @GetMapping("/products-with-supplements-by-category/id/{id}")
+    public ResponseEntity<ProductsWithSupplements> getOverviewProducts(@PathVariable Long id) {
+        return ResponseEntity.ok(overviewService.findProductsWithSupplementsByCategory(id));
     }
     
 }

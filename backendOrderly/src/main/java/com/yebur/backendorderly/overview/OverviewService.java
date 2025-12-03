@@ -12,6 +12,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.yebur.backendorderly.category.CategoryRequest;
+import com.yebur.backendorderly.product.ProductResponse;
+import com.yebur.backendorderly.product.ProductService;
+import com.yebur.backendorderly.supplements.SupplementResponse;
+import com.yebur.backendorderly.supplements.SupplementService;
 import org.springframework.stereotype.Service;
 
 import com.yebur.backendorderly.order.OrderResponse;
@@ -27,12 +32,13 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class OverviewService {
+    private final RestTableService restTableService;
+    private final OrderService orderService;
+    private final OrderDetailService orderDetailService;
+    private final ProductService productService;
+    private final SupplementService supplementService;
 
-        private final RestTableService restTableService;
-        private final OrderService orderService;
-        private final OrderDetailService orderDetailService;
-
-        public List<TableWithOrderResponse> getOverview() {
+    public List<TableWithOrderResponse> getOverview() {
                 List<RestTableResponse> tables = restTableService.findAllRestTableDTO();
                 List<OrderResponse> orders = orderService.findAllOrderDTOByStatus(OrderStatus.OPEN);
 
@@ -130,6 +136,13 @@ public class OverviewService {
                 overview.sort(Comparator.comparing(OrderWithOrderDetailResponse::getDatetime));
 
                 return overview;
+        }
+
+        public ProductsWithSupplements findProductsWithSupplementsByCategory(Long idCategory) {
+            List<ProductResponse> products = productService.findProductDTOByCategoryId(idCategory);
+            List<SupplementResponse> supplements = supplementService.findSupplementsByCategory(idCategory);
+
+            return new ProductsWithSupplements(products, supplements);
         }
 
 }
