@@ -248,6 +248,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 entity.setUnitPrice(entity.getUnitPrice().add(supplement.getPrice()));
 
                 orderDetailRepository.save(entity);
+                mergeSimilarDetails(entity, entity.getStatus());
                 recalculateOrderTotal(entity.getOrder());
                 checkAndUpdateOrderStatus(entity.getOrder().getId());
                 notifyDetailChanged(WsEventType.ORDER_DETAIL_UPDATED, entity);

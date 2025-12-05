@@ -78,6 +78,11 @@ public class OrderDetailService {
         ApiClient.post("/orderDetails/apply-supplement-last-detail/"+ orderId + "/supplement/" + supplementId);
     }
 
+    public static void applySupplementToDetail(Long supplementId, List<OrderDetailResponse> orderDetails) throws Exception {
+        String  jsonInput = mapper.writeValueAsString(orderDetails);
+        ApiClient.post("/orderDetails/apply-supplement-to-details/" + supplementId, jsonInput);
+    }
+
     public static void changeOrderDetailStatus(List<Long> ids, String status) throws Exception {
         String jsonInput = mapper.writeValueAsString(ids);
 

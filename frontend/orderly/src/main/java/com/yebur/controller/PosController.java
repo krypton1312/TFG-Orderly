@@ -616,12 +616,21 @@ public class PosController {
             groupSameVisualElements(visualDetails);
             renderDetails(visualDetails, null);
         }else{
-            try {
-                OrderDetailService.applySupplementLastDetail(currentOrder.getId(),supplement.getId());
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
+            if(selectedOrderDetailIndexes.isEmpty()) {
+                try {
+                    OrderDetailService.applySupplementLastDetail(currentOrder.getId(),supplement.getId());
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+            }else{
+                try{
+                    OrderDetailService.applySupplementToDetail(supplement.getId(), getSelectedDetails(currentdetails, selectedOrderDetailIndexes));
+                }catch(Exception e){
+                    System.out.println(e.getMessage());
+                }
             }
-            openOrder(currentOrder);
+            updateCurrentDetails();
+            renderDetails(currentdetails, null);
         }
     }
 
@@ -1195,5 +1204,13 @@ public class PosController {
 
     public List<OrderDetailResponse> getVisualDetails() {
         return visualDetails;
+    }
+
+    public void updateCurrentDetails() {
+        try{
+            currentdetails = OrderDetailService.getUnpaidOrderDetailsByOrderId(currentOrder.getId());
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
     }
 }
