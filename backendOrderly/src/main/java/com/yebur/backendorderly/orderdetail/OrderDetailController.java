@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.yebur.backendorderly.supplements.SupplementResponse;
+import com.yebur.backendorderly.supplements.SupplementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -29,6 +31,8 @@ public class OrderDetailController {
     private ObjectMapper mapper;
     
     private final OrderDetailService orderDetailService;
+    @Autowired
+    private SupplementService supplementService;
 
     public OrderDetailController(OrderDetailService orderDetailService) {
         this.orderDetailService = orderDetailService;
@@ -129,6 +133,27 @@ public class OrderDetailController {
         }
     }
 
+    @PostMapping("/apply-supplement-last-detail/{orderId}/supplement/{supplementId}")
+    public ResponseEntity<?> applySupplementLastDetail(@PathVariable Long orderId, @PathVariable Long supplementId) {
+        boolean isApplied = orderDetailService.applySupplementToLastSuitableDetail(orderId, supplementId);
+        if (isApplied) {
+            return ResponseEntity.ok().build();
+        }else{
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/apply-supplement-to-details/{supplementId}")
+    public ResponseEntity<?> applySupplementToDetail(@PathVariable Long supplementId, @RequestBody List<OrderDetailResponse> orderDetailResponseList) {
+        SupplementResponse supplementResponse = supplementService.findSupplementDTOById(supplementId).orElseThrow(() -> new RuntimeException("supplementId: " + supplementId));
+        try{
+            orderDetailService.applySupplementToOrderDetail(orderDetailResponseList, supplementResponse);
+            return ResponseEntity.ok().build();
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PutMapping("change-status/{status}")
     public void updateStatus(@RequestBody List<Long> ids, @PathVariable String status) {
         orderDetailService.updateOrderDetailStatus(ids, status);
@@ -143,6 +168,7 @@ public class OrderDetailController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
+
 
     private ResponseEntity<?> validation(BindingResult result) {
         Map<String, String> errors = new HashMap<>();

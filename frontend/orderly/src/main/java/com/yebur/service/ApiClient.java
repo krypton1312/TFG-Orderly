@@ -37,6 +37,15 @@ public class ApiClient {
         return readResponse(conn);
     }
 
+    public static String post(String endpoint) throws IOException, ApiException {
+        URL url = URI.create(BASE_URL + endpoint).toURL();
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(false);
+        return readResponse(conn);
+    }
+
     public static String put(String endpoint, String jsonInput) throws IOException, ApiException {
         URL url = URI.create(BASE_URL + endpoint).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();

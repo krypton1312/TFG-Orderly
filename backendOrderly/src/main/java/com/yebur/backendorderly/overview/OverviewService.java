@@ -121,7 +121,7 @@ public class OverviewService {
                                 List<OrderDetailSummary> ods = entry.getValue().stream()
                                                 .map(detail -> new OrderDetailSummary(
                                                                 detail.getId(),
-                                                                detail.getProductName(),
+                                                                detail.getName(),
                                                                 detail.getComment(),
                                                                 detail.getAmount(),
                                                                 detail.getStatus(),

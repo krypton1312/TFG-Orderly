@@ -3,13 +3,12 @@ package com.yebur.backendorderly.orderdetail;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.yebur.backendorderly.supplements.Supplement;
+import com.yebur.backendorderly.supplements.SupplementResponse;
+import com.yebur.backendorderly.supplements.SupplementService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +33,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
     private final OrderService orderService;
     private final OrderRepository orderRepository;
     private final WsNotifier wsNotifier;
+    private final SupplementService supplementService;
 
     public OrderDetailService(
             OrderDetailRepository orderDetailRepository,
@@ -41,13 +41,15 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             OrderService orderService,
             OrderRepository orderRepository,
             OrdersTabletWebSocketHandler ordersTabletHandler,
-            WsNotifier wsNotifier) {
+            WsNotifier wsNotifier,
+            SupplementService supplementService) {
         this.orderDetailRepository = orderDetailRepository;
         this.productService = productService;
         this.orderService = orderService;
         this.orderRepository = orderRepository;
         this.ordersTabletHandler = ordersTabletHandler;
         this.wsNotifier = wsNotifier;
+        this.supplementService = supplementService;
     }
 
     @Override
@@ -132,7 +134,12 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         List<OrderDetail> entities = new ArrayList<>();
         for (OrderDetailRequest dto : dtos) {
             OrderDetail entity = mapToEntity(dto);
-            entity.setCreatedAt(LocalDateTime.now());
+            if(dto.getCreatedAt() == null){
+                entity.setCreatedAt(LocalDateTime.now());
+            } else {
+                entity.setCreatedAt(dto.getCreatedAt());
+            }
+
             entities.add(entity);
         }
 
@@ -160,6 +167,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         existing.setStatus(OrderDetailStatus.valueOf(dto.getStatus().toUpperCase()));
         existing.setCreatedAt(LocalDateTime.now());
         existing.setPaymentMethod(dto.getPaymentMethod());
+        existing.setName(dto.getName());
 
         Product product = productService.findById(dto.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found with id " + dto.getProductId()));
@@ -179,6 +187,75 @@ public class OrderDetailService implements OrderDetailServiceInterface {
 
         return mapToResponse(saved);
     }
+
+    @Transactional
+    public boolean applySupplementToLastSuitableDetail(Long orderId, Long supplementId) {
+        List<OrderDetailResponse> details = findAllOrderDetailDTOByOrderId(orderId);
+        details.sort(Comparator.comparing(OrderDetailResponse::getCreatedAt).reversed());
+
+        SupplementResponse supplement = supplementService.findSupplementDTOById(supplementId)
+                .orElseThrow(() -> new RuntimeException("Supplement not found with id " + supplementId));
+
+        for (OrderDetailResponse d : details) {
+            if (d.getStatus().equals("PAID")) {
+                continue;
+            }
+
+            boolean alreadyHasThisSupplement = d.getName() != null &&
+                    d.getName().contains(supplement.getName());
+
+            boolean matchesProduct =
+                    supplement.getProducts() == null || supplement.getProducts().isEmpty() ||
+                            supplement.getProducts().stream()
+                                    .anyMatch(p -> Objects.equals(p.getId(), d.getProductId()));
+
+            if (!alreadyHasThisSupplement && matchesProduct) {
+                applySupplementToOrderDetail(List.of(d), supplement);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    @Transactional
+    public void applySupplementToOrderDetail(List<OrderDetailResponse> orderDetailList,
+                                             SupplementResponse supplement) {
+        for (OrderDetailResponse dto : orderDetailList) {
+            OrderDetail entity = findById(dto.getId())
+                    .orElseThrow(() -> new RuntimeException("OrderDetail not found with id " + dto.getId()));
+
+            if (entity.getAmount() > 1) {
+                entity.setAmount(entity.getAmount() - 1);
+                orderDetailRepository.save(entity);
+
+                OrderDetailRequest newDetailReq = new OrderDetailRequest(
+                        entity.getProduct().getId(),
+                        entity.getOrder().getId(),
+                        (entity.getName() != null ? entity.getName() + " " : "") + supplement.getName(),
+                        entity.getComment(),
+                        1,
+                        entity.getUnitPrice().add(supplement.getPrice()),
+                        entity.getStatus().name(),
+                        entity.getPaymentMethod(),
+                        entity.getBatchId()
+                );
+
+                createOrderDetail(newDetailReq);
+            } else {
+                String baseName = entity.getName() != null ? entity.getName() + " " : "";
+                entity.setName(baseName + supplement.getName());
+                entity.setUnitPrice(entity.getUnitPrice().add(supplement.getPrice()));
+
+                orderDetailRepository.save(entity);
+                recalculateOrderTotal(entity.getOrder());
+                checkAndUpdateOrderStatus(entity.getOrder().getId());
+                notifyDetailChanged(WsEventType.ORDER_DETAIL_UPDATED, entity);
+                notifyOrderTotalChanged(entity.getOrder());
+            }
+        }
+    }
+
 
     @Transactional
     public List<OrderDetailResponse> updateOrderDetailList(List<Long> ids, List<OrderDetailRequest> dtos) {
@@ -203,6 +280,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             existing.setStatus(OrderDetailStatus.valueOf(dto.getStatus().toUpperCase()));
             existing.setCreatedAt(LocalDateTime.now());
             existing.setPaymentMethod(dto.getPaymentMethod());
+            existing.setName(dto.getName());
 
             Product product = productService.findById(dto.getProductId())
                     .orElseThrow(() -> new RuntimeException("Product not found with id " + dto.getProductId()));
@@ -358,6 +436,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         detail.setStatus(OrderDetailStatus.valueOf(dto.getStatus().toUpperCase()));
         detail.setPaymentMethod(dto.getPaymentMethod());
         detail.setBatchId(dto.getBatchId());
+        detail.setName(dto.getName());
         return detail;
     }
 
@@ -365,7 +444,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         return new OrderDetailResponse(
                 entity.getId(),
                 entity.getProduct().getId(),
-                entity.getProduct().getName(),
+                entity.getName(),
                 entity.getOrder().getId(),
                 entity.getComment(),
                 entity.getAmount(),

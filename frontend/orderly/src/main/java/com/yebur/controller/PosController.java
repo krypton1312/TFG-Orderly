@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.text.NumberFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -521,14 +522,16 @@ public class PosController {
             } else {
                 OrderDetailResponse newVisual = new OrderDetailResponse();
                 newVisual.setProductId(product.getId());
-                newVisual.setProductName(product.getName());
+                newVisual.setName(product.getName());
                 newVisual.setAmount(1);
                 newVisual.setUnitPrice(product.getPrice());
                 newVisual.setBatchId(currentBatchId);
+                newVisual.setCreatedAt(LocalDateTime.now());
                 currentdetails.add(newVisual);
             }
 
             OrderDetailRequest createReq = new OrderDetailRequest();
+            createReq.setName(product.getName());
             createReq.setOrderId(currentOrder.getId());
             createReq.setProductId(product.getId());
             createReq.setAmount(1);
@@ -552,6 +555,8 @@ public class PosController {
             return;
         }
 
+
+
         if (currentOrder == null) {
             List<OrderDetailResponse> selectedDetails =
                     getSelectedDetails(visualDetails, selectedOrderDetailIndexes);
@@ -560,7 +565,7 @@ public class PosController {
                 boolean anyApplied = false;
 
                 for (OrderDetailResponse visualDetail : selectedDetails) {
-                    String name = visualDetail.getProductName();
+                    String name = visualDetail.getName();
                     boolean alreadyHasThisSupplement = name != null && name.contains(supplement.getName());
 
                     boolean matchesProduct =
@@ -587,7 +592,7 @@ public class PosController {
             OrderDetailResponse odr = null;
 
             for (OrderDetailResponse visualDetail : visualDetails.reversed()) {
-                String name = visualDetail.getProductName();
+                String name = visualDetail.getName();
                 boolean alreadyHasThisSupplement = name != null && name.contains(supplement.getName());
 
                 boolean matchesProduct =
@@ -610,6 +615,13 @@ public class PosController {
             applySupplementToVisualDetail(odr, supplement);
             groupSameVisualElements(visualDetails);
             renderDetails(visualDetails, null);
+        }else{
+            try {
+                OrderDetailService.applySupplementLastDetail(currentOrder.getId(),supplement.getId());
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+            openOrder(currentOrder);
         }
     }
 
@@ -618,7 +630,7 @@ public class PosController {
             OrderDetailResponse newOdr = new OrderDetailResponse(
                     odr.getId(),
                     odr.getProductId(),
-                    odr.getProductName() + " " + supplement.getName(),
+                    odr.getName() + " " + supplement.getName(),
                     odr.getOrderId(),
                     odr.getComment(),
                     1,
@@ -633,7 +645,7 @@ public class PosController {
             odr.setAmount(odr.getAmount() - 1);
             visualDetails.add(newOdr);
         } else {
-            odr.setProductName(odr.getProductName() + " " + supplement.getName());
+            odr.setName(odr.getName() + " " + supplement.getName());
             odr.setUnitPrice(odr.getUnitPrice().add(supplement.getPrice()));
         }
     }
@@ -699,7 +711,7 @@ public class PosController {
             Label qty = new Label("x" + d.getAmount());
             qty.setAlignment(Pos.CENTER_LEFT);
 
-            String name = d.getProductName() != null ? d.getProductName()
+            String name = d.getName() != null ? d.getName()
                     : (product != null ? product.getName() : "Producto #" + d.getProductId());
             Label nameLabel = new Label(name);
             nameLabel.setWrapText(true);
@@ -743,7 +755,7 @@ public class PosController {
         Map<String, OrderDetailResponse> grouped = new LinkedHashMap<>();
 
         for (OrderDetailResponse d : details) {
-            String key = d.getProductId() + "|" + (d.getProductName() != null ? d.getProductName() : "");
+            String key = d.getProductId() + "|" + (d.getName() != null ? d.getName() : "");
 
             if (grouped.containsKey(key)) {
                 OrderDetailResponse existing = grouped.get(key);
@@ -760,13 +772,13 @@ public class PosController {
     private void upsertVisualDetail(ProductResponse product, int delta) {
         OrderDetailResponse exist = visualDetails.stream()
                 .filter(d -> Objects.equals(d.getProductId(), product.getId()))
-                .filter(d -> Objects.equals(d.getProductName(), product.getName()))
+                .filter(d -> Objects.equals(d.getName(), product.getName()))
                 .findFirst().orElse(null);
 
         if (exist == null && delta > 0) {
             OrderDetailResponse d = new OrderDetailResponse();
             d.setProductId(product.getId());
-            d.setProductName(product.getName());
+            d.setName(product.getName());
             d.setUnitPrice(product.getPrice());
             d.setAmount(delta);
             d.setBatchId(currentBatchId);
@@ -974,21 +986,23 @@ public class PosController {
 
     private void attachVisualDetailsToOrder(OrderResponse order) {
         currentBatchId = UUID.randomUUID().toString();
+        List<OrderDetailRequest> orderDetailRequests = new ArrayList<>();
         for (OrderDetailResponse visualDetail : visualDetails) {
-            try {
-                OrderDetailRequest createReq = new OrderDetailRequest();
-                createReq.setOrderId(order.getId());
-                createReq.setProductId(visualDetail.getProductId());
-                createReq.setAmount(visualDetail.getAmount());
-                createReq.setUnitPrice(visualDetail.getUnitPrice());
-                createReq.setStatus("PENDING");
-                createReq.setBatchId(currentBatchId);
-                System.out.println(currentBatchId);
-                System.out.println(createReq.toString());
-                OrderDetailService.createOrderDetail(createReq);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            OrderDetailRequest createReq = new OrderDetailRequest();
+            createReq.setOrderId(order.getId());
+            createReq.setProductId(visualDetail.getProductId());
+            createReq.setName(visualDetail.getName());
+            createReq.setAmount(visualDetail.getAmount());
+            createReq.setUnitPrice(visualDetail.getUnitPrice());
+            createReq.setStatus("PENDING");
+            createReq.setBatchId(currentBatchId);
+            createReq.setCreatedAt(visualDetail.getCreatedAt());
+            orderDetailRequests.add(createReq);
+        }
+        try {
+            OrderDetailService.createOrderDetailList(orderDetailRequests);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         visualDetails.clear();

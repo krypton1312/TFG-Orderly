@@ -156,7 +156,7 @@ public class PartialPaymentController {
             GridPane.setHalignment(qtyLabel, javafx.geometry.HPos.CENTER);
             row.add(qtyLabel, 0, 0);
 
-            String name = d.getProductName() != null ? d.getProductName() : "Producto #" + d.getProductId();
+            String name = d.getName() != null ? d.getName() : "Producto #" + d.getProductId();
             Label nameLabel = new Label(name);
             nameLabel.setWrapText(true);
             nameLabel.setMaxWidth(Double.MAX_VALUE);
@@ -236,6 +236,7 @@ public class PartialPaymentController {
             OrderDetailRequest newRequest = new OrderDetailRequest(
                     item.getProductId(),
                     item.getOrderId(),
+                    item.getName(),
                     item.getComment(),
                     amountToMove,
                     item.getUnitPrice(),
@@ -365,6 +366,7 @@ public class PartialPaymentController {
                             od.getProductId(),
                             od.getOrderId(),
                             od.getComment(),
+                            od.getComment(),
                             od.getAmount(),
                             od.getUnitPrice(),
                             od.getStatus(),
@@ -378,6 +380,7 @@ public class PartialPaymentController {
                     reqsToUpdate.add(new OrderDetailRequest(
                             pd.getProductId(),
                             pd.getOrderId(),
+                            pd.getName(),
                             pd.getComment(),
                             pd.getAmount(),
                             pd.getUnitPrice(),
@@ -435,7 +438,7 @@ public class PartialPaymentController {
         OrderDetailResponse copy = new OrderDetailResponse();
         copy.setId(src.getId());
         copy.setProductId(src.getProductId());
-        copy.setProductName(src.getProductName());
+        copy.setName(src.getName());
         copy.setAmount(src.getAmount());
         copy.setUnitPrice(src.getUnitPrice());
         copy.setStatus(src.getStatus());

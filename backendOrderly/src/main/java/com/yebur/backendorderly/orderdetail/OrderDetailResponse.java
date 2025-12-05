@@ -16,7 +16,7 @@ public class OrderDetailResponse {
     
     private Long productId;
 
-    private String productName;
+    private String name;
 
     private Long orderId;
 
@@ -36,11 +36,11 @@ public class OrderDetailResponse {
 
     private String batchId;
 
-    public OrderDetailResponse(Long id, Long productId, String productName, Long orderId, String comment, int amount,
+    public OrderDetailResponse(Long id, Long productId, String name, Long orderId, String comment, int amount,
             BigDecimal unitPrice, OrderDetailStatus status, String paymentMethod, LocalDateTime createdAt, ProductDestination destination, String batchId) {
         this.id = id;
         this.productId = productId;
-        this.productName = productName;
+        this.name = name;
         this.orderId = orderId;
         this.comment = comment;
         this.amount = amount;

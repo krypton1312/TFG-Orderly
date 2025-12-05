@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 public class OrderDetailResponse {
     private Long id;
     private Long productId;
-    private String productName;
+    private String name;
     private Long orderId;
     private String comment;
     private int amount;
@@ -17,11 +17,11 @@ public class OrderDetailResponse {
     private String destination;
     private String batchId;
 
-    public OrderDetailResponse(Long id, Long productId, String productName, Long orderId, String comment, int amount,
+    public OrderDetailResponse(Long id, Long productId, String name, Long orderId, String comment, int amount,
             BigDecimal unitPrice, String status, String paymentMethod, LocalDateTime createdAt, String destination, String batchId) {
         this.id = id;
         this.productId = productId;
-        this.productName = productName;
+        this.name = name;
         this.orderId = orderId;
         this.comment = comment;
         this.amount = amount;
@@ -93,13 +93,13 @@ public class OrderDetailResponse {
     }
 
 
-    public String getProductName() {
-        return productName;
+    public String getName() {
+        return name;
     }
 
 
-    public void setProductName(String productName) {
-        this.productName = productName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getStatus() {

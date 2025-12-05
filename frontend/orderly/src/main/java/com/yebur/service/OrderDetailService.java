@@ -74,6 +74,10 @@ public class OrderDetailService {
                 mapper.getTypeFactory().constructCollectionType(List.class, OrderDetailResponse.class));
     }
 
+    public static void applySupplementLastDetail(Long orderId, Long supplementId) throws Exception {
+        ApiClient.post("/orderDetails/apply-supplement-last-detail/"+ orderId + "/supplement/" + supplementId);
+    }
+
     public static void changeOrderDetailStatus(List<Long> ids, String status) throws Exception {
         String jsonInput = mapper.writeValueAsString(ids);
 

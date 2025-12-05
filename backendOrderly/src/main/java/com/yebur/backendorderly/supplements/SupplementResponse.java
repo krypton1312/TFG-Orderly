@@ -2,6 +2,7 @@ package com.yebur.backendorderly.supplements;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
@@ -17,20 +18,20 @@ public class SupplementResponse {
     private List<CategoryResponseSummary> categories;
     private List<ProductResponseSummary> products;
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CategoryResponseSummary{
+        private Long id;
+        private String name;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ProductResponseSummary{
+        private Long id;
+        private String name;
+    }
 }
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class CategoryResponseSummary{
-    private Long id;
-    private String name;
-}
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-class ProductResponseSummary{
-    private Long id;
-    private String name;
-}
