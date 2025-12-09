@@ -6,6 +6,7 @@ import com.yebur.model.request.OrderRequest;
 import com.yebur.model.response.*;
 import com.yebur.service.*;
 import com.yebur.ui.CustomDialog;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
@@ -490,8 +491,18 @@ public class PosController {
     }
 
     private void onProductClick(ProductResponse product) {
+        ParsedModifier mod = parseModifier(displayField.getText(), product.getPrice());
+        int quantity = mod.quantity;
+        BigDecimal unitPrice = mod.unitPrice;
+
+        displayField.clear();
+
+        if (quantity <= 0) {
+            return;
+        }
+
         if (!hasActiveOrder() && selectedTable == null) {
-            upsertVisualDetail(product, 1);
+            upsertVisualDetail(product, quantity, unitPrice);
             renderDetails(visualDetails, product);
             return;
         }
@@ -505,7 +516,7 @@ public class PosController {
                 this.currentBatchId = UUID.randomUUID().toString();
             } catch (Exception e) {
                 e.printStackTrace();
-                upsertVisualDetail(product, 1);
+                upsertVisualDetail(product, quantity, unitPrice);
                 renderDetails(visualDetails, product);
                 return;
             }
@@ -518,24 +529,23 @@ public class PosController {
                     .orElse(null);
 
             if (existingVisual != null) {
-                existingVisual.setAmount(existingVisual.getAmount() + 1);
+                existingVisual.setAmount(existingVisual.getAmount() + quantity);
             } else {
                 OrderDetailResponse newVisual = new OrderDetailResponse();
                 newVisual.setProductId(product.getId());
                 newVisual.setName(product.getName());
-                newVisual.setAmount(1);
-                newVisual.setUnitPrice(product.getPrice());
+                newVisual.setAmount(quantity);
+                newVisual.setUnitPrice(unitPrice);
                 newVisual.setBatchId(currentBatchId);
                 newVisual.setCreatedAt(LocalDateTime.now());
                 currentdetails.add(newVisual);
             }
-
             OrderDetailRequest createReq = new OrderDetailRequest();
             createReq.setName(product.getName());
             createReq.setOrderId(currentOrder.getId());
             createReq.setProductId(product.getId());
-            createReq.setAmount(1);
-            createReq.setUnitPrice(product.getPrice());
+            createReq.setAmount(quantity);
+            createReq.setUnitPrice(unitPrice);
             createReq.setStatus("PENDING");
             createReq.setBatchId(currentBatchId);
 
@@ -545,10 +555,11 @@ public class PosController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            upsertVisualDetail(product, 1);
+            upsertVisualDetail(product, quantity, unitPrice);
             renderDetails(visualDetails, product);
         }
     }
+
 
     private void onSupplementClick(SupplementResponse supplement) {
         if (visualDetails.isEmpty() && currentdetails.isEmpty()) {
@@ -778,27 +789,30 @@ public class PosController {
         details.addAll(grouped.values());
     }
 
-    private void upsertVisualDetail(ProductResponse product, int delta) {
+    private void upsertVisualDetail(ProductResponse product, int delta, BigDecimal unitPrice) {
         OrderDetailResponse exist = visualDetails.stream()
                 .filter(d -> Objects.equals(d.getProductId(), product.getId()))
                 .filter(d -> Objects.equals(d.getName(), product.getName()))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
 
         if (exist == null && delta > 0) {
             OrderDetailResponse d = new OrderDetailResponse();
             d.setProductId(product.getId());
             d.setName(product.getName());
-            d.setUnitPrice(product.getPrice());
+            d.setUnitPrice(unitPrice != null ? unitPrice : product.getPrice());
             d.setAmount(delta);
             d.setBatchId(currentBatchId);
             visualDetails.add(d);
         } else if (exist != null) {
             int newAmt = Math.max(0, exist.getAmount() + delta);
             exist.setAmount(newAmt);
-            if (newAmt == 0)
+            if (newAmt == 0) {
                 visualDetails.remove(exist);
+            }
         }
     }
+
 
     @FXML
     private void handleClearOrderClick() {
@@ -1213,4 +1227,126 @@ public class PosController {
             System.out.println(e.getMessage());
         }
     }
+
+
+    public void calculatorButtonClicked(ActionEvent actionEvent) {
+        Button btn = (Button) actionEvent.getSource();
+        String value = btn.getText();
+        String text = displayField.getText();
+
+        Set<String> ops = Set.of("+", "-", "*", "/");
+
+        switch (value) {
+
+            case "del" -> {
+                if (!text.isEmpty()) {
+                    displayField.setText(text.substring(0, text.length() - 1));
+                }
+            }
+
+            case "+", "-", "*", "/" -> {
+                if (text.isEmpty()) {
+                    displayField.setText(value);
+                    return;
+                }
+
+                String lastChar = text.substring(text.length() - 1);
+                if (ops.contains(lastChar)) {
+                    displayField.setText(text.substring(0, text.length() - 1) + value);
+                } else {
+                    displayField.setText(text + value);
+                }
+            }
+            case "." -> {
+                String currentNumber = getCurrentNumber(text, ops);
+                if (currentNumber.contains(".")) {
+                    return;
+                }
+
+                if (text.isEmpty() || ops.contains(text.substring(text.length() - 1))) {
+                    displayField.setText(text + "0.");
+                } else {
+                    displayField.setText(text + ".");
+                }
+            }
+
+            default -> {
+                String currentNumber = getCurrentNumber(text, ops);
+                int dotIndex = currentNumber.indexOf(".");
+
+                if (dotIndex != -1) {
+                    int decimals = currentNumber.length() - dotIndex - 1;
+                    if (decimals >= 2) {
+                        return;
+                    }
+                }
+
+                displayField.setText(text + value);
+            }
+        }
+
+    }
+    private String getCurrentNumber(String text, Set<String> ops) {
+        if (text == null || text.isEmpty()) return "";
+
+        int i = text.length() - 1;
+
+        while (i >= 0 && !ops.contains(String.valueOf(text.charAt(i)))) {
+            i--;
+        }
+        return text.substring(i + 1);
+    }
+    private static class ParsedModifier {
+        final int quantity;
+        final BigDecimal unitPrice;
+
+        ParsedModifier(int quantity, BigDecimal unitPrice) {
+            this.quantity = quantity;
+            this.unitPrice = unitPrice;
+        }
+    }
+
+    private ParsedModifier parseModifier(String text, BigDecimal defaultPrice) {
+        if (text == null) text = "";
+        text = text.trim();
+
+        int quantity = 1;
+        BigDecimal price = defaultPrice;
+
+        if (text.isEmpty()) {
+            return new ParsedModifier(quantity, price);
+        }
+
+        try {
+            if (text.startsWith("*")) {
+                String qtyStr = text.substring(1).trim();
+                if (!qtyStr.isEmpty()) {
+                    quantity = new BigDecimal(qtyStr).intValue();
+                    if (quantity <= 0) quantity = 1;
+                }
+            } else if (text.contains("*")) {
+                String[] parts = text.split("\\*");
+                if (parts.length >= 2) {
+                    String qStr = parts[0].trim();
+                    String pStr = parts[1].trim();
+
+                    if (!qStr.isEmpty()) {
+                        quantity = new BigDecimal(qStr).intValue();
+                        if (quantity <= 0) quantity = 1;
+                    }
+                    if (!pStr.isEmpty()) {
+                        price = new BigDecimal(pStr);
+                    }
+                }
+            } else {
+                price = new BigDecimal(text);
+            }
+        } catch (NumberFormatException e) {
+            quantity = 1;
+            price = defaultPrice;
+        }
+
+        return new ParsedModifier(quantity, price);
+    }
+
 }

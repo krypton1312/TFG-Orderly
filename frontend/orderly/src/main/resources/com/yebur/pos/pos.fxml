@@ -6,35 +6,35 @@
 <?import javafx.geometry.*?>
 
 <GridPane hgap="10" prefHeight="768.0" prefWidth="1024.0" style="-fx-padding: 10;" vgap="10"
-    xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="com.yebur.controller.PosController">
+          xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="com.yebur.controller.PosController">
 
     <!-- ==== Настройка сетки ==== -->
     <columnConstraints>
         <!-- Левая часть (orderItems + категории) -->
-        <ColumnConstraints percentWidth="50.0" />
+        <ColumnConstraints percentWidth="50.0"/>
         <!-- Центральная часть (калькулятор + продукты) -->
-        <ColumnConstraints percentWidth="24.0" />
+        <ColumnConstraints percentWidth="24.0"/>
         <!-- Правая панель -->
-        <ColumnConstraints percentWidth="26.0" />
+        <ColumnConstraints percentWidth="26.0"/>
     </columnConstraints>
 
     <rowConstraints>
         <!-- Верхняя часть (orderItems + калькулятор) -->
-        <RowConstraints percentHeight="50" />
+        <RowConstraints percentHeight="50"/>
         <!-- Нижняя часть (категории + продукты) -->
-        <RowConstraints percentHeight="50" />
+        <RowConstraints percentHeight="50"/>
     </rowConstraints>
     <children>
 
         <!-- ==== Верхняя левая часть (OrderItems) ==== -->
         <VBox fx:id="orderVbox" spacing="10" styleClass="card" GridPane.columnIndex="0"
-            GridPane.rowIndex="0">
+              GridPane.rowIndex="0">
             <children>
                 <HBox>
-                    <Label fx:id="tableNameLabel" styleClass="order-title" text="" />
-                    <Pane HBox.hgrow="ALWAYS" /> <!-- Разделитель -->
-                    <Label fx:id="orderIdLabel" styleClass="order-title" text="" />
+                    <Label fx:id="tableNameLabel" styleClass="order-title" text=""/>
+                    <Pane HBox.hgrow="ALWAYS"/> <!-- Разделитель -->
+                    <Label fx:id="orderIdLabel" styleClass="order-title" text=""/>
                 </HBox>
                 <!-- Заголовок таблицы -->
                 <GridPane hgap="10" alignment="CENTER_LEFT"
@@ -42,35 +42,35 @@
                          -fx-border-width: 0 0 1 0;"
                           VBox.vgrow="NEVER">
                     <columnConstraints>
-                        <ColumnConstraints percentWidth="10" halignment="CENTER" />
-                        <ColumnConstraints percentWidth="60" hgrow="ALWAYS" />
-                        <ColumnConstraints percentWidth="15" halignment="CENTER" />
-                        <ColumnConstraints percentWidth="15" halignment="CENTER" />
+                        <ColumnConstraints percentWidth="10" halignment="CENTER"/>
+                        <ColumnConstraints percentWidth="60" hgrow="ALWAYS"/>
+                        <ColumnConstraints percentWidth="15" halignment="CENTER"/>
+                        <ColumnConstraints percentWidth="15" halignment="CENTER"/>
                     </columnConstraints>
 
                     <children>
-                        <Label text="Uds" GridPane.columnIndex="0" style="-fx-font-weight: bold;" />
-                        <Label text="Producto" GridPane.columnIndex="1" style="-fx-font-weight: bold;" />
-                        <Label text="Unitario" GridPane.columnIndex="2" style="-fx-font-weight: bold;" />
-                        <Label text="Total" GridPane.columnIndex="3" style="-fx-font-weight: bold;" />
+                        <Label text="Uds" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+                        <Label text="Producto" GridPane.columnIndex="1" style="-fx-font-weight: bold;"/>
+                        <Label text="Unitario" GridPane.columnIndex="2" style="-fx-font-weight: bold;"/>
+                        <Label text="Total" GridPane.columnIndex="3" style="-fx-font-weight: bold;"/>
                     </children>
                 </GridPane>
 
                 <!-- Список заказов -->
                 <ScrollPane fx:id="orderSP"
-                    styleClass="order-scroll-pane"
-                    fitToWidth="true"
-                    prefHeight="250">
+                            styleClass="order-scroll-pane"
+                            fitToWidth="true"
+                            prefHeight="250">
                     <content>
                         <VBox fx:id="orderVboxItems"
-                            styleClass="order-items-box"
-                            spacing="5" />
+                              styleClass="order-items-box"
+                              spacing="5"/>
                     </content>
                 </ScrollPane>
                 <HBox alignment="CENTER_RIGHT" styleClass="order-total-bar">
                     <HBox alignment="CENTER_RIGHT" styleClass="order-total-bg">
-                        <Label text="Total:" styleClass="order-total-label" />
-                        <Label fx:id="orderTotalValue" text="0.00" styleClass="order-total-value" />
+                        <Label text="Total:" styleClass="order-total-label"/>
+                        <Label fx:id="orderTotalValue" text="0.00" styleClass="order-total-value"/>
                     </HBox>
                 </HBox>
             </children>
@@ -79,82 +79,121 @@
 
         <!-- ==== Верхняя правая часть (Калькулятор) ==== -->
         <VBox prefHeight="200" prefWidth="260" spacing="10" styleClass="card"
-            GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0"
-            GridPane.vgrow="ALWAYS">
+              GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0"
+              GridPane.vgrow="ALWAYS">
             <children>
 
                 <TextField fx:id="displayField" maxWidth="Infinity" styleClass="display"
-                    VBox.vgrow="NEVER" />
+                           VBox.vgrow="NEVER"/>
 
                 <GridPane hgap="10" vgap="10"
-                    GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
-                    VBox.vgrow="ALWAYS">
+                          GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                          VBox.vgrow="ALWAYS">
                     <columnConstraints>
-                        <ColumnConstraints percentWidth="33.33" hgrow="ALWAYS" />
-                        <ColumnConstraints percentWidth="33.33" hgrow="ALWAYS" />
-                        <ColumnConstraints percentWidth="33.33" hgrow="ALWAYS" />
+                        <ColumnConstraints percentWidth="33.33" hgrow="ALWAYS"/>
+                        <ColumnConstraints percentWidth="33.33" hgrow="ALWAYS"/>
+                        <ColumnConstraints percentWidth="33" hgrow="ALWAYS"/>
                     </columnConstraints>
 
                     <rowConstraints>
-                        <RowConstraints percentHeight="25" vgrow="ALWAYS" />
-                        <RowConstraints percentHeight="25" vgrow="ALWAYS" />
-                        <RowConstraints percentHeight="25" vgrow="ALWAYS" />
-                        <RowConstraints percentHeight="25" vgrow="ALWAYS" />
+                        <RowConstraints percentHeight="25" vgrow="ALWAYS"/>
+                        <RowConstraints percentHeight="25" vgrow="ALWAYS"/>
+                        <RowConstraints percentHeight="25" vgrow="ALWAYS"/>
+                        <RowConstraints percentHeight="25" vgrow="ALWAYS"/>
+                        <RowConstraints percentHeight="25" vgrow="ALWAYS"/>
                     </rowConstraints>
 
                     <!-- Кнопки -->
                     <children>
-                        <Button text="7" styleClass="num-btn"
-                            GridPane.columnIndex="0" GridPane.rowIndex="0"
-                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
-                            maxHeight="Infinity" maxWidth="Infinity" />
-                        <Button text="8" styleClass="num-btn"
-                            GridPane.columnIndex="1" GridPane.rowIndex="0"
-                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
-                            maxHeight="Infinity" maxWidth="Infinity" />
-                        <Button text="9" styleClass="num-btn"
-                            GridPane.columnIndex="2" GridPane.rowIndex="0"
-                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
-                            maxHeight="Infinity" maxWidth="Infinity" />
+                        <Button fx:id="btnPlus" text="+" styleClass="num-btn"
+                                GridPane.columnIndex="0" GridPane.rowIndex="0"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
 
-                        <Button text="4" styleClass="num-btn"
-                            GridPane.columnIndex="0" GridPane.rowIndex="1"
-                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
-                            maxHeight="Infinity" maxWidth="Infinity" />
-                        <Button text="5" styleClass="num-btn"
-                            GridPane.columnIndex="1" GridPane.rowIndex="1"
-                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
-                            maxHeight="Infinity" maxWidth="Infinity" />
-                        <Button text="6" styleClass="num-btn"
-                            GridPane.columnIndex="2" GridPane.rowIndex="1"
-                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
-                            maxHeight="Infinity" maxWidth="Infinity" />
+                        <Button fx:id="btnDivide" text="/" styleClass="num-btn"
+                                GridPane.columnIndex="1" GridPane.rowIndex="0"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
 
-                        <Button text="1" styleClass="num-btn"
-                            GridPane.columnIndex="0" GridPane.rowIndex="2"
-                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
-                            maxHeight="Infinity" maxWidth="Infinity" />
-                        <Button text="2" styleClass="num-btn"
-                            GridPane.columnIndex="1" GridPane.rowIndex="2"
-                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
-                            maxHeight="Infinity" maxWidth="Infinity" />
-                        <Button text="3" styleClass="num-btn"
-                            GridPane.columnIndex="2" GridPane.rowIndex="2"
-                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
-                            maxHeight="Infinity" maxWidth="Infinity" />
+                        <Button fx:id="btnMultiply" text="*" styleClass="num-btn"
+                                GridPane.columnIndex="2" GridPane.rowIndex="0"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
 
-                        <Button text="0" styleClass="num-btn"
-                            GridPane.columnIndex="0" GridPane.rowIndex="3"
-                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
-                            maxHeight="Infinity" maxWidth="Infinity" />
-                        <Button text="." styleClass="num-btn"
-                            GridPane.columnIndex="1" GridPane.rowIndex="3"
-                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
-                            maxHeight="Infinity" maxWidth="Infinity" />
-                        <Button text="del" styleClass="num-btn"
-                            GridPane.columnIndex="2" GridPane.rowIndex="3"
-                            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
-                            maxHeight="Infinity" maxWidth="Infinity" />
+                        <Button fx:id="btn7" text="7" styleClass="num-btn"
+                                GridPane.columnIndex="0" GridPane.rowIndex="1"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
+
+                        <Button fx:id="btn8" text="8" styleClass="num-btn"
+                                GridPane.columnIndex="1" GridPane.rowIndex="1"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
+
+                        <Button fx:id="btn9" text="9" styleClass="num-btn"
+                                GridPane.columnIndex="2" GridPane.rowIndex="1"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
+
+                        <Button fx:id="btn4" text="4" styleClass="num-btn"
+                                GridPane.columnIndex="0" GridPane.rowIndex="2"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
+
+                        <Button fx:id="btn5" text="5" styleClass="num-btn"
+                                GridPane.columnIndex="1" GridPane.rowIndex="2"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
+
+                        <Button fx:id="btn6" text="6" styleClass="num-btn"
+                                GridPane.columnIndex="2" GridPane.rowIndex="2"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
+
+                        <Button fx:id="btn1" text="1" styleClass="num-btn"
+                                GridPane.columnIndex="0" GridPane.rowIndex="3"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
+
+                        <Button fx:id="btn2" text="2" styleClass="num-btn"
+                                GridPane.columnIndex="1" GridPane.rowIndex="3"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
+
+                        <Button fx:id="btn3" text="3" styleClass="num-btn"
+                                GridPane.columnIndex="2" GridPane.rowIndex="3"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
+
+                        <Button fx:id="btn0" text="0" styleClass="num-btn"
+                                GridPane.columnIndex="0" GridPane.rowIndex="4"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
+
+                        <Button fx:id="btnDot" text="." styleClass="num-btn"
+                                GridPane.columnIndex="1" GridPane.rowIndex="4"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
+
+                        <Button fx:id="btnDel" text="del" styleClass="num-btn"
+                                GridPane.columnIndex="2" GridPane.rowIndex="4"
+                                GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
+                                maxHeight="Infinity" maxWidth="Infinity"
+                                onAction="#calculatorButtonClicked"/>
                     </children>
 
                 </GridPane>
@@ -168,15 +207,15 @@
             <children>
                 <!-- Левая панель (категории) -->
                 <VBox maxWidth="290" minWidth="270" prefHeight="369.0" prefWidth="280.0"
-                    spacing="10" styleClass="card">
+                      spacing="10" styleClass="card">
                     <children>
-                        <TilePane fx:id="categoryBox" hgap="10" prefColumns="3" vgap="10" />
+                        <TilePane fx:id="categoryBox" hgap="10" prefColumns="3" vgap="10"/>
                     </children>
                 </VBox>
 
                 <!-- Правая панель (продукты) -->
                 <TilePane fx:id="productBox" alignment="TOP_LEFT" hgap="10" prefColumns="5"
-                    prefHeight="369.0" styleClass="card" vgap="10" HBox.hgrow="ALWAYS">
+                          prefHeight="369.0" styleClass="card" vgap="10" HBox.hgrow="ALWAYS">
                     <!-- кнопки продуктов будут динамически -->
                 </TilePane>
             </children>
@@ -185,64 +224,64 @@
 
         <!-- ==== Правая панель ==== -->
         <VBox spacing="10" styleClass="sidebar" GridPane.columnIndex="2" GridPane.rowIndex="0"
-            GridPane.rowSpan="2">
+              GridPane.rowSpan="2">
             <padding>
-                <Insets bottom="20" left="20" right="20" top="20" />
+                <Insets bottom="20" left="20" right="20" top="20"/>
             </padding>
             <children>
                 <Button text="Get Check" onAction="#handlePartialPaymentClick">
                     <styleClass>
-                        <String fx:value="action-btn" />
-                        <String fx:value="green" />
+                        <String fx:value="action-btn"/>
+                        <String fx:value="green"/>
                     </styleClass>
                 </Button>
 
                 <Button text="Print Invoice">
                     <styleClass>
-                        <String fx:value="action-btn" />
-                        <String fx:value="blue" />
+                        <String fx:value="action-btn"/>
+                        <String fx:value="blue"/>
                     </styleClass>
                 </Button>
 
                 <Button text="Anular Linea" onAction="#handleDeleteOrderItemClick">
                     <styleClass>
-                        <String fx:value="action-btn" />
-                        <String fx:value="red" />
+                        <String fx:value="action-btn"/>
+                        <String fx:value="red"/>
                     </styleClass>
                 </Button>
 
                 <Button text="Borrar" onAction="#handleClearOrderClick">
                     <styleClass>
-                        <String fx:value="action-btn" />
-                        <String fx:value="red" />
+                        <String fx:value="action-btn"/>
+                        <String fx:value="red"/>
                     </styleClass>
                 </Button>
 
                 <Button text="Cuentas" onAction="#handleChecksClick">
                     <styleClass>
-                        <String fx:value="action-btn" />
-                        <String fx:value="dark" />
+                        <String fx:value="action-btn"/>
+                        <String fx:value="dark"/>
                     </styleClass>
                 </Button>
 
                 <Button text="Shift Report">
                     <styleClass>
-                        <String fx:value="action-btn" />
-                        <String fx:value="dark" />
+                        <String fx:value="action-btn"/>
+                        <String fx:value="dark"/>
                     </styleClass>
                 </Button>
 
                 <Button text="Crear cuenta/Transpasar" onAction="#handleNewOrderClick">
                     <styleClass>
-                        <String fx:value="action-btn" />
-                        <String fx:value="dark" />
+                        <String fx:value="action-btn"/>
+                        <String fx:value="dark"/>
                     </styleClass>
                 </Button>
 
                 <Button text="Salir" onAction="#handleCloseClick">
                     <styleClass>
-                        <String fx:value="action-btn" />
-                        <String fx:value="red" />
+                        <String fx:value="action-btn"/>
+                        <String fx:value="red"/>
                     </styleClass>
                 </Button>
 
