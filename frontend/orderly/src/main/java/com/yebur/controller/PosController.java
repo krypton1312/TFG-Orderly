@@ -793,6 +793,7 @@ public class PosController {
         OrderDetailResponse exist = visualDetails.stream()
                 .filter(d -> Objects.equals(d.getProductId(), product.getId()))
                 .filter(d -> Objects.equals(d.getName(), product.getName()))
+                .filter(e -> Objects.equals(e.getUnitPrice(), unitPrice))
                 .findFirst()
                 .orElse(null);
 
@@ -1066,10 +1067,14 @@ public class PosController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setOnHiding(event -> {
                 if (controller.anyPaymentDone()) {
-                    javafx.application.Platform.runLater(() -> showPaymentBox(controller.getTotalCheck()));
+                    PartialPaymentController.PaymentInfo info = controller.getLastPaymentInfo();
+                    if (info != null) {
+                        javafx.application.Platform.runLater(() -> showPaymentBox(info));
+                    }
                 }
                 handleChecksClick();
             });
+
 
             stage.showAndWait();
 
@@ -1124,12 +1129,13 @@ public class PosController {
         stage.close();
     }
 
-    private void showPaymentBox(BigDecimal[] paymentInfo) {
+    // В контроллере, где у тебя есть orderVboxItems и currencyFormatter
+    private void showPaymentBox(PartialPaymentController.PaymentInfo paymentInfo) {
         orderVboxItems.getChildren().clear();
 
-        BigDecimal total = paymentInfo[0].setScale(2, RoundingMode.HALF_UP);
-        BigDecimal input = paymentInfo[1].setScale(2, RoundingMode.HALF_UP);
-        BigDecimal change = paymentInfo[2].setScale(2, RoundingMode.HALF_UP);
+        BigDecimal total   = paymentInfo.getTotal().setScale(2, RoundingMode.HALF_UP);
+        BigDecimal input   = paymentInfo.getReceived().setScale(2, RoundingMode.HALF_UP);
+        BigDecimal change  = paymentInfo.getChange().setScale(2, RoundingMode.HALF_UP);
 
         StackPane wrapper = new StackPane();
         wrapper.setAlignment(Pos.CENTER);
@@ -1150,8 +1156,9 @@ public class PosController {
         paymentVB.setMaxHeight(orderVboxItems.getHeight() * 0.9);
         paymentVB.setPrefHeight(orderVboxItems.getHeight() * 0.9);
         paymentVB.setPrefWidth(orderVboxItems.getWidth() * 0.9);
+
         StackPane.setAlignment(paymentVB, Pos.CENTER);
-        wrapper.setMargin(paymentVB, new javafx.geometry.Insets(10, 0, 0, 0));
+        StackPane.setMargin(paymentVB, new javafx.geometry.Insets(10, 0, 0, 0));
 
         Label title = new Label("💳 PAGO DE LA CUENTA");
         title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #111827;");
@@ -1160,34 +1167,42 @@ public class PosController {
         separator.setStyle("-fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;");
         separator.setPrefHeight(1);
 
-        HBox rowTotal = createPaymentRow("COBRADO:", currencyFormatter.format(total), "#000");
-        HBox rowRecibido = createPaymentRow("RECIBIDO:", currencyFormatter.format(input), "#000");
-        HBox rowCambio = createPaymentRow("CAMBIO:", currencyFormatter.format(change), "#16a34a");
+        HBox rowTotal    = createPaymentRow("COBRADO:",  currencyFormatter.format(total),  "#000");
+        HBox rowRecibido = createPaymentRow("RECIBIDO:", currencyFormatter.format(input),  "#000");
+        HBox rowCambio   = createPaymentRow("CAMBIO:",   currencyFormatter.format(change), "#16a34a");
 
-        if (change.compareTo(BigDecimal.ZERO) > 0) {
+        // Логика показа строк:
+        // если что-то реально "дали" (input > 0) – показываем RECIBIDO и CAMBIO
+        if (input.compareTo(BigDecimal.ZERO) > 0) {
             paymentVB.getChildren().addAll(title, separator, rowTotal, rowRecibido, rowCambio);
         } else {
+            // например, оплата картой → показываем только COOKBRADO / TOTAL
             paymentVB.getChildren().addAll(title, separator, rowTotal);
         }
-        wrapper.getChildren().add(paymentVB);
 
+        wrapper.getChildren().add(paymentVB);
         orderVboxItems.getChildren().add(wrapper);
 
+        // Анимация появления
         paymentVB.setOpacity(0);
         paymentVB.setScaleX(0.9);
         paymentVB.setScaleY(0.9);
-        javafx.animation.FadeTransition fade = new javafx.animation.FadeTransition(javafx.util.Duration.millis(300),
-                paymentVB);
+
+        javafx.animation.FadeTransition fade =
+                new javafx.animation.FadeTransition(javafx.util.Duration.millis(300), paymentVB);
         fade.setFromValue(0);
         fade.setToValue(1);
-        javafx.animation.ScaleTransition scale = new javafx.animation.ScaleTransition(javafx.util.Duration.millis(300),
-                paymentVB);
+
+        javafx.animation.ScaleTransition scale =
+                new javafx.animation.ScaleTransition(javafx.util.Duration.millis(300), paymentVB);
         scale.setFromX(0.9);
         scale.setFromY(0.9);
         scale.setToX(1);
         scale.setToY(1);
+
         new javafx.animation.ParallelTransition(fade, scale).play();
     }
+
 
     private HBox createPaymentRow(String label, String value, String color) {
         HBox row = new HBox(7);

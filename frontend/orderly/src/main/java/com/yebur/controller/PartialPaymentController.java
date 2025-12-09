@@ -7,12 +7,12 @@ import com.yebur.model.response.OrderResponse;
 import com.yebur.model.response.RestTableResponse;
 import com.yebur.service.OrderDetailService;
 import com.yebur.service.OrderService;
+import com.yebur.service.ReceiptFxToPdfService;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +77,11 @@ public class PartialPaymentController {
 
     private final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.GERMANY);
 
+    // чек через FXML → snapshot → PDF
+    private final ReceiptFxToPdfService receiptFxToPdfService = new ReceiptFxToPdfService();
+
+    private PaymentInfo lastPaymentInfo;
+
     @FXML
     public void initialize() {
         Platform.runLater(() -> displayField.getParent().requestFocus());
@@ -113,7 +119,7 @@ public class PartialPaymentController {
         tableNameLabel.setText(
                 order != null ?
                         (this.table != null ? table.getName() + " - " : "") + "Cuenta #" + order.getId()
-                        : " " );
+                        : " ");
         refreshUI();
     }
 
@@ -149,13 +155,14 @@ public class PartialPaymentController {
 
             row.getColumnConstraints().addAll(col1, col2, col3, col4);
 
-            // 🏷️ 1. Колонка — количество
+            // 1. Кол-во
             Label qtyLabel = new Label("x" + d.getAmount());
             qtyLabel.setAlignment(Pos.CENTER);
             qtyLabel.setMaxWidth(Double.MAX_VALUE);
             GridPane.setHalignment(qtyLabel, javafx.geometry.HPos.CENTER);
             row.add(qtyLabel, 0, 0);
 
+            // 2. Название
             String name = d.getName() != null ? d.getName() : "Producto #" + d.getProductId();
             Label nameLabel = new Label(name);
             nameLabel.setWrapText(true);
@@ -163,6 +170,7 @@ public class PartialPaymentController {
             GridPane.setHgrow(nameLabel, javafx.scene.layout.Priority.ALWAYS);
             row.add(nameLabel, 1, 0);
 
+            // 3. Цена за единицу
             BigDecimal unitPrice = d.getUnitPrice().setScale(2, RoundingMode.HALF_UP);
             Label priceLabel = new Label(currencyFormatter.format(unitPrice));
             priceLabel.setAlignment(Pos.CENTER_RIGHT);
@@ -170,7 +178,10 @@ public class PartialPaymentController {
             GridPane.setHalignment(priceLabel, javafx.geometry.HPos.CENTER);
             row.add(priceLabel, 2, 0);
 
-            BigDecimal totalLine = unitPrice.multiply(BigDecimal.valueOf(d.getAmount())).setScale(2, RoundingMode.HALF_UP);
+            // 4. Сумма по строке
+            BigDecimal totalLine = unitPrice
+                    .multiply(BigDecimal.valueOf(d.getAmount()))
+                    .setScale(2, RoundingMode.HALF_UP);
             Label totalLabel = new Label(currencyFormatter.format(totalLine));
             totalLabel.setAlignment(Pos.CENTER_RIGHT);
             totalLabel.setMaxWidth(Double.MAX_VALUE);
@@ -201,18 +212,21 @@ public class PartialPaymentController {
         }
     }
 
+    // ---------- ЛОГИКА ПЕРЕНОСА ПОЗИЦИЙ (СТАРАЯ, ВОССТАНОВЛЕННАЯ) ----------
 
     private void moveItemToPartial(OrderDetailResponse item) {
         int amountToMove = parseInputAmount();
         if (amountToMove <= 0)
             return;
 
+        // как в старой версии: ищем по productId
         OrderDetailResponse existing = partialDetails.stream()
                 .filter(p -> p.getProductId().equals(item.getProductId()))
                 .findFirst()
                 .orElse(null);
 
         if (amountToMove >= item.getAmount()) {
+            // переносим всю строку
             if (existing != null) {
                 existing.setAmount(existing.getAmount() + item.getAmount());
             } else {
@@ -222,6 +236,7 @@ public class PartialPaymentController {
             }
             orderDetails.remove(item);
         } else {
+            // переносим часть
             item.setAmount(item.getAmount() - amountToMove);
 
             if (existing != null) {
@@ -233,6 +248,7 @@ public class PartialPaymentController {
                 partialDetails.add(uiCopy);
             }
 
+            // эта часть должна быть создана как новый detail в БД (для существующего заказа)
             OrderDetailRequest newRequest = new OrderDetailRequest(
                     item.getProductId(),
                     item.getOrderId(),
@@ -255,6 +271,7 @@ public class PartialPaymentController {
         if (amountToMove <= 0)
             return;
 
+        // как в старой версии: ищем по productId
         OrderDetailResponse existing = orderDetails.stream()
                 .filter(p -> p.getProductId().equals(item.getProductId()))
                 .findFirst()
@@ -283,8 +300,24 @@ public class PartialPaymentController {
         refreshUI();
     }
 
+    // ---------- ОПЛАТА ----------
+
     @FXML
     private void handlePayNoReceipt() {
+        processPayment(false);
+    }
+
+    @FXML
+    private void handlePayWithReceipt() {
+        processPayment(true);
+    }
+
+    /**
+     * Общая точка входа: и без чека, и с чеком.
+     * Если order == null → создаём новый заказ, сохраняем детали и печатаем чек по нему.
+     */
+    private void processPayment(boolean withReceipt) {
+
         if (partialDetails.isEmpty()) {
             showError("Por favor, selecciona productos para cobrar");
             return;
@@ -301,44 +334,103 @@ public class PartialPaymentController {
             input = BigDecimal.ZERO;
         }
 
-        if(input.compareTo(total_check) < 0 && selectedPaymentMethod.equals("cash")) {
+        if (selectedPaymentMethod.equals("CASH") && input.compareTo(total_check) < 0) {
             showError("Importe no puede ser menor que la cuenta.");
             return;
         }
 
-        if(order == null){
-            try{
-                OrderResponse order = OrderService.createOrder(new OrderRequest("PAID", null));
-                for(OrderDetailResponse item : partialDetails) {
-                    OrderDetailRequest newRequest = new OrderDetailRequest();
-                    newRequest.setProductId(item.getProductId());
-                    newRequest.setOrderId(order.getId());
-                    newRequest.setComment(item.getComment());
-                    newRequest.setAmount(item.getAmount());
-                    newRequest.setUnitPrice(item.getUnitPrice());
-                    newRequest.setStatus("PAID");
-                    newRequest.setBatchId(null);
-                    newRequest.setPaymentMethod(selectedPaymentMethod);
-                    partialDetailsNew.add(newRequest);
+        PaymentInfo paymentInfo = computePaymentInfo();
+        this.lastPaymentInfo = paymentInfo;
+
+        try {
+            if (order == null) {
+                // 🔹 НОВЫЙ ЗАКАЗ: создаём, все partialDetails — это новые позиции
+                order = OrderService.createOrder(new OrderRequest("PAID", null));
+
+                List<OrderDetailRequest> createReqs = new ArrayList<>();
+                for (OrderDetailResponse item : partialDetails) {
+                    OrderDetailRequest req = new OrderDetailRequest();
+                    req.setProductId(item.getProductId());
+                    req.setOrderId(order.getId());
+                    req.setName(item.getName());
+                    req.setComment(item.getComment());
+                    req.setAmount(item.getAmount());
+                    req.setUnitPrice(item.getUnitPrice());
+                    req.setStatus("PAID");
+                    req.setBatchId(item.getBatchId());
+                    req.setPaymentMethod(selectedPaymentMethod);
+                    createReqs.add(req);
                 }
-                OrderDetailService.createOrderDetailList(partialDetailsNew);
-            }catch(Exception e){
-                System.out.println(e.getMessage());
+
+                if (!createReqs.isEmpty()) {
+                    List<OrderDetailResponse> created = OrderDetailService.createOrderDetailList(createReqs);
+                    // заменяем UI-объекты на те, что вернул бэкенд (с id)
+                    partialDetails.clear();
+                    partialDetails.addAll(created);
+                }
+
+            } else {
+                // 🔹 СУЩЕСТВУЮЩИЙ ЗАКАЗ: обновляем детали и создаём новые
+                persistPartialDetails();
             }
-        }
 
-        persistPartialDetails();
-        partialDetails.clear();
-        refreshUI();
-        showPaymentBox(getTotalCheck());
-        displayField.clear();
+            if (withReceipt) {
+                generateReceiptPdf(order, partialDetails, paymentInfo);
+            }
 
-        anyPaymentDone = true;
-        if (orderDetails.isEmpty()) {
-            Stage stage = (Stage) tableNameLabel.getScene().getWindow();
-            stage.close();
+            partialDetails.clear();
+            refreshUI();
+            showPaymentBox(paymentInfo);
+            displayField.clear();
+
+            anyPaymentDone = true;
+            if (orderDetails.isEmpty()) {
+                Stage stage = (Stage) tableNameLabel.getScene().getWindow();
+                stage.close();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Error al procesar el pago: " + e.getMessage());
         }
     }
+
+    private PaymentInfo computePaymentInfo() {
+        // карта: просто total, без получено/сдачи
+        if (selectedPaymentMethod.equals("CARD")) {
+            return new PaymentInfo(
+                    total_check.setScale(2, RoundingMode.HALF_UP),
+                    BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP),
+                    BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+            );
+        }
+
+        // наличка
+        BigDecimal total = total_check.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal received = input.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal change = received.subtract(total).setScale(2, RoundingMode.HALF_UP);
+
+        return new PaymentInfo(total, received, change);
+    }
+
+    private void generateReceiptPdf(OrderResponse order,
+                                    List<OrderDetailResponse> paidDetails,
+                                    PaymentInfo paymentInfo) {
+        try {
+            String fileName = "receipt-order-" + order.getId() + "-" + System.currentTimeMillis() + ".pdf";
+            Path outputPath = Path.of(fileName);
+
+            // table — это поле контроллера (заполняется в loadData)
+            receiptFxToPdfService.createReceiptPdf(outputPath, order, paidDetails, table, paymentInfo);
+
+            System.out.println("Receipt saved to: " + outputPath.toAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Error al generar el recibo: " + e.getMessage());
+        }
+    }
+
+    // ---------- КАЛЬКУЛЯТОР / UI ВСПОМОГАТЕЛЬНОЕ ----------
 
     private void handleButtonClick(ActionEvent event) {
         Button clickedButton = (Button) event.getSource();
@@ -354,11 +446,16 @@ public class PartialPaymentController {
         displayField.setText(displayField.getText() + digit);
     }
 
+    /**
+     * Старая логика сохранения, полностью восстановлена.
+     * Работает только для случая, когда order != null.
+     */
     private void persistPartialDetails() {
         try {
             List<Long> idsToUpdate = new ArrayList<>();
             List<OrderDetailRequest> reqsToUpdate = new ArrayList<>();
 
+            // обновляем оставшиеся в основном заказе (статусы/кол-во/метод оплаты)
             for (OrderDetailResponse od : orderDetails) {
                 if (od.getId() != null) {
                     idsToUpdate.add(od.getId());
@@ -374,6 +471,8 @@ public class PartialPaymentController {
                             od.getBatchId()));
                 }
             }
+
+            // обновляем уже существующие детали в partialDetails (меняем статус на PAID)
             for (OrderDetailResponse pd : partialDetails) {
                 if (pd.getId() != null) {
                     idsToUpdate.add(pd.getId());
@@ -394,6 +493,7 @@ public class PartialPaymentController {
                 OrderDetailService.updateOrderDetailList(idsToUpdate, reqsToUpdate);
             }
 
+            // создаём новые детали (возникли при делении строки)
             if (!partialDetailsNew.isEmpty()) {
                 List<OrderDetailRequest> aggregated = new ArrayList<>();
 
@@ -444,23 +544,16 @@ public class PartialPaymentController {
         copy.setStatus(src.getStatus());
         copy.setComment(src.getComment());
         copy.setOrderId(src.getOrderId());
+        copy.setBatchId(src.getBatchId());
         return copy;
     }
 
-    public BigDecimal[] getTotalCheck() {
-        if (selectedPaymentMethod.equals("CARD")) {
-            input = BigDecimal.ZERO;
-        }
-        BigDecimal change = input.subtract(total_check).setScale(2, RoundingMode.HALF_UP);
-        return new BigDecimal[] { total_check, input, change };
-    }
-
-    private void showPaymentBox(BigDecimal[] paymentInfo) {
+    private void showPaymentBox(PaymentInfo paymentInfo) {
         partialOrderBox.getChildren().clear();
 
-        BigDecimal total = paymentInfo[0];
-        BigDecimal recibido = paymentInfo[1];
-        BigDecimal cambio = paymentInfo[2];
+        BigDecimal total = paymentInfo.getTotal();
+        BigDecimal recibido = paymentInfo.getReceived();
+        BigDecimal cambio = paymentInfo.getChange();
 
         StackPane wrapper = new StackPane();
         wrapper.setAlignment(Pos.CENTER);
@@ -553,5 +646,34 @@ public class PartialPaymentController {
 
     public boolean anyPaymentDone() {
         return anyPaymentDone;
+    }
+
+    public PaymentInfo getLastPaymentInfo() {
+        return lastPaymentInfo;
+    }
+
+    // --------- DTO для оплаты ---------
+    public static class PaymentInfo {
+        private final BigDecimal total;
+        private final BigDecimal received;
+        private final BigDecimal change;
+
+        public PaymentInfo(BigDecimal total, BigDecimal received, BigDecimal change) {
+            this.total = total;
+            this.received = received;
+            this.change = change;
+        }
+
+        public BigDecimal getTotal() {
+            return total;
+        }
+
+        public BigDecimal getReceived() {
+            return received;
+        }
+
+        public BigDecimal getChange() {
+            return change;
+        }
     }
 }

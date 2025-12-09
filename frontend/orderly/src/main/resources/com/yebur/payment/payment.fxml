@@ -275,7 +275,7 @@
                 </styleClass>
             </Button>
 
-            <Button text="Con copia">
+            <Button text="Con copia" onAction="#handlePayWithReceipt">
                 <styleClass>
                     <String fx:value="action-btn" />
                     <String fx:value="blue" />

@@ -1,6 +1,8 @@
 com\yebur\controller\DataOperationController$3.class
 com\yebur\service\CategoryService$1.class
 com\yebur\ui\CustomDialog.class
+com\yebur\controller\PartialPaymentController$PaymentInfo.class
+com\yebur\model\response\ProductsWithSupplements.class
 com\yebur\controller\DataOperationController$ActionType.class
 com\yebur\model\response\ProductResponseSummary.class
 com\yebur\service\ProductService$2.class
@@ -8,11 +10,15 @@ com\yebur\model\response\ApiException.class
 com\yebur\service\OrderDetailService$2.class
 com\yebur\service\CategoryService.class
 com\yebur\service\OrderService$1.class
+com\yebur\service\ReceiptPdfService.class
 com\yebur\model\response\ProductResponse.class
 com\yebur\service\ProductService$3.class
 com\yebur\model\response\CategoryResponse.class
+com\yebur\controller\DataOperationController$4.class
 com\yebur\controller\PartialPaymentController.class
+com\yebur\controller\ReceiptController.class
 com\yebur\service\OverviewService$1.class
+com\yebur\service\ReceiptFxToPdfService.class
 com\yebur\service\ProductService.class
 com\yebur\controller\DataOperationController.class
 com\yebur\model\request\ProductRequest.class
@@ -50,4 +56,5 @@ com\yebur\service\OverviewService.class
 com\yebur\app\App.class
 com\yebur\service\OrderDetailService$3.class
 com\yebur\controller\DataController.class
+com\yebur\controller\PosController$ParsedModifier.class
 com\yebur\model\response\TableWithOrderResponse.class
