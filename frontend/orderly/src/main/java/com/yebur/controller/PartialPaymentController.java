@@ -63,7 +63,6 @@ public class PartialPaymentController {
 
     private List<OrderDetailResponse> orderDetails;
     private List<OrderDetailResponse> partialDetails;
-    private List<OrderDetailRequest> partialDetailsNew;
 
     private String selectedPaymentMethod = "";
 
@@ -114,8 +113,8 @@ public class PartialPaymentController {
     public void loadData() {
         this.order = primaryController.getCurrentOrder();
         this.orderDetails = primaryController.getCurrentdetails();
+        System.out.println(orderDetails);
         this.partialDetails = new ArrayList<>();
-        this.partialDetailsNew = new ArrayList<>();
         this.table = primaryController.getSelectedTable();
         tableNameLabel.setText(
                 order != null ?
@@ -134,6 +133,12 @@ public class PartialPaymentController {
         BigDecimal total = BigDecimal.ZERO;
 
         for (OrderDetailResponse d : details) {
+
+            // 🔹 НЕ показываем строки с amount <= 0, но они остаются в списке для обновления в БД
+            if (d.getAmount() <= 0) {
+                continue;
+            }
+
             GridPane row = new GridPane();
             row.getStyleClass().add("order-item-row");
             row.setHgap(10);
@@ -225,49 +230,48 @@ public class PartialPaymentController {
         if (amountToMove <= 0)
             return;
 
+        if (amountToMove > item.getAmount()) {
+            amountToMove = item.getAmount();
+        }
+
         // группируем по name + unitPrice
         OrderDetailResponse existing = partialDetails.stream()
-                .filter(p -> p.getName().equals(item.getName()))
-                .filter(p -> p.getUnitPrice().equals(item.getUnitPrice()))
+                .filter(p -> Objects.equals(p.getName(), item.getName()))
+                .filter(p -> p.getUnitPrice().compareTo(item.getUnitPrice()) == 0)
                 .findFirst()
                 .orElse(null);
 
-        if (amountToMove >= item.getAmount()) {
-            // переносим всю строку
-            if (existing != null) {
-                existing.setAmount(existing.getAmount() + item.getAmount());
+        if (amountToMove == item.getAmount()) {
+            // 🔹 Переносим всю строку из main в partial
+
+            // 1) уменьшаем "оригинальный" detail в main до 0, чтобы его потом обновить в БД
+            item.setAmount(0); // останется в orderDetails, но не будет показан (renderDetails его скроет)
+
+            // 2) создаём НОВУЮ оплачиваемую строку в partial (id = null)
+            if (existing != null && existing.getId() == null) {
+                // уже есть такой новый кусок — просто увеличиваем его количество
+                existing.setAmount(existing.getAmount() + amountToMove);
             } else {
-                OrderDetailResponse copy = copyResponse(item);
-                copy.setStatus("PAID");
-                partialDetails.add(copy);
+                OrderDetailResponse paid = copyResponse(item);
+                paid.setId(null);                // новый detail в БД
+                paid.setAmount(amountToMove);
+                paid.setStatus("PAID");
+                partialDetails.add(paid);
             }
-            orderDetails.remove(item);
+
         } else {
-            // переносим часть
+            // 🔹 Переносим ЧАСТЬ строки
             item.setAmount(item.getAmount() - amountToMove);
 
-            if (existing != null) {
+            if (existing != null && existing.getId() == null) {
                 existing.setAmount(existing.getAmount() + amountToMove);
             } else {
                 OrderDetailResponse uiCopy = copyResponse(item);
-                uiCopy.setId(null);                 // ⚠️ новая строка, отдельный detail
+                uiCopy.setId(null);              // новый detail
                 uiCopy.setAmount(amountToMove);
                 uiCopy.setStatus("PAID");
                 partialDetails.add(uiCopy);
             }
-
-            // эта часть должна быть создана как новый detail в БД (для существующего заказа)
-            OrderDetailRequest newRequest = new OrderDetailRequest(
-                    item.getProductId(),
-                    item.getOrderId(),
-                    item.getName(),
-                    item.getComment(),
-                    amountToMove,
-                    item.getUnitPrice(),
-                    "PAID",
-                    selectedPaymentMethod,
-                    item.getBatchId());
-            partialDetailsNew.add(newRequest);
         }
 
         displayField.clear();
@@ -279,17 +283,25 @@ public class PartialPaymentController {
         if (amountToMove <= 0)
             return;
 
+        if (amountToMove > item.getAmount()) {
+            amountToMove = item.getAmount();
+        }
+
         OrderDetailResponse existing = orderDetails.stream()
-                .filter(p -> p.getName().equals(item.getName()))
-                .filter(p -> p.getUnitPrice().equals(item.getUnitPrice()))
+                .filter(p -> Objects.equals(p.getName(), item.getName()))
+                .filter(p -> p.getUnitPrice().compareTo(item.getUnitPrice()) == 0)
                 .findFirst()
                 .orElse(null);
 
-        if (amountToMove >= item.getAmount()) {
-            if (existing != null) {
+        if (amountToMove == item.getAmount()) {
+            // полностью возвращаем строку в основной бокс (до оплаты)
+            if (existing != null && existing.getAmount() == 0) {
+                // строка уже есть в main с amount 0 → просто увеличиваем
+                existing.setAmount(existing.getAmount() + item.getAmount());
+            } else if (existing != null && existing.getId() == null && item.getId() == null) {
                 existing.setAmount(existing.getAmount() + item.getAmount());
             } else {
-                orderDetails.add(copyResponse(item));
+                orderDetails.add(item);
             }
             partialDetails.remove(item);
         } else {
@@ -378,7 +390,7 @@ public class PartialPaymentController {
                 }
 
             } else {
-                // 🔹 СУЩЕСТВУЮЩИЙ ЗАКАЗ: обновляем детали и создаём новые
+                // 🔹 СУЩЕСТВУЮЩИЙ ЗАКАЗ: обновляем детали и создаём новые исходя из текущего UI
                 persistPartialDetails();
             }
 
@@ -392,7 +404,7 @@ public class PartialPaymentController {
             displayField.clear();
 
             anyPaymentDone = true;
-            if (orderDetails.isEmpty()) {
+            if (orderDetails.stream().noneMatch(od -> od.getAmount() > 0)) {
                 Stage stage = (Stage) tableNameLabel.getScene().getWindow();
                 stage.close();
             }
@@ -421,9 +433,7 @@ public class PartialPaymentController {
         return new PaymentInfo(total, received, change);
     }
 
-    private void generateReceiptPdf(OrderResponse order,
-                                    List<OrderDetailResponse> paidDetails,
-                                    PaymentInfo paymentInfo) {
+    private void generateReceiptPdf(OrderResponse order, List<OrderDetailResponse> paidDetails, PaymentInfo paymentInfo) {
         try {
             String fileName = "receipt-order-" + order.getId() + "-" + System.currentTimeMillis() + ".pdf";
             Path outputPath = Path.of(fileName);
@@ -455,45 +465,60 @@ public class PartialPaymentController {
     }
 
     /**
-     * Сохранение частичной оплаты для существующего заказа.
-     */
-    /**
-     * Сохранение частичной оплаты для существующего заказа.
+     * Сохранение частичной оплаты для существующего заказа
+     * на основе ТЕКУЩЕГО состояния main/partial боксов.
      */
     private void persistPartialDetails() {
         try {
             List<Long> idsToUpdate = new ArrayList<>();
             List<OrderDetailRequest> reqsToUpdate = new ArrayList<>();
+            List<OrderDetailRequest> reqsToCreate = new ArrayList<>();
 
-            // 1) Обновляем оставшиеся в основном заказе
+            // 1) MAIN BOX → не оплаченные позиции (даже с amount = 0, чтобы "обнулить" старый detail)
+            System.out.println(orderDetails);
             for (OrderDetailResponse od : orderDetails) {
-                if (od.getId() != null) {
-                    idsToUpdate.add(od.getId());
-
-                    OrderDetailRequest req = new OrderDetailRequest(
-                            od.getProductId(),
-                            od.getOrderId(),
-                            od.getName(),
-                            od.getComment(),
-                            od.getAmount(),
-                            od.getUnitPrice(),
-                            od.getStatus(),          // статус как был (обычно PENDING / SERVED)
-                            od.getPaymentMethod(),   // не меняем метод оплаты
-                            od.getBatchId()
-                    );
-
-                    reqsToUpdate.add(req);
+                if (od.getId() == null) {
+                    continue;
                 }
+
+                idsToUpdate.add(od.getId());
+
+                OrderDetailRequest req = new OrderDetailRequest(
+                        od.getProductId(),
+                        od.getOrderId(),
+                        od.getName(),
+                        od.getComment(),
+                        od.getAmount(),          // может быть 0
+                        od.getUnitPrice(),
+                        od.getStatus(),          // PENDING / SERVED
+                        od.getPaymentMethod(),   // метод оплаты не меняем
+                        od.getBatchId()
+                );
+
+                reqsToUpdate.add(req);
             }
 
-            // 2) Обновляем уже существующие детали в partialDetails (делаем их PAID)
+            System.out.println(reqsToUpdate);
+
+            // 2) PARTIAL BOX → всё, что сейчас считается ОПЛАЧЕННЫМ
             for (OrderDetailResponse pd : partialDetails) {
-                if (pd.getId() != null) { // только те, что реально есть в БД
+                Long productId = pd.getProductId();
+                Long orderId   = pd.getOrderId() != null
+                        ? pd.getOrderId()
+                        : (order != null ? order.getId() : null);
+
+                if (productId == null || orderId == null) {
+                    throw new IllegalStateException(
+                            "productId/orderId must not be null for partial payment detail");
+                }
+
+                if (pd.getId() != null) {
+                    // существующая строка (если такие будут) → UPDATE
                     idsToUpdate.add(pd.getId());
 
                     OrderDetailRequest req = new OrderDetailRequest(
-                            pd.getProductId(),
-                            pd.getOrderId(),
+                            productId,
+                            orderId,
                             pd.getName(),
                             pd.getComment(),
                             pd.getAmount(),
@@ -504,63 +529,31 @@ public class PartialPaymentController {
                     );
 
                     reqsToUpdate.add(req);
+                } else {
+                    // новая строка (результат деления) → CREATE
+                    OrderDetailRequest createReq = new OrderDetailRequest(
+                            productId,
+                            orderId,
+                            pd.getName(),
+                            pd.getComment(),
+                            pd.getAmount(),
+                            pd.getUnitPrice(),
+                            "PAID",
+                            selectedPaymentMethod,
+                            pd.getBatchId()
+                    );
+                    reqsToCreate.add(createReq);
                 }
             }
 
-            // отправляем батч-обновление, если есть что обновлять
+            // 3) Сначала обновляем существующие
             if (!idsToUpdate.isEmpty()) {
                 OrderDetailService.updateOrderDetailList(idsToUpdate, reqsToUpdate);
             }
 
-            // 3) Создаём НОВЫЕ детали, которые образовались при делении строки
-            if (!partialDetailsNew.isEmpty()) {
-                List<OrderDetailRequest> aggregated = new ArrayList<>();
-
-                for (OrderDetailRequest src : partialDetailsNew) {
-                    // подстрахуемся от null-ов
-                    Long productId = src.getProductId();
-                    Long orderId   = src.getOrderId() != null
-                            ? src.getOrderId()
-                            : (order != null ? order.getId() : null);
-
-                    if (productId == null || orderId == null) {
-                        throw new IllegalStateException(
-                                "productId/orderId must not be null when creating partial detail");
-                    }
-
-                    // ищем уже агрегированную такую же строку
-                    OrderDetailRequest existing = aggregated.stream()
-                            .filter(r -> r.getUnitPrice().compareTo(src.getUnitPrice()) == 0)
-                            .filter(r -> Objects.equals(r.getName(), src.getName()))
-                            .findFirst()
-                            .orElse(null);
-
-                    if (existing != null) {
-                        existing.setAmount(existing.getAmount() + src.getAmount());
-                    } else {
-                        OrderDetailRequest clone = new OrderDetailRequest();
-                        clone.setProductId(productId);
-                        clone.setOrderId(orderId);
-                        clone.setName(src.getName());
-                        clone.setComment(src.getComment());
-                        clone.setAmount(src.getAmount());
-                        clone.setUnitPrice(src.getUnitPrice());
-                        clone.setStatus("PAID");
-                        clone.setPaymentMethod(selectedPaymentMethod);
-                        clone.setBatchId(src.getBatchId());
-                        aggregated.add(clone);
-                    }
-                }
-
-                // создаём новые детали на бэке
-                List<OrderDetailResponse> created =
-                        OrderDetailService.createOrderDetailList(aggregated);
-
-                // в partialDetails убираем временные элементы без id и добавляем созданные
-                partialDetails.removeIf(d -> d.getId() == null);
-                partialDetails.addAll(created);
-
-                partialDetailsNew.clear();
+            // 4) Потом создаём новые
+            if (!reqsToCreate.isEmpty()) {
+                OrderDetailService.createOrderDetailList(reqsToCreate);
             }
 
         } catch (Exception e) {

@@ -1221,6 +1221,7 @@ public class PosController {
     }
 
     public List<OrderDetailResponse> getCurrentdetails() {
+        updateCurrentDetails();
         return currentdetails.isEmpty() ? visualDetails : currentdetails;
     }
 

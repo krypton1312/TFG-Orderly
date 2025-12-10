@@ -48,6 +48,7 @@ public class OrderDetailService {
     public static List<OrderDetailResponse> createOrderDetailList(List<OrderDetailRequest> orderDetails)
             throws Exception {
         String jsonInput = mapper.writeValueAsString(orderDetails);
+        System.out.println("\ncreateOrderDetailList" + jsonInput);
         String jsonResponse = ApiClient.post("/orderDetails/list", jsonInput);
 
         return mapper.readValue(jsonResponse,
@@ -67,6 +68,7 @@ public class OrderDetailService {
         payload.put("details", orderDetails);
 
         String jsonInput = mapper.writeValueAsString(payload);
+        System.out.println("\nupdateOrderDetailList" + jsonInput);
         String jsonResponse = ApiClient.post("/orderDetails/update-list", jsonInput);
 
         return mapper.readValue(

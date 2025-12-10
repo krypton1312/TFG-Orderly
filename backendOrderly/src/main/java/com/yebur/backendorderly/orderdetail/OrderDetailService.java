@@ -315,6 +315,12 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             checkAndUpdateOrderStatus(o.getId());
         });
 
+        for(OrderDetail od: findAll()){
+            if(od.getAmount() == 0){
+                deleteOrderDetail(od.getId());
+            }
+        }
+
         saved.forEach(d -> notifyDetailChanged(WsEventType.ORDER_DETAIL_UPDATED, d));
         saved.stream().map(OrderDetail::getOrder).distinct().forEach(this::notifyOrderTotalChanged);
 
