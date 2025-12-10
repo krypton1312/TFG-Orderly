@@ -2,6 +2,8 @@
 
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -11,47 +13,62 @@
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.yebur.controller.ReceiptController"
       spacing="4"
-      prefWidth="220"
-      minWidth="220"
-      maxWidth="220"
+      prefWidth="300"
+      minWidth="300"
+      maxWidth="300"
       style="-fx-padding: 8; -fx-background-color: white; -fx-font-family: 'Monospaced'; -fx-font-size: 9;">
 
-    <!-- Шапка бара -->
-    <Label fx:id="lblShopName"
-           maxWidth="1.7976931348623157E308"
-           style="-fx-font-weight: bold; -fx-alignment: center; -fx-text-alignment: center;"/>
-    <Label fx:id="lblAddress"
-           maxWidth="1.7976931348623157E308"
-           style="-fx-alignment: center; -fx-text-alignment: center;"/>
-    <Label fx:id="lblPhone"
-           maxWidth="1.7976931348623157E308"
-           style="-fx-alignment: center; -fx-text-alignment: center;"/>
-    <Separator/>
+    <!-- ЛОГО СВЕРХУ -->
+    <VBox alignment="CENTER" spacing="2">
+        <!-- путь поменяй под свои ресурсы -->
+        <ImageView fx:id="imgLogo"
+                   fitWidth="220"
+                   preserveRatio="true"
+                   smooth="true"/>
+    </VBox>
 
-    <!-- Инфо по заказу -->
-    <VBox spacing="2">
-        <Label fx:id="lblOrderInfo"/>
-        <Label fx:id="lblDate"/>
-        <Label fx:id="lblTable"/>
-        <Label fx:id="lblPayment"/>
+    <!-- Данные заведения -->
+    <VBox alignment="CENTER" spacing="1">
+        <Label fx:id="lblShopName"
+               style="-fx-font-weight: bold;"/>
+        <Label fx:id="lblAddress1"/>
+        <Label fx:id="lblAddress2"/>
+        <Label fx:id="lblPhone"/>
+        <Label fx:id="lblCif"/>
     </VBox>
 
     <Separator/>
 
-    <!-- Заголовок таблицы (фиксированные колонки, как в контроллере) -->
+    <!-- Инфо по счёту (как FRA SIN / FECHA на чеке) -->
     <GridPane hgap="4">
         <columnConstraints>
-            <!-- Producto: 130 px -->
+            <ColumnConstraints prefWidth="150" minWidth="150" maxWidth="150"/>
+            <ColumnConstraints prefWidth="150" minWidth="150" maxWidth="150"/>
+        </columnConstraints>
+
+        <Label fx:id="lblInvoice" GridPane.columnIndex="0"/>
+        <Label fx:id="lblDate"    GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Separator/>
+
+    <!-- Заголовок таблицы, как на чеке: UNID. DESCRIPCION PRECIO IMPORTE -->
+    <GridPane hgap="4">
+        <columnConstraints>
+            <!-- UNID. -->
+            <ColumnConstraints prefWidth="40" minWidth="40" maxWidth="40"/>
+            <!-- DESCRIPCION -->
             <ColumnConstraints prefWidth="130" minWidth="130" maxWidth="130"/>
-            <!-- Uds: 30 px -->
-            <ColumnConstraints prefWidth="30" minWidth="30" maxWidth="30"/>
-            <!-- Total: 60 px -->
+            <!-- PRECIO -->
+            <ColumnConstraints prefWidth="50" minWidth="50" maxWidth="50"/>
+            <!-- IMPORTE -->
             <ColumnConstraints prefWidth="60" minWidth="60" maxWidth="60"/>
         </columnConstraints>
 
-        <Label text="Producto" GridPane.columnIndex="0"/>
-        <Label text="Uds"      GridPane.columnIndex="1" style="-fx-alignment: center;"/>
-        <Label text="Total"    GridPane.columnIndex="2" style="-fx-alignment: center;"/>
+        <Label text="UNID."       GridPane.columnIndex="0"/>
+        <Label text="DESCRIPCION" GridPane.columnIndex="1"/>
+        <Label text="PRECIO"      GridPane.columnIndex="2" style="-fx-alignment: center;"/>
+        <Label text="IMPORTE"     GridPane.columnIndex="3" style="-fx-alignment: center;"/>
     </GridPane>
 
     <Separator/>
@@ -59,16 +76,42 @@
     <!-- Позиции -->
     <VBox fx:id="itemsBox"
           spacing="2"
-          prefWidth="220"
-          minWidth="220"
-          maxWidth="220"/>
+          prefWidth="300"
+          minWidth="300"
+          maxWidth="300"/>
 
     <Separator/>
 
-    <!-- Итог -->
+    <!-- НДС как на чеке: BASE  %IVA  IMP.IVA -->
+    <GridPane hgap="4">
+        <columnConstraints>
+            <ColumnConstraints prefWidth="100" minWidth="100" maxWidth="100"/>
+            <ColumnConstraints prefWidth="80"  minWidth="80"  maxWidth="80"/>
+            <ColumnConstraints prefWidth="100" minWidth="100" maxWidth="100"/>
+        </columnConstraints>
+
+        <!-- Заголовок -->
+        <Label text="BASE"    GridPane.columnIndex="0"/>
+        <Label text="IVA"    GridPane.columnIndex="1"/>
+        <Label text="IMP.IVA" GridPane.columnIndex="2"/>
+
+        <!-- Значения -->
+        <Label fx:id="lblTaxBase"    GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <Label fx:id="lblTaxPercent" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <Label fx:id="lblTaxAmount"  GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+    </GridPane>
+
+    <Separator/>
+
+    <!-- ИТОГИ -->
     <Label fx:id="lblTotal"
            maxWidth="1.7976931348623157E308"
            style="-fx-font-weight: bold; -fx-alignment: center;"/>
+
+    <Label fx:id="lblPending"
+           maxWidth="1.7976931348623157E308"
+           style="-fx-alignment: center;"/>
+
     <Label fx:id="lblFooter"
            maxWidth="1.7976931348623157E308"
            style="-fx-alignment: center;"/>

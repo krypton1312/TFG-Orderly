@@ -134,16 +134,23 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         List<OrderDetail> entities = new ArrayList<>();
         for (OrderDetailRequest dto : dtos) {
             OrderDetail entity = mapToEntity(dto);
-            if(dto.getCreatedAt() == null){
+            if (dto.getCreatedAt() == null) {
                 entity.setCreatedAt(LocalDateTime.now());
             } else {
                 entity.setCreatedAt(dto.getCreatedAt());
             }
-
             entities.add(entity);
         }
 
         List<OrderDetail> saved = orderDetailRepository.saveAll(entities);
+
+        // 🔹 объединяем PAID / SERVED строки
+        for (OrderDetail d : new ArrayList<>(saved)) {
+            if (d.getStatus() == OrderDetailStatus.PAID || d.getStatus() == OrderDetailStatus.SERVED) {
+                mergeSimilarDetails(d, d.getStatus());
+            }
+        }
+
         saved.stream().map(OrderDetail::getOrder).distinct().forEach(o -> {
             recalculateOrderTotal(o);
             checkAndUpdateOrderStatus(o.getId());
@@ -154,6 +161,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
 
         return saved.stream().map(this::mapToResponse).toList();
     }
+
 
     @Override
     @Transactional
@@ -295,6 +303,13 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         }
 
         List<OrderDetail> saved = orderDetailRepository.saveAll(updatedEntities);
+
+        for (OrderDetail d : new ArrayList<>(saved)) {
+            if (d.getStatus() == OrderDetailStatus.PAID || d.getStatus() == OrderDetailStatus.SERVED) {
+                mergeSimilarDetails(d, d.getStatus());
+            }
+        }
+
         saved.stream().map(OrderDetail::getOrder).distinct().forEach(o -> {
             recalculateOrderTotal(o);
             checkAndUpdateOrderStatus(o.getId());
@@ -392,25 +407,37 @@ public class OrderDetailService implements OrderDetailServiceInterface {
 
     @Transactional
     protected void mergeSimilarDetails(OrderDetail detail, OrderDetailStatus status) {
-        List<OrderDetail> duplicates = orderDetailRepository.findAllByOrderId(detail.getOrder().getId()).stream()
-                .filter(d -> !Objects.equals(d.getId(), detail.getId()) &&
-                        d.getStatus() == status &&
-                        d.getProduct().getId().equals(detail.getProduct().getId()) &&
-                        d.getUnitPrice().compareTo(detail.getUnitPrice()) == 0)
+        if (status != OrderDetailStatus.PAID && status != OrderDetailStatus.SERVED) {
+            return;
+        }
+
+        Long orderId = detail.getOrder().getId();
+        String name = detail.getName();
+        BigDecimal price = detail.getUnitPrice();
+        String payment = detail.getPaymentMethod();
+
+        List<OrderDetail> sameLines = orderDetailRepository.findAllByOrderId(orderId).stream()
+                .filter(d -> d.getStatus() == status)
+                .filter(d -> Objects.equals(d.getName(), name))
+                .filter(d -> d.getUnitPrice().compareTo(price) == 0)
+                .filter(d -> status != OrderDetailStatus.PAID ||
+                        Objects.equals(d.getPaymentMethod(), payment))
                 .collect(Collectors.toList());
 
-        if (duplicates.isEmpty())
+        if (sameLines.size() <= 1) {
             return;
+        }
+        OrderDetail main = sameLines.stream()
+                .min(Comparator.comparing(OrderDetail::getId))
+                .orElseThrow();
 
-        OrderDetail main = duplicates.get(0);
-
-        int totalAmount = main.getAmount() + detail.getAmount()
-                + duplicates.stream().skip(1).mapToInt(OrderDetail::getAmount).sum();
+        int totalAmount = sameLines.stream()
+                .mapToInt(OrderDetail::getAmount)
+                .sum();
 
         main.setAmount(totalAmount);
 
-        List<OrderDetail> toDelete = new ArrayList<>(duplicates);
-        toDelete.add(detail);
+        List<OrderDetail> toDelete = new ArrayList<>(sameLines);
         toDelete.remove(main);
 
         orderDetailRepository.deleteAll(toDelete);
@@ -420,6 +447,8 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         notifyDetailChanged(WsEventType.ORDER_DETAIL_UPDATED, main);
         notifyOrderTotalChanged(main.getOrder());
     }
+
+
 
     private OrderDetail mapToEntity(OrderDetailRequest dto) {
         Product product = productService.findById(dto.getProductId())

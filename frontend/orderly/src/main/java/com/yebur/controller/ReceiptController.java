@@ -7,11 +7,14 @@ import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
@@ -23,36 +26,82 @@ public class ReceiptController {
 
     @FXML private VBox root;
 
-    @FXML private Label lblShopName;
-    @FXML private Label lblAddress;
-    @FXML private Label lblPhone;
+    @FXML private ImageView imgLogo;
 
-    @FXML private Label lblOrderInfo;
+    @FXML private Label lblShopName;
+    @FXML private Label lblAddress1;
+    @FXML private Label lblAddress2;
+    @FXML private Label lblPhone;
+    @FXML private Label lblCif;
+
+    @FXML private Label lblInvoice;
     @FXML private Label lblDate;
-    @FXML private Label lblTable;
-    @FXML private Label lblPayment;
 
     @FXML private VBox itemsBox;
 
+    @FXML private Label lblTaxBase;
+    @FXML private Label lblTaxPercent;
+    @FXML private Label lblTaxAmount;
+
     @FXML private Label lblTotal;
+    @FXML private Label lblPending;
     @FXML private Label lblFooter;
 
     private final NumberFormat currencyFormatter =
-            NumberFormat.getCurrencyInstance(Locale.GERMANY);
+            NumberFormat.getCurrencyInstance(new Locale("es", "ES"));
 
     private static final DateTimeFormatter DATE_TIME_FMT =
-            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    // ---- Фиксированные размеры чека (под 58mm, можно подправить под свой принтер) ----
-    private static final double RECEIPT_WIDTH    = 220;  // общая ширина чека, px
-    private static final double COL_NAME_WIDTH   = 130;  // ширина колонки "Producto"
-    private static final double COL_QTY_WIDTH    = 30;   // ширина колонки "Uds"
-    private static final double COL_TOTAL_WIDTH  = 60;   // ширина колонки "Total"
+    // ---- ширина под рулон 80 мм ----
+    private static final double RECEIPT_WIDTH   = 300; // px
+    private static final double COL_QTY_WIDTH   = 40;  // UNID.
+    private static final double COL_NAME_WIDTH  = 130; // DESCRIPCION
+    private static final double COL_PRICE_WIDTH = 50;  // PRECIO
+    private static final double COL_TOTAL_WIDTH = 60;  // IMPORTE
 
-    // Можно потом вынести в настройки
-    private static final String SHOP_NAME  = "Orderly Bar";
-    private static final String SHOP_ADDR  = "C/ Valencia 123, Valencia";
-    private static final String SHOP_PHONE = "Tel: +34 600 000 000";
+    // Данные бара «El Diván»
+    private static final String SHOP_NAME  = "CAFETERIA EL DIVAN";
+    private static final String SHOP_ADDR1 = "AVDA. REI EN JAUME I N.2";
+    private static final String SHOP_ADDR2 = "46470 CATARROJA VALENCIA";
+    private static final String SHOP_PHONE = "TEL 963127353";
+    private static final String SHOP_CIF   = "CAFETERIA EL DIVAN S.L. CIF: B97340376";
+
+    // 10% IVA, как в оригинальном чеке
+    private static final BigDecimal IVA_RATE = new BigDecimal("0.10");
+
+    @FXML
+    private void initialize() {
+        // фиксируем ширину
+        if (root != null) {
+            root.setMinWidth(RECEIPT_WIDTH);
+            root.setPrefWidth(RECEIPT_WIDTH);
+            root.setMaxWidth(RECEIPT_WIDTH);
+        }
+        if (itemsBox != null) {
+            itemsBox.setMinWidth(RECEIPT_WIDTH);
+            itemsBox.setPrefWidth(RECEIPT_WIDTH);
+            itemsBox.setMaxWidth(RECEIPT_WIDTH);
+        }
+
+        // лого
+        try (InputStream is =
+                     getClass().getResourceAsStream("/com/yebur/icons/eldivan_logo.png")) { // поменяй путь!
+            if (is != null) {
+                imgLogo.setImage(new Image(is));
+            }
+        } catch (Exception ignored) {
+        }
+
+        // шапка бара
+        lblShopName.setText(SHOP_NAME);
+        lblAddress1.setText(SHOP_ADDR1);
+        lblAddress2.setText(SHOP_ADDR2);
+        lblPhone.setText(SHOP_PHONE);
+        lblCif.setText(SHOP_CIF);
+
+        lblFooter.setText("GRACIAS POR SU VISITA");
+    }
 
     public VBox getRoot() {
         return root;
@@ -66,56 +115,18 @@ public class ReceiptController {
                         RestTableResponse table,
                         PartialPaymentController.PaymentInfo paymentInfo) {
 
-        // ---- фиксируем ширину корня и контейнера с позициями ----
-        if (root != null) {
-            root.setMinWidth(RECEIPT_WIDTH);
-            root.setPrefWidth(RECEIPT_WIDTH);
-            root.setMaxWidth(RECEIPT_WIDTH);
-        }
-        if (itemsBox != null) {
-            itemsBox.setMinWidth(RECEIPT_WIDTH);
-            itemsBox.setPrefWidth(RECEIPT_WIDTH);
-            itemsBox.setMaxWidth(RECEIPT_WIDTH);
-        }
-
-        // Шапка бара
-        lblShopName.setText(SHOP_NAME);
-        lblAddress.setText(SHOP_ADDR);
-        lblPhone.setText(SHOP_PHONE);
-
-        // Инфо по заказу
+        // FRA / FECHA (как в примере чека)
+        String fra = "FRA SIN: COMPROBANTE";
         if (order != null && order.getId() != null) {
-            lblOrderInfo.setText("Pedido: " + order.getId());
-        } else {
-            lblOrderInfo.setText("Pedido: -");
+            fra = "FRA: " + order.getId();
         }
+        lblInvoice.setText(fra);
 
         if (order != null && order.getDatetime() != null) {
-            lblDate.setText("Fecha: " + order.getDatetime().format(DATE_TIME_FMT));
+            lblDate.setText("FECHA: " + order.getDatetime().format(DATE_TIME_FMT));
         } else {
-            lblDate.setText("Fecha: N/A");
+            lblDate.setText("FECHA: N/A");
         }
-
-        if (table != null && table.getName() != null) {
-            lblTable.setText("Mesa: " + table.getName());
-        } else {
-            lblTable.setText("Sin mesa");
-        }
-
-        String paymentMethod = "";
-        if (details != null && !details.isEmpty()
-                && details.get(0).getPaymentMethod() != null) {
-            paymentMethod = details.get(0).getPaymentMethod();
-        }
-
-        if ("CASH".equals(paymentMethod)) {
-            paymentMethod = "Efectivo";
-        } else if ("CARD".equals(paymentMethod)) {
-            paymentMethod = "Tarjeta";
-        }
-
-        lblPayment.setText("Metodo pago: " +
-                (!paymentMethod.isEmpty() ? paymentMethod : "N/A"));
 
         // Позиции
         itemsBox.getChildren().clear();
@@ -127,19 +138,24 @@ public class ReceiptController {
                 row.setHgap(4);
                 row.setAlignment(Pos.CENTER_LEFT);
 
-                // Фиксированные колонки (px), а не проценты
                 if (row.getColumnConstraints().isEmpty()) {
+                    ColumnConstraints colQty = new ColumnConstraints();
+                    colQty.setMinWidth(COL_QTY_WIDTH);
+                    colQty.setPrefWidth(COL_QTY_WIDTH);
+                    colQty.setMaxWidth(COL_QTY_WIDTH);
+                    colQty.setHalignment(HPos.CENTER);
+
                     ColumnConstraints colName = new ColumnConstraints();
                     colName.setMinWidth(COL_NAME_WIDTH);
                     colName.setPrefWidth(COL_NAME_WIDTH);
                     colName.setMaxWidth(COL_NAME_WIDTH);
                     colName.setHgrow(Priority.NEVER);
 
-                    ColumnConstraints colQty = new ColumnConstraints();
-                    colQty.setMinWidth(COL_QTY_WIDTH);
-                    colQty.setPrefWidth(COL_QTY_WIDTH);
-                    colQty.setMaxWidth(COL_QTY_WIDTH);
-                    colQty.setHalignment(HPos.CENTER);
+                    ColumnConstraints colPrice = new ColumnConstraints();
+                    colPrice.setMinWidth(COL_PRICE_WIDTH);
+                    colPrice.setPrefWidth(COL_PRICE_WIDTH);
+                    colPrice.setMaxWidth(COL_PRICE_WIDTH);
+                    colPrice.setHalignment(HPos.RIGHT);
 
                     ColumnConstraints colTotal = new ColumnConstraints();
                     colTotal.setMinWidth(COL_TOTAL_WIDTH);
@@ -147,37 +163,43 @@ public class ReceiptController {
                     colTotal.setMaxWidth(COL_TOTAL_WIDTH);
                     colTotal.setHalignment(HPos.RIGHT);
 
-                    row.getColumnConstraints().addAll(colName, colQty, colTotal);
+                    row.getColumnConstraints().addAll(colQty, colName, colPrice, colTotal);
                 }
 
                 String name = d.getName() != null
                         ? d.getName()
                         : ("Producto #" + d.getProductId());
 
-                Label nameLbl = new Label(name);
-                nameLbl.setWrapText(true);
-                nameLbl.setMaxWidth(COL_NAME_WIDTH);
-                GridPane.setHgrow(nameLbl, Priority.NEVER);
-
-                Label qtyLbl = new Label("x" + d.getAmount());
+                Label qtyLbl = new Label(String.valueOf(d.getAmount()));
                 qtyLbl.setAlignment(Pos.CENTER);
                 qtyLbl.setMinWidth(COL_QTY_WIDTH);
                 qtyLbl.setPrefWidth(COL_QTY_WIDTH);
                 qtyLbl.setMaxWidth(COL_QTY_WIDTH);
 
-                BigDecimal lineTotal = d.getUnitPrice()
+                Label nameLbl = new Label(name);
+                nameLbl.setWrapText(true);
+                nameLbl.setMaxWidth(COL_NAME_WIDTH);
+                GridPane.setHgrow(nameLbl, Priority.NEVER);
+
+                BigDecimal unitPrice = d.getUnitPrice().setScale(2, RoundingMode.HALF_UP);
+                Label priceLbl = new Label(currencyFormatter.format(unitPrice));
+                priceLbl.setMinWidth(COL_PRICE_WIDTH);
+                priceLbl.setPrefWidth(COL_PRICE_WIDTH);
+                priceLbl.setMaxWidth(COL_PRICE_WIDTH);
+
+                BigDecimal lineTotal = unitPrice
                         .multiply(BigDecimal.valueOf(d.getAmount()))
                         .setScale(2, RoundingMode.HALF_UP);
 
                 Label totalLbl = new Label(currencyFormatter.format(lineTotal));
-                totalLbl.setAlignment(Pos.CENTER_RIGHT);
                 totalLbl.setMinWidth(COL_TOTAL_WIDTH);
                 totalLbl.setPrefWidth(COL_TOTAL_WIDTH);
                 totalLbl.setMaxWidth(COL_TOTAL_WIDTH);
 
-                row.add(nameLbl, 0, 0);
-                row.add(qtyLbl, 1, 0);
-                row.add(totalLbl, 2, 0);
+                row.add(qtyLbl,   0, 0);
+                row.add(nameLbl,  1, 0);
+                row.add(priceLbl, 2, 0);
+                row.add(totalLbl, 3, 0);
 
                 itemsBox.getChildren().add(row);
 
@@ -186,16 +208,30 @@ public class ReceiptController {
         }
 
         total = total.setScale(2, RoundingMode.HALF_UP);
-        lblTotal.setText("TOTAL: " + currencyFormatter.format(total));
 
-        if (paymentInfo != null && paymentInfo.getReceived().compareTo(BigDecimal.ZERO) > 0) {
-            lblFooter.setText(
-                    "Gracias!\n" +
-                            "Pagado: " + currencyFormatter.format(paymentInfo.getReceived()) +
-                            "\nCambio: " + currencyFormatter.format(paymentInfo.getChange())
-            );
+        // НДС (BASE, %IVA, IMP.IVA)
+        BigDecimal base = total
+                .divide(BigDecimal.ONE.add(IVA_RATE), 2, RoundingMode.HALF_UP);
+        BigDecimal ivaAmount = total.subtract(base);
+
+        lblTaxBase.setText(currencyFormatter.format(base));
+        lblTaxPercent.setText(IVA_RATE.multiply(BigDecimal.valueOf(100))
+                .setScale(0, RoundingMode.HALF_UP) + " %");
+        lblTaxAmount.setText(currencyFormatter.format(ivaAmount));
+
+        // ИТОГИ
+        lblTotal.setText("TOTAL EUROS  " + currencyFormatter.format(total));
+
+        if (paymentInfo != null && paymentInfo.getReceived()
+                .compareTo(BigDecimal.ZERO) > 0) {
+            // уже оплачен
+            lblPending.setText("PAGADO: " + currencyFormatter.format(paymentInfo.getReceived())
+                    + "  CAMBIO: " + currencyFormatter.format(paymentInfo.getChange()));
+            lblFooter.setText("GRACIAS POR SU VISITA");
         } else {
-            lblFooter.setText("Gracias!");
+            // ещё не оплачен, как на фото
+            lblPending.setText("PENDIENTE DE COBRO  " + currencyFormatter.format(total));
+            lblFooter.setText("GRACIAS POR SU VISITA");
         }
     }
 }

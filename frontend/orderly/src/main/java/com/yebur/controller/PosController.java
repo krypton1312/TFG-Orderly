@@ -448,6 +448,7 @@ public class PosController {
                     OrderDetailRequest req = new OrderDetailRequest();
                     req.setOrderId(targetOrderId);
                     req.setProductId(visualDetail.getProductId());
+                    req.setName(visualDetail.getName());
                     req.setAmount(visualDetail.getAmount());
                     req.setUnitPrice(visualDetail.getUnitPrice());
                     req.setStatus("PENDING");
