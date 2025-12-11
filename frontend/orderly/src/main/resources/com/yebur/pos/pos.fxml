@@ -5,6 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.*?>
 
+<?import javafx.scene.shape.SVGPath?>
 <GridPane hgap="10" prefHeight="768.0" prefWidth="1024.0" style="-fx-padding: 10;" vgap="10"
           xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
           fx:controller="com.yebur.controller.PosController">
@@ -223,70 +224,185 @@
 
 
         <!-- ==== Правая панель ==== -->
-        <VBox spacing="10" styleClass="sidebar" GridPane.columnIndex="2" GridPane.rowIndex="0"
+        <VBox spacing="20"
+              styleClass="sidebar"
+              GridPane.columnIndex="2"
+              GridPane.rowIndex="0"
               GridPane.rowSpan="2">
             <padding>
                 <Insets bottom="20" left="20" right="20" top="20"/>
             </padding>
+
             <children>
-                <Button text="Get Check" onAction="#handlePartialPaymentClick">
-                    <styleClass>
-                        <String fx:value="action-btn"/>
-                        <String fx:value="green"/>
-                    </styleClass>
-                </Button>
+                <GridPane hgap="15" vgap="15" VBox.vgrow="ALWAYS">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                    </columnConstraints>
 
-                <Button text="Print Invoice">
-                    <styleClass>
-                        <String fx:value="action-btn"/>
-                        <String fx:value="blue"/>
-                    </styleClass>
-                </Button>
+                    <!-- Row 0: Cobrar, большая -->
+                    <Button onAction="#handlePartialPaymentClick"
+                            GridPane.rowIndex="0"
+                            GridPane.columnIndex="0"
+                            GridPane.columnSpan="2"
+                            text="">
+                        <styleClass>
+                            <String fx:value="action-btn"/>
+                            <String fx:value="action-btn-main"/>
+                            <String fx:value="btn-green"/>
+                        </styleClass>
+                        <graphic>
+                            <StackPane styleClass="action-btn-stack">
+                                <VBox alignment="CENTER" spacing="8">
+                                    <SVGPath styleClass="icon" content="M 19.5 24 H 12 M 21 12 H 12 M 24 18 H 12 M 6 4.5 a 1.5 1.5 90 0 1 1.5 -1.5 a 1.95 1.95 90 0 1 1.05 0.3 l 1.3995 0.9 a 1.95 1.95 90 0 0 2.1 0 l 1.401 -0.9 a 1.95 1.95 90 0 1 2.1 0 l 1.3995 0.9 a 1.95 1.95 90 0 0 2.1 0 l 1.3995 -0.9 a 1.95 1.95 90 0 1 2.1 0 l 1.401 0.9 a 1.95 1.95 90 0 0 2.1 0 l 1.3995 -0.9 A 1.95 1.95 90 0 1 28.5 3 a 1.5 1.5 90 0 1 1.5 1.5 v 27 a 1.5 1.5 90 0 1 -1.5 1.5 a 1.95 1.95 90 0 1 -1.05 -0.3 l -1.3995 -0.9 a 1.95 1.95 90 0 0 -2.1 0 l -1.401 0.9 a 1.95 1.95 90 0 1 -2.1 0 l -1.3995 -0.9 a 1.95 1.95 90 0 0 -2.1 0 l -1.3995 0.9 a 1.95 1.95 90 0 1 -2.1 0 l -1.401 -0.9 a 1.95 1.95 90 0 0 -2.1 0 l -1.3995 0.9 a 1.95 1.95 90 0 1 -1.05 0.3 a 1.5 1.5 90 0 1 -1.5 -1.5 z"/>
+                                    <Label text="Cobrar" styleClass="action-btn-label"/>
+                                </VBox>
+                            </StackPane>
+                        </graphic>
+                    </Button>
 
-                <Button text="Anular Linea" onAction="#handleDeleteOrderItemClick">
-                    <styleClass>
-                        <String fx:value="action-btn"/>
-                        <String fx:value="red"/>
-                    </styleClass>
-                </Button>
+                    <!-- Row 1: Imprimir recibo -->
+                    <Button GridPane.rowIndex="1"
+                            GridPane.columnIndex="0"
+                            text="">
+                        <styleClass>
+                            <String fx:value="action-btn"/>
+                            <String fx:value="action-btn-small"/>
+                            <String fx:value="btn-blue"/>
+                        </styleClass>
+                        <graphic>
+                            <StackPane styleClass="action-btn-stack">
+                                <VBox alignment="CENTER" spacing="8">
+                                    <SVGPath styleClass="icon" content="M 9 27 H 6 a 3 3 90 0 1 -3 -3 v -7.5 a 3 3 90 0 1 3 -3 h 24 a 3 3 90 0 1 3 3 v 7.5 a 3 3 90 0 1 -3 3 h -3 M 9 13.5 V 4.5 a 1.5 1.5 90 0 1 1.5 -1.5 h 15 a 1.5 1.5 90 0 1 1.5 1.5 v 9 M 10.5 21 h 15 a 1.5 1.5 90 0 1 1.5 1.5 v 9 a 1.5 1.5 90 0 1 -1.5 1.5 H 10.5 a 1.5 1.5 90 0 1 -1.5 -1.5 v -9 a 1.5 1.5 90 0 1 1.5 -1.5 z"/>
+                                    <Label text="Imprimir" styleClass="action-btn-label"/>
+                                </VBox>
+                            </StackPane>
+                        </graphic>
+                    </Button>
 
-                <Button text="Borrar" onAction="#handleClearOrderClick">
-                    <styleClass>
-                        <String fx:value="action-btn"/>
-                        <String fx:value="red"/>
-                    </styleClass>
-                </Button>
+                    <Button onAction="#handleDeleteOrderItemClick"
+                            GridPane.rowIndex="1"
+                            GridPane.columnIndex="1"
+                            text="">
+                        <styleClass>
+                            <String fx:value="action-btn"/>
+                            <String fx:value="action-btn-small"/>
+                            <String fx:value="btn-red"/>
+                        </styleClass>
+                        <graphic>
+                            <StackPane styleClass="action-btn-stack">
+                                <VBox alignment="CENTER" spacing="8">
+                                    <SVGPath styleClass="icon"  content="M 15 7.5 a 3 3 90 0 0 -2.016 0.7785 l -9.492 8.61 a 1.5 1.5 90 0 0 0 2.2215 l 9.492 8.6115 A 3 3 90 0 0 15 28.5 h 15 a 3 3 90 0 0 3 -3 V 10.5 a 3 3 90 0 0 -3 -3 z M 18 13.5 l 9 9 M 27 13.5 l -9 9"/>
+                                    <Label text="Anular línea" styleClass="action-btn-label"/>
+                                </VBox>
+                            </StackPane>
+                        </graphic>
+                    </Button>
 
-                <Button text="Cuentas" onAction="#handleChecksClick">
-                    <styleClass>
-                        <String fx:value="action-btn"/>
-                        <String fx:value="dark"/>
-                    </styleClass>
-                </Button>
+                    <!-- Row 2: Borrar / Cuentas -->
+                    <Button onAction="#handleClearOrderClick"
+                            GridPane.rowIndex="2"
+                            GridPane.columnIndex="0"
+                            text="">
+                        <styleClass>
+                            <String fx:value="action-btn"/>
+                            <String fx:value="action-btn-small"/>
+                            <String fx:value="btn-red"/>
+                        </styleClass>
+                        <graphic>
+                            <StackPane styleClass="action-btn-stack">
+                                <VBox alignment="CENTER" spacing="8">
+                                    <SVGPath styleClass="icon" content="M 28.5 9 v 21 a 3 3 90 0 1 -3 3 H 10.5 a 3 3 90 0 1 -3 -3 V 9 M 4.5 9 h 27 M 12 9 V 6 a 3 3 90 0 1 3 -3 h 6 a 3 3 90 0 1 3 3 v 3"/>
+                                    <Label text="Borrar" styleClass="action-btn-label"/>
+                                </VBox>
+                            </StackPane>
+                        </graphic>
+                    </Button>
 
-                <Button text="Shift Report">
-                    <styleClass>
-                        <String fx:value="action-btn"/>
-                        <String fx:value="dark"/>
-                    </styleClass>
-                </Button>
+                    <Button onAction="#handleChecksClick"
+                            GridPane.rowIndex="2"
+                            GridPane.columnIndex="1"
+                            text="">
+                        <styleClass>
+                            <String fx:value="action-btn"/>
+                            <String fx:value="action-btn-small"/>
+                            <String fx:value="btn-light"/>
+                        </styleClass>
+                        <graphic>
+                            <StackPane styleClass="action-btn-stack">
+                                <VBox alignment="CENTER" spacing="8">
+                                    <SVGPath styleClass="icon" content="M 20.1 3 H 9 a 3 3 90 0 0 -3 3 v 24 a 3 3 90 0 0 3 3 h 18 a 3 3 90 0 0 3 -3 v -11.1 M 3 9 h 6 M 3 15 h 6 M 3 21 h 6 M 3 27 h 6 M 32.067 8.439 a 1.5 1.5 90 1 0 -4.506 -4.506 l -7.515 7.518 a 3 3 90 0 0 -0.759 1.281 l -1.2555 4.305 a 0.75 0.75 90 0 0 0.93 0.93 l 4.305 -1.2555 a 3 3 90 0 0 1.281 -0.759 z"/>
+                                    <Label text="Cuentas" styleClass="action-btn-label"/>
+                                </VBox>
+                            </StackPane>
+                        </graphic>
+                    </Button>
 
-                <Button text="Crear cuenta/Transpasar" onAction="#handleNewOrderClick">
-                    <styleClass>
-                        <String fx:value="action-btn"/>
-                        <String fx:value="dark"/>
-                    </styleClass>
-                </Button>
+                    <!-- Row 3: Shift Report / Transpasar -->
+                    <Button GridPane.rowIndex="3"
+                            GridPane.columnIndex="0"
+                            text="">
+                        <styleClass>
+                            <String fx:value="action-btn"/>
+                            <String fx:value="action-btn-small"/>
+                            <String fx:value="btn-light"/>
+                        </styleClass>
+                        <graphic>
+                            <StackPane styleClass="action-btn-stack">
+                                <VBox alignment="CENTER" spacing="8">
+                                    <SVGPath styleClass="icon" content="M 6 9 h 24 a 3 3 90 0 1 3 3 v 12 a 3 3 90 0 1 -3 3 H 6 a 3 3 90 0 1 -3 -3 V 12 a 3 3 90 0 1 3 -3 M 21 18 a 3 3 90 1 1 -6 0 a 3 3 90 1 1 6 0 M 9 18 h 0.015 M 27 18 h 0.015"/>
+                                    <Label text="Operaciones" styleClass="action-btn-label"/>
+                                </VBox>
+                            </StackPane>
+                        </graphic>
+                    </Button>
 
-                <Button text="Salir" onAction="#handleCloseClick">
-                    <styleClass>
-                        <String fx:value="action-btn"/>
-                        <String fx:value="red"/>
-                    </styleClass>
-                </Button>
+                    <Button onAction="#handleNewOrderClick"
+                            wrapText="true"
+                            GridPane.rowIndex="3"
+                            GridPane.columnIndex="1"
+                            text="">
+                        <styleClass>
+                            <String fx:value="action-btn"/>
+                            <String fx:value="action-btn-small"/>
+                            <String fx:value="btn-light"/>
+                        </styleClass>
+                        <graphic>
+                            <StackPane styleClass="action-btn-stack">
+                                <VBox alignment="CENTER" spacing="8">
+                                    <SVGPath styleClass="icon" content="M 24 4.5 l 6 6 l -6 6 M 30 10.5 H 6 M 12 31.5 l -6 -6 l 6 -6 M 6 25.5 h 24"/>
+                                    <Label text="Transpasar" styleClass="action-btn-label"/>
+                                </VBox>
+                            </StackPane>
+                        </graphic>
+                    </Button>
 
+                    <!-- Row 4: Salir на всю ширину -->
+                    <Button onAction="#handleCloseClick"
+                            GridPane.rowIndex="4"
+                            GridPane.columnIndex="0"
+                            GridPane.columnSpan="2"
+                            text="">
+                        <styleClass>
+                            <String fx:value="action-btn"/>
+                            <String fx:value="action-btn-main"/>
+                            <String fx:value="btn-red"/>
+                        </styleClass>
+                        <graphic>
+                            <StackPane styleClass="action-btn-stack">
+                                <VBox alignment="CENTER" spacing="8">
+                                    <SVGPath styleClass="icon" content="M 24 25.5 l 7.5 -7.5 l -7.5 -7.5 M 31.5 18 H 13.5 M 13.5 31.5 H 7.5 a 3 3 90 0 1 -3 -3 V 7.5 a 3 3 90 0 1 3 -3 h 6"/>
+                                    <Label text="Salir" styleClass="action-btn-label"/>
+                                </VBox>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+
+                </GridPane>
             </children>
         </VBox>
+
+
     </children>
 
 </GridPane>
