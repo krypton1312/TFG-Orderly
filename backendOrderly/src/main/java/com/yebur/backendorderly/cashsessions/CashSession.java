@@ -7,12 +7,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "cash_sessions")
+@Table(
+        name = "cash_sessions",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"business_date","shift_no"})
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,28 +25,32 @@ public class CashSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private LocalDate businessDate;
+
+    private Integer shiftNo;
+
     @Column(nullable = false)
     private LocalDateTime openedAt;
 
     @Column
     private LocalDateTime closedAt;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(precision = 12, scale = 2)
     private BigDecimal cashStart;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(precision = 12, scale = 2)
     private BigDecimal cashEndExpected;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(precision = 12, scale = 2)
     private BigDecimal cashEndActual;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(precision = 12, scale = 2)
     private BigDecimal difference;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(precision = 12, scale = 2)
     private BigDecimal totalSalesCash;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(precision = 12, scale = 2)
     private BigDecimal totalSalesCard;
 
     @Column
