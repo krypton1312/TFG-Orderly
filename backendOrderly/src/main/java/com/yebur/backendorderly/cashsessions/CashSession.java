@@ -1,6 +1,6 @@
 package com.yebur.backendorderly.cashsessions;
 
-import com.yebur.backendorderly.cashoperations.CashOperations;
+import com.yebur.backendorderly.cashoperations.CashOperation;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -59,6 +59,6 @@ public class CashSession {
 
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CashOperations> operations = new ArrayList<>();
+    private List<CashOperation> operations = new ArrayList<>();
 
 }

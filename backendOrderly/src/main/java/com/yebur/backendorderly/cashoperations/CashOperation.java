@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CashOperations {
+public class CashOperation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,6 +26,9 @@ public class CashOperations {
     @Column
     @Enumerated(EnumType.STRING)
     private CashOperationType type;
+
+    @Column(nullable = false)
+    private String description;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
