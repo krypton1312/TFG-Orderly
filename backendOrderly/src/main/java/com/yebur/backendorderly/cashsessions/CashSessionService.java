@@ -1,7 +1,10 @@
 package com.yebur.backendorderly.cashsessions;
 
+import com.yebur.backendorderly.cashcount.CashCount;
 import com.yebur.backendorderly.cashcount.CashCountRequest;
+import com.yebur.backendorderly.cashcount.CashCountService;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,41 +12,44 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public class CashSessionService extends CashSessionServiceInterface {
-    private CashSessionRepository cashSessionRepository;
+@Service("cashSessionService")
+public class CashSessionService implements CashSessionServiceInterface {
+    private final CashSessionRepository cashSessionRepository;
+    private final CashCountService cashCountService;
 
-    public CashSessionService(CashSessionRepository cashSessionRepository) {
+    public CashSessionService(CashSessionRepository cashSessionRepository, CashCountService cashCountService) {
         this.cashSessionRepository = cashSessionRepository;
+        this.cashCountService = cashCountService;
     }
 
+    @Override
     public Optional<CashSession> findCashSessionById(Long id){
         return cashSessionRepository.findById(id);
     }
 
+    @Override
     public Optional<CashSessionResponse> findCashSessionDTOById(Long id){
         return cashSessionRepository.findCashSessionDTOById(id);
     }
 
+    @Override
     public List<CashSessionResponse> findAllCashSessionDTO(){
         return cashSessionRepository.findAllCashSessionDTO();
     }
 
+    @Override
     public Optional<CashSessionResponse> findCashSessionDTOByBusinessDate(LocalDate businessDate){
         return cashSessionRepository.findCashSessionDTOByBusinessDate(businessDate);
     }
 
+    @Override
     public CashSessionResponse create(CashSessionRequest request){
-        return null;
+        return new CashSessionResponse();
     }
 
-    public CashSessionResponse open(BigDecimal cashStart) {
-
-        if (cashStart == null) {
-            throw new IllegalArgumentException("cashStart is required");
-        }
-        if (cashStart.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("cashStart must be >= 0");
-        }
+    @Override
+    public CashSessionResponse open() {
+        BigDecimal cashStart = cashCountService.getLastCashCountTotal();
 
         LocalDateTime now = LocalDateTime.now();
         LocalDate businessDate = now.toLocalDate();
@@ -74,14 +80,29 @@ public class CashSessionService extends CashSessionServiceInterface {
         }
     }
 
-    /*
-    public CashSession mapToEntity(CashSessionRequest request){
-        CashSession session = new CashSession();
-        session.setClosedAt(request.getClosedAt());
-        session.setCashStart(request.getCashStart());
-        session.setCashEndExpected(request.getCashEndExpected());
-        session.setCashEndActual(request.getCashEndActual());
-        session.setDifference(request.getDifference());
-        session.setTotalSalesCard(request.getTotalSalesCard());
-    }*/
+    @Override
+    public CashSessionResponse close(Long id, CashCount cashCount){
+        return new CashSessionResponse();
+    }
+
+    @Override
+    public CashSessionResponse update(Long id, CashSessionRequest request){
+        CashSession toUpdate = findCashSessionById(id).orElseThrow(() -> new RuntimeException("CashSession not found with this id: " + id));
+        toUpdate.setClosedAt(request.getClosedAt());
+        toUpdate.setCashStart(request.getCashStart());
+        toUpdate.setCashEndExpected(request.getCashEndExpected());
+        toUpdate.setCashEndActual(request.getCashEndActual());
+        toUpdate.setTotalSalesCash(request.getTotalSalesCash());
+        toUpdate.setTotalSalesCard(request.getTotalSalesCard());
+        toUpdate.setStatus(CashSessionStatus.valueOf(request.getStatus()));
+
+        return CashSessionResponse.fromEntity(cashSessionRepository.save(toUpdate));
+    }
+
+    @Override
+    public void delete(Long id){
+        CashSession toDelete = findCashSessionById(id).orElseThrow(() -> new RuntimeException("CashSession not found with this id: " + id));
+
+        cashSessionRepository.delete(toDelete);
+    }
 }

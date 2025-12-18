@@ -35,10 +35,12 @@ public class SupplementService implements SupplementServiceInterface{
         return supplementRepository.findAll().stream().map(this::mapEntityToResponse).toList();
     }
 
+    @Override
     public List<SupplementResponse> findSupplementsByCategory(Long id){
         return supplementRepository.findSupplementByCategoriesId(id).stream().map(this::mapEntityToResponse).toList();
     }
 
+    @Override
     public SupplementResponse createSupplement(SupplementRequest supplement){
         return mapEntityToResponse(supplementRepository.save(mapRequestToEntity(supplement)));
     }
