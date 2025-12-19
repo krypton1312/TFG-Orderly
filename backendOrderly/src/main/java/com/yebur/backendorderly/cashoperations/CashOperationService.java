@@ -50,7 +50,7 @@ public class CashOperationService implements CashOperationServiceInterface{
         toUpdate.setDescription(request.getDescription());
         toUpdate.setType(CashOperationType.valueOf(request.getType()));
         toUpdate.setAmount(request.getAmount());
-        return null;
+        return CashOperationResponse.mapToResponse(cashOperationRepository.save(toUpdate));
     }
 
     @Override
