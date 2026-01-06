@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.yebur.backendorderly.cashsessions.CashSession;
 import com.yebur.backendorderly.order.Order;
 import com.yebur.backendorderly.product.Product;
 
@@ -48,6 +49,10 @@ public class OrderDetail {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_order", nullable = false)
     private Order order;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_cash_session") // nullable = true
+    private CashSession cashSession;
 
     @Column
     private String comment;

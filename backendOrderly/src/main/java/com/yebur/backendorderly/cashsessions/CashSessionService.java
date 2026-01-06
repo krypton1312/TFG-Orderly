@@ -3,6 +3,11 @@ package com.yebur.backendorderly.cashsessions;
 import com.yebur.backendorderly.cashcount.CashCount;
 import com.yebur.backendorderly.cashcount.CashCountRequest;
 import com.yebur.backendorderly.cashcount.CashCountService;
+import com.yebur.backendorderly.cashoperations.CashOperation;
+import com.yebur.backendorderly.cashoperations.CashOperationService;
+import com.yebur.backendorderly.order.Order;
+import com.yebur.backendorderly.orderdetail.OrderDetail;
+import com.yebur.backendorderly.orderdetail.OrderDetailStatus;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +21,12 @@ import java.util.Optional;
 public class CashSessionService implements CashSessionServiceInterface {
     private final CashSessionRepository cashSessionRepository;
     private final CashCountService cashCountService;
+    private final CashOperationService cashOperationService;
 
-    public CashSessionService(CashSessionRepository cashSessionRepository, CashCountService cashCountService) {
+    public CashSessionService(CashSessionRepository cashSessionRepository, CashCountService cashCountService, CashOperationService cashOperationService) {
         this.cashSessionRepository = cashSessionRepository;
         this.cashCountService = cashCountService;
+        this.cashOperationService = cashOperationService;
     }
 
     @Override
@@ -82,6 +89,35 @@ public class CashSessionService implements CashSessionServiceInterface {
 
     @Override
     public CashSessionResponse close(Long id, CashCount cashCount){
+
+        CashSession cs = findCashSessionById(id).orElseThrow(() -> new RuntimeException("CashSession not found by this id: " + id));
+
+        cs.setClosedAt(LocalDateTime.now());
+
+        BigDecimal cashEndExpected = BigDecimal.ZERO;
+
+        List<OrderDetail> ods = cs.getOrderDetails();
+        int cashSales = 0;
+        int cardSales = 0;
+        BigDecimal sales = BigDecimal.ZERO;
+        for(OrderDetail od: ods){
+            if(od.getStatus() == OrderDetailStatus.PAID){
+                if(od.getPaymentMethod().equals("CASH")){
+                    cardSales++;
+                }else{
+                    cashSales++;
+                }
+                sales = sales.add(
+                        od.getUnitPrice().multiply(BigDecimal.valueOf(od.getAmount()))
+                );
+            }
+        }
+
+        List<CashOperation> operations = cashOperationService.find
+
+        cashEndExpected.add(cs.getCashStart()).add(sales);
+
+
         return new CashSessionResponse();
     }
 
