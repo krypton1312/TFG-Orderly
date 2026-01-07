@@ -1,13 +1,11 @@
 package com.yebur.backendorderly.cashsessions;
 
 import com.yebur.backendorderly.cashcount.CashCount;
-import com.yebur.backendorderly.cashcount.CashCountRequest;
 import com.yebur.backendorderly.cashcount.CashCountService;
 import com.yebur.backendorderly.cashoperations.CashOperation;
+import com.yebur.backendorderly.cashoperations.CashOperationRepository;
 import com.yebur.backendorderly.cashoperations.CashOperationService;
-import com.yebur.backendorderly.order.Order;
-import com.yebur.backendorderly.orderdetail.OrderDetail;
-import com.yebur.backendorderly.orderdetail.OrderDetailStatus;
+import com.yebur.backendorderly.orderdetail.OrderDetailRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +18,15 @@ import java.util.Optional;
 @Service("cashSessionService")
 public class CashSessionService implements CashSessionServiceInterface {
     private final CashSessionRepository cashSessionRepository;
+    private final CashOperationRepository cashOperationRepository;
     private final CashCountService cashCountService;
-    private final CashOperationService cashOperationService;
+    private final OrderDetailRepository orderDetailRepository;
 
-    public CashSessionService(CashSessionRepository cashSessionRepository, CashCountService cashCountService, CashOperationService cashOperationService) {
+    public CashSessionService(CashSessionRepository cashSessionRepository, CashCountService cashCountService, OrderDetailRepository orderDetailRepository, CashOperationRepository cashOperationRepository) {
         this.cashSessionRepository = cashSessionRepository;
         this.cashCountService = cashCountService;
-        this.cashOperationService = cashOperationService;
+        this.orderDetailRepository = orderDetailRepository;
+        this.cashOperationRepository = cashOperationRepository;
     }
 
     @Override
@@ -90,36 +90,39 @@ public class CashSessionService implements CashSessionServiceInterface {
     @Override
     public CashSessionResponse close(Long id, CashCount cashCount){
 
-        CashSession cs = findCashSessionById(id).orElseThrow(() -> new RuntimeException("CashSession not found by this id: " + id));
+        CashSession cs = findCashSessionById(id)
+                .orElseThrow(() -> new RuntimeException("CashSession not found by this id: " + id));
 
         cs.setClosedAt(LocalDateTime.now());
 
-        BigDecimal cashEndExpected = BigDecimal.ZERO;
+        BigDecimal cashSales = orderDetailRepository.getPaidSalesByCashSessionAndPaymentMethod(id, "CASH");
+        BigDecimal cardSales = orderDetailRepository.getPaidSalesByCashSessionAndPaymentMethod(id, "CARD");
 
-        List<OrderDetail> ods = cs.getOrderDetails();
-        int cashSales = 0;
-        int cardSales = 0;
-        BigDecimal sales = BigDecimal.ZERO;
-        for(OrderDetail od: ods){
-            if(od.getStatus() == OrderDetailStatus.PAID){
-                if(od.getPaymentMethod().equals("CASH")){
-                    cardSales++;
-                }else{
-                    cashSales++;
-                }
-                sales = sales.add(
-                        od.getUnitPrice().multiply(BigDecimal.valueOf(od.getAmount()))
-                );
-            }
-        }
+        BigDecimal opsNet = cashOperationRepository.getNetAmountByCashSession(id);
 
-        List<CashOperation> operations = cashOperationService.find
+        BigDecimal cashExpected = cs.getCashStart()
+                .add(cashSales)
+                .add(opsNet);
 
-        cashEndExpected.add(cs.getCashStart()).add(sales);
+        BigDecimal cashActual = cashCountService.getTotal(cashCount);
 
+        BigDecimal totalExpected = cashExpected.add(cardSales);
+        BigDecimal totalActual   = cashActual.add(cardSales);
 
-        return new CashSessionResponse();
+        BigDecimal difference = totalActual.subtract(totalExpected);
+
+        cs.setCashEndExpected(cashExpected);
+        cs.setCashEndActual(cashActual);
+        cs.setTotalSalesCash(cashSales);
+        cs.setTotalSalesCard(cardSales);
+        cs.setStatus(CashSessionStatus.CLOSED);
+        cs.setDifference(difference);
+
+        cashSessionRepository.save(cs);
+
+        return CashSessionResponse.fromEntity(cs);
     }
+
 
     @Override
     public CashSessionResponse update(Long id, CashSessionRequest request){

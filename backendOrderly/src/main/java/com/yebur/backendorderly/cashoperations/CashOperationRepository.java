@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +19,13 @@ public interface CashOperationRepository extends JpaRepository<CashOperation, Lo
 
     Optional<CashOperation> findCashOperationById(Long id);
 
-    List<CashOperation> id(Long id);
-
-    void deleteCashOperationById(Long id);
+    @Query("""
+        SELECT COALESCE(SUM(
+            CASE
+                WHEN co.type = 'DEPOSIT' THEN co.amount
+                WHEN co.type = 'WITHDRAW' THEN -co.amount
+                ELSE 0
+            END), 0) FROM CashOperation co WHERE co.session.id = :cashSessionId
+            """)
+    BigDecimal getNetAmountByCashSession(Long cashSessionId);
 }

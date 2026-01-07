@@ -1,8 +1,10 @@
 package com.yebur.backendorderly.orderdetail;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import com.yebur.backendorderly.cashsessions.CashSession;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -35,4 +37,23 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
     Optional<OrderDetailResponse> findOrderDetailDTOById(Long id);
 
     boolean existsByOrderIdAndStatusNot(Long orderId, OrderDetailStatus status);
+
+    @Query("""
+    SELECT COALESCE(SUM(od.amount * od.unitPrice), 0)
+    FROM OrderDetail od
+    WHERE od.cashSession.id = :cashSessionId
+    AND od.paymentMethod = :paymentMethod
+    AND od.status = 'PAID'
+    """)
+    BigDecimal getPaidSalesByCashSessionAndPaymentMethod(Long cashSessionId,String paymentMethod);
+
+
+    @Query("""
+    SELECT COALESCE(SUM(od.amount * od.unitPrice), 0)
+    FROM OrderDetail od
+    WHERE od.cashSession.id = :cashSessionId
+    AND od.status = 'PAID'
+    """)
+    BigDecimal getPaidSalesByCashSession(Long cashSessionId);
+
 }

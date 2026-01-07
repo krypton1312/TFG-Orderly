@@ -85,10 +85,16 @@ public class CashCountService implements CashCountServiceInterface{
 
     @Override
     public BigDecimal getLastCashCountTotal() {
-
         CashCount cc = cashCountRepository
                 .findFirstByOrderByCreatedAtDesc()
                 .orElseThrow(() -> new IllegalStateException("No CashCount found"));
+
+        return getTotal(cc);
+    }
+
+
+    public BigDecimal getTotal(CashCount cc) {
+        if (cc == null) return BigDecimal.ZERO.setScale(2);
 
         BigDecimal total = BigDecimal.ZERO;
 
@@ -109,8 +115,22 @@ public class CashCountService implements CashCountServiceInterface{
         total = total.add(bd("200.00").multiply(qty(cc.getB200())));
         total = total.add(bd("500.00").multiply(qty(cc.getB500())));
 
-        return total;
+        return total.setScale(2, java.math.RoundingMode.HALF_UP);
     }
+
+    private BigDecimal bd(String value) {
+        return new BigDecimal(value);
+    }
+
+    private BigDecimal qty(Integer value) {
+        return BigDecimal.valueOf(value == null ? 0 : value);
+    }
+
+
+    private int nvl(Integer v) {
+        return v == null ? 0 : v;
+    }
+
 
 
     public CashCount mapToEntity(CashCountRequest request){
@@ -136,13 +156,4 @@ public class CashCountService implements CashCountServiceInterface{
                 request.getB500()
         );
     }
-
-    private static BigDecimal bd(String value) {
-        return new BigDecimal(value);
-    }
-
-    private static BigDecimal qty(Integer value) {
-        return BigDecimal.valueOf(value == null ? 0 : value);
-    }
-
 }
