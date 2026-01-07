@@ -18,6 +18,8 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class CustomDialog {
 
     public static int show(Stage parentStage, String title, String message, String yesText, String noText,
@@ -146,5 +148,50 @@ public class CustomDialog {
         Scene dialogScene = new Scene(dialogVBox, 400, 100);
         dialog.setScene(dialogScene);
         dialog.showAndWait();
+    }
+
+    public static boolean showWarningAboutCashSession(String message){
+        AtomicBoolean option = new AtomicBoolean(true);
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setTitle("Mensaje");
+
+        VBox dialogVBox = new VBox(15);
+        dialogVBox.setAlignment(Pos.CENTER);
+        dialogVBox.setStyle("-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 10;");
+
+        Label messageL = new Label(message);
+        messageL.setStyle("-fx-font-size: 16px; -fx-text-fill: #1f2937; -fx-font-weight: bold;");
+
+        Button openButton = new Button("Abrir terminal");
+        openButton.setStyle("""
+                    -fx-background-color: #a0f64f;
+                    -fx-text-fill: white;
+                    -fx-font-weight: bold;
+                    -fx-background-radius: 8;
+                    -fx-cursor: hand;
+                    -fx-padding: 6 20;
+                """);
+        openButton.setPrefSize(60, 40);
+        openButton.setOnAction(e -> dialog.close());
+
+        Button closeButton = new Button("Cerrar");
+        closeButton.setStyle("""
+                    -fx-background-color: #f63b3bff;
+                    -fx-text-fill: white;
+                    -fx-font-weight: bold;
+                    -fx-background-radius: 8;
+                    -fx-cursor: hand;
+                    -fx-padding: 6 20;
+                """);
+        closeButton.setPrefSize(60, 40);
+        closeButton.setOnAction(e -> {
+            option.set(false); dialog.close();});
+
+        Scene dialogScene = new Scene(dialogVBox, 400, 100);
+
+        dialog.setScene(dialogScene);
+
+        return option.get();
     }
 }

@@ -50,13 +50,28 @@ public class CashSessionService implements CashSessionServiceInterface {
     }
 
     @Override
+    public boolean existsCashSessionByStatus(CashSessionStatus status){
+        return cashSessionRepository.existsCashSessionByStatus(status);
+    }
+
+    @Override
+    public Optional<CashSessionResponse> findCashSessionDTOByStatus(CashSessionStatus status){
+        return cashSessionRepository.findCashSessionDTOByStatus(status);
+    }
+
+    @Override
     public CashSessionResponse create(CashSessionRequest request){
         return new CashSessionResponse();
     }
 
     @Override
     public CashSessionResponse open() {
-        BigDecimal cashStart = cashCountService.getLastCashCountTotal();
+        BigDecimal cashStart = BigDecimal.ZERO;
+        try {
+            cashStart = cashCountService.getLastCashCountTotal();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
 
         LocalDateTime now = LocalDateTime.now();
         LocalDate businessDate = now.toLocalDate();

@@ -46,6 +46,22 @@ public class CashSessionController {
         }
     }
 
+    @GetMapping("/existsByStatus/{status}")
+    public ResponseEntity<?> existsByStatus(@PathVariable CashSessionStatus status){
+        return ResponseEntity.ok(cashSessionService.existsCashSessionByStatus(status));
+    }
+
+    @GetMapping("/byStatus/{status}")
+    public ResponseEntity<?> findCashSessionDTOByStatus(@PathVariable CashSessionStatus status){
+        Optional<CashSessionResponse> optional = cashSessionService.findCashSessionDTOByStatus(status);
+
+        if(optional.isPresent()){
+            return ResponseEntity.ok(optional.orElseThrow());
+        }else{
+            return ResponseEntity.status(404).body(Collections.singletonMap("error", "there is no cash session by this status: " + status.toString()));
+        }
+    }
+
     @PostMapping("/open")
     public ResponseEntity<?> openCashSession(){
         try{

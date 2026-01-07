@@ -25,5 +25,9 @@ public interface CashSessionServiceInterface {
 
     CashSessionResponse update(Long id, CashSessionRequest request);
 
+    boolean existsCashSessionByStatus(CashSessionStatus status);
+
+    Optional<CashSessionResponse> findCashSessionDTOByStatus(CashSessionStatus status);
+
     void delete(Long id);
 }

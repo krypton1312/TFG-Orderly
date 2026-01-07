@@ -1,6 +1,9 @@
 package com.yebur.controller;
 
 import com.yebur.app.App;
+import com.yebur.model.response.CashSessionResponse;
+import com.yebur.service.CashSessionService;
+import com.yebur.ui.CustomDialog;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -22,32 +25,43 @@ public class StartController {
 
     @FXML
     public void openPOS(MouseEvent mouseEvent) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/yebur/pos/pos.fxml"));
-            Parent posRoot = loader.load();
+        boolean open = false;
+        CashSessionResponse cashSessionResponse;
+        try{
+            cashSessionResponse = CashSessionService.findCashSessionByStatus("OPEN");
+        }
+        catch (Exception e){
+            open = CustomDialog.showWarningAboutCashSession("No hay ningun turno abierto. Quieres abrir un nuevo turno?");
+        }
+        if(open) {
+            try {
+                CashSessionService.openCashSession();
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/yebur/pos/pos.fxml"));
+                Parent posRoot = loader.load();
 
-            Scene scene = new Scene(posRoot);
-            String css = App.class.getResource("/com/yebur/pos/pos.css").toExternalForm();
-            scene.getStylesheets().add(css);
+                Scene scene = new Scene(posRoot);
+                String css = App.class.getResource("/com/yebur/pos/pos.css").toExternalForm();
+                scene.getStylesheets().add(css);
 
-            Stage stage = new Stage();
-            stage.setTitle("Orderly POS");
-            stage.initStyle(StageStyle.UNDECORATED);
-            stage.getIcons().add(new Image(getClass().getResourceAsStream("/com/yebur/icons/icon.png")));
-            stage.setScene(scene);
+                Stage stage = new Stage();
+                stage.setTitle("Orderly POS");
+                stage.initStyle(StageStyle.UNDECORATED);
+                stage.getIcons().add(new Image(getClass().getResourceAsStream("/com/yebur/icons/icon.png")));
+                stage.setScene(scene);
 
-            // Скрываем стартовое окно
-            Stage currentStage = (Stage) root.getScene().getWindow();
-            currentStage.hide();
+                // Скрываем стартовое окно
+                Stage currentStage = (Stage) root.getScene().getWindow();
+                currentStage.hide();
 
-            // Показываем и ждём закрытия
-            stage.showAndWait();
+                // Показываем и ждём закрытия
+                stage.showAndWait();
 
-            // Возвращаем стартовое окно
-            currentStage.show();
+                // Возвращаем стартовое окно
+                currentStage.show();
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }
