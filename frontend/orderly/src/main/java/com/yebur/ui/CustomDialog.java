@@ -355,4 +355,216 @@ public class CustomDialog {
         fade.play();
         slide.play();
     }
+
+    public static void showCashSessionAlreadyOpenInPlace(
+            StackPane modalHost,
+            Region dimPane,
+            int shiftNo,
+            String openedAt,
+            java.util.function.Consumer<Boolean> onResult // true = Abrir TPV, false = OK/Close
+    ) {
+        dimPane.setVisible(true);
+        dimPane.setManaged(true);
+        dimPane.setMouseTransparent(false);
+
+        modalHost.setVisible(true);
+        modalHost.setManaged(true);
+        modalHost.setMouseTransparent(false);
+        modalHost.getChildren().clear();
+
+        StackPane card = new StackPane();
+        card.setPrefWidth(520);
+        card.setMaxWidth(520);
+        card.setPrefHeight(360);
+        card.setMaxHeight(360);
+        card.setStyle("""
+        -fx-background-color: white;
+        -fx-background-radius: 18;
+        -fx-border-radius: 18;
+        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
+    """);
+
+        VBox content = new VBox(10);
+        content.setAlignment(Pos.TOP_CENTER);
+        content.setPadding(new Insets(22, 28, 22, 28));
+
+        Label closeX = new Label("✕");
+        closeX.setStyle("""
+        -fx-text-fill: #9ca3af;
+        -fx-font-size: 16px;
+        -fx-cursor: hand;
+    """);
+        closeX.setOnMouseEntered(e -> closeX.setStyle("""
+        -fx-text-fill: #6b7280;
+        -fx-font-size: 16px;
+        -fx-cursor: hand;
+    """));
+        closeX.setOnMouseExited(e -> closeX.setStyle("""
+        -fx-text-fill: #9ca3af;
+        -fx-font-size: 16px;
+        -fx-cursor: hand;
+    """));
+
+        Circle iconBg = new Circle(26, Color.web("#ECFDF3"));
+        Label icon = new Label("✅");
+        icon.setStyle("-fx-font-size: 18px;");
+        StackPane iconHolder = new StackPane(iconBg, icon);
+        iconHolder.setMinSize(52, 52);
+        iconHolder.setMaxSize(52, 52);
+
+        Label title = new Label("Turno ya está abierto");
+        title.setStyle("""
+        -fx-text-fill: #111827;
+        -fx-font-size: 20px;
+        -fx-font-weight: 800;
+    """);
+        title.setPadding(new Insets(6, 0, 0, 0));
+
+        Label desc = new Label("Ya existe un turno activo. Puedes continuar trabajando con este turno.");
+        desc.setWrapText(true);
+        desc.setMaxWidth(440);
+        desc.setAlignment(Pos.CENTER);
+        desc.setStyle("""
+        -fx-text-fill: #6b7280;
+        -fx-font-size: 13px;
+    """);
+
+        VBox infoBox = new VBox(8);
+        infoBox.setMaxWidth(440);
+        infoBox.setStyle("""
+        -fx-background-color: #f9fafb;
+        -fx-background-radius: 12;
+        -fx-border-radius: 12;
+        -fx-border-color: #e5e7eb;
+        -fx-border-width: 1;
+        -fx-padding: 12 14 12 14;
+    """);
+
+        Label line1 = new Label("🧾  Turno:  " + shiftNo);
+        line1.setStyle("""
+        -fx-text-fill: #111827;
+        -fx-font-size: 13px;
+        -fx-font-weight: 700;
+    """);
+
+        Label line2 = new Label("🕒  Apertura:  " + openedAt);
+        line2.setStyle("""
+        -fx-text-fill: #374151;
+        -fx-font-size: 13px;
+        -fx-font-weight: 600;
+    """);
+
+        infoBox.getChildren().addAll(line1, line2);
+
+        Button openBtn = new Button("↪  Abrir TPV");
+        openBtn.setPrefHeight(42);
+        openBtn.setPrefWidth(170);
+
+        String openNormal = """
+        -fx-background-color: #22c55e;
+        -fx-text-fill: white;
+        -fx-font-weight: 800;
+        -fx-background-radius: 12;
+        -fx-cursor: hand;
+        -fx-font-size: 13px;
+    """;
+        String openHover = """
+        -fx-background-color: #16a34a;
+        -fx-text-fill: white;
+        -fx-font-weight: 800;
+        -fx-background-radius: 12;
+        -fx-cursor: hand;
+        -fx-font-size: 13px;
+    """;
+        openBtn.setStyle(openNormal);
+        openBtn.setOnMouseEntered(e -> openBtn.setStyle(openHover));
+        openBtn.setOnMouseExited(e -> openBtn.setStyle(openNormal));
+
+        Button okBtn = new Button("OK");
+        okBtn.setPrefHeight(42);
+        okBtn.setPrefWidth(140);
+
+        String okNormal = """
+        -fx-background-color: white;
+        -fx-text-fill: #111827;
+        -fx-font-weight: 700;
+        -fx-background-radius: 12;
+        -fx-border-radius: 12;
+        -fx-border-color: #d1d5db;
+        -fx-border-width: 1;
+        -fx-cursor: hand;
+        -fx-font-size: 13px;
+    """;
+        String okHover = """
+        -fx-background-color: #f9fafb;
+        -fx-text-fill: #111827;
+        -fx-font-weight: 700;
+        -fx-background-radius: 12;
+        -fx-border-radius: 12;
+        -fx-border-color: #cbd5e1;
+        -fx-border-width: 1;
+        -fx-cursor: hand;
+        -fx-font-size: 13px;
+    """;
+        okBtn.setStyle(okNormal);
+        okBtn.setOnMouseEntered(e -> okBtn.setStyle(okHover));
+        okBtn.setOnMouseExited(e -> okBtn.setStyle(okNormal));
+
+        HBox buttons = new HBox(12, openBtn, okBtn);
+        buttons.setAlignment(Pos.CENTER);
+        buttons.setPadding(new Insets(14, 0, 0, 0));
+
+        content.getChildren().addAll(iconHolder, title, desc, infoBox, buttons);
+
+        card.getChildren().addAll(content, closeX);
+        StackPane.setAlignment(closeX, Pos.TOP_RIGHT);
+        StackPane.setMargin(closeX, new Insets(12, 14, 0, 0));
+
+        modalHost.getChildren().add(card);
+        StackPane.setAlignment(card, Pos.CENTER);
+
+        Runnable close = () -> {
+            modalHost.getChildren().clear();
+            modalHost.setVisible(false);
+            modalHost.setManaged(false);
+
+            dimPane.setVisible(false);
+            dimPane.setManaged(false);
+
+            dimPane.setOnMouseClicked(null);
+            modalHost.setOnKeyPressed(null);
+        };
+
+        java.util.function.Consumer<Boolean> finish = v -> {
+            close.run();
+            onResult.accept(v);
+        };
+
+        openBtn.setOnAction(e -> finish.accept(true));
+        okBtn.setOnAction(e -> finish.accept(false));
+        closeX.setOnMouseClicked(e -> finish.accept(false));
+        dimPane.setOnMouseClicked(e -> finish.accept(false));
+
+        modalHost.requestFocus();
+        modalHost.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ESCAPE) finish.accept(false);
+            if (e.getCode() == KeyCode.ENTER) finish.accept(true);
+        });
+
+        card.setOpacity(0);
+        card.setTranslateY(18);
+
+        FadeTransition fade = new FadeTransition(Duration.millis(180), card);
+        fade.setFromValue(0);
+        fade.setToValue(1);
+
+        TranslateTransition slide = new TranslateTransition(Duration.millis(180), card);
+        slide.setFromY(18);
+        slide.setToY(0);
+
+        fade.play();
+        slide.play();
+    }
+
+
 }

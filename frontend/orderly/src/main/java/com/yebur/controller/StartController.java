@@ -16,6 +16,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class StartController {
 
     @FXML private VBox root;
@@ -37,37 +40,72 @@ public class StartController {
 
     @FXML
     public void openPOS(MouseEvent mouseEvent) {
+        if (dimPane == null || modalHost == null) {
+            CustomDialog.showError("Overlay no está inicializado (dimPane/modalHost).");
+            return;
+        }
+
         try {
             CashSessionResponse cashSession = CashSessionService.findCashSessionByStatus("OPEN");
+
             if (cashSession != null) {
-                openPosWindow();
-                return;
-            }
-        } catch (Exception e) {
-            if (dimPane == null || modalHost == null) {
-                CustomDialog.showError("Overlay no está inicializado (dimPane/modalHost).");
-                return;
-            }
+                // ✅ Показать модалку "Turno ya está abierto" с данными
+                int shiftNo = cashSession.getShiftNo();
 
-            CustomDialog.confirmOpenCashSessionModernInPlace(
-                    modalHost,
-                    dimPane,
-                    "No hay ningún turno abierto",
-                    "Para comenzar a registrar ventas y operaciones, es necesario iniciar un nuevo período de trabajo.",
-                    "¿Quieres abrir un nuevo turno ahora?",
-                    ok -> {
-                        if (!ok) return;
+                String openedAtText = formatOpenedAt(cashSession.getOpenedAt());
 
-                        try {
-                            CashSessionService.openCashSession();
-                            openPosWindow();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                            CustomDialog.showError("No se pudo abrir el turno. Inténtalo de nuevo.");
+                CustomDialog.showCashSessionAlreadyOpenInPlace(
+                        modalHost,
+                        dimPane,
+                        shiftNo,
+                        openedAtText,
+                        openTpv -> {
+                            if (openTpv) openPosWindow();
                         }
-                    }
-            );
+                );
+                return;
+            }
+
+            // если null (на всякий) — считаем что нет открытого
+            showOpenNewTurnModal();
+
+        } catch (Exception e) {
+            // нет открытого turno / ошибка поиска -> предлагаем открыть новый
+            showOpenNewTurnModal();
         }
+    }
+
+    private void showOpenNewTurnModal() {
+        CustomDialog.confirmOpenCashSessionModernInPlace(
+                modalHost,
+                dimPane,
+                "No hay ningún turno abierto",
+                "Para comenzar a registrar ventas y operaciones, es necesario iniciar un nuevo período de trabajo.",
+                "¿Quieres abrir un nuevo turno ahora?",
+                ok -> {
+                    if (!ok) return;
+
+                    try {
+                        CashSessionService.openCashSession();
+                        openPosWindow();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        CustomDialog.showError("No se pudo abrir el turno. Inténtalo de nuevo.");
+                    }
+                }
+        );
+    }
+
+    private String formatOpenedAt(Object openedAt) {
+        // Если openedAt у тебя LocalDateTime — форматируем красиво
+        try {
+            if (openedAt instanceof LocalDateTime dt) {
+                return dt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+            }
+        } catch (Exception ignored) {}
+
+        // Иначе оставляем как есть (например строка/Instant и т.д.)
+        return String.valueOf(openedAt);
     }
 
     private void openPosWindow() {
