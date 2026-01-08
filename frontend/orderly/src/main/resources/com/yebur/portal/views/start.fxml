@@ -4,48 +4,37 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.SVGPath?>
 
-<StackPane xmlns:fx="http://javafx.com/fxml"
-           fx:controller="com.yebur.controller.StartController"
-           fx:id="rootStack">
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.yebur.controller.StartController"
+      alignment="TOP_LEFT"
+      spacing="40"
+      styleClass="content-area"
+      fx:id="root">
 
-    <!-- ТВОЙ текущий VBox -->
-    <VBox alignment="CENTER"
-          spacing="40"
-          styleClass="content-area"
-          fx:id="root">
+    <GridPane hgap="10" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="33" />
+            <ColumnConstraints percentWidth="33" />
+            <ColumnConstraints percentWidth="34" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints percentHeight="33" />
+            <RowConstraints percentHeight="33" />
+            <RowConstraints percentHeight="34" />
+        </rowConstraints>
 
-        <GridPane hgap="10" vgap="10">
-            <columnConstraints>
-                <ColumnConstraints percentWidth="33" />
-                <ColumnConstraints percentWidth="33" />
-                <ColumnConstraints percentWidth="34" />
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints percentHeight="33" />
-                <RowConstraints percentHeight="33" />
-                <RowConstraints percentHeight="34" />
-            </rowConstraints>
+        <children>
+            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="3">
+                <VBox styleClass="card" alignment="CENTER" spacing="10"
+                      onMouseClicked="#openPOS" pickOnBounds="false">
+                    <StackPane alignment="CENTER" scaleX="1.4" scaleY="1.4" pickOnBounds="false">
+                        <SVGPath styleClass="icon"
+                                 content="M5 2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H5z M2 14a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-4z M6 18h2 M12 18h6" />
+                    </StackPane>
+                    <Label text="Abrir TPV" styleClass="card-text" />
+                </VBox>
+            </StackPane>
+        </children>
+    </GridPane>
 
-            <children>
-                <StackPane GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="3">
-                    <VBox styleClass="card" alignment="CENTER" spacing="10"
-                          onMouseClicked="#openPOS" pickOnBounds="false">
-                        <StackPane alignment="CENTER" scaleX="1.4" scaleY="1.4" pickOnBounds="false">
-                            <SVGPath styleClass="icon"
-                                     content="M5 2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H5z M2 14a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-4z M6 18h2 M12 18h6" />
-                        </StackPane>
-                        <Label text="Abrir TPV" styleClass="card-text" />
-                    </VBox>
-                </StackPane>
-            </children>
-        </GridPane>
-    </VBox>
-
-    <!-- СЛОЙ ДЛЯ ЗАТЕМНЕНИЯ (по умолчанию скрыт) -->
-    <Region fx:id="dimPane" visible="false" managed="false"
-            style="-fx-background-color: rgba(0,0,0,0.45);" />
-
-    <!-- КОНТЕЙНЕР ДЛЯ МОДАЛКИ (карточки) -->
-    <StackPane fx:id="modalHost" visible="false" managed="false" alignment="CENTER" />
-
-</StackPane>
+</VBox>

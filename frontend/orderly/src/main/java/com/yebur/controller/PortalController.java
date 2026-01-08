@@ -14,37 +14,61 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class PortalController {
 
-    @FXML
-    private ImageView logoImage;
-
-    @FXML
-    private BorderPane mainPane;
-
-    @FXML
-    private AnchorPane centerContent;
-
-    @FXML
-    private Label titleLabel;
-
-    @FXML
-    private VBox sidebarNavButtonsVBox;
+    @FXML private ImageView logoImage;
+    @FXML private AnchorPane centerContent;
+    @FXML private Label titleLabel;
+    @FXML private VBox sidebarNavButtonsVBox;
 
     private final Map<String, Node> loadedViews = new HashMap<>();
+    private final Map<String, Object> loadedControllers = new HashMap<>();
+
+    // ✅ overlay (затемнение + модалка) живёт в centerContent и перекрывает только центр
+    private Region dimPane;
+    private StackPane modalHost;
 
     public void initialize() {
         logoImage.setImage(new Image(
                 getClass().getResourceAsStream("/com/yebur/icons/logo.png"),
-                32, 32, true, false // width, height, preserveRatio, smooth
+                32, 32, true, false
         ));
 
+        initCenterOverlay();
         showStartView();
+    }
+
+    private void initCenterOverlay() {
+        dimPane = new Region();
+        dimPane.setStyle("-fx-background-color: rgba(0,0,0,0.45);");
+        dimPane.setVisible(false);
+        dimPane.setManaged(false);
+        dimPane.setPickOnBounds(true);
+
+        modalHost = new StackPane();
+        modalHost.setAlignment(javafx.geometry.Pos.CENTER);
+        modalHost.setVisible(false);
+        modalHost.setManaged(false);
+        modalHost.setPickOnBounds(true);
+
+        AnchorPane.setTopAnchor(dimPane, 0.0);
+        AnchorPane.setBottomAnchor(dimPane, 0.0);
+        AnchorPane.setLeftAnchor(dimPane, 0.0);
+        AnchorPane.setRightAnchor(dimPane, 0.0);
+
+        AnchorPane.setTopAnchor(modalHost, 0.0);
+        AnchorPane.setBottomAnchor(modalHost, 0.0);
+        AnchorPane.setLeftAnchor(modalHost, 0.0);
+        AnchorPane.setRightAnchor(modalHost, 0.0);
+
+        // overlay должен быть сверху: добавляем после контента (контента ещё нет — не страшно)
+        centerContent.getChildren().addAll(dimPane, modalHost);
     }
 
     @FXML
@@ -52,9 +76,7 @@ public class PortalController {
         titleLabel.setText("Gestion de datos");
 
         clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
-
-        Button clickedButton = (Button) event.getSource();
-        clickedButton.getStyleClass().add("nav-item-selected");
+        ((Button) event.getSource()).getStyleClass().add("nav-item-selected");
 
         loadCenterContent("/com/yebur/portal/views/data.fxml");
     }
@@ -64,9 +86,7 @@ public class PortalController {
         titleLabel.setText("Inicio");
 
         clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
-
-        Button clickedButton = (Button) event.getSource();
-        clickedButton.getStyleClass().add("nav-item-selected");
+        ((Button) event.getSource()).getStyleClass().add("nav-item-selected");
 
         loadCenterContent("/com/yebur/portal/views/start.fxml");
     }
@@ -75,8 +95,6 @@ public class PortalController {
         titleLabel.setText("Inicio");
 
         clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
-
-        // Ищем кнопку с текстом "Inicio", чтобы визуально выделить её
         for (Node node : sidebarNavButtonsVBox.getChildren()) {
             if (node instanceof Button button && "Inicio".equals(button.getText())) {
                 button.getStyleClass().add("nav-item-selected");
@@ -90,20 +108,36 @@ public class PortalController {
     private void loadCenterContent(String fxmlPath) {
         try {
             Node content;
+            Object controller;
 
             if (loadedViews.containsKey(fxmlPath)) {
                 content = loadedViews.get(fxmlPath);
+                controller = loadedControllers.get(fxmlPath);
             } else {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
                 content = loader.load();
+                controller = loader.getController();
+
                 loadedViews.put(fxmlPath, content);
+                loadedControllers.put(fxmlPath, controller);
             }
 
-            centerContent.getChildren().setAll(content);
+            // ✅ не удаляем overlay
+            centerContent.getChildren().removeIf(n -> n != dimPane && n != modalHost);
+
+            // контент кладём "под" overlay
+            centerContent.getChildren().add(0, content);
+
+            // ✅ твои старые отступы 20 со всех сторон — как было
             AnchorPane.setTopAnchor(content, 20.0);
             AnchorPane.setBottomAnchor(content, 20.0);
             AnchorPane.setLeftAnchor(content, 20.0);
             AnchorPane.setRightAnchor(content, 20.0);
+
+            // ✅ передаём overlay в StartController
+            if (controller instanceof StartController sc) {
+                sc.setOverlay(dimPane, modalHost);
+            }
 
             applyFadeTransition(content);
 

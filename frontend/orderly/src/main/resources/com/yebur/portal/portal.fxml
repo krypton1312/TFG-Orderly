@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.geometry.*?>
 
+<?import java.lang.String?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-    fx:controller="com.yebur.controller.PortalController"
-    prefWidth="1024" prefHeight="768"
-    fx:id="mainPane">
+            fx:controller="com.yebur.controller.PortalController"
+            prefWidth="1024" prefHeight="768"
+            fx:id="mainPane">
 
     <left>
         <VBox prefWidth="220" spacing="10" styleClass="sidebar" fillWidth="true">
@@ -18,10 +16,10 @@
             <HBox alignment="CENTER_LEFT" spacing="12" styleClass="sidebar-header">
                 <StackPane alignment="CENTER">
                     <ImageView fx:id="logoImage"
-                        fitWidth="36" fitHeight="36"
-                        preserveRatio="true"
-                        smooth="true"
-                        styleClass="sidebar-logo" />
+                               fitWidth="36" fitHeight="36"
+                               preserveRatio="true"
+                               smooth="true"
+                               styleClass="sidebar-logo" />
                 </StackPane>
 
                 <VBox alignment="CENTER_LEFT" spacing="2">
@@ -30,7 +28,6 @@
                 </VBox>
             </HBox>
 
-            <!-- Кнопки меню -->
             <VBox spacing="5" fillWidth="true" fx:id="sidebarNavButtonsVBox">
                 <Button text="Inicio" onAction="#showStartView">
                     <styleClass>
@@ -45,9 +42,7 @@
 
             <Pane VBox.vgrow="ALWAYS" />
 
-            <!-- Нижние кнопки -->
-            <VBox fx:id="bottomButtons" alignment="BOTTOM_LEFT" spacing="10"
-                styleClass="bottom-section">
+            <VBox fx:id="bottomButtons" alignment="BOTTOM_LEFT" spacing="10" styleClass="bottom-section">
                 <Button text="Configuracion" styleClass="nav-item" />
                 <Button text="Salir" onAction="#handleCloseButton">
                     <styleClass>
@@ -59,7 +54,6 @@
         </VBox>
     </left>
 
-    <!-- Центральная панель -->
     <center>
         <VBox alignment="TOP_CENTER" spacing="0" styleClass="main-area">
 
@@ -67,7 +61,7 @@
                 <Label text="Dashboard" styleClass="main-title" fx:id="titleLabel" />
             </HBox>
 
-            <AnchorPane fx:id="centerContent" />
+            <AnchorPane fx:id="centerContent" VBox.vgrow="ALWAYS" />
         </VBox>
     </center>
 

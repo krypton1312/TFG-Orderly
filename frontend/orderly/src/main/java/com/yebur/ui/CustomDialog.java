@@ -162,7 +162,6 @@ public class CustomDialog {
             String questionText,
             java.util.function.Consumer<Boolean> onResult
     ) {
-        // показать слои
         dimPane.setVisible(true);
         dimPane.setManaged(true);
         dimPane.setMouseTransparent(false);
@@ -172,40 +171,43 @@ public class CustomDialog {
         modalHost.setMouseTransparent(false);
         modalHost.getChildren().clear();
 
-        // ====== Card ======
+        // ===== Card =====
         StackPane card = new StackPane();
         card.setMaxWidth(520);
-        card.setMinWidth(520);
+        card.setPrefWidth(520);
+        card.setMaxHeight(420);
+        card.setPrefHeight(420);
         card.setStyle("""
-        -fx-background-color: white;
-        -fx-background-radius: 18;
-        -fx-border-radius: 18;
-        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
-    """);
+            -fx-background-color: white;
+            -fx-background-radius: 18;
+            -fx-border-radius: 18;
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
+        """);
 
-        VBox content = new VBox(10);
+        VBox content = new VBox(20);
         content.setAlignment(Pos.TOP_CENTER);
         content.setPadding(new Insets(22, 28, 22, 28));
+        content.setFillWidth(true);
+        content.setMaxHeight(Region.USE_PREF_SIZE);
 
-        // X (закрыть)
+
         Label closeX = new Label("✕");
         closeX.setStyle("""
-        -fx-text-fill: #9ca3af;
-        -fx-font-size: 16px;
-        -fx-cursor: hand;
-    """);
+            -fx-text-fill: #9ca3af;
+            -fx-font-size: 16px;
+            -fx-cursor: hand;
+        """);
         closeX.setOnMouseEntered(e -> closeX.setStyle("""
-        -fx-text-fill: #6b7280;
-        -fx-font-size: 16px;
-        -fx-cursor: hand;
-    """));
+            -fx-text-fill: #6b7280;
+            -fx-font-size: 16px;
+            -fx-cursor: hand;
+        """));
         closeX.setOnMouseExited(e -> closeX.setStyle("""
-        -fx-text-fill: #9ca3af;
-        -fx-font-size: 16px;
-        -fx-cursor: hand;
-    """));
+            -fx-text-fill: #9ca3af;
+            -fx-font-size: 16px;
+            -fx-cursor: hand;
+        """));
 
-        // Иконка
         Circle iconBg = new Circle(26, Color.web("#FFF4E6"));
         Label icon = new Label("🔒");
         icon.setStyle("-fx-font-size: 18px;");
@@ -213,13 +215,12 @@ public class CustomDialog {
         iconHolder.setMinSize(52, 52);
         iconHolder.setMaxSize(52, 52);
 
-        // Текст
         Label title = new Label(messageTitle);
         title.setStyle("""
-        -fx-text-fill: #111827;
-        -fx-font-size: 20px;
-        -fx-font-weight: 800;
-    """);
+            -fx-text-fill: #111827;
+            -fx-font-size: 20px;
+            -fx-font-weight: 800;
+        """);
         title.setPadding(new Insets(6, 0, 0, 0));
 
         Label desc = new Label(messageText);
@@ -227,42 +228,41 @@ public class CustomDialog {
         desc.setMaxWidth(440);
         desc.setAlignment(Pos.CENTER);
         desc.setStyle("""
-        -fx-text-fill: #6b7280;
-        -fx-font-size: 13px;
-    """);
+            -fx-text-fill: #6b7280;
+            -fx-font-size: 13px;
+        """);
 
         Label question = new Label(questionText);
         question.setWrapText(true);
         question.setMaxWidth(440);
         question.setAlignment(Pos.CENTER);
         question.setStyle("""
-        -fx-text-fill: #111827;
-        -fx-font-size: 13px;
-        -fx-font-weight: 700;
-    """);
+            -fx-text-fill: #111827;
+            -fx-font-size: 13px;
+            -fx-font-weight: 700;
+        """);
         question.setPadding(new Insets(4, 0, 0, 0));
 
-        // Кнопки
         Button openBtn = new Button("↪  Abrir turno");
         openBtn.setPrefHeight(42);
         openBtn.setPrefWidth(170);
 
         String openNormal = """
-        -fx-background-color: #22c55e;
-        -fx-text-fill: white;
-        -fx-font-weight: 800;
-        -fx-background-radius: 12;
-        -fx-cursor: hand;
-        -fx-font-size: 13px;
-    """;
+            -fx-background-color: #22c55e;
+            -fx-text-fill: white;
+            -fx-font-weight: 800;
+            -fx-background-radius: 12;
+            -fx-cursor: hand;
+            -fx-font-size: 13px;
+        """;
         String openHover = """
-        -fx-background-color: #16a34a;
-        -fx-text-fill: white;
-        -fx-font-weight: 800;
-        -fx-background-radius: 12;
-        -fx-cursor: hand;
-        -fx-font-size: 13px;
-    """;
+            -fx-background-color: #16a34a;
+            -fx-text-fill: white;
+            -fx-font-weight: 800;
+            -fx-background-radius: 12;
+            -fx-cursor: hand;
+            -fx-font-size: 13px;
+        """;
         openBtn.setStyle(openNormal);
         openBtn.setOnMouseEntered(e -> openBtn.setStyle(openHover));
         openBtn.setOnMouseExited(e -> openBtn.setStyle(openNormal));
@@ -272,27 +272,27 @@ public class CustomDialog {
         cancelBtn.setPrefWidth(140);
 
         String cancelNormal = """
-        -fx-background-color: white;
-        -fx-text-fill: #111827;
-        -fx-font-weight: 700;
-        -fx-background-radius: 12;
-        -fx-border-radius: 12;
-        -fx-border-color: #d1d5db;
-        -fx-border-width: 1;
-        -fx-cursor: hand;
-        -fx-font-size: 13px;
-    """;
+            -fx-background-color: white;
+            -fx-text-fill: #111827;
+            -fx-font-weight: 700;
+            -fx-background-radius: 12;
+            -fx-border-radius: 12;
+            -fx-border-color: #d1d5db;
+            -fx-border-width: 1;
+            -fx-cursor: hand;
+            -fx-font-size: 13px;
+        """;
         String cancelHover = """
-        -fx-background-color: #f9fafb;
-        -fx-text-fill: #111827;
-        -fx-font-weight: 700;
-        -fx-background-radius: 12;
-        -fx-border-radius: 12;
-        -fx-border-color: #cbd5e1;
-        -fx-border-width: 1;
-        -fx-cursor: hand;
-        -fx-font-size: 13px;
-    """;
+            -fx-background-color: #f9fafb;
+            -fx-text-fill: #111827;
+            -fx-font-weight: 700;
+            -fx-background-radius: 12;
+            -fx-border-radius: 12;
+            -fx-border-color: #cbd5e1;
+            -fx-border-width: 1;
+            -fx-cursor: hand;
+            -fx-font-size: 13px;
+        """;
         cancelBtn.setStyle(cancelNormal);
         cancelBtn.setOnMouseEntered(e -> cancelBtn.setStyle(cancelHover));
         cancelBtn.setOnMouseExited(e -> cancelBtn.setStyle(cancelNormal));
@@ -303,7 +303,6 @@ public class CustomDialog {
 
         content.getChildren().addAll(iconHolder, title, desc, question, buttons);
 
-        // собрать card
         card.getChildren().addAll(content, closeX);
         StackPane.setAlignment(closeX, Pos.TOP_RIGHT);
         StackPane.setMargin(closeX, new Insets(12, 14, 0, 0));
@@ -311,7 +310,6 @@ public class CustomDialog {
         modalHost.getChildren().add(card);
         StackPane.setAlignment(card, Pos.CENTER);
 
-        // ===== закрытие/результат =====
         Runnable close = () -> {
             modalHost.getChildren().clear();
             modalHost.setVisible(false);
@@ -319,6 +317,10 @@ public class CustomDialog {
 
             dimPane.setVisible(false);
             dimPane.setManaged(false);
+
+            // чистим обработчики, чтобы не накапливались
+            dimPane.setOnMouseClicked(null);
+            modalHost.setOnKeyPressed(null);
         };
 
         java.util.function.Consumer<Boolean> finish = ok -> {
@@ -330,16 +332,15 @@ public class CustomDialog {
         cancelBtn.setOnAction(e -> finish.accept(false));
         closeX.setOnMouseClicked(e -> finish.accept(false));
 
-        // клик по затемнению — отмена
         dimPane.setOnMouseClicked(e -> finish.accept(false));
 
-        // ESC — отмена (ловим на сцене modalHost)
+        // ESC
         modalHost.requestFocus();
         modalHost.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ESCAPE) finish.accept(false);
         });
 
-        // анимация появления
+        // анимация
         card.setOpacity(0);
         card.setTranslateY(18);
 
@@ -354,6 +355,4 @@ public class CustomDialog {
         fade.play();
         slide.play();
     }
-
-
 }
