@@ -125,8 +125,15 @@ public class PortalController {
             // ✅ не удаляем overlay
             centerContent.getChildren().removeIf(n -> n != dimPane && n != modalHost);
 
+
             // контент кладём "под" overlay
             centerContent.getChildren().add(0, content);
+
+            ensureOverlayAttached(); // <- ключ
+
+            // (и лучше ещё поднять overlay наверх)
+            dimPane.toFront();
+            modalHost.toFront();
 
             // ✅ твои старые отступы 20 со всех сторон — как было
             AnchorPane.setTopAnchor(content, 20.0);
@@ -164,5 +171,14 @@ public class PortalController {
     public void handleCloseButton(ActionEvent actionEvent) {
         Stage stage = (Stage) sidebarNavButtonsVBox.getScene().getWindow();
         stage.close();
+    }
+
+    private void ensureOverlayAttached() {
+        if (!centerContent.getChildren().contains(dimPane)) {
+            centerContent.getChildren().add(dimPane);
+        }
+        if (!centerContent.getChildren().contains(modalHost)) {
+            centerContent.getChildren().add(modalHost);
+        }
     }
 }
