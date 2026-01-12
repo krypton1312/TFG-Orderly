@@ -488,11 +488,14 @@ public class PartialPaymentController {
                         od.getOrderId(),
                         od.getName(),
                         od.getComment(),
-                        od.getAmount(),          // может быть 0
+                        od.getAmount(),
                         od.getUnitPrice(),
-                        od.getStatus(),          // PENDING / SERVED
-                        od.getPaymentMethod(),   // метод оплаты не меняем
-                        od.getBatchId()
+                        od.getStatus(),
+                        od.getPaymentMethod(),
+                        od.getBatchId(),
+                        od.getCreatedAt(),
+                        100L // !!!!!!!!!!!!!!test
+
                 );
 
                 reqsToUpdate.add(req);
@@ -525,7 +528,9 @@ public class PartialPaymentController {
                             pd.getUnitPrice(),
                             "PAID",
                             selectedPaymentMethod,
-                            pd.getBatchId()
+                            pd.getBatchId(),
+                            pd.getCreatedAt(),
+                            100L
                     );
 
                     reqsToUpdate.add(req);
@@ -540,7 +545,9 @@ public class PartialPaymentController {
                             pd.getUnitPrice(),
                             "PAID",
                             selectedPaymentMethod,
-                            pd.getBatchId()
+                            pd.getBatchId(),
+                            pd.getCreatedAt(),
+                            100L
                     );
                     reqsToCreate.add(createReq);
                 }

@@ -11,6 +11,8 @@ public interface CashOperationServiceInterface {
 
     Optional<CashOperationResponse> findCashOperationDTOById(Long id);
 
+    List<CashOperationResponse> findCashOperationDTOBySessionId(Long id);
+
     CashOperationResponse create(CashOperationRequest request);
 
     CashOperationResponse update(Long id, CashOperationRequest request);

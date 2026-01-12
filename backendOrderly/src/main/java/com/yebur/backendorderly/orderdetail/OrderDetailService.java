@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.yebur.backendorderly.cashsessions.CashSession;
+import com.yebur.backendorderly.cashsessions.CashSessionService;
 import com.yebur.backendorderly.supplements.Supplement;
 import com.yebur.backendorderly.supplements.SupplementResponse;
 import com.yebur.backendorderly.supplements.SupplementService;
@@ -34,6 +36,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
     private final OrderRepository orderRepository;
     private final WsNotifier wsNotifier;
     private final SupplementService supplementService;
+    private final CashSessionService cashSessionService;
 
     public OrderDetailService(
             OrderDetailRepository orderDetailRepository,
@@ -42,7 +45,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             OrderRepository orderRepository,
             OrdersTabletWebSocketHandler ordersTabletHandler,
             WsNotifier wsNotifier,
-            SupplementService supplementService) {
+            SupplementService supplementService, CashSessionService cashSessionService) {
         this.orderDetailRepository = orderDetailRepository;
         this.productService = productService;
         this.orderService = orderService;
@@ -50,6 +53,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         this.ordersTabletHandler = ordersTabletHandler;
         this.wsNotifier = wsNotifier;
         this.supplementService = supplementService;
+        this.cashSessionService = cashSessionService;
     }
 
     @Override
@@ -98,6 +102,9 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                         Objects.equals(d.getBatchId(), dto.getBatchId()))
                 .findFirst();
 
+        CashSession cs = cashSessionService.findCashSessionById(dto.getCashSessionId())
+                .orElseThrow(() -> new RuntimeException("Cash session not found with id " + dto.getCashSessionId()));
+
         OrderDetail saved;
 
         if (existingOpt.isPresent()) {
@@ -112,6 +119,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             orderDetail.setProduct(product);
             orderDetail.setStatus(OrderDetailStatus.PENDING);
             orderDetail.setCreatedAt(LocalDateTime.now());
+            orderDetail.setCashSession(cs);
 
             saved = orderDetailRepository.save(orderDetail);
 
@@ -246,7 +254,9 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                         entity.getUnitPrice().add(supplement.getPrice()),
                         entity.getStatus().name(),
                         entity.getPaymentMethod(),
-                        entity.getBatchId()
+                        entity.getBatchId(),
+                        LocalDateTime.now(),
+                        entity.getCashSession().getId()
                 );
 
                 createOrderDetail(newDetailReq);
@@ -473,6 +483,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         detail.setPaymentMethod(dto.getPaymentMethod());
         detail.setBatchId(dto.getBatchId());
         detail.setName(dto.getName());
+        detail.setCashSession();
         return detail;
     }
 

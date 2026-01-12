@@ -15,6 +15,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +26,7 @@ public class StartController {
 
     private Region dimPane;
     private StackPane modalHost;
+    @Getter private static CashSessionResponse cashSession;
 
     public void setOverlay(Region dimPane, StackPane modalHost) {
         this.dimPane = dimPane;
@@ -46,7 +48,7 @@ public class StartController {
         }
 
         try {
-            CashSessionResponse cashSession = CashSessionService.findCashSessionByStatus("OPEN");
+            this.cashSession = CashSessionService.findCashSessionByStatus("OPEN");
 
             if (cashSession != null) {
                 // ✅ Показать модалку "Turno ya está abierto" с данными
@@ -86,7 +88,7 @@ public class StartController {
                     if (!ok) return;
 
                     try {
-                        CashSessionService.openCashSession();
+                        this.cashSession = CashSessionService.openCashSession();
                         openPosWindow();
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -134,4 +136,6 @@ public class StartController {
             CustomDialog.showError("No se pudo abrir el POS.");
         }
     }
+
+
 }

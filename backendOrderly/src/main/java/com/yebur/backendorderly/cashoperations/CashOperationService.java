@@ -1,9 +1,12 @@
 package com.yebur.backendorderly.cashoperations;
 
 import com.yebur.backendorderly.cashsessions.CashSession;
+import com.yebur.backendorderly.cashsessions.CashSessionResponse;
 import com.yebur.backendorderly.cashsessions.CashSessionService;
+import com.yebur.backendorderly.orderdetail.OrderDetailRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -12,10 +15,12 @@ import java.util.Optional;
 public class CashOperationService implements CashOperationServiceInterface{
     private final CashOperationRepository cashOperationRepository;
     private final CashSessionService cashSessionService;
+    private final OrderDetailRepository orderDetailRepository;
 
-    public CashOperationService(CashOperationRepository cashOperationRepository, CashSessionService cashSessionService) {
+    public CashOperationService(CashOperationRepository cashOperationRepository, CashSessionService cashSessionService, OrderDetailRepository orderDetailRepository) {
         this.cashOperationRepository = cashOperationRepository;
         this.cashSessionService = cashSessionService;
+        this.orderDetailRepository = orderDetailRepository;
     }
 
 
@@ -32,6 +37,17 @@ public class CashOperationService implements CashOperationServiceInterface{
     @Override
     public Optional<CashOperationResponse> findCashOperationDTOById(Long id) {
         return cashOperationRepository.findCashOperationDTOById(id);
+    }
+
+    @Override
+    public List<CashOperationResponse> findCashOperationDTOBySessionId(Long id){
+        List<CashOperationResponse> operations = cashOperationRepository.findCashOperationBySessionId(id);
+        BigDecimal paidCard = orderDetailRepository.getPaidSalesByCashSessionAndPaymentMethod(id, "CARD");
+        BigDecimal paidCash = orderDetailRepository.getPaidSalesByCashSessionAndPaymentMethod(id, "CASH");
+        System.out.println(paidCash + " " + paidCard);
+        operations.add(0, new CashOperationResponse(null, id, CashOperationType.DEPOSIT, "COBROS EN TARJETA", paidCard, null));
+        operations.add(0,new CashOperationResponse(null, id, CashOperationType.DEPOSIT, "COBROS EN EFECTIVO", paidCash, null));
+        return operations;
     }
 
     @Override

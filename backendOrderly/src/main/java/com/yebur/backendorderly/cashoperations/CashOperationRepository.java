@@ -17,6 +17,9 @@ public interface CashOperationRepository extends JpaRepository<CashOperation, Lo
     @Query("SELECT new com.yebur.backendorderly.cashoperations.CashOperationResponse(co.id, co.session.id, co.type, co.description, co.amount, co.createdAt) FROM CashOperation co WHERE co.id = :id")
     Optional<CashOperationResponse> findCashOperationDTOById(Long id);
 
+    @Query("SELECT new com.yebur.backendorderly.cashoperations.CashOperationResponse(co.id, co.session.id, co.type, co.description, co.amount, co.createdAt) FROM CashOperation co WHERE co.session.id = :id")
+    List<CashOperationResponse> findCashOperationBySessionId(Long id);
+
     Optional<CashOperation> findCashOperationById(Long id);
 
     @Query("""

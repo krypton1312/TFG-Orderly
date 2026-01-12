@@ -338,8 +338,8 @@
                         </graphic>
                     </Button>
 
-                    <!-- Row 3: Shift Report / Transpasar -->
-                    <Button GridPane.rowIndex="3"
+                    <Button onAction="#handleOperationsClick"
+                            GridPane.rowIndex="3"
                             GridPane.columnIndex="0"
                             text="">
                         <styleClass>

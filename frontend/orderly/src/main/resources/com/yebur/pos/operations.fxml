@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import java.lang.String?>
+<?import javafx.scene.shape.SVGPath?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            prefHeight="768.0" prefWidth="1024.0"
+            fx:controller="com.yebur.controller.OperationsController"
+            styleClass="root">
+
+    <!-- CENTER (контент) -->
+    <center>
+        <VBox spacing="14" fillWidth="true">
+            <padding>
+                <Insets top="18" right="18" bottom="18" left="18"/>
+            </padding>
+
+            <HBox spacing="12" styleClass="top-chips" maxWidth="Infinity">
+
+                <!-- CHIP: FECHA -->
+                <HBox spacing="10" styleClass="chip" maxWidth="Infinity" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="chip-content">
+                            <StackPane styleClass="action-btn-stack">
+                                <SVGPath content="M8 2 V6 M16 2 V6 M5 4 H19 A2 2 0 0 1 21 6 V20 A2 2 0 0 1 19 22 H5 A2 2 0 0 1 3 20 V6 A2 2 0 0 1 5 4 Z M3 10 H21 M8 14 H8.01 M12 14 H12.01 M16 14 H16.01 M8 18 H8.01 M12 18 H12.01 M16 18 H16.01">
+                                    <styleClass>
+                                        <String fx:value="chip-icon"/>
+                                    </styleClass>
+                                </SVGPath>
+                            </StackPane>
+
+                            <VBox spacing="2" alignment="CENTER_LEFT">
+                                <Label text="FECHA" styleClass="chip-label"/>
+                                <Label fx:id="dateValue" text="19/12/2025" styleClass="chip-value"/>
+                            </VBox>
+                        </HBox>
+                </HBox>
+
+                <!-- CHIP: TURNO -->
+                <HBox spacing="10" styleClass="chip" maxWidth="Infinity" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="chip-content">
+                            <StackPane styleClass="action-btn-stack">
+                                <!-- clock (пример, можешь заменить на свой d) -->
+                                <SVGPath content="M12 2 A10 10 0 1 1 11.999 2 M12 6 V12 L16 14">
+                                    <styleClass>
+                                        <String fx:value="chip-icon"/>
+                                    </styleClass>
+                                </SVGPath>
+                            </StackPane>
+
+                            <VBox spacing="2" alignment="CENTER_LEFT">
+                                <Label text="TURNO" styleClass="chip-label"/>
+                                <Label fx:id="shiftValue" text="2" styleClass="chip-value"/>
+                            </VBox>
+                        </HBox>
+                </HBox>
+
+                <!-- CHIP: TERMINAL -->
+                <HBox spacing="10" styleClass="chip" maxWidth="Infinity" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="chip-content">
+                            <StackPane styleClass="action-btn-stack">
+                                <!-- monitor (пример) -->
+                                <SVGPath content="M4 5 H20 V15 H4 Z M9 19 H15">
+                                    <styleClass>
+                                        <String fx:value="chip-icon"/>
+                                    </styleClass>
+                                </SVGPath>
+                            </StackPane>
+
+                            <VBox spacing="2" alignment="CENTER_LEFT">
+                                <Label text="TERMINAL" styleClass="chip-label"/>
+                                <Label fx:id="terminalValue" text="Terminal 1" styleClass="chip-value"/>
+                            </VBox>
+                        </HBox>
+                </HBox>
+
+                <!-- CHIP: EMPLEADO -->
+                <HBox spacing="10" styleClass="chip" maxWidth="Infinity" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="chip-content">
+                            <StackPane styleClass="action-btn-stack">
+                                <!-- user (пример) -->
+                                <SVGPath content="M12 12 A4 4 0 1 0 12 4 A4 4 0 1 0 12 12 M4 20 C4 16 20 16 20 20">
+                                    <styleClass>
+                                        <String fx:value="chip-icon"/>
+                                    </styleClass>
+                                </SVGPath>
+                            </StackPane>
+
+                            <VBox spacing="2" alignment="CENTER_LEFT">
+                                <Label text="EMPLEADO" styleClass="chip-label"/>
+                                <Label fx:id="employeeValue" text="Diego" styleClass="chip-value"/>
+                            </VBox>
+                        </HBox>
+                </HBox>
+
+            </HBox>
+
+
+            <!-- Основная карточка с таблицей -->
+            <VBox spacing="10" VBox.vgrow="ALWAYS">
+                <styleClass>
+                    <String fx:value="card"/>
+                </styleClass>
+
+                <padding>
+                    <Insets top="0" right="0" bottom="0" left="0"/>
+                </padding>
+
+                <TableView fx:id="table" VBox.vgrow="ALWAYS">
+                    <styleClass>
+                        <String fx:value="movements-table"/>
+                    </styleClass>
+
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                    </columnResizePolicy>
+
+                    <columns>
+                        <TableColumn fx:id="colT" text="T" prefWidth="50"/>
+                        <TableColumn fx:id="colTipo" text="TIPO" prefWidth="140"/>
+                        <TableColumn fx:id="colConcepto" text="CONCEPTO" prefWidth="420"/>
+                        <TableColumn fx:id="colEntrada" text="ENTRADA" prefWidth="130"/>
+                        <TableColumn fx:id="colSalida" text="SALIDA" prefWidth="130"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+
+            <!-- Нижние итоги -->
+            <HBox spacing="12">
+                <HBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" spacing="10">
+                    <styleClass>
+                        <String fx:value="summary-card"/>
+                    </styleClass>
+                    <padding>
+                        <Insets top="14" right="14" bottom="14" left="14"/>
+                    </padding>
+
+                    <VBox>
+                        <Label text="TOTAL ENTRADAS" styleClass="summary-label"/>
+                        <Label fx:id="totalEntradas" text="654,30">
+                            <styleClass>
+                                <String fx:value="summary-value"/>
+                                <String fx:value="summary-green"/>
+                            </styleClass>
+                        </Label>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label text="⬇">
+                        <styleClass>
+                            <String fx:value="summary-icon"/>
+                            <String fx:value="summary-green"/>
+                        </styleClass>
+                    </Label>
+                </HBox>
+
+                <HBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" spacing="10">
+                    <styleClass>
+                        <String fx:value="summary-card"/>
+                    </styleClass>
+                    <padding>
+                        <Insets top="14" right="14" bottom="14" left="14"/>
+                    </padding>
+
+                    <VBox>
+                        <Label text="TOTAL SALIDAS" styleClass="summary-label"/>
+                        <Label fx:id="totalSalidas" text="300,00">
+                            <styleClass>
+                                <String fx:value="summary-value"/>
+                                <String fx:value="summary-red"/>
+                            </styleClass>
+                        </Label>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label text="⬆">
+                        <styleClass>
+                            <String fx:value="summary-icon"/>
+                            <String fx:value="summary-red"/>
+                        </styleClass>
+                    </Label>
+                </HBox>
+
+                <HBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" spacing="10">
+                    <styleClass>
+                        <String fx:value="summary-card"/>
+                        <String fx:value="summary-card-dark"/>
+                    </styleClass>
+                    <padding>
+                        <Insets top="14" right="14" bottom="14" left="14"/>
+                    </padding>
+
+                    <VBox>
+                        <Label text="TOTAL CAJA ACTUAL">
+                            <styleClass>
+                                <String fx:value="summary-label"/>
+                                <String fx:value="summary-label-dark"/>
+                            </styleClass>
+                        </Label>
+                        <Label fx:id="totalCaja" text="354,30">
+                            <styleClass>
+                                <String fx:value="summary-value"/>
+                                <String fx:value="summary-value-dark"/>
+                            </styleClass>
+                        </Label>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="⧉" styleClass="icon-btn"/>
+                </HBox>
+            </HBox>
+
+        </VBox>
+    </center>
+
+    <!-- RIGHT (панель действий) -->
+    <right>
+        <VBox styleClass="side" spacing="14" prefWidth="260">
+            <padding>
+                <Insets top="18" right="18" bottom="18" left="18"/>
+            </padding>
+
+            <VBox spacing="4">
+                <Label text="Control Caja" styleClass="side-title"/>
+                <Label text="Acciones rápidas del sistema" styleClass="side-subtitle"/>
+            </VBox>
+
+            <Button text="" maxWidth="Infinity" VBox.vgrow="ALWAYS" onAction="#onEntrada">
+                <styleClass>
+                    <String fx:value="side-btn"/>
+                    <String fx:value="side-btn-green"/>
+                </styleClass>
+                <graphic>
+                    <StackPane styleClass="action-btn-stack">
+                        <VBox alignment="CENTER" spacing="8">
+                            <SVGPath content="M 24 4 A 20 20 90 1 1 23.998 4 M 16 24 H 32 M 24 16 V 32">
+                            <styleClass>
+                                <String fx:value="side-icon"/>
+                                <String fx:value="icon-green"/>
+                            </styleClass>
+                            </SVGPath>
+                            <VBox alignment="CENTER" spacing="0">
+                                <Label text="Entrada" styleClass="side-btn-text"/>
+                                <Label text="Ingresar dinero" styleClass="side-btn-subtext"/>
+                            </VBox>
+                        </VBox>
+                    </StackPane>
+                </graphic>
+            </Button>
+
+            <Button text="" maxWidth="Infinity" VBox.vgrow="ALWAYS" onAction="#onSalida">
+                <styleClass>
+                    <String fx:value="side-btn"/>
+                    <String fx:value="side-btn-orange"/>
+                </styleClass>
+                <graphic>
+                    <StackPane styleClass="action-btn-stack">
+                        <VBox alignment="CENTER" spacing="8">
+                            <SVGPath content="M 24 4 A 20 20 90 1 1 23.998 4 M 16 24 H 32">
+                                <styleClass>
+                                    <String fx:value="side-icon"/>
+                                    <String fx:value="icon-orange"/>
+                                </styleClass>
+                            </SVGPath>
+                            <VBox alignment="CENTER" spacing="0">
+                                <Label text="Salida" styleClass="side-btn-text"/>
+                                <Label text="Retirar dinero" styleClass="side-btn-subtext"/>
+                            </VBox>
+                        </VBox>
+                    </StackPane>
+                </graphic>
+            </Button>
+
+            <Button text="" maxWidth="Infinity" VBox.vgrow="ALWAYS" onAction="#onAnular">
+                <styleClass>
+                    <String fx:value="side-btn"/>
+                    <String fx:value="side-btn-lightred"/>
+                </styleClass>
+                <graphic>
+                    <StackPane styleClass="action-btn-stack">
+                        <VBox alignment="CENTER" spacing="8">
+                            <SVGPath content="M 24 4 A 20 20 90 1 1 23.998 4 M 30 18 L 18 30 M 18 18 L 30 30">
+                                <styleClass>
+                                    <String fx:value="side-icon"/>
+                                    <String fx:value="icon-lightred"/>
+                                </styleClass>
+                            </SVGPath>
+                            <VBox alignment="CENTER" spacing="0">
+                                <Label text="Anular" styleClass="side-btn-text"/>
+                                <Label text="Revertir transaccion" styleClass="side-btn-subtext"/>
+                            </VBox>
+                        </VBox>
+                    </StackPane>
+                </graphic>
+            </Button>
+
+            <Region VBox.vgrow="ALWAYS"/>
+            <Button text="Cajon" maxWidth="Infinity" VBox.vgrow="ALWAYS" onAction="#onCajon">
+                <styleClass>
+                    <String fx:value="side-btn"/>
+                    <String fx:value="help-btn"/>
+                </styleClass>
+            </Button>
+
+            <Button text="Salir" maxWidth="Infinity" VBox.vgrow="ALWAYS" onAction="#onSalir">
+                <styleClass>
+                    <String fx:value="side-btn"/>
+                    <String fx:value="exit-btn"/>
+                </styleClass>
+            </Button>
+
+        </VBox>
+    </right>
+
+</BorderPane>

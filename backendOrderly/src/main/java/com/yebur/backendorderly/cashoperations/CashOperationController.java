@@ -33,6 +33,11 @@ public class CashOperationController {
         }
     }
 
+    @GetMapping("/cashSession/id/{id}")
+    public ResponseEntity<List<CashOperationResponse>> findCashOperaionDTOBYSessionId(@PathVariable Long id){
+        return ResponseEntity.ok(cashOperationService.findCashOperationDTOBySessionId(id));
+    }
+
     @PutMapping("/id/{id}")
     public ResponseEntity<?> updateCashOperation(@PathVariable Long id, @RequestBody CashOperationRequest cashOperationRequest, BindingResult result){
         if(result.hasErrors()){

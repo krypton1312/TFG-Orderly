@@ -453,6 +453,7 @@ public class PosController {
                     req.setUnitPrice(visualDetail.getUnitPrice());
                     req.setStatus("PENDING");
                     req.setBatchId(currentBatchId);
+                    req.setCashSessionId(StartController.getCashSession().getId());
                     OrderDetailService.createOrderDetail(req);
                 }
 
@@ -549,6 +550,7 @@ public class PosController {
             createReq.setUnitPrice(unitPrice);
             createReq.setStatus("PENDING");
             createReq.setBatchId(currentBatchId);
+            createReq.setCashSessionId(StartController.getCashSession().getId());
 
             OrderDetailService.createOrderDetail(createReq);
 
@@ -1022,6 +1024,7 @@ public class PosController {
             createReq.setStatus("PENDING");
             createReq.setBatchId(currentBatchId);
             createReq.setCreatedAt(visualDetail.getCreatedAt());
+            createReq.setCashSessionId(StartController.getCashSession().getId());
             orderDetailRequests.add(createReq);
         }
         try {
@@ -1364,6 +1367,39 @@ public class PosController {
         }
 
         return new ParsedModifier(quantity, price);
+    }
+
+    @FXML
+    private void handleOperationsClick() {
+        try {
+            URL fxml = getClass().getResource("/com/yebur/pos/operations.fxml");
+            if (fxml == null) {
+                System.err.println("FXML not found: /com/yebur/pos/operations.fxml");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxml);
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Operaciones");
+            Scene scene = new Scene(root);
+            stage.initStyle(StageStyle.UNDECORATED);
+            stage.setResizable(false);
+            stage.setScene(scene);
+
+            URL cssUrl = App.class.getResource("/com/yebur/pos/operations.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().clear();
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
+
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

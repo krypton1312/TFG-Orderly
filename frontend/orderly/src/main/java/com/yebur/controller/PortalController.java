@@ -30,7 +30,6 @@ public class PortalController {
     private final Map<String, Node> loadedViews = new HashMap<>();
     private final Map<String, Object> loadedControllers = new HashMap<>();
 
-    // ✅ overlay (затемнение + модалка) живёт в centerContent и перекрывает только центр
     private Region dimPane;
     private StackPane modalHost;
 
@@ -67,7 +66,6 @@ public class PortalController {
         AnchorPane.setLeftAnchor(modalHost, 0.0);
         AnchorPane.setRightAnchor(modalHost, 0.0);
 
-        // overlay должен быть сверху: добавляем после контента (контента ещё нет — не страшно)
         centerContent.getChildren().addAll(dimPane, modalHost);
     }
 

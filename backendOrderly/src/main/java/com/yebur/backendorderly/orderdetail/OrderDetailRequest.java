@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class OrderDetailRequest {
     
     @NotNull(message = "Product ID cannot be null")
@@ -36,15 +37,5 @@ public class OrderDetailRequest {
 
     private LocalDateTime createdAt;
 
-    public OrderDetailRequest(Long productId, Long orderId, String name, String comment, int amount, BigDecimal unitPrice, String status, String paymentMethod, String batchId) {
-        this.productId = productId;
-        this.orderId = orderId;
-        this.name = name;
-        this.comment = comment;
-        this.amount = amount;
-        this.unitPrice = unitPrice;
-        this.status = status;
-        this.paymentMethod = paymentMethod;
-        this.batchId = batchId;
-    }
+    private Long cashSessionId;
 }
