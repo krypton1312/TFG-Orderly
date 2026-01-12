@@ -3,6 +3,7 @@ package com.yebur.controller;
 import com.yebur.model.response.CashOperationResponse;
 import com.yebur.model.response.CashSessionResponse;
 
+import com.yebur.service.CashOperationService;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -16,10 +17,15 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 
 public class OperationsController {
+    @FXML private Label totalEntradas;
+    @FXML private Label totalSalidas;
+    @FXML private Label totalCaja;
     @FXML private TableView<CashOperationResponse> table;
 
     @FXML private TableColumn<CashOperationResponse, Number> colT;
@@ -30,10 +36,20 @@ public class OperationsController {
 
     private CashSessionResponse actualSession;
     private List<CashOperationResponse> operations;
+    private BigDecimal income = BigDecimal.ZERO;
+    private BigDecimal outcome = BigDecimal.ZERO;
+    private BigDecimal total = BigDecimal.ZERO;
+
+    private NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.GERMANY);
 
     @FXML
     public void initialize() {
         actualSession = StartController.getCashSession();
+        try{
+            setOperations(CashOperationService.getCashOperationsBySessionId(actualSession.getId()));
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
         // ===== value factories =====
         colT.setCellValueFactory(c ->
                 new SimpleIntegerProperty(
@@ -68,14 +84,15 @@ public class OperationsController {
         // ===== alignment classes (из CSS) =====
         colT.getStyleClass().add("cell-center");
         colTipo.getStyleClass().add("cell-center");
-        colConcepto.getStyleClass().add("cell-left");
-        colEntrada.getStyleClass().add("cell-right");
-        colSalida.getStyleClass().add("cell-right");
+        colConcepto.getStyleClass().add("cell-center");
+        colEntrada.getStyleClass().add("cell-center");
+        colSalida.getStyleClass().add("cell-center");
 
         // ===== cell factories =====
         setupTipoColumn();
         setupAmountColumn(colEntrada, true);
         setupAmountColumn(colSalida, false);
+
     }
     private void setupAmountColumn(
             TableColumn<CashOperationResponse, BigDecimal> column,
@@ -94,7 +111,7 @@ public class OperationsController {
                 }
 
                 if (value == null || value.compareTo(BigDecimal.ZERO) == 0) {
-                    setText("—");
+                    setText("");
                     setGraphic(null);
                     getStyleClass().add("dash");
                     return;
@@ -150,8 +167,23 @@ public class OperationsController {
     public void setOperations(List<CashOperationResponse> operations) {
         this.operations = operations;
         printOperations();
+        setTotals(operations);
     }
 
+    public void setTotals(List<CashOperationResponse> operations){
+        for(CashOperationResponse co: operations){
+            if(co.getType().equals("ENTRADA")){
+                income = income.add(co.getAmount());
+            }else{
+                outcome = outcome.add(co.getAmount());
+            }
+        }
+
+        total = income.subtract(outcome);
+        totalEntradas.setText(currencyFormatter.format(income));
+        totalSalidas.setText(currencyFormatter.format(outcome));
+        totalCaja.setText(currencyFormatter.format(total));
+    }
 
     public void onAnular(ActionEvent actionEvent) {
     }

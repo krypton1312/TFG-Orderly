@@ -467,6 +467,9 @@ public class OrderDetailService implements OrderDetailServiceInterface {
 
 
     private OrderDetail mapToEntity(OrderDetailRequest dto) {
+        CashSession cs = cashSessionService.findCashSessionById(dto.getCashSessionId())
+                .orElseThrow(() -> new RuntimeException("Cash session not found with id " + dto.getCashSessionId()));
+
         Product product = productService.findById(dto.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found with id " + dto.getProductId()));
 
@@ -483,7 +486,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         detail.setPaymentMethod(dto.getPaymentMethod());
         detail.setBatchId(dto.getBatchId());
         detail.setName(dto.getName());
-        detail.setCashSession();
+        detail.setCashSession(cs);
         return detail;
     }
 

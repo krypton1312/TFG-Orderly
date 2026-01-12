@@ -530,7 +530,7 @@ public class PartialPaymentController {
                             selectedPaymentMethod,
                             pd.getBatchId(),
                             pd.getCreatedAt(),
-                            100L
+                            StartController.getCashSession().getId()
                     );
 
                     reqsToUpdate.add(req);
@@ -547,7 +547,7 @@ public class PartialPaymentController {
                             selectedPaymentMethod,
                             pd.getBatchId(),
                             pd.getCreatedAt(),
-                            100L
+                            StartController.getCashSession().getId()
                     );
                     reqsToCreate.add(createReq);
                 }
