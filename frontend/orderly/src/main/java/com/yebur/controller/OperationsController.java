@@ -1,5 +1,6 @@
 package com.yebur.controller;
 
+import com.yebur.app.App;
 import com.yebur.model.response.CashOperationResponse;
 import com.yebur.model.response.CashSessionResponse;
 
@@ -11,12 +12,19 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.math.BigDecimal;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
@@ -195,6 +203,36 @@ public class OperationsController {
     }
 
     public void onEntrada(ActionEvent actionEvent) {
+        try {
+            URL fxml = getClass().getResource("/com/yebur/pos/journalEntry.fxml");
+            if (fxml == null) {
+                System.err.println("FXML not found: /com/yebur/pos/journalEntry.fxml");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxml);
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Apuntar pago");
+            Scene scene = new Scene(root);
+            stage.initStyle(StageStyle.DECORATED);
+            stage.setResizable(true);
+            stage.setScene(scene);
+
+            URL cssUrl = App.class.getResource("/com/yebur/pos/journalEntry.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().clear();
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
+
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void onSalida(ActionEvent actionEvent) {

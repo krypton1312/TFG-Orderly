@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.yebur.controller.JournalEntry"
+            styleClass="root">
+
+    <!-- TOP BAR -->
+    <top>
+        <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="14">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="■" styleClass="brandIcon"/>
+                <Label text="Entrada Apuntes" styleClass="title"/>
+            </HBox>
+
+            <Pane HBox.hgrow="ALWAYS"/>
+
+            <HBox alignment="CENTER_RIGHT" spacing="10">
+                <HBox styleClass="chipGroup" alignment="CENTER" spacing="8">
+                    <Label text="FECHA:" styleClass="chipLabel"/>
+                    <Label text="19/12/2025" styleClass="chipValue"/>
+                </HBox>
+
+                <HBox styleClass="chipGroup" alignment="CENTER" spacing="8">
+                    <Label text="TURNO:" styleClass="chipLabel"/>
+                    <Label text="2" styleClass="chipValue"/>
+                </HBox>
+
+                <HBox styleClass="chipGroup" alignment="CENTER" spacing="8">
+                    <Label text="TERMINAL:" styleClass="chipLabel"/>
+                    <Label text="Terminal 1" styleClass="chipValue"/>
+                </HBox>
+            </HBox>
+        </HBox>
+    </top>
+
+    <!-- CENTER CONTENT -->
+    <center>
+        <VBox styleClass="content" spacing="18">
+            <!-- FORM CARD -->
+            <VBox styleClass="card" spacing="14">
+
+                <GridPane hgap="14" vgap="10">
+                    <columnConstraints>
+                        <!-- 0: Forma de pago (растягивается) -->
+                        <ColumnConstraints hgrow="ALWAYS"/>
+
+                        <!-- 1: Importe (фиксированная ширина) -->
+                        <ColumnConstraints hgrow="ALWAYS" prefWidth="360" minWidth="320"/>
+                    </columnConstraints>
+
+                    <!-- Row 0 -->
+                    <Label text="CONCEPTO" styleClass="fieldLabel"
+                           GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+
+                    <!-- Row 1 -->
+                    <HBox spacing="10" alignment="CENTER_LEFT"
+                          GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.columnSpan="2">
+                        <TextField fx:id="conceptField"
+                                   promptText="Escriba el concepto del apunte..."
+                                   HBox.hgrow="ALWAYS"
+                                   maxWidth="Infinity">
+                            <styleClass>
+                                <String fx:value="textInput"/>
+                                <String fx:value="inputBase"/>
+                            </styleClass>
+                        </TextField>
+                    </HBox>
+
+                    <!-- Row 2 -->
+                    <Label text="FORMA DE PAGO" styleClass="fieldLabel"
+                           GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+
+                    <Label text="IMPORTE" styleClass="fieldLabel"
+                           GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                    <!-- Row 3 -->
+                    <ComboBox fx:id="paymentCombo"
+                              GridPane.rowIndex="3" GridPane.columnIndex="0"
+                              maxWidth="Infinity" maxHeight="Infinity">
+                        <styleClass>
+                            <String fx:value="comboInput"/>
+                            <String fx:value="inputBase"/>
+                        </styleClass>
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Efectivo"/>
+                                <String fx:value="Tarjeta"/>
+                                <String fx:value="Transferencia"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+
+                    <HBox alignment="CENTER_LEFT"
+                          styleClass="amountBox"
+                          spacing="10"
+                          GridPane.rowIndex="3" GridPane.columnIndex="1"
+                          maxWidth="Infinity">
+                        <styleClass>
+                            <String fx:value="amountBox"/>
+                            <String fx:value="inputBase"/>
+                        </styleClass>
+                        <TextField fx:id="amountField"
+                                   text="0.00"
+                                   styleClass="amountInput"
+                                   HBox.hgrow="ALWAYS"
+                                   maxWidth="Infinity"/>
+                        <Label text="€" styleClass="currency"/>
+                    </HBox>
+                </GridPane>
+
+
+            </VBox>
+
+            <!-- KEYBOARD -->
+            <VBox styleClass="keyboardWrap" spacing="10">
+                <GridPane styleClass="keyboard" hgap="10" vgap="10">
+                    <!-- Row 1 -->
+                    <Button text="1" styleClass="key" GridPane.rowIndex="0" GridPane.columnIndex="0" onAction="#onKey"/>
+                    <Button text="2" styleClass="key" GridPane.rowIndex="0" GridPane.columnIndex="1" onAction="#onKey"/>
+                    <Button text="3" styleClass="key" GridPane.rowIndex="0" GridPane.columnIndex="2" onAction="#onKey"/>
+                    <Button text="4" styleClass="key" GridPane.rowIndex="0" GridPane.columnIndex="3" onAction="#onKey"/>
+                    <Button text="5" styleClass="key" GridPane.rowIndex="0" GridPane.columnIndex="4" onAction="#onKey"/>
+                    <Button text="6" styleClass="key" GridPane.rowIndex="0" GridPane.columnIndex="5" onAction="#onKey"/>
+                    <Button text="7" styleClass="key" GridPane.rowIndex="0" GridPane.columnIndex="6" onAction="#onKey"/>
+                    <Button text="8" styleClass="key" GridPane.rowIndex="0" GridPane.columnIndex="7" onAction="#onKey"/>
+                    <Button text="9" styleClass="key" GridPane.rowIndex="0" GridPane.columnIndex="8" onAction="#onKey"/>
+                    <Button text="0" styleClass="key" GridPane.rowIndex="0" GridPane.columnIndex="9" onAction="#onKey"/>
+                    <Button text="⌫" GridPane.rowIndex="0" GridPane.columnIndex="10" onAction="#onBackspace">
+                        <styleClass>
+                            <String fx:value="key"/>
+                            <String fx:value="keyDanger"/>
+                        </styleClass>
+                    </Button>
+
+                    <!-- Row 2 -->
+                    <Button text="Q" styleClass="key" GridPane.rowIndex="1" GridPane.columnIndex="0" onAction="#onKey"/>
+                    <Button text="W" styleClass="key" GridPane.rowIndex="1" GridPane.columnIndex="1" onAction="#onKey"/>
+                    <Button text="E" styleClass="key" GridPane.rowIndex="1" GridPane.columnIndex="2" onAction="#onKey"/>
+                    <Button text="R" styleClass="key" GridPane.rowIndex="1" GridPane.columnIndex="3" onAction="#onKey"/>
+                    <Button text="T" styleClass="key" GridPane.rowIndex="1" GridPane.columnIndex="4" onAction="#onKey"/>
+                    <Button text="Y" styleClass="key" GridPane.rowIndex="1" GridPane.columnIndex="5" onAction="#onKey"/>
+                    <Button text="U" styleClass="key" GridPane.rowIndex="1" GridPane.columnIndex="6" onAction="#onKey"/>
+                    <Button text="I" styleClass="key" GridPane.rowIndex="1" GridPane.columnIndex="7" onAction="#onKey"/>
+                    <Button text="O" styleClass="key" GridPane.rowIndex="1" GridPane.columnIndex="8" onAction="#onKey"/>
+                    <Button text="P" styleClass="key" GridPane.rowIndex="1" GridPane.columnIndex="9" onAction="#onKey"/>
+
+                    <!-- Row 3 -->
+                    <Button text="A" styleClass="key" GridPane.rowIndex="2" GridPane.columnIndex="0" onAction="#onKey"/>
+                    <Button text="S" styleClass="key" GridPane.rowIndex="2" GridPane.columnIndex="1" onAction="#onKey"/>
+                    <Button text="D" styleClass="key" GridPane.rowIndex="2" GridPane.columnIndex="2" onAction="#onKey"/>
+                    <Button text="F" styleClass="key" GridPane.rowIndex="2" GridPane.columnIndex="3" onAction="#onKey"/>
+                    <Button text="G" styleClass="key" GridPane.rowIndex="2" GridPane.columnIndex="4" onAction="#onKey"/>
+                    <Button text="H" styleClass="key" GridPane.rowIndex="2" GridPane.columnIndex="5" onAction="#onKey"/>
+                    <Button text="J" styleClass="key" GridPane.rowIndex="2" GridPane.columnIndex="6" onAction="#onKey"/>
+                    <Button text="K" styleClass="key" GridPane.rowIndex="2" GridPane.columnIndex="7" onAction="#onKey"/>
+                    <Button text="L" styleClass="key" GridPane.rowIndex="2" GridPane.columnIndex="8" onAction="#onKey"/>
+                    <Button text="Ñ" styleClass="key" GridPane.rowIndex="2" GridPane.columnIndex="9" onAction="#onKey"/>
+
+                    <!-- Row 4 -->
+                    <Button text="MAYÚS" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2" onAction="#onShift">
+                        <styleClass>
+                            <String fx:value="key"/>
+                            <String fx:value="keyWide"/>
+                        </styleClass>
+                    </Button>
+                    <Button text="Z" styleClass="key" GridPane.rowIndex="3" GridPane.columnIndex="2" onAction="#onKey"/>
+                    <Button text="X" styleClass="key" GridPane.rowIndex="3" GridPane.columnIndex="3" onAction="#onKey"/>
+                    <Button text="C" styleClass="key" GridPane.rowIndex="3" GridPane.columnIndex="4" onAction="#onKey"/>
+                    <Button text="V" styleClass="key" GridPane.rowIndex="3" GridPane.columnIndex="5" onAction="#onKey"/>
+                    <Button text="B" styleClass="key" GridPane.rowIndex="3" GridPane.columnIndex="6" onAction="#onKey"/>
+                    <Button text="N" styleClass="key" GridPane.rowIndex="3" GridPane.columnIndex="7" onAction="#onKey"/>
+                    <Button text="M" styleClass="key" GridPane.rowIndex="3" GridPane.columnIndex="8" onAction="#onKey"/>
+                    <Button text="," styleClass="key" GridPane.rowIndex="3" GridPane.columnIndex="9" onAction="#onKey"/>
+                    <Button text="." styleClass="key" GridPane.rowIndex="3" GridPane.columnIndex="10" onAction="#onKey"/>
+
+                    <!-- Row 5 -->
+                    <Button text="⌨" styleClass="key" GridPane.rowIndex="4" GridPane.columnIndex="0" onAction="#onKeyboard"/>
+                    <Button text=" " GridPane.rowIndex="4" GridPane.columnIndex="1" GridPane.columnSpan="7" onAction="#onSpace">
+                        <styleClass>
+                            <String fx:value="key"/>
+                            <String fx:value="keySpace"/>
+                        </styleClass>
+                    </Button>
+                    <Button text=".com" GridPane.rowIndex="4" GridPane.columnIndex="7" GridPane.columnSpan="2" onAction="#onCom">
+                        <styleClass>
+                            <String fx:value="key"/>
+                            <String fx:value="keyWide"/>
+                        </styleClass>
+                    </Button>
+                    <Button text="◀" styleClass="key" GridPane.rowIndex="4" GridPane.columnIndex="9" onAction="#onLeft"/>
+                    <Button text="▶" styleClass="key" GridPane.rowIndex="4" GridPane.columnIndex="10" onAction="#onRight"/>
+                </GridPane>
+            </VBox>
+        </VBox>
+    </center>
+
+    <!-- BOTTOM BUTTONS -->
+    <bottom>
+        <HBox styleClass="footer" spacing="14" alignment="CENTER">
+            <Button text="⟵  Salir" onAction="#onExit" HBox.hgrow="ALWAYS" maxWidth="1.7976931348623157E308">
+                <styleClass>
+                    <String fx:value="btn"/>
+                    <String fx:value="btnSecondary"/>
+                </styleClass>
+            </Button>
+            <Button text="✓  Aceptar" onAction="#onAccept" HBox.hgrow="ALWAYS" maxWidth="1.7976931348623157E308">
+                <styleClass>
+                    <String fx:value="btn"/>
+                    <String fx:value="btnPrimary"/>
+                </styleClass>
+            </Button>
+        </HBox>
+    </bottom>
+
+</BorderPane>
