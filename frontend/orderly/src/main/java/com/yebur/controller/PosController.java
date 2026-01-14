@@ -18,6 +18,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -1383,6 +1384,7 @@ public class PosController {
 
             Stage stage = new Stage();
             stage.setTitle("Operaciones");
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("/com/yebur/icons/icon.png")));
             Scene scene = new Scene(root);
             stage.initStyle(StageStyle.UNDECORATED);
             stage.setResizable(false);

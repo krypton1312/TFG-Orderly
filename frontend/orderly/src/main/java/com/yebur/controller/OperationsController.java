@@ -13,6 +13,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -192,7 +193,20 @@ public class OperationsController {
         });
     }
 
-    public void onAnular(ActionEvent actionEvent) { }
+    public void onDelete(ActionEvent actionEvent) {
+        try{
+            List<CashOperationResponse> forbiddenItems = table.getItems().subList(0, 2);
+            CashOperationResponse toDelete = table.getSelectionModel().getSelectedItem();
+            if(forbiddenItems.contains(toDelete)){
+                return;
+            }
+            CashOperationService.deleteCashOperation(toDelete.getId());
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        reloadOperations();
+    }
     public void onCajon(ActionEvent actionEvent)  { }
 
     @FXML
@@ -214,6 +228,7 @@ public class OperationsController {
 
             Stage stage = new Stage();
             stage.setTitle("Apuntar pago");
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("/com/yebur/icons/icon.png")));
             Scene scene = new Scene(root);
             stage.initStyle(StageStyle.DECORATED);
             stage.setResizable(true);

@@ -272,7 +272,7 @@
                 </graphic>
             </Button>
 
-            <Button text="" maxWidth="Infinity" VBox.vgrow="ALWAYS" onAction="#onAnular">
+            <Button text="" maxWidth="Infinity" VBox.vgrow="ALWAYS" onAction="#onDelete">
                 <styleClass>
                     <String fx:value="side-btn"/>
                     <String fx:value="side-btn-lightred"/>
