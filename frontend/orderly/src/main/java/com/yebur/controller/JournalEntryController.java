@@ -1,23 +1,28 @@
 package com.yebur.controller;
 
+import com.yebur.model.request.CashOperationRequest;
+import com.yebur.service.CashOperationService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+import lombok.Getter;
+import lombok.Setter;
 
-public class JournalEntry {
+import java.math.BigDecimal;
+
+public class JournalEntryController {
 
     @FXML private TextField conceptField;
     @FXML private TextField amountField;
+    @FXML private Label titleLabel;
     @FXML private ComboBox<String> paymentCombo;
-
     private boolean shift = false;
-
-    // Последний активный TextField (куда печатаем)
     private TextField activeField;
-
-    // если хочешь разрешить точку в сумме (например 12.50) — true
     private static final boolean AMOUNT_ALLOW_DOT = true;
+    @Getter private String paymentType;
 
     @FXML
     private void initialize() {
@@ -25,7 +30,6 @@ public class JournalEntry {
             paymentCombo.setValue("Efectivo");
         }
 
-        // стартовый активный — concept
         setActiveField(conceptField);
 
         conceptField.focusedProperty().addListener((obs, oldV, newV) -> {
@@ -154,6 +158,44 @@ public class JournalEntry {
         activeField.positionCaret(activeField.getText().length());
     }
 
-    @FXML private void onExit()   { }
-    @FXML private void onAccept() { }
+    @FXML private void onExit()   {
+        Stage stage = (Stage) paymentCombo.getScene().getWindow();
+        stage.close();
+    }
+    @FXML private void onAccept() {
+        try {
+            CashOperationService.createCashOperation(createPaymentRequest());
+            onExit();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private CashOperationRequest createPaymentRequest(){
+        return new CashOperationRequest(
+            StartController.getCashSession().getId(),
+                paymentType,
+                paymentCombo.getValue().equals("Ejectivo") ? "CARD" : "CASH",
+                conceptField.getText(),
+                new BigDecimal(amountField.getText())
+        );
+    }
+
+    public void setPaymentType(String paymentType) {
+        this.paymentType = paymentType;
+        applyPaymentType();
+    }
+
+    private void applyPaymentType() {
+        if (titleLabel == null) return;
+        if (paymentType == null) return;
+
+        if ("DEPOSIT".equalsIgnoreCase(paymentType)) {
+            titleLabel.setText("Apuntar entrada de dinero");
+        } else if ("WITHDRAW".equalsIgnoreCase(paymentType)) {
+            titleLabel.setText("Apuntar salida de dinero");
+        } else {
+            titleLabel.setText("Apuntar operación");
+        }
+    }
 }

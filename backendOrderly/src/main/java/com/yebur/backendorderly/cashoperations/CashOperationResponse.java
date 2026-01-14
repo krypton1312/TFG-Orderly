@@ -15,16 +15,19 @@ public class CashOperationResponse {
 
     private String type;
 
+    private String paymentMethod;
+
     private String description;
 
     private BigDecimal amount;
 
     private LocalDateTime createdAt;
 
-    public CashOperationResponse(Long id, Long sessionId, CashOperationType type, String description, BigDecimal amount, LocalDateTime createdAt) {
+    public CashOperationResponse(Long id, Long sessionId, CashOperationType type, String paymentMethod, String description, BigDecimal amount, LocalDateTime createdAt) {
         this.id = id;
         this.sessionId = sessionId;
         this.type = getStatusString(type);
+        this.paymentMethod = getPaymentMethodEsp(paymentMethod);
         this.description = description;
         this.amount = amount;
         this.createdAt = createdAt;
@@ -37,11 +40,20 @@ public class CashOperationResponse {
         };
     }
 
+    private String getPaymentMethodEsp(String paymentMethod){
+        return switch (paymentMethod){
+            case "CARD" -> "TARJETA";
+            case "CASH" -> "EFECTIVO";
+            default -> "N/A";
+        };
+    }
+
     public static CashOperationResponse mapToResponse(CashOperation entity){
         return new CashOperationResponse(
                 entity.getId(),
                 entity.getSession().getId(),
                 entity.getType(),
+                entity.getPaymentMethod(),
                 entity.getDescription(),
                 entity.getAmount(),
                 entity.getCreatedAt()

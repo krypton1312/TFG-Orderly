@@ -120,7 +120,7 @@
 
                     <columns>
                         <TableColumn fx:id="colT" text="T" prefWidth="50"/>
-                        <TableColumn fx:id="colTipo" text="TIPO" prefWidth="140"/>
+                        <TableColumn fx:id="colPaymentMethod" text="Metodo de pago" prefWidth="140"/>
                         <TableColumn fx:id="colConcepto" text="CONCEPTO" prefWidth="420"/>
                         <TableColumn fx:id="colEntrada" text="ENTRADA" prefWidth="130"/>
                         <TableColumn fx:id="colSalida" text="SALIDA" prefWidth="130"/>
@@ -226,7 +226,7 @@
                 <Label text="Acciones rápidas del sistema" styleClass="side-subtitle"/>
             </VBox>
 
-            <Button text="" maxWidth="Infinity" VBox.vgrow="ALWAYS" onAction="#onEntrada">
+            <Button fx:id="inflowButton" text="" maxWidth="Infinity" VBox.vgrow="ALWAYS" onAction="#openJournalEntryWindow">
                 <styleClass>
                     <String fx:value="side-btn"/>
                     <String fx:value="side-btn-green"/>
@@ -249,7 +249,7 @@
                 </graphic>
             </Button>
 
-            <Button text="" maxWidth="Infinity" VBox.vgrow="ALWAYS" onAction="#onSalida">
+            <Button fx:id="outflowButton" text="" maxWidth="Infinity" VBox.vgrow="ALWAYS" onAction="#openJournalEntryWindow">
                 <styleClass>
                     <String fx:value="side-btn"/>
                     <String fx:value="side-btn-orange"/>
@@ -303,7 +303,7 @@
                 </styleClass>
             </Button>
 
-            <Button text="Salir" maxWidth="Infinity" VBox.vgrow="ALWAYS" onAction="#onSalir">
+            <Button text="Salir" maxWidth="Infinity" VBox.vgrow="ALWAYS" onAction="#onClose">
                 <styleClass>
                     <String fx:value="side-btn"/>
                     <String fx:value="exit-btn"/>

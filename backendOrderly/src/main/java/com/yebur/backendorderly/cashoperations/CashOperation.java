@@ -27,6 +27,9 @@ public class CashOperation {
     @Enumerated(EnumType.STRING)
     private CashOperationType type;
 
+    @Column
+    private String paymentMethod;
+
     @Column(nullable = false)
     private String description;
 

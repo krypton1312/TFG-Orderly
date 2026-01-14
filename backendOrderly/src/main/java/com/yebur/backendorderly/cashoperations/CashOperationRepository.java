@@ -11,13 +11,13 @@ import java.util.Optional;
 @Repository
 public interface CashOperationRepository extends JpaRepository<CashOperation, Long> {
 
-    @Query("SELECT new com.yebur.backendorderly.cashoperations.CashOperationResponse(co.id, co.session.id, co.type, co.description, co.amount, co.createdAt) FROM CashOperation co")
+    @Query("SELECT new com.yebur.backendorderly.cashoperations.CashOperationResponse(co.id, co.session.id, co.type, co.paymentMethod, co.description, co.amount, co.createdAt) FROM CashOperation co")
     List<CashOperationResponse> findAllCashOperationDTO();
 
-    @Query("SELECT new com.yebur.backendorderly.cashoperations.CashOperationResponse(co.id, co.session.id, co.type, co.description, co.amount, co.createdAt) FROM CashOperation co WHERE co.id = :id")
+    @Query("SELECT new com.yebur.backendorderly.cashoperations.CashOperationResponse(co.id, co.session.id, co.type, co.paymentMethod, co.description, co.amount, co.createdAt) FROM CashOperation co WHERE co.id = :id")
     Optional<CashOperationResponse> findCashOperationDTOById(Long id);
 
-    @Query("SELECT new com.yebur.backendorderly.cashoperations.CashOperationResponse(co.id, co.session.id, co.type, co.description, co.amount, co.createdAt) FROM CashOperation co WHERE co.session.id = :id")
+    @Query("SELECT new com.yebur.backendorderly.cashoperations.CashOperationResponse(co.id, co.session.id, co.type, co.paymentMethod, co.description, co.amount, co.createdAt) FROM CashOperation co WHERE co.session.id = :id")
     List<CashOperationResponse> findCashOperationBySessionId(Long id);
 
     Optional<CashOperation> findCashOperationById(Long id);

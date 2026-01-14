@@ -45,8 +45,8 @@ public class CashOperationService implements CashOperationServiceInterface{
         BigDecimal paidCard = orderDetailRepository.getPaidSalesByCashSessionAndPaymentMethod(id, "CARD");
         BigDecimal paidCash = orderDetailRepository.getPaidSalesByCashSessionAndPaymentMethod(id, "CASH");
         System.out.println(paidCash + " " + paidCard);
-        operations.add(0, new CashOperationResponse(null, id, CashOperationType.DEPOSIT, "COBROS EN TARJETA", paidCard, null));
-        operations.add(0,new CashOperationResponse(null, id, CashOperationType.DEPOSIT, "COBROS EN EFECTIVO", paidCash, null));
+        operations.add(0, new CashOperationResponse(null, id, CashOperationType.DEPOSIT, "CARD", "COBROS EN TARJETA", paidCard, null));
+        operations.add(0,new CashOperationResponse(null, id, CashOperationType.DEPOSIT, "CASH" , "COBROS EN EFECTIVO", paidCash, null));
         return operations;
     }
 
@@ -65,6 +65,7 @@ public class CashOperationService implements CashOperationServiceInterface{
         toUpdate.setSession(session);
         toUpdate.setDescription(request.getDescription());
         toUpdate.setType(CashOperationType.valueOf(request.getType()));
+        toUpdate.setPaymentMethod(request.getPaymentMethod());
         toUpdate.setAmount(request.getAmount());
         return CashOperationResponse.mapToResponse(cashOperationRepository.save(toUpdate));
     }
@@ -84,6 +85,7 @@ public class CashOperationService implements CashOperationServiceInterface{
         cashOperation.setSession(session);
         cashOperation.setCreatedAt(LocalDateTime.now());
         cashOperation.setType(CashOperationType.valueOf(request.getType()));
+        cashOperation.setPaymentMethod(request.getPaymentMethod());
         cashOperation.setDescription(request.getDescription());
         cashOperation.setAmount(request.getAmount());
 
