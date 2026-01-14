@@ -12,9 +12,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 
 public class JournalEntryController {
 
+    @FXML private Label dateValueLabel;
+    @FXML private Label shiftValueLabel;
     @FXML private TextField conceptField;
     @FXML private TextField amountField;
     @FXML private Label titleLabel;
@@ -29,6 +32,12 @@ public class JournalEntryController {
         if (paymentCombo != null && paymentCombo.getValue() == null) {
             paymentCombo.setValue("Efectivo");
         }
+
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        dateValueLabel.setText(StartController.getCashSession().getBusinessDate().format(formatter));
+
+        shiftValueLabel.setText(StartController.getCashSession().getShiftNo().toString());
 
         setActiveField(conceptField);
 
@@ -48,7 +57,6 @@ public class JournalEntryController {
             }
         });
 
-        // Физическая клавиатура: фильтрация для amount
         amountField.textProperty().addListener((obs, oldText, newText) -> {
             if (newText == null) return;
 
@@ -56,7 +64,6 @@ public class JournalEntryController {
                     ? newText.replaceAll("[^0-9.]", "")
                     : newText.replaceAll("[^0-9]", "");
 
-            // если разрешаем точку — оставляем только одну
             if (AMOUNT_ALLOW_DOT) {
                 int firstDot = cleaned.indexOf('.');
                 if (firstDot >= 0) {
@@ -70,7 +77,6 @@ public class JournalEntryController {
             }
         });
 
-        // начальное значение
         if (amountField.getText() == null || amountField.getText().isBlank()) {
             amountField.setText("0.00");
         }
@@ -88,8 +94,6 @@ public class JournalEntryController {
         return activeField == amountField;
     }
 
-    // ====== Keyboard handlers ======
-
     @FXML
     private void onKey(javafx.event.ActionEvent e) {
         Button b = (Button) e.getSource();
@@ -98,19 +102,16 @@ public class JournalEntryController {
 
         if (activeField == null) return;
 
-        // одна буква/цифра
         if (t.length() == 1) {
             char ch = t.charAt(0);
 
             if (isAmountActive()) {
-                // amount: только цифры (и точка, если разрешено)
                 if (Character.isDigit(ch) || (AMOUNT_ALLOW_DOT && ch == '.' && !activeField.getText().contains("."))) {
                     appendRight(String.valueOf(ch));
                 }
                 return;
             }
 
-            // concept: обычный ввод
             String toAdd = shift ? String.valueOf(ch).toUpperCase() : String.valueOf(ch);
             appendRight(toAdd);
         }
@@ -119,7 +120,7 @@ public class JournalEntryController {
     @FXML
     private void onSpace() {
         if (activeField == null) return;
-        if (isAmountActive()) return; // пробел в сумме не нужен
+        if (isAmountActive()) return;
         appendRight(" ");
     }
 

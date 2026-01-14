@@ -34,7 +34,7 @@
 
                             <VBox spacing="2" alignment="CENTER_LEFT">
                                 <Label text="FECHA" styleClass="chip-label"/>
-                                <Label fx:id="dateValue" text="19/12/2025" styleClass="chip-value"/>
+                                <Label fx:id="dateValueLabel" text="19/12/2025" styleClass="chip-value"/>
                             </VBox>
                         </HBox>
                 </HBox>
@@ -53,7 +53,7 @@
 
                             <VBox spacing="2" alignment="CENTER_LEFT">
                                 <Label text="TURNO" styleClass="chip-label"/>
-                                <Label fx:id="shiftValue" text="2" styleClass="chip-value"/>
+                                <Label fx:id="shiftValueLabel" text="2" styleClass="chip-value"/>
                             </VBox>
                         </HBox>
                 </HBox>

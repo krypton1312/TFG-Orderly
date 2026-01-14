@@ -20,6 +20,7 @@ import javafx.stage.StageStyle;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.NumberFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
@@ -28,6 +29,8 @@ public class OperationsController {
     @FXML private Label totalEntradas;
     @FXML private Label totalSalidas;
     @FXML private Label totalCaja;
+    @FXML private Label shiftValueLabel;
+    @FXML private Label dateValueLabel;
 
     @FXML private TableView<CashOperationResponse> table;
 
@@ -43,18 +46,20 @@ public class OperationsController {
     private CashSessionResponse actualSession;
     private List<CashOperationResponse> operations;
 
-    private BigDecimal income = BigDecimal.ZERO;
-    private BigDecimal outcome = BigDecimal.ZERO;
-    private BigDecimal total = BigDecimal.ZERO;
-
     private final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.GERMANY);
 
     @FXML
     public void initialize() {
         actualSession = StartController.getCashSession();
+
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        dateValueLabel.setText(actualSession.getBusinessDate().format(formatter));
+
+        shiftValueLabel.setText(actualSession.getShiftNo().toString());
+
         reloadOperations();
 
-        // ===== value factories =====
         colT.setCellValueFactory(c ->
                 new SimpleIntegerProperty(table.getItems().indexOf(c.getValue()) + 1)
         );
@@ -67,7 +72,6 @@ public class OperationsController {
                 new SimpleStringProperty(c.getValue().getDescription())
         );
 
-        // ENTRADA / SALIDA — зависят от type
         colEntrada.setCellValueFactory(c -> {
             if ("ENTRADA".equalsIgnoreCase(c.getValue().getType())) {
                 return new SimpleObjectProperty<>(c.getValue().getAmount());
@@ -83,22 +87,16 @@ public class OperationsController {
             return new SimpleObjectProperty<>(BigDecimal.ZERO);
         });
 
-        // ===== alignment classes (из CSS) =====
         colT.getStyleClass().add("cell-center");
         colPaymentMethod.getStyleClass().add("cell-center");
         colConcepto.getStyleClass().add("cell-center");
         colEntrada.getStyleClass().add("cell-center");
         colSalida.getStyleClass().add("cell-center");
 
-        // ===== cell factories =====
         setupTipoColumn();
         setupAmountColumn(colEntrada, true);
         setupAmountColumn(colSalida, false);
     }
-
-    // ==========================
-    // Table rendering / Totals
-    // ==========================
 
     private void printOperations() {
         table.getItems().clear();
@@ -114,9 +112,8 @@ public class OperationsController {
     }
 
     public void setTotals(List<CashOperationResponse> operations) {
-        // IMPORTANT: reset, иначе суммы будут накапливаться
-        income = BigDecimal.ZERO;
-        outcome = BigDecimal.ZERO;
+        BigDecimal income = BigDecimal.ZERO;
+        BigDecimal outcome = BigDecimal.ZERO;
 
         if (operations != null) {
             for (CashOperationResponse co : operations) {
@@ -128,7 +125,7 @@ public class OperationsController {
             }
         }
 
-        total = income.subtract(outcome);
+        BigDecimal total = income.subtract(outcome);
         totalEntradas.setText(currencyFormatter.format(income));
         totalSalidas.setText(currencyFormatter.format(outcome));
         totalCaja.setText(currencyFormatter.format(total));
@@ -142,10 +139,6 @@ public class OperationsController {
             System.out.println(e.getMessage());
         }
     }
-
-    // ==========================
-    // Columns setup
-    // ==========================
 
     private void setupAmountColumn(TableColumn<CashOperationResponse, BigDecimal> column, boolean isEntrada) {
         column.setCellFactory(col -> new TableCell<>() {
@@ -199,10 +192,6 @@ public class OperationsController {
         });
     }
 
-    // ==========================
-    // Actions
-    // ==========================
-
     public void onAnular(ActionEvent actionEvent) { }
     public void onCajon(ActionEvent actionEvent)  { }
 
@@ -230,7 +219,6 @@ public class OperationsController {
             stage.setResizable(true);
             stage.setScene(scene);
 
-            // ВАЖНО: обновляем всегда после закрытия окна любым способом
             stage.setOnHidden(e -> reloadOperations());
 
             URL cssUrl = App.class.getResource("/com/yebur/pos/journalEntry.css");
