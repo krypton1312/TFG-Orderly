@@ -245,3 +245,7 @@
 .combo-box .arrow {
     -fx-background-color: #EAF1FF;
 }
+.blank-element{
+    -fx-border-width: 1px;
+    -fx-border-color: darkred;
+}

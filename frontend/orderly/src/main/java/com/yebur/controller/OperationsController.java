@@ -4,6 +4,7 @@ import com.yebur.app.App;
 import com.yebur.model.response.CashOperationResponse;
 import com.yebur.model.response.CashSessionResponse;
 import com.yebur.service.CashOperationService;
+import com.yebur.ui.CustomDialog;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -160,7 +161,6 @@ public class OperationsController {
                     return;
                 }
 
-                // NOTE: BigDecimal.ROUND_HALF_UP deprecated, но оставляю как у тебя
                 Label pill = new Label(value.setScale(2, BigDecimal.ROUND_HALF_UP) + " €");
                 pill.getStyleClass().addAll("amount-pill", isEntrada ? "amount-green" : "amount-red");
 
@@ -200,7 +200,11 @@ public class OperationsController {
             if(forbiddenItems.contains(toDelete)){
                 return;
             }
-            CashOperationService.deleteCashOperation(toDelete.getId());
+
+            Stage stage = (Stage) totalSalidas.getScene().getWindow();
+            if(confirmDataModification(stage, "Esta seguro que quiere anular esta operacion?")){
+                CashOperationService.deleteCashOperation(toDelete.getId());
+            }
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
@@ -264,5 +268,17 @@ public class OperationsController {
     public void onClose(ActionEvent actionEvent) {
         Stage stage = (Stage) totalSalidas.getScene().getWindow();
         stage.close();
+    }
+
+    private boolean confirmDataModification(Stage stage, String message) {
+        int result = CustomDialog.show(
+                stage,
+                "Confirmación",
+                message,
+                "Confirmar",
+                "Cancelar",
+                null
+        );
+        return result == 1;
     }
 }

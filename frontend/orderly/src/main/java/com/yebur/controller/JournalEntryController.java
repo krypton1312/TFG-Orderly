@@ -2,11 +2,18 @@ package com.yebur.controller;
 
 import com.yebur.model.request.CashOperationRequest;
 import com.yebur.service.CashOperationService;
+import com.yebur.ui.CustomDialog;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,12 +23,14 @@ import java.time.format.DateTimeFormatter;
 
 public class JournalEntryController {
 
+    @FXML private HBox amountHBOX;
     @FXML private Label dateValueLabel;
     @FXML private Label shiftValueLabel;
     @FXML private TextField conceptField;
     @FXML private TextField amountField;
     @FXML private Label titleLabel;
     @FXML private ComboBox<String> paymentCombo;
+    @FXML private GridPane dataGP;
     private boolean shift = false;
     private TextField activeField;
     private static final boolean AMOUNT_ALLOW_DOT = true;
@@ -164,11 +173,13 @@ public class JournalEntryController {
         stage.close();
     }
     @FXML private void onAccept() {
-        try {
-            CashOperationService.createCashOperation(createPaymentRequest());
-            onExit();
-        }catch (Exception e){
-            System.out.println(e.getMessage());
+        if(verifyNotBlank()) {
+            try {
+                CashOperationService.createCashOperation(createPaymentRequest());
+                onExit();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
@@ -176,7 +187,7 @@ public class JournalEntryController {
         return new CashOperationRequest(
             StartController.getCashSession().getId(),
                 paymentType,
-                paymentCombo.getValue().equals("Ejectivo") ? "CARD" : "CASH",
+                paymentCombo.getValue().equals("Efectivo") ? "CASH" : "CARD",
                 conceptField.getText(),
                 new BigDecimal(amountField.getText())
         );
@@ -198,5 +209,45 @@ public class JournalEntryController {
         } else {
             titleLabel.setText("Apuntar operación");
         }
+    }
+
+    private boolean verifyNotBlank() {
+        boolean ok = true;
+
+        conceptField.getStyleClass().remove("blank-element");
+        amountField.getStyleClass().remove("blank-element");
+        paymentCombo.getStyleClass().remove("blank-element");
+
+        String concept = conceptField.getText();
+        if (concept == null || concept.trim().isEmpty()) {
+            conceptField.getStyleClass().add("blank-element");
+            ok = false;
+        }
+        if (paymentCombo.getSelectionModel().getSelectedItem() == null) {
+            paymentCombo.getStyleClass().add("blank-element");
+            ok = false;
+        }
+        String amountTxt = amountField.getText();
+        if (amountTxt == null || amountTxt.trim().isEmpty()) {
+            amountField.getStyleClass().add("blank-element");
+            ok = false;
+        } else {
+            try {
+                BigDecimal amount = new BigDecimal(amountTxt.trim());
+                if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                    amountHBOX.getStyleClass().add("blank-element");
+                    ok = false;
+                }
+            } catch (NumberFormatException ex) {
+                amountField.getStyleClass().add("blank-element");
+                ok = false;
+            }
+        }
+
+        return ok;
+    }
+
+    private void addClickHandler(Node node) {
+        node.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> node.getStyleClass().remove("blank-element"));
     }
 }

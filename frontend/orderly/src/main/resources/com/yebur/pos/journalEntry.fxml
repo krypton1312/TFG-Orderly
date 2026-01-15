@@ -46,7 +46,7 @@
             <!-- FORM CARD -->
             <VBox styleClass="card" spacing="14">
 
-                <GridPane hgap="14" vgap="10">
+                <GridPane fx:id="dataGP" hgap="14" vgap="10">
                     <columnConstraints>
                         <!-- 0: Forma de pago (растягивается) -->
                         <ColumnConstraints hgrow="ALWAYS"/>
@@ -92,12 +92,11 @@
                             <FXCollections fx:factory="observableArrayList">
                                 <String fx:value="Efectivo"/>
                                 <String fx:value="Tarjeta"/>
-                                <String fx:value="Transferencia"/>
                             </FXCollections>
                         </items>
                     </ComboBox>
 
-                    <HBox alignment="CENTER_LEFT"
+                    <HBox fx:id="amountHBOX" alignment="CENTER_LEFT"
                           styleClass="amountBox"
                           spacing="10"
                           GridPane.rowIndex="3" GridPane.columnIndex="1"
