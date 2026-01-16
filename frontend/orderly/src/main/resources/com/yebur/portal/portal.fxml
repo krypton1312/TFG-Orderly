@@ -36,7 +36,7 @@
                     </styleClass>
                 </Button>
                 <Button text="Gestion de datos" styleClass="nav-item" onAction="#showDataView" />
-                <Button text="Cierres" styleClass="nav-item" />
+                <Button text="Cierres" styleClass="nav-item" onAction="#showShiftOperationsView"/>
                 <Button text="Analisis" styleClass="nav-item" />
             </VBox>
 

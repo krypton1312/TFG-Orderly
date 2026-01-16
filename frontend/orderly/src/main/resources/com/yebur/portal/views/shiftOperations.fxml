@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.yebur.controller.ShiftOperationsController"
+      alignment="TOP_CENTER"
+      spacing="40"
+      styleClass="content-area"
+      fx:id="root">
+
+    <GridPane hgap="40" vgap="40" alignment="CENTER">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="100" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints percentHeight="50"/>
+            <RowConstraints percentHeight="50"/>
+        </rowConstraints>
+
+        <StackPane GridPane.rowIndex="0">
+            <VBox fx:id="closeShiftVBox" styleClass="card" alignment="CENTER" spacing="10" pickOnBounds="false" >
+                <StackPane alignment="CENTER" scaleX="1.4" scaleY="1.4" pickOnBounds="false">
+                    <SVGPath styleClass="icon"
+                             content="M14.5 12.5 L9.5 7.5 M9.5 12.5 L14.5 7.5 M4 3 H20 A2 2 0 0 1 22 5 V15 A2 2 0 0 1 20 17 H4 A2 2 0 0 1 2 15 V5 A2 2 0 0 1 4 3 Z M12 17 V21 M8 21 H16" />
+                </StackPane>
+                <Label text="Cerrar turno" styleClass="card-text" />
+            </VBox>
+        </StackPane>
+
+        <StackPane styleClass="card" GridPane.rowIndex="1">
+            <VBox fx:id="reOpenShiftVBOX" styleClass="card" alignment="CENTER" spacing="10" pickOnBounds="false">
+                <StackPane alignment="CENTER" scaleX="1.4" scaleY="1.4" pickOnBounds="false">
+                    <SVGPath styleClass="icon"
+                             content="M5 11H19A2 2 0 0 1 21 13V20A2 2 0 0 1 19 22H5A2 2 0 0 1 3 20V13A2 2 0 0 1 5 11ZM7 11V7A5 5 0 0 1 16.9 6" />
+                </StackPane>
+                <Label text="Reabrir turno" styleClass="card-text" />
+            </VBox>
+        </StackPane>
+    </GridPane>
+</VBox>

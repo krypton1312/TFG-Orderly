@@ -80,6 +80,16 @@ public class PortalController {
     }
 
     @FXML
+    private void showShiftOperationsView(ActionEvent event) {
+        titleLabel.setText("Gestion de datos");
+
+        clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
+        ((Button) event.getSource()).getStyleClass().add("nav-item-selected");
+
+        loadCenterContent("/com/yebur/portal/views/shiftOperations.fxml");
+    }
+
+    @FXML
     private void showStartView(ActionEvent event) {
         titleLabel.setText("Inicio");
 
@@ -120,26 +130,20 @@ public class PortalController {
                 loadedControllers.put(fxmlPath, controller);
             }
 
-            // ✅ не удаляем overlay
             centerContent.getChildren().removeIf(n -> n != dimPane && n != modalHost);
 
-
-            // контент кладём "под" overlay
             centerContent.getChildren().add(0, content);
 
-            ensureOverlayAttached(); // <- ключ
+            ensureOverlayAttached();
 
-            // (и лучше ещё поднять overlay наверх)
             dimPane.toFront();
             modalHost.toFront();
 
-            // ✅ твои старые отступы 20 со всех сторон — как было
             AnchorPane.setTopAnchor(content, 20.0);
             AnchorPane.setBottomAnchor(content, 20.0);
             AnchorPane.setLeftAnchor(content, 20.0);
             AnchorPane.setRightAnchor(content, 20.0);
 
-            // ✅ передаём overlay в StartController
             if (controller instanceof StartController sc) {
                 sc.setOverlay(dimPane, modalHost);
             }
