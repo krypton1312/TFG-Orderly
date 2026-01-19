@@ -21,7 +21,7 @@
         </rowConstraints>
 
         <StackPane GridPane.rowIndex="0">
-            <VBox fx:id="closeShiftVBox" styleClass="card" alignment="CENTER" spacing="10" pickOnBounds="false" >
+            <VBox fx:id="closeShiftVBox" styleClass="card" alignment="CENTER" spacing="10" pickOnBounds="false" onMouseClicked="#showShiftOperationView">
                 <StackPane alignment="CENTER" scaleX="1.4" scaleY="1.4" pickOnBounds="false">
                     <SVGPath styleClass="icon"
                              content="M14.5 12.5 L9.5 7.5 M9.5 12.5 L14.5 7.5 M4 3 H20 A2 2 0 0 1 22 5 V15 A2 2 0 0 1 20 17 H4 A2 2 0 0 1 2 15 V5 A2 2 0 0 1 4 3 Z M12 17 V21 M8 21 H16" />

@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+
+<?import javafx.geometry.Insets?>
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.yebur.controller.ShiftOperationCloseController"
+      fx:id="cashRoot"
+      alignment="TOP_CENTER"
+      spacing="22"
+      maxWidth="Infinity" maxHeight="Infinity">
+
+    <styleClass>
+        <String fx:value="content-area"/>
+        <String fx:value="cash-root"/>
+    </styleClass>
+
+    <!-- Верхняя строка: FECHA / TURNO / TERMINAL -->
+    <HBox spacing="16" alignment="CENTER" maxWidth="Infinity" styleClass="cash-top">
+
+        <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+            <Label text="FECHA" styleClass="info-label"/>
+            <Label fx:id="dateValueLabel" text="14/01/2026" styleClass="info-value"/>
+        </VBox>
+
+        <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+            <Label text="TURNO" styleClass="info-label"/>
+            <Label fx:id="shiftValueLabel" text="2" styleClass="info-value"/>
+        </VBox>
+
+        <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+            <Label text="TERMINAL" styleClass="info-label"/>
+            <Label text="1" styleClass="info-value"/>
+        </VBox>
+
+    </HBox>
+
+    <!-- Центральная зона -->
+    <GridPane hgap="18" vgap="18" alignment="TOP_CENTER" maxWidth="Infinity">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="58"/>
+            <ColumnConstraints percentWidth="42"/>
+        </columnConstraints>
+
+        <!-- LEFT -->
+        <VBox GridPane.columnIndex="0" spacing="14" maxWidth="Infinity">
+
+            <!-- КАРТОЧКА: Payment table -->
+            <VBox maxWidth="Infinity" styleClass="payments-card">
+                <styleClass>
+                    <String fx:value="card"/>
+                    <String fx:value="cash-card"/>
+                    <String fx:value="payments-card"/>
+                </styleClass>
+
+                <!-- Header -->
+                <HBox alignment="CENTER_LEFT" spacing="10" maxWidth="Infinity" styleClass="pay-header">
+                    <Label text="#" styleClass="pay-head-idx"/>
+                    <Label text="FORMA DE PAGO" styleClass="pay-head-name"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label text="IMPORTE" styleClass="pay-head-amount"/>
+                </HBox>
+
+                <!-- Rows -->
+                <VBox maxWidth="Infinity" spacing="0" styleClass="pay-rows">
+
+                    <!-- ROW 1 -->
+                    <HBox fx:id="cashHBox" alignment="CENTER_LEFT" spacing="10" maxWidth="Infinity" styleClass="pay-row" onMouseClicked="#onPayRowClick">
+                        <Label text="1" styleClass="pay-idx"/>
+                        <Label text="EFECTIVO" styleClass="pay-name"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="cashAmountLabel" text="0,00 €" styleClass="pay-amount"/>
+                    </HBox>
+
+                    <Region maxWidth="Infinity" styleClass="pay-divider"/>
+
+                    <!-- ROW 2 -->
+                    <HBox fx:id="cardHBox" alignment="CENTER_LEFT" spacing="10" maxWidth="Infinity" styleClass="pay-row" onMouseClicked="#onPayRowClick">
+                        <Label text="2" styleClass="pay-idx"/>
+                        <Label text="TARJETA" styleClass="pay-name"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="cardAmountLabel" text="0,00 €" styleClass="pay-amount"/>
+                    </HBox>
+
+                </VBox>
+            </VBox>
+
+            <!-- Итоги -->
+            <HBox spacing="14" maxWidth="Infinity">
+                <VBox styleClass="mini-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <Label text="TOTAL DEPÓSITO" styleClass="mini-label"/>
+                    <Label fx:id="cashStartLabel" text="0,00 €" styleClass="mini-value"/>
+                </VBox>
+
+                <VBox styleClass="mini-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <Label text="TOTAL CAJA" styleClass="mini-label"/>
+                    <Label text="0,00 €" styleClass="mini-value"/>
+                </VBox>
+            </HBox>
+
+            <!-- предупреждение -->
+            <HBox styleClass="warn-box" spacing="10" alignment="CENTER_LEFT" maxWidth="Infinity">
+                <Label text="!" styleClass="warn-icon"/>
+                <Label text="Introduzca el valor contado, no el número de monedas/billetes."
+                       styleClass="warn-text" wrapText="true"/>
+            </HBox>
+        </VBox>
+
+        <VBox styleClass="calculator-card" GridPane.columnIndex="1" spacing="14" maxWidth="Infinity">
+
+            <StackPane styleClass="display-card" maxWidth="Infinity">
+                <Label fx:id="displayLabel" text="0,00" styleClass="display-text"/>
+            </StackPane>
+
+            <GridPane hgap="10" vgap="10" styleClass="keypad" maxWidth="Infinity">
+
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
+                    <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
+                    <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
+                    <ColumnConstraints percentWidth="25" hgrow="ALWAYS"/>
+                </columnConstraints>
+
+                <rowConstraints>
+                    <RowConstraints vgrow="ALWAYS"/>
+                    <RowConstraints vgrow="ALWAYS"/>
+                    <RowConstraints vgrow="ALWAYS"/>
+                    <RowConstraints vgrow="ALWAYS"/>
+                    <RowConstraints vgrow="ALWAYS"/>
+                </rowConstraints>
+
+                <!-- row 1 -->
+                <Button text="7" onAction="#onDigit" styleClass="key-btn" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <Button text="8" onAction="#onDigit" styleClass="key-btn" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Button text="9" onAction="#onDigit" styleClass="key-btn" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+
+                <Button text="⌫" onAction="#onBackspace" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="0" GridPane.columnIndex="3">
+                    <styleClass>
+                        <String fx:value="key-btn"/>
+                        <String fx:value="key-btn-muted"/>
+                    </styleClass>
+                </Button>
+
+                <!-- row 2 -->
+                <Button text="4" onAction="#onDigit" styleClass="key-btn" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <Button text="5" onAction="#onDigit" styleClass="key-btn" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Button text="6" onAction="#onDigit" styleClass="key-btn" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+
+                <Button text="C" onAction="#onClear" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="1" GridPane.columnIndex="3">
+                    <styleClass>
+                        <String fx:value="key-btn"/>
+                        <String fx:value="key-btn-danger"/>
+                    </styleClass>
+                </Button>
+
+                <!-- row 3 -->
+                <Button text="1" onAction="#onDigit" styleClass="key-btn" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <Button text="2" onAction="#onDigit" styleClass="key-btn" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                <Button text="3" onAction="#onDigit" styleClass="key-btn" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+
+                <Button text="." onAction="#onDot" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="2" GridPane.columnIndex="3">
+                    <styleClass>
+                        <String fx:value="key-btn"/>
+                        <String fx:value="key-btn-muted"/>
+                    </styleClass>
+                </Button>
+
+                <!-- row 4 -->
+                <Button text="0" onAction="#onDigit" styleClass="key-btn" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <Button text="00" onAction="#onDoubleZero" styleClass="key-btn" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <Pane GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+
+                <!-- "=" wide -->
+                <Button text="=" onAction="#onEquals" maxWidth="Infinity" maxHeight="Infinity"
+                        GridPane.rowIndex="3" GridPane.columnIndex="2" GridPane.columnSpan="2">
+                    <styleClass>
+                        <String fx:value="key-btn"/>
+                        <String fx:value="key-btn-equals"/>
+                    </styleClass>
+                </Button>
+
+                <!-- row 5 fillers -->
+                <Pane GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <Pane GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                <Pane GridPane.rowIndex="4" GridPane.columnIndex="2"/>
+
+            </GridPane>
+        </VBox>
+    </GridPane>
+
+    <!-- Нижние action-кнопки -->
+    <HBox spacing="12" alignment="CENTER" maxWidth="Infinity" styleClass="cash-actions">
+
+        <Button text="GRABAR ARQUEO" HBox.hgrow="ALWAYS">
+            <styleClass><String fx:value="action-btn"/><String fx:value="action-orange"/></styleClass>
+        </Button>
+
+        <Button text="CAJÓN" HBox.hgrow="ALWAYS">
+            <styleClass><String fx:value="action-btn"/><String fx:value="action-orange"/></styleClass>
+        </Button>
+
+        <Button text="MODIFICAR DEPÓSITO" HBox.hgrow="ALWAYS">
+            <styleClass><String fx:value="action-btn"/><String fx:value="action-orange"/></styleClass>
+        </Button>
+
+        <Button text="SALIR" HBox.hgrow="ALWAYS">
+            <styleClass><String fx:value="action-btn"/><String fx:value="action-dark"/></styleClass>
+        </Button>
+
+    </HBox>
+
+</VBox>

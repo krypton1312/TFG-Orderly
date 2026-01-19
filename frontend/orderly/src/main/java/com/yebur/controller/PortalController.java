@@ -81,7 +81,7 @@ public class PortalController {
 
     @FXML
     private void showShiftOperationsView(ActionEvent event) {
-        titleLabel.setText("Gestion de datos");
+        titleLabel.setText("Cierres");
 
         clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
         ((Button) event.getSource()).getStyleClass().add("nav-item-selected");

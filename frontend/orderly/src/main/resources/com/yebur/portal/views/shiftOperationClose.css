@@ -1,0 +1,367 @@
+/* ========================== */
+/* 💶 Cash Closing (Arqueo de Caja) */
+/* ========================== */
+
+.cash-root {
+    -fx-padding: 10;
+    -fx-background-color: #ffffff;
+
+    /* важно: background + border должны иметь одинаковый радиус */
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+
+    /* рамка */
+    -fx-border-color: #f3f4f6;
+    -fx-border-width: 1;
+
+    /* чтобы рамка была “по внешнему контуру”, как в макете */
+    -fx-border-insets: 0;
+    -fx-background-insets: 0;
+}
+
+
+/* Верхние карточки */
+.info-card {
+    -fx-background-color: #ffffff;
+    -fx-background-insets: 0;
+    -fx-background-radius: 14;
+
+    -fx-padding: 14 16 14 16;
+
+    -fx-border-color: #f3f4f6;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+
+    -fx-effect: dropshadow(gaussian, rgba(17,24,39,0.06), 14, 0.2, 0, 4);
+}
+
+.info-label {
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.info-value {
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+}
+
+/* Общая карточка */
+.cash-card, .card {
+    -fx-background-color: #ffffff;
+    -fx-background-insets: 0;
+    -fx-background-radius: 16;
+
+    -fx-padding: 16;
+
+    -fx-border-color: #f3f4f6;
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+
+    -fx-effect: dropshadow(gaussian, rgba(17,24,39,0.06), 16, 0.2, 0, 5);
+}
+
+/* ========================== */
+/* 💳 Payment table (HBox/VBox) */
+/* ========================== */
+
+/* FIX: карточка оплаты всегда с фоном */
+.payments-card {
+    -fx-background-color: #ffffff;
+    -fx-background-insets: 0;
+    -fx-background-radius: 16;
+
+    -fx-padding: 16;
+
+    -fx-border-color: #f3f4f6;
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+
+    -fx-effect: dropshadow(gaussian, rgba(17,24,39,0.06), 16, 0.2, 0, 5);
+}
+
+/* Header row */
+.pay-header {
+    -fx-padding: 6 8 12 8;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #f3f4f6;
+}
+
+.pay-head-idx {
+    -fx-text-fill: #9ca3af;
+    -fx-font-weight: 800;
+    -fx-font-size: 12px;
+
+    -fx-min-width: 34;
+    -fx-pref-width: 34;
+    -fx-max-width: 34;
+}
+
+.pay-head-name {
+    -fx-text-fill: #9ca3af;
+    -fx-font-weight: 800;
+    -fx-font-size: 12px;
+}
+
+.pay-head-amount {
+    -fx-text-fill: #9ca3af;
+    -fx-font-weight: 800;
+    -fx-font-size: 12px;
+
+    -fx-min-width: 140;
+    -fx-pref-width: 140;
+    -fx-max-width: 140;
+
+    -fx-alignment: CENTER_RIGHT;
+    -fx-text-alignment: right;
+}
+
+/* Rows */
+.pay-rows {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.pay-divider {
+    -fx-min-height: 1;
+    -fx-pref-height: 1;
+    -fx-max-height: 1;
+    -fx-background-color: #f3f4f6;
+    -fx-opacity: 1;
+}
+
+.pay-row {
+    -fx-padding: 16 12 16 12;
+    -fx-background-color: transparent;
+}
+
+.pay-row:hover {
+    -fx-background-color: #fff7ed;
+    -fx-background-radius: 12;
+}
+
+/* Если будешь выделять */
+.pay-row-selected {
+    -fx-background-color: #fff7ed;
+    -fx-background-radius: 12;
+
+    -fx-border-color: #fb923c transparent transparent transparent;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-radius: 12;
+}
+
+/* Cells */
+.pay-idx {
+    -fx-text-fill: #6b7280;
+    -fx-font-weight: 700;
+
+    -fx-min-width: 34;
+    -fx-pref-width: 34;
+    -fx-max-width: 34;
+}
+
+.pay-name {
+    -fx-text-fill: #111827;
+    -fx-font-weight: 800;
+}
+
+.pay-amount {
+    -fx-text-fill: #374151;
+    -fx-font-weight: 800;
+
+    -fx-min-width: 140;
+    -fx-pref-width: 140;
+    -fx-max-width: 140;
+
+    -fx-alignment: CENTER_RIGHT;
+    -fx-text-alignment: right;
+}
+
+.pay-amount-accent {
+    -fx-text-fill: #ea580c;
+}
+
+/* ========================== */
+/* Мини итоги */
+/* ========================== */
+
+.mini-card {
+    -fx-background-color: #ffffff;
+    -fx-background-insets: 0;
+    -fx-background-radius: 14;
+
+    -fx-padding: 14 16 14 16;
+
+    -fx-border-color: #f3f4f6;
+    -fx-border-width: 1;
+    -fx-border-radius: 14;
+
+    -fx-effect: dropshadow(gaussian, rgba(17,24,39,0.05), 12, 0.2, 0, 4);
+}
+
+.mini-label {
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.mini-value {
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+}
+
+/* ========================== */
+/* Предупреждение */
+/* ========================== */
+
+.warn-box {
+    -fx-background-color: rgba(234, 88, 12, 0.08);
+    -fx-background-radius: 14;
+
+    -fx-padding: 12 14 12 14;
+
+    -fx-border-color: rgba(234, 88, 12, 0.18);
+    -fx-border-width: 1;
+    -fx-border-radius: 14;
+}
+
+.warn-icon {
+    -fx-background-color: #ea580c;
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-alignment: CENTER;
+
+    -fx-min-width: 22;
+    -fx-min-height: 22;
+
+    -fx-background-radius: 11;
+}
+
+.warn-text {
+    -fx-text-fill: #9a3412;
+    -fx-font-size: 12.5px;
+    -fx-font-weight: 800;
+}
+
+/* ========================== */
+/* Дисплей */
+/* ========================== */
+
+.display-card {
+    -fx-background-color: #1f2937;
+    -fx-background-insets: 0;
+    -fx-background-radius: 18;
+
+    -fx-padding: 18 16 18 16;
+
+    -fx-effect: dropshadow(gaussian, rgba(17,24,39,0.18), 18, 0.2, 0, 6);
+}
+
+.display-text {
+    -fx-text-fill: white;
+    -fx-font-size: 34px;
+    -fx-font-weight: 900;
+}
+
+/* ========================== */
+/* ⌨️ Keypad */
+/* ========================== */
+
+.calculator-card{
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: #f3f4f6;
+    -fx-background-color: #F5F7FA;
+    -fx-border-width: 1;
+
+}
+
+.keypad {
+    -fx-padding: 6;
+}
+
+.key-btn {
+    -fx-max-width: Infinity;
+    -fx-max-height: Infinity;
+
+    -fx-min-width: 64;
+    -fx-min-height: 56;
+
+    -fx-padding: 12;
+    -fx-alignment: CENTER;
+
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+
+    -fx-background-radius: 14;
+    -fx-border-color: #f3f4f6;
+    -fx-border-width: 1;
+    -fx-border-radius: 14;
+
+    -fx-cursor: hand;
+}
+
+.key-btn:hover {
+    -fx-background-color: #fff7ed;
+    -fx-border-color: #fed7aa;
+}
+
+.key-btn-muted {
+    -fx-background-color: #cecece;
+    -fx-text-fill: #374151;
+}
+
+.key-btn-danger {
+    -fx-background-color: rgba(220, 38, 38, 0.10);
+    -fx-text-fill: #dc2626;
+}
+
+.key-btn-equals {
+    -fx-background-color: #ea580c;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+    -fx-font-size: 22px;
+}
+
+.key-btn-equals:hover {
+    -fx-background-color: #9a3412;
+}
+
+/* ========================== */
+/* 🔥 Нижние action кнопки */
+/* ========================== */
+
+.cash-actions .button {
+    -fx-pref-height: 44;
+    -fx-background-radius: 14;
+    -fx-font-size: 12px;
+    -fx-font-weight: 900;
+    -fx-cursor: hand;
+}
+
+.action-btn {
+    -fx-padding: 10 14 10 14;
+}
+
+.action-orange {
+    -fx-background-color: #ea580c;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+
+.action-orange:hover {
+    -fx-background-color: #9a3412;
+}
+
+.action-dark {
+    -fx-background-color: #1f2937;
+    -fx-text-fill: white;
+}
+
+.action-dark:hover {
+    -fx-background-color: #111827;
+}
