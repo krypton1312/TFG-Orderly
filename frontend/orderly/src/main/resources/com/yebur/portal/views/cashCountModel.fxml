@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import java.lang.String?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.yebur.controller.CashCountModelController"
+            fx:id="modalCard"
+            styleClass="modal-card"
+            prefWidth="980" prefHeight="700"
+            maxHeight="768">
+
+    <!-- HEADER -->
+    <top>
+        <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
+            <Label text="DESGLOSE MONEDA" styleClass="modal-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="✕" styleClass="modal-close" onAction="#onClose"/>
+        </HBox>
+    </top>
+
+    <!-- BODY -->
+    <center>
+        <ScrollPane fx:id="bodyScroll"
+                    fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    styleClass="modal-scroll">
+
+            <VBox styleClass="modal-body" spacing="16" maxWidth="Infinity">
+
+                <!-- таблица монет/купюр -->
+                <GridPane styleClass="breakdown-grid" hgap="18" vgap="10" maxWidth="Infinity">
+                    <columnConstraints>
+                        <!-- LEFT -->
+                        <ColumnConstraints percentWidth="28"/>
+                        <ColumnConstraints percentWidth="12"/>
+                        <ColumnConstraints percentWidth="18"/>
+                        <!-- RIGHT -->
+                        <ColumnConstraints percentWidth="28"/>
+                        <ColumnConstraints percentWidth="12"/>
+                        <ColumnConstraints percentWidth="18"/>
+                    </columnConstraints>
+
+                    <!-- header row -->
+                    <Label text="MONEDA" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="grid-head"/>
+                    <Label text="UNID."  GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="grid-head-center"/>
+                    <Label text="IMPORTE" GridPane.rowIndex="0" GridPane.columnIndex="2" styleClass="grid-head-right"/>
+
+                    <Label text="BILLETE" GridPane.rowIndex="0" GridPane.columnIndex="3" styleClass="grid-head"/>
+                    <Label text="UNID."  GridPane.rowIndex="0" GridPane.columnIndex="4" styleClass="grid-head-center"/>
+                    <Label text="IMPORTE" GridPane.rowIndex="0" GridPane.columnIndex="5" styleClass="grid-head-right"/>
+
+                    <!-- row 1 -->
+                    <Label text="1 CENTIMO" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="grid-name"/>
+                    <TextField fx:id="c1" text="0" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="grid-input"/>
+                    <Label fx:id="c1Amount" text="0,00" GridPane.rowIndex="1" GridPane.columnIndex="2" styleClass="grid-amount"/>
+
+                    <Label text="5 EUROS" GridPane.rowIndex="1" GridPane.columnIndex="3" styleClass="grid-name"/>
+                    <TextField fx:id="b5" text="0" GridPane.rowIndex="1" GridPane.columnIndex="4" styleClass="grid-input"/>
+                    <Label fx:id="b5Amount" text="0,00" GridPane.rowIndex="1" GridPane.columnIndex="5" styleClass="grid-amount"/>
+
+                    <!-- row 2 -->
+                    <Label text="2 CENTIMOS" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="grid-name"/>
+                    <TextField fx:id="c2" text="0" GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="grid-input"/>
+                    <Label fx:id="c2Amount" text="0,00" GridPane.rowIndex="2" GridPane.columnIndex="2" styleClass="grid-amount"/>
+
+                    <Label text="10 EUROS" GridPane.rowIndex="2" GridPane.columnIndex="3" styleClass="grid-name"/>
+                    <TextField fx:id="b10" text="0" GridPane.rowIndex="2" GridPane.columnIndex="4" styleClass="grid-input"/>
+                    <Label fx:id="b10Amount" text="0,00" GridPane.rowIndex="2" GridPane.columnIndex="5" styleClass="grid-amount"/>
+
+                    <!-- row 3 -->
+                    <Label text="5 CENTIMOS" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="grid-name"/>
+                    <TextField fx:id="c5" text="0" GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="grid-input"/>
+                    <Label fx:id="c5Amount" text="0,00" GridPane.rowIndex="3" GridPane.columnIndex="2" styleClass="grid-amount"/>
+
+                    <Label text="20 EUROS" GridPane.rowIndex="3" GridPane.columnIndex="3" styleClass="grid-name"/>
+                    <TextField fx:id="b20" text="0" GridPane.rowIndex="3" GridPane.columnIndex="4" styleClass="grid-input"/>
+                    <Label fx:id="b20Amount" text="0,00" GridPane.rowIndex="3" GridPane.columnIndex="5" styleClass="grid-amount"/>
+
+                    <!-- row 4 -->
+                    <Label text="10 CENTIMOS" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="grid-name"/>
+                    <TextField fx:id="c10" text="0" GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="grid-input"/>
+                    <Label fx:id="c10Amount" text="0,00" GridPane.rowIndex="4" GridPane.columnIndex="2" styleClass="grid-amount"/>
+
+                    <Label text="50 EUROS" GridPane.rowIndex="4" GridPane.columnIndex="3" styleClass="grid-name"/>
+                    <TextField fx:id="b50" text="0" GridPane.rowIndex="4" GridPane.columnIndex="4" styleClass="grid-input"/>
+                    <Label fx:id="b50Amount" text="0,00" GridPane.rowIndex="4" GridPane.columnIndex="5" styleClass="grid-amount"/>
+
+                    <!-- row 5 -->
+                    <Label text="20 CENTIMOS" GridPane.rowIndex="5" GridPane.columnIndex="0" styleClass="grid-name"/>
+                    <TextField fx:id="c20" text="0" GridPane.rowIndex="5" GridPane.columnIndex="1" styleClass="grid-input"/>
+                    <Label fx:id="c20Amount" text="0,00" GridPane.rowIndex="5" GridPane.columnIndex="2" styleClass="grid-amount"/>
+
+                    <Label text="100 EUROS" GridPane.rowIndex="5" GridPane.columnIndex="3" styleClass="grid-name"/>
+                    <TextField fx:id="b100" text="0" GridPane.rowIndex="5" GridPane.columnIndex="4" styleClass="grid-input"/>
+                    <Label fx:id="b100Amount" text="0,00" GridPane.rowIndex="5" GridPane.columnIndex="5" styleClass="grid-amount"/>
+
+                    <!-- row 6 -->
+                    <Label text="50 CENTIMOS" GridPane.rowIndex="6" GridPane.columnIndex="0" styleClass="grid-name"/>
+                    <TextField fx:id="c50" text="0" GridPane.rowIndex="6" GridPane.columnIndex="1" styleClass="grid-input"/>
+                    <Label fx:id="c50Amount" text="0,00" GridPane.rowIndex="6" GridPane.columnIndex="2" styleClass="grid-amount"/>
+
+                    <Label text="200 EUROS" GridPane.rowIndex="6" GridPane.columnIndex="3" styleClass="grid-name"/>
+                    <TextField fx:id="b200" text="0" GridPane.rowIndex="6" GridPane.columnIndex="4" styleClass="grid-input"/>
+                    <Label fx:id="b200Amount" text="0,00" GridPane.rowIndex="6" GridPane.columnIndex="5" styleClass="grid-amount"/>
+
+                    <!-- row 7 -->
+                    <Label text="1 EURO" GridPane.rowIndex="7" GridPane.columnIndex="0" styleClass="grid-name"/>
+                    <TextField fx:id="c100" text="0" GridPane.rowIndex="7" GridPane.columnIndex="1" styleClass="grid-input"/>
+                    <Label fx:id="c100Amount" text="0,00" GridPane.rowIndex="7" GridPane.columnIndex="2" styleClass="grid-amount"/>
+
+                    <Label text="500 EUROS" GridPane.rowIndex="7" GridPane.columnIndex="3" styleClass="grid-name"/>
+                    <TextField fx:id="b500" text="0" GridPane.rowIndex="7" GridPane.columnIndex="4" styleClass="grid-input"/>
+                    <Label fx:id="b500Amount" text="0,00" GridPane.rowIndex="7" GridPane.columnIndex="5" styleClass="grid-amount"/>
+
+                    <!-- row 8 -->
+                    <Label text="2 EUROS" GridPane.rowIndex="8" GridPane.columnIndex="0" styleClass="grid-name"/>
+                    <TextField fx:id="c200" text="0" GridPane.rowIndex="8" GridPane.columnIndex="1" styleClass="grid-input"/>
+                    <Label fx:id="c200Amount" text="0,00" GridPane.rowIndex="8" GridPane.columnIndex="2" styleClass="grid-amount"/>
+
+                    <Label text="OTROS" GridPane.rowIndex="8" GridPane.columnIndex="3" styleClass="grid-name"/>
+                    <TextField fx:id="bOther" text="0" GridPane.rowIndex="8" GridPane.columnIndex="4" styleClass="grid-input"/>
+                    <Label fx:id="bOtherAmount" text="0,00" GridPane.rowIndex="8" GridPane.columnIndex="5" styleClass="grid-amount"/>
+                </GridPane>
+
+                <!-- низ: калькулятор + кнопки -->
+                <HBox spacing="18" maxWidth="Infinity">
+                    <!-- LEFT -->
+                    <VBox spacing="12" HBox.hgrow="ALWAYS">
+
+                        <StackPane styleClass="modal-display" maxWidth="Infinity">
+                            <Label fx:id="modalDisplayLabel" text="0,00" styleClass="modal-display-text"/>
+                        </StackPane>
+
+                        <GridPane hgap="10" vgap="10" maxWidth="Infinity">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="25"/>
+                                <ColumnConstraints percentWidth="25"/>
+                                <ColumnConstraints percentWidth="25"/>
+                                <ColumnConstraints percentWidth="25"/>
+                            </columnConstraints>
+
+                            <Button text="7" onAction="#onDigit" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="key-btn"/>
+                            <Button text="8" onAction="#onDigit" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="key-btn"/>
+                            <Button text="9" onAction="#onDigit" GridPane.rowIndex="0" GridPane.columnIndex="2" styleClass="key-btn"/>
+                            <Button text="⌫" onAction="#onBackspace" GridPane.rowIndex="0" GridPane.columnIndex="3" styleClass="key-btn key-btn-muted"/>
+
+                            <Button text="4" onAction="#onDigit" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="key-btn"/>
+                            <Button text="5" onAction="#onDigit" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="key-btn"/>
+                            <Button text="6" onAction="#onDigit" GridPane.rowIndex="1" GridPane.columnIndex="2" styleClass="key-btn"/>
+                            <Button text="C" onAction="#onClear" GridPane.rowIndex="1" GridPane.columnIndex="3" styleClass="key-btn key-btn-danger"/>
+
+                            <Button text="1" onAction="#onDigit" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="key-btn"/>
+                            <Button text="2" onAction="#onDigit" GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="key-btn"/>
+                            <Button text="3" onAction="#onDigit" GridPane.rowIndex="2" GridPane.columnIndex="2" styleClass="key-btn"/>
+                            <Button text="." onAction="#onDot" GridPane.rowIndex="2" GridPane.columnIndex="3" styleClass="key-btn key-btn-muted"/>
+
+                            <Button text="0"  onAction="#onDigit" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="key-btn"/>
+                            <Button text="00" onAction="#onDoubleZero" GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="key-btn"/>
+                            <Pane GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+
+                            <Button text="=" onAction="#onEquals"
+                                    GridPane.rowIndex="3" GridPane.columnIndex="3"
+                                    GridPane.rowSpan="2"
+                                    styleClass="key-btn key-btn-equals"
+                                    maxHeight="Infinity"/>
+
+                            <Pane GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                            <Pane GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                            <Pane GridPane.rowIndex="4" GridPane.columnIndex="2"/>
+                        </GridPane>
+                    </VBox>
+
+                    <!-- RIGHT -->
+                    <VBox spacing="12" prefWidth="320">
+
+                        <HBox styleClass="total-pill" alignment="CENTER_LEFT" spacing="10">
+                            <Label text="TOTAL DESGLOSE" styleClass="total-pill-label"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="totalLabel" text="0,00" styleClass="total-pill-value"/>
+                        </HBox>
+
+                        <Button text="ACEPTAR" onAction="#onAccept" styleClass="btn-primary" maxWidth="Infinity"/>
+                        <HBox spacing="10">
+                            <Button text="LIMPIAR" onAction="#onClearAll" styleClass="btn-secondary" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                            <Button text="IMPRIMIR" onAction="#onPrint" styleClass="btn-secondary" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        </HBox>
+
+                        <Region VBox.vgrow="ALWAYS"/>
+
+                        <Button text="SALIR" onAction="#onClose" styleClass="btn-dark" maxWidth="Infinity"/>
+                    </VBox>
+                </HBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

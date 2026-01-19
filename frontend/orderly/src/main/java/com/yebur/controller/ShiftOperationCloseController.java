@@ -4,12 +4,18 @@ import com.yebur.model.response.CashSessionResponse;
 import com.yebur.service.CashSessionService;
 import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import java.math.BigDecimal;
@@ -185,9 +191,7 @@ public class ShiftOperationCloseController {
             if (singleClickTimer != null) singleClickTimer.stop();
 
             if (row == cashHBox) {
-                System.out.println("open cashCount");
-            } else if (row == cardHBox) {
-                System.out.println("open cardCount");
+                openCashCountModal();
             }
             return;
         }
@@ -204,4 +208,36 @@ public class ShiftOperationCloseController {
         });
         singleClickTimer.playFromStart();
     }
+
+    private void openCashCountModal() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/yebur/portal/views/cashCountModel.fxml")
+            );
+
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(
+                    getClass().getResource("/com/yebur/portal/views/cashCountModel.css").toExternalForm()
+            );
+
+            Stage stage = new Stage();
+            stage.initStyle(StageStyle.UNDECORATED);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(cashRoot.getScene().getWindow());
+            stage.setResizable(false);
+            stage.setScene(scene);
+
+            stage.setWidth(980);
+            stage.setHeight(700); // <= 768
+
+            stage.showAndWait();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
 }
