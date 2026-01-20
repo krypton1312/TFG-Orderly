@@ -228,10 +228,10 @@ public class ShiftOperationCloseController {
             stage.initOwner(cashRoot.getScene().getWindow());
             stage.setResizable(false);
             stage.setScene(scene);
-
+            /*
             stage.setWidth(980);
             stage.setHeight(700); // <= 768
-
+            */
             stage.showAndWait();
 
         } catch (Exception ex) {

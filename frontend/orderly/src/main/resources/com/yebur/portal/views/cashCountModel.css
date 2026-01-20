@@ -1,3 +1,7 @@
+/* =========================
+   OVERLAY + CARD
+   ========================= */
+
 .modal-overlay {
     -fx-background-color: rgba(0,0,0,0.25);
     -fx-alignment: center;
@@ -14,7 +18,7 @@
 }
 
 .modal-header {
-    -fx-padding: 14 16 14 16;
+    -fx-padding: 14 16;
     -fx-border-color: #f3f4f6;
     -fx-border-width: 0 0 1 0;
 }
@@ -32,30 +36,30 @@
     -fx-cursor: hand;
 }
 
-.modal-scroll {
-    -fx-background-color: transparent;
-}
-.modal-scroll .viewport {
-    -fx-background-color: transparent;
-}
-
 .modal-body {
     -fx-padding: 16;
 }
+
+
+/* =========================
+   BREAKDOWN (2 columns)
+   ========================= */
 
 .breakdown-grid .label {
     -fx-font-size: 12px;
     -fx-font-weight: 800;
 }
 
+/* header labels */
 .grid-head { -fx-text-fill: #9ca3af; }
 .grid-head-center { -fx-text-fill: #9ca3af; -fx-alignment: CENTER; }
 .grid-head-right { -fx-text-fill: #9ca3af; -fx-alignment: CENTER_RIGHT; }
 
-.grid-name {
-    -fx-text-fill: #374151;
-}
+/* content labels */
+.grid-name { -fx-text-fill: #374151; }
+.grid-amount { -fx-text-fill: #9ca3af; -fx-alignment: CENTER_RIGHT; }
 
+/* input */
 .grid-input {
     -fx-background-color: #ffffff;
     -fx-border-color: #e5e7eb;
@@ -66,24 +70,65 @@
     -fx-font-weight: 800;
 }
 
-.grid-amount {
-    -fx-text-fill: #9ca3af;
-    -fx-alignment: CENTER_RIGHT;
+/* header row container */
+.row-head {
+    -fx-padding: 0 8 6 8;
 }
 
-/* display */
+/* row container */
+.row-line {
+    -fx-padding: 6 8;
+    -fx-background-color: transparent;
+    -fx-background-radius: 12;
+}
+
+.row-line:hover {
+    -fx-background-color: rgba(234,88,12,0.06);
+}
+
+/* --- IMPORTANT: fixed column widths for perfect alignment --- */
+/* Подогнано под твою карточку 750px (по скрину). Если захочешь шире/уже — меняем только эти 3 числа. */
+.breakdown-col .col-name {
+    -fx-min-width: 210;
+    -fx-pref-width: 210;
+}
+
+.breakdown-col .col-unit {
+    -fx-min-width: 70;
+    -fx-pref-width: 70;
+}
+
+.breakdown-col .col-amount {
+    -fx-min-width: 70;
+    -fx-pref-width: 70;
+}
+
+/* alignment for unit/amount across header + rows */
+.breakdown-col .col-unit { -fx-alignment: CENTER; }
+.breakdown-col .col-amount { -fx-alignment: CENTER_RIGHT; }
+
+
+/* =========================
+   DISPLAY
+   ========================= */
+
 .modal-display {
     -fx-background-color: #1f2937;
     -fx-background-radius: 14;
     -fx-padding: 14 16;
 }
+
 .modal-display-text {
     -fx-text-fill: white;
     -fx-font-size: 30px;
     -fx-font-weight: 900;
 }
 
-/* buttons */
+
+/* =========================
+   KEYPAD BUTTONS
+   ========================= */
+
 .key-btn {
     -fx-background-color: #ffffff;
     -fx-border-color: #eef2f7;
@@ -94,22 +139,45 @@
     -fx-pref-height: 46;
     -fx-cursor: hand;
 }
+
 .key-btn:hover {
     -fx-background-color: #fff7ed;
     -fx-border-color: #fed7aa;
 }
+
 .key-btn-muted { -fx-background-color: #f3f4f6; }
 .key-btn-danger { -fx-background-color: rgba(220,38,38,0.12); -fx-text-fill: #dc2626; }
-.key-btn-equals { -fx-background-color: #ea580c; -fx-text-fill: white; -fx-border-color: transparent; }
+
+.key-btn-equals {
+    -fx-background-color: #ea580c;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+
 .key-btn-equals:hover { -fx-background-color: #9a3412; }
+
+
+/* =========================
+   TOTAL + ACTION BUTTONS
+   ========================= */
 
 .total-pill {
     -fx-background-color: #1f2937;
     -fx-background-radius: 12;
     -fx-padding: 12 14;
 }
-.total-pill-label { -fx-text-fill: #9ca3af; -fx-font-weight: 800; -fx-font-size: 11px; }
-.total-pill-value { -fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 16px; }
+
+.total-pill-label {
+    -fx-text-fill: #9ca3af;
+    -fx-font-weight: 800;
+    -fx-font-size: 11px;
+}
+
+.total-pill-value {
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-font-size: 16px;
+}
 
 .btn-primary {
     -fx-background-color: #ea580c;
@@ -119,6 +187,7 @@
     -fx-pref-height: 44;
     -fx-cursor: hand;
 }
+
 .btn-primary:hover { -fx-background-color: #9a3412; }
 
 .btn-secondary {
@@ -138,4 +207,5 @@
     -fx-pref-height: 44;
     -fx-cursor: hand;
 }
+
 .btn-dark:hover { -fx-background-color: #111827; }
