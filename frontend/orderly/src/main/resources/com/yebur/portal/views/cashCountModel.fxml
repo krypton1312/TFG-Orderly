@@ -26,10 +26,8 @@
         <VBox styleClass="modal-body" spacing="16" maxWidth="Infinity">
 
             <!-- BREAKDOWN: 2 columns -->
-            <GridPane styleClass="breakdown-grid" hgap="18" vgap="0" maxWidth="Infinity">
-                <padding>
-                    <Insets top="6" right="6" bottom="6" left="6"/>
-                </padding>
+            <GridPane styleClass="breakdown-grid" hgap="18" maxWidth="Infinity">
+
 
                 <columnConstraints>
                     <ColumnConstraints percentWidth="50"/>
@@ -513,7 +511,7 @@
                         <Label fx:id="modalDisplayLabel" text="0,00" styleClass="modal-display-text"/>
                     </StackPane>
 
-                    <GridPane hgap="10" vgap="10" maxWidth="Infinity">
+                    <GridPane hgap="5" vgap="5" maxWidth="Infinity">
                         <columnConstraints>
                             <ColumnConstraints percentWidth="25"/>
                             <ColumnConstraints percentWidth="25"/>
