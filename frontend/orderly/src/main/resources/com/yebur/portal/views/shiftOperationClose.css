@@ -348,13 +348,13 @@
 }
 
 .action-orange {
-    -fx-background-color: #ea580c;
-    -fx-text-fill: white;
+    -fx-background-color: #FED7AA;
+    -fx-text-fill: #9a3412;
     -fx-border-color: transparent;
 }
 
 .action-orange:hover {
-    -fx-background-color: #9a3412;
+    -fx-background-color: #ffc271;
 }
 
 .action-dark {

@@ -35,7 +35,7 @@
                 </columnConstraints>
 
                 <!-- MONEDAS -->
-                <VBox GridPane.rowIndex="0" GridPane.columnIndex="0"
+                <VBox fx:id="coinsVBox" GridPane.rowIndex="0" GridPane.columnIndex="0"
                       spacing="6" maxWidth="Infinity" styleClass="breakdown-col">
 
                     <!-- header row -->
@@ -65,7 +65,7 @@
                     </HBox>
 
                     <!-- rows -->
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="0.01">
 
                         <Label text="1 CENTIMO">
                             <styleClass>
@@ -90,7 +90,7 @@
 
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="0.02">
 
                         <Label text="2 CENTIMOS">
                             <styleClass>
@@ -115,7 +115,7 @@
 
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="0.05">
 
                         <Label text="5 CENTIMOS">
                             <styleClass>
@@ -140,7 +140,7 @@
 
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="0.1">
 
                         <Label text="10 CENTIMOS">
                             <styleClass>
@@ -165,7 +165,7 @@
 
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="0.2">
 
                         <Label text="20 CENTIMOS">
                             <styleClass>
@@ -190,7 +190,7 @@
 
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="0.5">
 
                         <Label text="50 CENTIMOS">
                             <styleClass>
@@ -215,7 +215,7 @@
 
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="1">
 
                         <Label text="1 EURO">
                             <styleClass>
@@ -240,7 +240,7 @@
 
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="2">
 
                         <Label text="2 EUROS">
                             <styleClass>
@@ -268,7 +268,7 @@
                 </VBox>
 
                 <!-- BILLETES -->
-                <VBox GridPane.rowIndex="0" GridPane.columnIndex="1"
+                <VBox fx:id="banknoteVBox" GridPane.rowIndex="0" GridPane.columnIndex="1"
                       spacing="6" maxWidth="Infinity" styleClass="breakdown-col">
 
                     <!-- header row -->
@@ -298,7 +298,7 @@
                     </HBox>
 
                     <!-- rows -->
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="5">
 
                         <Label text="5 EUROS">
                             <styleClass>
@@ -323,7 +323,7 @@
 
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="10">
 
                         <Label text="10 EUROS">
                             <styleClass>
@@ -348,7 +348,7 @@
 
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="20">
 
                         <Label text="20 EUROS">
                             <styleClass>
@@ -373,7 +373,7 @@
 
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="50">
 
                         <Label text="50 EUROS">
                             <styleClass>
@@ -398,7 +398,7 @@
 
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="100">
 
                         <Label text="100 EUROS">
                             <styleClass>
@@ -423,7 +423,7 @@
 
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="200">
 
                         <Label text="200 EUROS">
                             <styleClass>
@@ -448,7 +448,7 @@
 
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line" onMouseClicked="#registerCuantity" userData="500">
 
                         <Label text="500 EUROS">
                             <styleClass>
@@ -473,30 +473,6 @@
 
                     </HBox>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="row-line">
-
-                        <Label text="OTROS">
-                            <styleClass>
-                                <String fx:value="grid-name"/>
-                                <String fx:value="col-name"/>
-                            </styleClass>
-                        </Label>
-
-                        <TextField fx:id="bOther" text="0">
-                            <styleClass>
-                                <String fx:value="grid-input"/>
-                                <String fx:value="col-unit"/>
-                            </styleClass>
-                        </TextField>
-
-                        <Label fx:id="bOtherAmount" text="0,00">
-                            <styleClass>
-                                <String fx:value="grid-amount"/>
-                                <String fx:value="col-amount"/>
-                            </styleClass>
-                        </Label>
-
-                    </HBox>
 
                 </VBox>
 
@@ -555,16 +531,6 @@
                         <Button text="0"  onAction="#onDigit" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="key-btn" maxWidth="Infinity" maxHeight="Infinity"/>
                         <Button text="00" onAction="#onDoubleZero" GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="key-btn" maxWidth="Infinity" maxHeight="Infinity"/>
                         <Pane GridPane.rowIndex="3" GridPane.columnIndex="2"/>
-
-                        <Button text="=" onAction="#onEquals"
-                                GridPane.rowIndex="3" GridPane.columnIndex="3"
-                                GridPane.rowSpan="2"
-                                maxHeight="Infinity" maxWidth="Infinity">
-                            <styleClass>
-                                <String fx:value="key-btn"/>
-                                <String fx:value="key-btn-equals"/>
-                            </styleClass>
-                        </Button>
 
                         <Pane GridPane.rowIndex="4" GridPane.columnIndex="0"/>
                         <Pane GridPane.rowIndex="4" GridPane.columnIndex="1"/>
