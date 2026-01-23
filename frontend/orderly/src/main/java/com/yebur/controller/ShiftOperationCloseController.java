@@ -26,6 +26,7 @@ import java.util.Locale;
 
 public class ShiftOperationCloseController {
 
+    @FXML private Label cashTotalLabel;
     @FXML private VBox cashRoot;
 
     @FXML private Label dateValueLabel;
@@ -40,13 +41,18 @@ public class ShiftOperationCloseController {
 
     private PauseTransition singleClickTimer;
 
-
     private CashSessionResponse cashSession;
 
     private final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.GERMANY);
 
-    // калькулятор хранит строку ввода (без валюты)
+    // calculator input (no currency)
     private final StringBuilder input = new StringBuilder("0");
+
+    private CashCountModelController cashCountController;
+
+    // ТЕПЕРЬ ЭТО НЕ "totals", а "текущие суммы"
+    private BigDecimal cashAmount = BigDecimal.ZERO;
+    private BigDecimal cardAmount = BigDecimal.ZERO;
 
     @FXML
     public void initialize() {
@@ -63,7 +69,8 @@ public class ShiftOperationCloseController {
             cashStartLabel.setText(currencyFormatter.format(cashSession.getCashStart()));
         }
 
-        // init display
+        refreshAmountsLabels();
+        refreshTotalLabel();
         updateDisplay();
     }
 
@@ -83,12 +90,10 @@ public class ShiftOperationCloseController {
     private void onDigit(javafx.event.ActionEvent e) {
         String d = ((Button) e.getSource()).getText();
 
-        // если "0" и нет точки — заменяем, чтобы не было "0000"
         if (input.toString().equals("0") && !input.toString().contains(".")) {
             input.setLength(0);
             input.append(d);
         } else {
-            // ограничим длину (чтобы не улетало)
             if (input.length() < 12) {
                 input.append(d);
             }
@@ -98,21 +103,15 @@ public class ShiftOperationCloseController {
 
     @FXML
     private void onDoubleZero() {
-        // если сейчас "0" без точки — смысла нет добавлять "00"
-        if (input.toString().equals("0") && !input.toString().contains(".")) {
-            return;
-        }
-        if (input.length() <= 10) {
-            input.append("00");
-        }
+        if (input.toString().equals("0") && !input.toString().contains(".")) return;
+
+        if (input.length() <= 10) input.append("00");
         updateDisplay();
     }
 
     @FXML
     private void onDot() {
-        if (!input.toString().contains(".")) {
-            input.append(".");
-        }
+        if (!input.toString().contains(".")) input.append(".");
         updateDisplay();
     }
 
@@ -123,7 +122,6 @@ public class ShiftOperationCloseController {
             input.append("0");
         } else {
             input.deleteCharAt(input.length() - 1);
-            // если стало пусто или "": вернём 0
             if (input.length() == 0 || input.toString().equals("-")) {
                 input.setLength(0);
                 input.append("0");
@@ -141,27 +139,17 @@ public class ShiftOperationCloseController {
 
     @FXML
     private void onEquals() {
-        // тут можно, например, зафиксировать значение "как посчитано"
-        // пока просто нормализуем до 2 знаков и обновляем дисплей
-        BigDecimal value = parseInputToBigDecimal();
-        value = value.setScale(2, RoundingMode.HALF_UP);
-
+        BigDecimal value = parseInputToBigDecimal().setScale(2, RoundingMode.HALF_UP);
         input.setLength(0);
         input.append(value.toPlainString());
-
         updateDisplay();
-
-        // Если хочешь сразу записывать, например, в TOTAL CAJA:
-        // totalCashLabel.setText(currencyFormatter.format(value));
     }
 
     private BigDecimal parseInputToBigDecimal() {
         try {
             String s = input.toString();
-
             if (s.endsWith(".")) s = s.substring(0, s.length() - 1);
             if (s.isBlank()) s = "0";
-
             return new BigDecimal(s);
         } catch (Exception ex) {
             return BigDecimal.ZERO;
@@ -178,6 +166,28 @@ public class ShiftOperationCloseController {
         displayLabel.setText(nf.format(value));
     }
 
+    /* =========================
+       LABELS REFRESH
+       ========================= */
+
+    private void refreshAmountsLabels() {
+        cashAmountLabel.setText(currencyFormatter.format(cashAmount));
+        cardAmountLabel.setText(currencyFormatter.format(cardAmount));
+    }
+
+    private void refreshTotalLabel() {
+        cashTotalLabel.setText(currencyFormatter.format(cashAmount.add(cardAmount)));
+    }
+
+    private void refreshAll() {
+        refreshAmountsLabels();
+        refreshTotalLabel();
+    }
+
+    /* =========================
+       CLICK HANDLER
+       ========================= */
+
     @FXML
     private void onPayRowClick(MouseEvent e) {
         Node node = (Node) e.getTarget();
@@ -185,27 +195,33 @@ public class ShiftOperationCloseController {
         if (!(node instanceof HBox row)) return;
 
         BigDecimal value = parseInputToBigDecimal().setScale(2, RoundingMode.HALF_UP);
-        String formatted = currencyFormatter.format(value);
 
+        // double click: CASH -> open modal
         if (e.getClickCount() == 2) {
             if (singleClickTimer != null) singleClickTimer.stop();
-
-            if (row == cashHBox) {
-                openCashCountModal();
-            }
+            if (row == cashHBox) openCashCountModal();
             return;
         }
+
+        // single click with timer
         if (singleClickTimer != null) singleClickTimer.stop();
+
         singleClickTimer = new PauseTransition(Duration.millis(220));
         singleClickTimer.setOnFinished(ev -> {
             if (row == cashHBox) {
-                cashAmountLabel.setText(formatted);
+                // УСТАНАВЛИВАЕМ сумму налички (если ввёл 0 -> будет вычитание/обнуление)
+                cashAmount = value;
+                refreshAll();
                 onClear();
+
             } else if (row == cardHBox) {
-                cardAmountLabel.setText(formatted);
+                // УСТАНАВЛИВАЕМ сумму карты
+                cardAmount = value;
+                refreshAll();
                 onClear();
             }
         });
+
         singleClickTimer.playFromStart();
     }
 
@@ -228,16 +244,24 @@ public class ShiftOperationCloseController {
             stage.initOwner(cashRoot.getScene().getWindow());
             stage.setResizable(false);
             stage.setScene(scene);
-            /*
-            stage.setWidth(980);
-            stage.setHeight(700); // <= 768
-            */
+
+            this.cashCountController = loader.getController();
+            cashCountController.setCurrentCashSession(cashSession);
+
+            stage.setOnHidden(ev -> {
+                BigDecimal modalTotal = cashCountController != null ? cashCountController.getTotal() : null;
+                if (modalTotal == null) modalTotal = BigDecimal.ZERO;
+
+                // Модалка возвращает ИТОГ НАЛИЧКИ -> просто устанавливаем
+                cashAmount = modalTotal;
+
+                refreshAll();
+            });
+
             stage.showAndWait();
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-
-
 }

@@ -1,5 +1,9 @@
 package com.yebur.controller;
 
+import com.yebur.model.request.CashCountRequest;
+import com.yebur.model.response.CashSessionResponse;
+import com.yebur.service.CashCountService;
+import com.yebur.service.CashOperationService;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,6 +18,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -36,6 +42,7 @@ public class CashCountModelController {
     private long qty = 0;
 
     // итоговая сумма
+    @Getter
     private BigDecimal total = BigDecimal.ZERO;
 
     // Сколько штук каждого номинала (denom -> count)
@@ -43,6 +50,9 @@ public class CashCountModelController {
 
     private final NumberFormat intFmt = NumberFormat.getIntegerInstance(Locale.GERMANY);
     private final NumberFormat eurFmt = NumberFormat.getCurrencyInstance(Locale.GERMANY);
+
+    @Setter
+    private CashSessionResponse currentCashSession;
 
     @FXML
     public void initialize() {
@@ -264,11 +274,40 @@ public class CashCountModelController {
         totalLabel.setText(eurFmt.format(total)); // евро формат
     }
 
+    private int getCount(BigDecimal denom) {
+        return Math.toIntExact(denomCounts.getOrDefault(denom, 0L));
+    }
+
+
     // ===== КНОПКИ =====
 
     @FXML
     private void onAccept() {
-        onClose();
+
+        CashCountRequest ccq = new CashCountRequest();
+        ccq.setSessionId(currentCashSession.getId());
+        ccq.setC001(getCount(new BigDecimal("0.01")));
+        ccq.setC002(getCount(new BigDecimal("0.02")));
+        ccq.setC005(getCount(new BigDecimal("0.05")));
+        ccq.setC010(getCount(new BigDecimal("0.10")));
+        ccq.setC020(getCount(new BigDecimal("0.20")));
+        ccq.setC050(getCount(new BigDecimal("0.50")));
+        ccq.setC100(getCount(new BigDecimal("1")));
+        ccq.setC200(getCount(new BigDecimal("2")));
+        ccq.setB005(getCount(new BigDecimal("5")));
+        ccq.setB010(getCount(new BigDecimal("10")));
+        ccq.setB020(getCount(new BigDecimal("20")));
+        ccq.setB050(getCount(new BigDecimal("50")));
+        ccq.setB100(getCount(new BigDecimal("100")));
+        ccq.setB200(getCount(new BigDecimal("200")));
+        ccq.setB500(getCount(new BigDecimal("500")));
+
+        try {
+            CashCountService.createCashCount(ccq);
+            onClose();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
     }
 
     @FXML

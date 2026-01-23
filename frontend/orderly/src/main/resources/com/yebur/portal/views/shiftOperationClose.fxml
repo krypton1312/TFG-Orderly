@@ -96,7 +96,7 @@
 
                 <VBox styleClass="mini-card" HBox.hgrow="ALWAYS" spacing="6">
                     <Label text="TOTAL CAJA" styleClass="mini-label"/>
-                    <Label text="0,00 €" styleClass="mini-value"/>
+                    <Label fx:id="cashTotalLabel" text="0,00 €" styleClass="mini-value"/>
                 </VBox>
             </HBox>
 
