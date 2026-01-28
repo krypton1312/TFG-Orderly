@@ -464,18 +464,11 @@ public class PartialPaymentController {
         displayField.setText(displayField.getText() + digit);
     }
 
-    /**
-     * Сохранение частичной оплаты для существующего заказа
-     * на основе ТЕКУЩЕГО состояния main/partial боксов.
-     */
     private void persistPartialDetails() {
         try {
             List<Long> idsToUpdate = new ArrayList<>();
             List<OrderDetailRequest> reqsToUpdate = new ArrayList<>();
             List<OrderDetailRequest> reqsToCreate = new ArrayList<>();
-
-            // 1) MAIN BOX → не оплаченные позиции (даже с amount = 0, чтобы "обнулить" старый detail)
-            System.out.println(orderDetails);
             for (OrderDetailResponse od : orderDetails) {
                 if (od.getId() == null) {
                     continue;
@@ -494,16 +487,13 @@ public class PartialPaymentController {
                         od.getPaymentMethod(),
                         od.getBatchId(),
                         od.getCreatedAt(),
-                        100L // !!!!!!!!!!!!!!test
+                        StartController.getCashSession().getId()
 
                 );
 
                 reqsToUpdate.add(req);
             }
 
-            System.out.println(reqsToUpdate);
-
-            // 2) PARTIAL BOX → всё, что сейчас считается ОПЛАЧЕННЫМ
             for (OrderDetailResponse pd : partialDetails) {
                 Long productId = pd.getProductId();
                 Long orderId   = pd.getOrderId() != null
@@ -511,12 +501,10 @@ public class PartialPaymentController {
                         : (order != null ? order.getId() : null);
 
                 if (productId == null || orderId == null) {
-                    throw new IllegalStateException(
-                            "productId/orderId must not be null for partial payment detail");
+                    throw new IllegalStateException("productId/orderId must not be null for partial payment detail");
                 }
 
                 if (pd.getId() != null) {
-                    // существующая строка (если такие будут) → UPDATE
                     idsToUpdate.add(pd.getId());
 
                     OrderDetailRequest req = new OrderDetailRequest(
@@ -535,7 +523,6 @@ public class PartialPaymentController {
 
                     reqsToUpdate.add(req);
                 } else {
-                    // новая строка (результат деления) → CREATE
                     OrderDetailRequest createReq = new OrderDetailRequest(
                             productId,
                             orderId,
@@ -552,13 +539,9 @@ public class PartialPaymentController {
                     reqsToCreate.add(createReq);
                 }
             }
-
-            // 3) Сначала обновляем существующие
             if (!idsToUpdate.isEmpty()) {
                 OrderDetailService.updateOrderDetailList(idsToUpdate, reqsToUpdate);
             }
-
-            // 4) Потом создаём новые
             if (!reqsToCreate.isEmpty()) {
                 OrderDetailService.createOrderDetailList(reqsToCreate);
             }

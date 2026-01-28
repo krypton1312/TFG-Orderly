@@ -204,7 +204,6 @@ public class PosController {
             return;
         }
 
-        // безопасно достаём списки из DTO
         List<ProductResponse> products =
                 allProductsWithSupplements != null && allProductsWithSupplements.getProducts() != null
                         ? allProductsWithSupplements.getProducts()
@@ -215,11 +214,9 @@ public class PosController {
                         ? allProductsWithSupplements.getSupplements()
                         : Collections.emptyList();
 
-        // если очень хочется, можно сохранить products в поле, чтобы не ломать остальной код
         this.allProducts = products;
         this.allSupplements = supplements;
 
-        // единый список для пагинации: сначала продукты, потом suplementos
         List<Object> allItems = new ArrayList<>();
         allItems.addAll(products);
         allItems.addAll(supplements);
@@ -234,7 +231,6 @@ public class PosController {
         int start = 0;
         int remaining = N;
 
-        // логика страниц как у тебя было
         for (int p = 0; p < currentProductPage && remaining > 0; p++) {
             int capPrev;
             if (p == 0) {
