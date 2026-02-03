@@ -23,30 +23,42 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name="orders")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private Long id;
     
     @Column(nullable = false)
+    @ToString.Include
     private LocalDateTime datetime;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @ToString.Include
     private OrderStatus state;
 
     @Column
+    @ToString.Include
     private String paymentMethod;
 
     @Column(nullable = false, precision = 10, scale = 2)
+    @ToString.Include
     private BigDecimal total;
 
     @ManyToOne(fetch = FetchType.LAZY)

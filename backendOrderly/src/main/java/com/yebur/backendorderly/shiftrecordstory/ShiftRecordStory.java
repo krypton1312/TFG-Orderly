@@ -16,18 +16,26 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "shift_record_stories")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class ShiftRecordStory {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private Long id;
 
     @ManyToOne
@@ -35,21 +43,27 @@ public class ShiftRecordStory {
     private ShiftRecord shiftRecord;
 
     @Column
+    @ToString.Include
     private LocalDateTime oldEntryRecord;
 
     @Column
+    @ToString.Include
     private LocalDateTime newEntryRecord;
 
     @Column
+    @ToString.Include
     private LocalDateTime oldExitRecord;
 
     @Column
+    @ToString.Include
     private LocalDateTime newExitRecord;
 
     @Column
+    @ToString.Include
     private String notes;
 
     @Column
+    @ToString.Include
     private LocalDateTime modificationDate;
 
     @OneToOne

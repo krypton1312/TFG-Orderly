@@ -4,8 +4,11 @@ import com.yebur.backendorderly.category.Category;
 import com.yebur.backendorderly.product.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -13,19 +16,26 @@ import java.util.List;
 
 @Entity
 @Table(name="supplements")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class Supplement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private Long id;
 
     @Column(unique = true)
+    @ToString.Include
     private String name;
 
     @Column
+    @ToString.Include
     private BigDecimal price;
 
     @ManyToMany

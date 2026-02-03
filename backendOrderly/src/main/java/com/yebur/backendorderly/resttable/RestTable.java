@@ -7,8 +7,11 @@ import com.yebur.backendorderly.order.Order;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(
@@ -17,20 +20,27 @@ import lombok.NoArgsConstructor;
                 @UniqueConstraint(columnNames = {"number", "position"})
         }
 )
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class RestTable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private Long id;
     
     @Column(nullable = false)
+    @ToString.Include
     private int number;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @ToString.Include
     private RestTablePosition position;
 
     @OneToMany(mappedBy = "restTable")
@@ -38,5 +48,6 @@ public class RestTable {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @ToString.Include
     private TableStatus status;
 }

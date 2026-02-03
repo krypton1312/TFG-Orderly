@@ -25,26 +25,36 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "employees")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class Employee {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private Long id;
 
     @Column(nullable = false)
     @NotBlank(message = "Name is required")
+    @ToString.Include
     private String name;
 
     @Column(nullable = false)
     @NotBlank(message = "Last name is required")
+    @ToString.Include
     private String lastname;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -56,13 +66,16 @@ public class Employee {
     private Set<Role> roles;
 
     @Column
+    @ToString.Include
     private String phoneNumber;
 
     @Column(unique = true)
     @Email(message = "Email should be valid")
+    @ToString.Include
     private String email;
 
     @Column(nullable = false)
+    @ToString.Include
     private LocalDate hireDate;
 
     @Column
@@ -72,6 +85,7 @@ public class Employee {
 
     @Column(nullable = true)
     @Enumerated(EnumType.STRING)
+    @ToString.Include
     private EmployeeStatus status;
 
     @OneToMany(mappedBy = "employee")
