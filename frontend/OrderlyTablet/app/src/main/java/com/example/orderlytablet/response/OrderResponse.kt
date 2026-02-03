@@ -1,5 +1,6 @@
 package com.example.orderlytablet.response
 
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class OrderResponse(
@@ -7,7 +8,7 @@ data class OrderResponse(
     val dateTime: String,
     val state: String,
     val paymentMethod: String,
-    val total: Double,
+    val total: BigDecimal,
     val idEmployee: Long,
     val idClient: Long,
     val restTable: RestTableResponse
