@@ -3,6 +3,8 @@ package com.example.orderlyphone.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.*
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.orderlyphone.ui.screen.home.HomeScreen
+import com.example.orderlyphone.ui.screen.home.HomeViewModel
 import com.example.orderlyphone.ui.screen.login.LoginScreen
 import com.example.orderlyphone.ui.screen.login.LoginViewModel
 
@@ -19,7 +21,11 @@ fun AppNav() {
             )
         }
         composable("home") {
-            // TODO
+            val vm: HomeViewModel = hiltViewModel()
+            HomeScreen(
+                vm = vm,
+                onSuccess = { nav.navigate("login") { popUpTo("home") { inclusive = true } } }
+            )
         }
     }
 }

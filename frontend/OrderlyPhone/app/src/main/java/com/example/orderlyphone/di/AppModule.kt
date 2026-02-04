@@ -3,8 +3,13 @@ package com.example.orderlyphone.di
 import android.content.Context
 import com.example.orderlyphone.data.local.TokenStore
 import com.example.orderlyphone.data.remote.AuthApi
+import com.example.orderlyphone.data.remote.EmployeeApi
+import com.example.orderlyphone.data.remote.adapter.LocalDateAdapter
 import com.example.orderlyphone.data.remote.interceptor.AuthInterceptor
 import com.example.orderlyphone.data.repository.AuthRepository
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import java.time.LocalDate
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,7 +24,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-    private const val BASE_URL = "http://10.0.2.2:8080" // эмулятор
+    private const val BASE_URL = "http://10.0.2.2:8080/" // эмулятор
 
     @Provides
     @Singleton
@@ -35,12 +40,20 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(client: OkHttpClient): Retrofit =
+    fun provideGson(): Gson =
+        GsonBuilder()
+            .registerTypeAdapter(LocalDate::class.java, LocalDateAdapter())
+            .create()
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(client: OkHttpClient, gson: Gson): Retrofit =
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
+
 
     @Provides
     @Singleton
@@ -51,4 +64,10 @@ object AppModule {
     @Singleton
     fun provideAuthRepository(api: AuthApi, tokenStore: TokenStore): AuthRepository =
         AuthRepository(api, tokenStore)
+
+    @Provides
+    @Singleton
+    fun provideEmployeeApi(retrofit: Retrofit): EmployeeApi =
+        retrofit.create(EmployeeApi::class.java)
+
 }

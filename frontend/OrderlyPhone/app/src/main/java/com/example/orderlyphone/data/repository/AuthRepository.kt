@@ -11,5 +11,6 @@ class AuthRepository(
     suspend fun login(email: String, password: String) {
         val resp = api.login(LoginRequest(email, password))
         tokenStore.save(resp.token)
+        tokenStore.saveEmail(email)
     }
 }
