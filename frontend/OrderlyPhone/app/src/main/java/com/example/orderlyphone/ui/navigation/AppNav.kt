@@ -7,6 +7,8 @@ import com.example.orderlyphone.ui.screen.home.HomeScreen
 import com.example.orderlyphone.ui.screen.home.HomeViewModel
 import com.example.orderlyphone.ui.screen.login.LoginScreen
 import com.example.orderlyphone.ui.screen.login.LoginViewModel
+import com.example.orderlyphone.ui.screen.orders.ActiveOrdersScreen
+import com.example.orderlyphone.ui.screen.orders.OrdersViewModel
 
 @Composable
 fun AppNav() {
@@ -24,10 +26,19 @@ fun AppNav() {
             val vm: HomeViewModel = hiltViewModel()
             HomeScreen(
                 vm = vm,
+                onOrders = { nav.navigate("orders") },
                 onNewOrder = { /* TODO */ },
                 onShiftToggle = { /* TODO */ },
                 onSettings = { /* TODO */ },
                 onLogout = { nav.navigate("login") { popUpTo("home"){ inclusive = true } } }
+            )
+        }
+        composable("orders") {
+            val vm: OrdersViewModel = hiltViewModel()
+            ActiveOrdersScreen(
+                vm = vm,
+                onBack = { nav.navigate("home") },
+                onNewOrder = { /* TODO */ }
             )
         }
     }

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun HomeScreen(
     vm: HomeViewModel,
+    onOrders: () -> Unit = {},
     onNewOrder: () -> Unit = {},
     onShiftToggle: () -> Unit = {},   // Start/End Shift (заглушка)
     onSettings: () -> Unit = {},      // Settings (заглушка)
@@ -87,6 +88,7 @@ fun HomeScreen(
                     online = true,
                     activeTables = response.availableTables,
                     occupiedTables = response.occupiedTables,
+                    onOrders = onOrders,
                     onNewOrder = onNewOrder,
                     onShiftToggle = onShiftToggle,
                     onSettings = onSettings,
@@ -106,6 +108,7 @@ private fun HomeContent(
     online: Boolean,
     activeTables: Int,
     occupiedTables: Int,
+    onOrders: () -> Unit,
     onNewOrder: () -> Unit,
     onShiftToggle: () -> Unit,
     onSettings: () -> Unit,
@@ -134,7 +137,7 @@ private fun HomeContent(
                     online = online
                 )
 
-                InfoCard(activeTables = activeTables, occupiedTables = occupiedTables)
+                InfoCard(activeTables = activeTables, occupiedTables = occupiedTables, onClick = onOrders)
             }
 
             Column(
@@ -240,80 +243,6 @@ private fun TopHeader(
                     color = if (online) Color(0xFF35D07F) else Color.White.copy(alpha = 0.55f),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun InfoCard(activeTables: Int, occupiedTables: Int) {
-    val shape = RoundedCornerShape(18.dp)
-
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = shape,
-        color = Color(0xFF1A1A1D).copy(alpha = 0.90f),
-        shadowElevation = 10.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
-        ) {
-            Column {
-                Text(
-                    text = "Current Tables",
-                    color = Color.White.copy(alpha = 0.65f),
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Spacer(Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(
-                        text = activeTables.toString(),
-                        color = Color.White,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        text = "disponible",
-                        color = Color.White.copy(alpha = 0.6f),
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(bottom = 6.dp)
-                    )
-                }
-                Spacer(Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(
-                        text = occupiedTables.toString(),
-                        color = Color.White,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        text = "ocupada",
-                        color = Color.White.copy(alpha = 0.6f),
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(bottom = 6.dp)
-                    )
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .size(34.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFFF8A3D).copy(alpha = 0.15f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Restaurant,
-                    contentDescription = null,
-                    tint = Color(0xFFFF8A3D),
-                    modifier = Modifier.size(18.dp)
                 )
             }
         }
@@ -453,6 +382,110 @@ private fun RowScope.ActionTile(
         }
     }
 }
+
+@Composable
+private fun InfoCard(
+    activeTables: Int,
+    occupiedTables: Int,
+    onClick: () -> Unit
+) {
+    val shape = RoundedCornerShape(18.dp)
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = shape,
+        color = Color(0xFF1A1A1D).copy(alpha = 0.90f),
+        shadowElevation = 10.dp,
+        onClick = onClick
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            // Левая часть: заголовок + 2 метрики в ряд
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Current Tables",
+                    color = Color.White.copy(alpha = 0.65f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Metric(
+                        value = activeTables.toString(),
+                        label = "disponible"
+                    )
+
+                    Spacer(Modifier.width(14.dp))
+
+                    VerticalDividerLine()
+
+                    Spacer(Modifier.width(14.dp))
+
+                    Metric(
+                        value = occupiedTables.toString(),
+                        label = "ocupada"
+                    )
+                }
+            }
+
+            Spacer(Modifier.width(12.dp))
+
+            // Иконка справа
+            Box(
+                modifier = Modifier
+                    .size(34.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFFF8A3D).copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Restaurant,
+                    contentDescription = null,
+                    tint = Color(0xFFFF8A3D),
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Metric(value: String, label: String) {
+    Row(verticalAlignment = Alignment.Bottom) {
+        Text(
+            text = value,
+            color = Color.White,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = label,
+            color = Color.White.copy(alpha = 0.6f),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+    }
+}
+
+@Composable
+private fun VerticalDividerLine() {
+    Box(
+        modifier = Modifier
+            .width(1.dp)
+            .height(34.dp)
+            .background(Color.White.copy(alpha = 0.12f))
+    )
+}
+
 
 @Composable
 private fun LogoutRow(onLogout: () -> Unit) {

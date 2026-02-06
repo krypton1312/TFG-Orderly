@@ -10,7 +10,7 @@ object RetrofitClient {
 
     // ⚠️ Здесь укажи IP и порт своего Spring Boot приложения
     // ВАЖНО: обязательно ставь "/" в конце
-    private const val BASE_URL = "http://10.0.2.2:8080/"
+    private const val BASE_URL = "http://192.168.1.136:8080/"
 
     // Логгер для просмотра запросов в Logcat (удобно при разработке)
     private val logging = HttpLoggingInterceptor().apply {

@@ -35,7 +35,7 @@ class OrdersViewModel : ViewModel() {
     }
 
     private fun connectWebSocket() {
-        val serverUrl = "ws://10.0.2.2:8080/ws/overview/tablet"
+        val serverUrl = "ws://192.168.1.136:8080/ws/overview/tablet"
 
         wsClient.connect(serverUrl) { event ->
             Log.d("OrdersViewModel", "📡 WS Event: ${event.type}")
