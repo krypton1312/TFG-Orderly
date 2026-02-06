@@ -89,6 +89,9 @@ public class OrderDetailService implements OrderDetailServiceInterface {
     @Override
     @Transactional
     public OrderDetailResponse createOrderDetail(OrderDetailRequest dto) {
+        if (dto.getAmount() <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
         Order order = orderRepository.findById(dto.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Order not found with id " + dto.getOrderId()));
 
@@ -176,6 +179,12 @@ public class OrderDetailService implements OrderDetailServiceInterface {
     public OrderDetailResponse updateOrderDetail(Long id, OrderDetailRequest dto) {
         OrderDetail existing = orderDetailRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("OrderDetail not found with id " + id));
+
+        if (dto.getAmount() <= 0) {
+            deleteOrderDetail(id);
+            // Возвращаем DTO с нулевым количеством, хотя сущности уже нет
+            return mapToResponse(existing);
+        }
 
         existing.setAmount(dto.getAmount());
         existing.setUnitPrice(dto.getUnitPrice().setScale(2, RoundingMode.HALF_UP));
@@ -286,12 +295,19 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         }
 
         List<OrderDetail> updatedEntities = new ArrayList<>();
+        List<OrderDetail> toDelete = new ArrayList<>();
+
         for (int i = 0; i < ids.size(); i++) {
             Long id = ids.get(i);
             OrderDetailRequest dto = dtos.get(i);
 
             OrderDetail existing = orderDetailRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("OrderDetail not found with id " + id));
+
+            if (dto.getAmount() <= 0) {
+                toDelete.add(existing);
+                continue;
+            }
 
             existing.setAmount(dto.getAmount());
             existing.setUnitPrice(dto.getUnitPrice().setScale(2, RoundingMode.HALF_UP));
@@ -312,6 +328,12 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             updatedEntities.add(existing);
         }
 
+        if (!toDelete.isEmpty()) {
+            for (OrderDetail od : toDelete) {
+                deleteOrderDetail(od.getId());
+            }
+        }
+
         List<OrderDetail> saved = orderDetailRepository.saveAll(updatedEntities);
 
         for (OrderDetail d : new ArrayList<>(saved)) {
@@ -324,12 +346,6 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             recalculateOrderTotal(o);
             checkAndUpdateOrderStatus(o.getId());
         });
-
-        for(OrderDetail od: findAll()){
-            if(od.getAmount() == 0){
-                deleteOrderDetail(od.getId());
-            }
-        }
 
         saved.forEach(d -> notifyDetailChanged(WsEventType.ORDER_DETAIL_UPDATED, d));
         saved.stream().map(OrderDetail::getOrder).distinct().forEach(this::notifyOrderTotalChanged);

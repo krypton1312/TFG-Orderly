@@ -8,11 +8,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.yebur.backendorderly.orderdetail.OrderDetailStatus;
+import com.yebur.backendorderly.resttable.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.yebur.backendorderly.resttable.RestTableRepository;
-import com.yebur.backendorderly.resttable.RestTableResponse;
-import com.yebur.backendorderly.resttable.RestTableService;
 import com.yebur.backendorderly.websocket.WsEvent;
 import com.yebur.backendorderly.websocket.WsEventType;
 import com.yebur.backendorderly.websocket.WsNotifier;
@@ -67,10 +67,12 @@ public class OrderService implements OrderServiceInterface {
 
         order.setDatetime(LocalDateTime.now());
 
-        order.setRestTable(orderRequest.getIdTable() != null
-                ? restTableRepository.findById(orderRequest.getIdTable())
-                        .orElseThrow(() -> new RuntimeException("Table not found"))
-                : null);
+        if(orderRequest.getIdTable() != null) {
+            RestTable table = restTableRepository.findById(orderRequest.getIdTable()).orElseThrow(() -> new RuntimeException("Table not found"));
+            order.setRestTable(table);
+            table.setStatus(TableStatus.OCCUPIED);
+            restTableRepository.save(table);
+        }
 
         Order saved = orderRepository.save(order);
 
@@ -103,19 +105,56 @@ public class OrderService implements OrderServiceInterface {
 
         Order saved = orderRepository.save(order);
 
+        isAllOrderDetailsPaid(saved.getId());
+
         notifyOrderChanged(WsEventType.ORDER_TOTAL_CHANGED, saved);
 
         return saved;
     }
 
     @Override
+    @Transactional
     public void deleteOrder(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id " + id));
 
-        orderRepository.deleteById(id);
+        // Проверяем, есть ли оплаченные детали
+        boolean hasPaidDetails = order.getOrderDetails().stream()
+                .anyMatch(detail -> detail.getStatus() == OrderDetailStatus.PAID);
 
-        notifyOrderChanged(WsEventType.ORDER_DELETED, order);
+        if (!hasPaidDetails) {
+            // Если оплаченных деталей нет, удаляем весь заказ целиком.
+            // CascadeType.ALL + orphanRemoval обеспечат удаление всех OrderDetail в БД перед удалением Order.
+            orderRepository.delete(order);
+
+            if (order.getRestTable() != null) {
+                RestTable table = order.getRestTable();
+                table.setStatus(TableStatus.AVAILABLE);
+                restTableRepository.save(table);
+            }
+
+            notifyOrderChanged(WsEventType.ORDER_DELETED, order);
+        } else {
+            // Если есть оплаченные детали, удаляем только неоплаченные.
+            order.getOrderDetails().removeIf(detail -> detail.getStatus() != OrderDetailStatus.PAID);
+
+            BigDecimal newTotal = order.getOrderDetails().stream()
+                    .map(od -> od.getUnitPrice().multiply(BigDecimal.valueOf(od.getAmount())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add)
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            order.setTotal(newTotal);
+            order.setState(OrderStatus.PAID);
+
+            if (order.getRestTable() != null) {
+                RestTable table = order.getRestTable();
+                table.setStatus(TableStatus.AVAILABLE);
+                restTableRepository.save(table);
+            }
+
+            orderRepository.save(order);
+            notifyOrderChanged(WsEventType.ORDER_TOTAL_CHANGED, order);
+        }
     }
 
     private OrderResponse mapWithTable(OrderResponse order) {
@@ -149,5 +188,16 @@ public class OrderService implements OrderServiceInterface {
                 null           
         );
         wsNotifier.send(event);
+    }
+
+    private void isAllOrderDetailsPaid(Long orderId) {
+           Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found with id " + orderId));
+
+           if(order.getOrderDetails().stream().allMatch(odetail -> odetail.getStatus() == OrderDetailStatus.PAID)) {
+               order.setState(OrderStatus.PAID);
+               order.getRestTable().setStatus(TableStatus.AVAILABLE);
+               orderRepository.save(order);
+           }
     }
 }

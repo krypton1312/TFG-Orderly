@@ -47,8 +47,8 @@ public class OrderDetail {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinTable(
         name = "order_details_products",
-        joinColumns = @JoinColumn(name = "id_product"),
-        inverseJoinColumns = @JoinColumn(name = "id_order_detail")
+        joinColumns = @JoinColumn(name = "id_order_detail"),
+        inverseJoinColumns = @JoinColumn(name = "id_product")
     )
     private Product product;
 

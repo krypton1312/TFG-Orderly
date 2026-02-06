@@ -75,8 +75,8 @@ public class Order {
 
     @OneToMany(
             mappedBy = "order",
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            orphanRemoval = false
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
     )
     private List<OrderDetail> orderDetails;
 

@@ -33,14 +33,14 @@ public class SecurityConfig {
 
                 // доступы
 
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-
 //                .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll()
+//                        .requestMatchers("/auth/**").permitAll()
+//                        .anyRequest().authenticated()
 //                )
+
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                )
 
 
                 // JWT фильтр ДО UsernamePasswordAuthenticationFilter
