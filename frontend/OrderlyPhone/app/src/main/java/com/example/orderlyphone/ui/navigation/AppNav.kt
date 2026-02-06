@@ -24,7 +24,10 @@ fun AppNav() {
             val vm: HomeViewModel = hiltViewModel()
             HomeScreen(
                 vm = vm,
-                onSuccess = { nav.navigate("login") { popUpTo("home") { inclusive = true } } }
+                onNewOrder = { /* TODO */ },
+                onShiftToggle = { /* TODO */ },
+                onSettings = { /* TODO */ },
+                onLogout = { nav.navigate("login") { popUpTo("home"){ inclusive = true } } }
             )
         }
     }

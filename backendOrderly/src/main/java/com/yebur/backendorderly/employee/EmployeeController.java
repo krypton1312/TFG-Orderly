@@ -48,7 +48,7 @@ public class EmployeeController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
     }
-    
+
     @GetMapping("/currentEmployee")
     public ResponseEntity<?> getCurrentEmployee(Authentication auth) {
         Optional<EmployeeResponse> employee = employeeService.findCurrentEmployeeDTO(auth);
