@@ -156,11 +156,11 @@ public class OverviewService {
         public DashboardStartResponse findDashboardStartByAuth(Authentication authentication){
             EmployeeResponse employee = employeeService.findCurrentEmployeeDTO(authentication).orElseThrow();
             int availableTables = restTableRepository.countByStatus(TableStatus.AVAILABLE);
-            int ocuppatedTables = restTableRepository.countByStatus(TableStatus.OCCUPIED);
+            int occupiedTables = restTableRepository.countByStatus(TableStatus.OCCUPIED);
             List<ShiftRecordResponse> shiftRecords = shiftRecordService.findByEmployeeId(employee.getId());
             ShiftRecordResponse lastShiftRecord = shiftRecords.isEmpty() ? null : shiftRecords.get(shiftRecords.size() - 1);
 
-            return new DashboardStartResponse(employee, availableTables, ocuppatedTables, lastShiftRecord);
+            return new DashboardStartResponse(employee, availableTables, occupiedTables, lastShiftRecord);
         }
 
 }

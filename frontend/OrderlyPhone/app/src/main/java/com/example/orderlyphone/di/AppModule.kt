@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.orderlyphone.data.local.TokenStore
 import com.example.orderlyphone.data.remote.AuthApi
 import com.example.orderlyphone.data.remote.EmployeeApi
+import com.example.orderlyphone.data.remote.OverviewApi
 import com.example.orderlyphone.data.remote.adapter.LocalDateAdapter
 import com.example.orderlyphone.data.remote.interceptor.AuthInterceptor
 import com.example.orderlyphone.data.repository.AuthRepository
@@ -70,4 +71,8 @@ object AppModule {
     fun provideEmployeeApi(retrofit: Retrofit): EmployeeApi =
         retrofit.create(EmployeeApi::class.java)
 
+    @Provides
+    @Singleton
+    fun provideOverviewApi(retrofit: Retrofit): OverviewApi =
+        retrofit.create(OverviewApi::class.java)
 }

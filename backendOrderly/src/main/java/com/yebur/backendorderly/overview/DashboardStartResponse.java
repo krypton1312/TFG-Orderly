@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class DashboardStartResponse {
     private EmployeeResponse employee;
     private int availableTables;
-    private int ocuppatedTables;
+    private int occupiedTables;
     private ShiftRecordResponse shiftRecord;
 }

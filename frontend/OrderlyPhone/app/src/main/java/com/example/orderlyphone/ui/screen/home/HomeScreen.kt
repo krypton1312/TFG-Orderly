@@ -73,17 +73,26 @@ fun HomeScreen(
             HomeState.Idle -> Unit
 
             is HomeState.Success -> {
+                val response = s.dashboardStartResponse
+                val employee = response.employee
+
+                val roles = employee.roles.joinToString("/") { it.name }
+
                 HomeContent(
-                    employeeName = "${s.currentEmployee.name} ${s.currentEmployee.lastname}",
-                    place = "Main Dining Room",
-                    shiftLabel = "SHIFT #402",
+                    employeeName = "${employee.name} ${employee.lastname}",
+                    role = roles,
+                    shiftLabel = response.shiftRecord?.let {
+                        "Turno #${it.id}"
+                    } ?: "No estas fichado/a",
                     online = true,
-                    activeTables = 4,
+                    activeTables = response.availableTables,
+                    occupiedTables = response.occupiedTables,
                     onNewOrder = onNewOrder,
                     onShiftToggle = onShiftToggle,
                     onSettings = onSettings,
                     onLogout = onLogout
                 )
+
             }
         }
     }
@@ -92,10 +101,11 @@ fun HomeScreen(
 @Composable
 private fun HomeContent(
     employeeName: String,
-    place: String,
+    role: String,
     shiftLabel: String,
     online: Boolean,
     activeTables: Int,
+    occupiedTables: Int,
     onNewOrder: () -> Unit,
     onShiftToggle: () -> Unit,
     onSettings: () -> Unit,
@@ -119,12 +129,12 @@ private fun HomeContent(
             ) {
                 TopHeader(
                     employeeName = employeeName,
-                    place = place,
+                    role = role,
                     shiftLabel = shiftLabel,
                     online = online
                 )
 
-                InfoCard(activeTables = activeTables)
+                InfoCard(activeTables = activeTables, occupiedTables = occupiedTables)
             }
 
             Column(
@@ -159,7 +169,7 @@ private fun HomeContent(
 @Composable
 private fun TopHeader(
     employeeName: String,
-    place: String,
+    role: String,
     shiftLabel: String,
     online: Boolean
 ) {
@@ -202,7 +212,7 @@ private fun TopHeader(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = place,
+                    text = role,
                     color = Color.White.copy(alpha = 0.65f),
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -237,7 +247,7 @@ private fun TopHeader(
 }
 
 @Composable
-private fun InfoCard(activeTables: Int) {
+private fun InfoCard(activeTables: Int, occupiedTables: Int) {
     val shape = RoundedCornerShape(18.dp)
 
     Surface(
@@ -268,7 +278,23 @@ private fun InfoCard(activeTables: Int) {
                     )
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        text = "active",
+                        text = "disponible",
+                        color = Color.White.copy(alpha = 0.6f),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(bottom = 6.dp)
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(
+                        text = occupiedTables.toString(),
+                        color = Color.White,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = "ocupada",
                         color = Color.White.copy(alpha = 0.6f),
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(bottom = 6.dp)

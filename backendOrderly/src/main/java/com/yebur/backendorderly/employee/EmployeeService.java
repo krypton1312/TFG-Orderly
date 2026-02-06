@@ -73,7 +73,7 @@ public class EmployeeService implements EmployeeServiceInterface {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found with id: " + id));
 
-        if (!employee.getEmail().equals(request.getEmail()) && employeeRepository.existsByEmail(request.getEmail())) {
+        if (request.getEmail() != null && !request.getEmail().equals(employee.getEmail()) && employeeRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Email already exists: " + request.getEmail());
         }
 
@@ -97,17 +97,32 @@ public class EmployeeService implements EmployeeServiceInterface {
     }
 
     private void updateEmployeeFields(Employee employee, EmployeeRequest request) {
-        employee.setName(request.getName());
-        employee.setLastname(request.getLastname());
-        employee.setEmail(request.getEmail());
-        employee.setPhoneNumber(request.getPhoneNumber());
-        employee.setHireDate(request.getHireDate());
-        employee.setStatus(request.getStatus() != null ? request.getStatus() : EmployeeStatus.ACTIVE);
+        if (request.getName() != null) {
+            employee.setName(request.getName());
+        }
+        if (request.getLastname() != null) {
+            employee.setLastname(request.getLastname());
+        }
+        if (request.getEmail() != null) {
+            employee.setEmail(request.getEmail());
+        }
+        if (request.getPhoneNumber() != null) {
+            employee.setPhoneNumber(request.getPhoneNumber());
+        }
+        if (request.getHireDate() != null) {
+            employee.setHireDate(request.getHireDate());
+        }
 
-        if (request.getRoles() != null && !request.getRoles().isEmpty()) {
+        if (request.getStatus() != null) {
+            employee.setStatus(request.getStatus());
+        } else if (employee.getStatus() == null) {
+            employee.setStatus(EmployeeStatus.ACTIVE);
+        }
+
+        if (request.getRoles() != null) {
             Set<Role> roles = new HashSet<>(roleRepository.findAllById(request.getRoles()));
             employee.setRoles(roles);
-        } else {
+        } else if (employee.getRoles() == null) {
             employee.setRoles(new HashSet<>());
         }
     }
