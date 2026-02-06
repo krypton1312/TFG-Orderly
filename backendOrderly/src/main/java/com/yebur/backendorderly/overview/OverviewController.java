@@ -3,6 +3,7 @@ package com.yebur.backendorderly.overview;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +32,11 @@ public class OverviewController {
     @GetMapping("/products-with-supplements-by-category/id/{id}")
     public ResponseEntity<ProductsWithSupplements> getOverviewProducts(@PathVariable Long id) {
         return ResponseEntity.ok(overviewService.findProductsWithSupplementsByCategory(id));
+    }
+
+    @GetMapping("/phone/dashboard-start")
+    public ResponseEntity<DashboardStartResponse> getDashboardStart(Authentication authentication){
+        return ResponseEntity.ok(overviewService.findDashboardStartByAuth(authentication));
     }
     
 }

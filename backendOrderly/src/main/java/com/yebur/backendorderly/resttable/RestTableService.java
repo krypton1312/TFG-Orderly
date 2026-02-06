@@ -34,6 +34,7 @@ public class RestTableService implements RestTableServiceInterface {
         return restTableRepository.findRestTableDTOByNumber(number).map(this::applyTableNameLogic);
     }
 
+
     @Override
     public RestTableResponse createRestTable(RestTableRequest restTable) {
         RestTable newRestTable = new RestTable();

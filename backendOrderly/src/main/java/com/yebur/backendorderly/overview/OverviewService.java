@@ -3,7 +3,6 @@ package com.yebur.backendorderly.overview;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -12,11 +11,17 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.yebur.backendorderly.category.CategoryRequest;
+import com.yebur.backendorderly.employee.EmployeeResponse;
+import com.yebur.backendorderly.employee.EmployeeService;
 import com.yebur.backendorderly.product.ProductResponse;
 import com.yebur.backendorderly.product.ProductService;
+import com.yebur.backendorderly.resttable.RestTableRepository;
+import com.yebur.backendorderly.resttable.TableStatus;
+import com.yebur.backendorderly.shiftrecord.ShiftRecordResponse;
+import com.yebur.backendorderly.shiftrecord.ShiftRecordService;
 import com.yebur.backendorderly.supplements.SupplementResponse;
 import com.yebur.backendorderly.supplements.SupplementService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.yebur.backendorderly.order.OrderResponse;
@@ -37,6 +42,9 @@ public class OverviewService {
     private final OrderDetailService orderDetailService;
     private final ProductService productService;
     private final SupplementService supplementService;
+    private final EmployeeService employeeService;
+    private final RestTableRepository restTableRepository;
+    private final ShiftRecordService shiftRecordService;
 
     public List<TableWithOrderResponse> getOverview() {
                 List<RestTableResponse> tables = restTableService.findAllRestTableDTO();
@@ -143,6 +151,16 @@ public class OverviewService {
             List<SupplementResponse> supplements = supplementService.findSupplementsByCategory(idCategory);
 
             return new ProductsWithSupplements(products, supplements);
+        }
+
+        public DashboardStartResponse findDashboardStartByAuth(Authentication authentication){
+            EmployeeResponse employee = employeeService.findCurrentEmployeeDTO(authentication).orElseThrow();
+            int availableTables = restTableRepository.countByStatus(TableStatus.AVAILABLE);
+            int ocuppatedTables = restTableRepository.countByStatus(TableStatus.OCCUPIED);
+            List<ShiftRecordResponse> shiftRecords = shiftRecordService.findByEmployeeId(employee.getId());
+            ShiftRecordResponse lastShiftRecord = shiftRecords.isEmpty() ? null : shiftRecords.get(shiftRecords.size() - 1);
+
+            return new DashboardStartResponse(employee, availableTables, ocuppatedTables, lastShiftRecord);
         }
 
 }

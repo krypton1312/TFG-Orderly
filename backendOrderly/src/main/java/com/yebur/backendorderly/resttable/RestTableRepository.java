@@ -21,4 +21,6 @@ public interface RestTableRepository extends JpaRepository<RestTable, Long>{
 
     @Query("SELECT new com.yebur.backendorderly.resttable.RestTableResponse(rt.id, rt.number, rt.status, rt.position) FROM RestTable rt WHERE rt.number= :number")
     Optional<RestTableResponse> findRestTableDTOByNumber(int number);
+
+    int countByStatus(TableStatus status);
 }
