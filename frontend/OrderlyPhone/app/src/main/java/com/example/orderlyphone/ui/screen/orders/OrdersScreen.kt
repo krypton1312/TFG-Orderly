@@ -3,10 +3,11 @@ package com.example.orderlyphone.ui.screen.orders
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,10 +25,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.orderlyphone.domain.model.response.OrderWithTableResponse
-import com.example.orderlyphone.ui.screen.home.HomeState
 import java.math.BigDecimal
 import java.text.NumberFormat
 import java.util.Locale
@@ -40,21 +42,14 @@ private val Card = Color(0xFF1A1A1D).copy(alpha = 0.92f)
 
 enum class OrdersTab { ALL, DINE_IN, TAKEAWAY }
 
-data class OrderUi(
-    val statusLabel: String,
-    val statusColor: Color,
-    val tableTitle: String,     // "Table12" или "Takeaway"
-    val subtitle: String,       // "Order #8829 • 4 items"
-    val price: String,          // "$42.50"
-    val rightIcon: @Composable () -> Unit
-)
-
 @Composable
 fun ActiveOrdersScreen(
     vm: OrdersViewModel,
     onBack: () -> Unit,
-    onNewOrder: () -> Unit, // можешь убрать и подать свои
-) {
+    onNewOrder: () -> Unit,
+    onOpenOrder: (Long) -> Unit // ✅ callback
+)
+ {
     val bg = Brush.verticalGradient(listOf(BgTop, BgMid, BgBot))
     var tab by remember { mutableStateOf(OrdersTab.ALL) }
     var query by remember { mutableStateOf("") }
@@ -71,32 +66,44 @@ fun ActiveOrdersScreen(
             .background(bg)
             .statusBarsPadding()
     ) {
-        when(val s = state){
+        when (val s = state) {
             OrdersState.Loading -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Color(0xFFFF8A3D))
+                    CircularProgressIndicator(color = Orange)
                 }
             }
 
             is OrdersState.Error -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = s.message,
-                        color = MaterialTheme.colorScheme.error
-                    )
+                    Text(text = s.message, color = MaterialTheme.colorScheme.error)
                 }
             }
+
+            OrdersState.Idle -> Unit
+
             is OrdersState.Success -> {
 
-                // мягкое свечение сверху (как в рефе) — очень лёгкое
-                Box(
-                    modifier = Modifier
-                        .size(240.dp)
-                        .align(Alignment.TopCenter)
-                        .offset(y = (-40).dp)
-                        .blur(70.dp)
-                        .background(Orange.copy(alpha = 0.08f), CircleShape)
-                )
+                val filteredOrders = remember(s.orders, query, tab) {
+                    s.orders.filter { order ->
+                        val title =
+                            if (order.tableName.equals("Sin mesa", true))
+                                "Cuenta #${order.order.orderId}"
+                            else order.tableName
+
+                        val hasTable = !order.tableName.equals("Sin mesa", true)
+
+                        val matchesQuery =
+                            query.isBlank() || (title?.contains(query, ignoreCase = true) == true)
+
+                        val matchesTab = when (tab) {
+                            OrdersTab.ALL -> true
+                            OrdersTab.DINE_IN -> hasTable
+                            OrdersTab.TAKEAWAY -> !hasTable
+                        }
+
+                        matchesQuery && matchesTab
+                    }
+                }
 
                 Column(
                     modifier = Modifier
@@ -119,41 +126,18 @@ fun ActiveOrdersScreen(
                     SearchBar(
                         value = query,
                         onValueChange = { query = it },
-                        placeholder = "Search table or order..."
+                        placeholder = "Search table..."
                     )
 
-                    val filteredOrders = remember(s.orders, query, tab) {
-                        s.orders
-                            .filter { order ->
-                                // --- поиск по tableName
-                                val matchesQuery =
-                                    query.isBlank() ||
-                                            order.tableName
-                                                ?.contains(query, ignoreCase = true) == true
-
-                                // --- фильтр по табам
-                                val matchesTab = when (tab) {
-                                    OrdersTab.ALL -> true
-                                    OrdersTab.DINE_IN -> order.tableName != null
-                                    OrdersTab.TAKEAWAY -> order.tableName == null
-                                }
-
-                                matchesQuery && matchesTab
-                            }
-                    }
-
-                    OrdersList(
+                    OrdersGrid(
                         orders = filteredOrders,
-                        onAddItems = { /* TODO */ },
+                        onOpenOrder = onOpenOrder,
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
                     )
-
                 }
             }
-
-            OrdersState.Idle -> Unit
         }
     }
 }
@@ -228,7 +212,6 @@ private fun OrdersTabs(
 
     Column(modifier = Modifier.fillMaxWidth()) {
 
-        // --- КНОПКИ ТАБОВ (вся ширина, равные зоны)
         Row(modifier = Modifier.fillMaxWidth()) {
             items.forEach { (tab, label) ->
                 val isSelected = tab == selected
@@ -250,7 +233,6 @@ private fun OrdersTabs(
 
         Spacer(Modifier.height(6.dp))
 
-        // --- ТРЕК + АНИМИРОВАННЫЙ UNDERLINE
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
@@ -259,8 +241,8 @@ private fun OrdersTabs(
                 .background(Color.White.copy(alpha = 0.08f))
         ) {
             val tabWidth = maxWidth / items.size
-
             val targetOffset = tabWidth * selectedIndex
+
             val animatedOffset by animateDpAsState(
                 targetValue = targetOffset,
                 animationSpec = tween(durationMillis = 220),
@@ -330,18 +312,24 @@ private fun SearchBar(
 }
 
 @Composable
-private fun OrdersList(
+private fun OrdersGrid(
     orders: List<OrderWithTableResponse>,
-    onAddItems: (OrderWithTableResponse) -> Unit,
+    onOpenOrder: (Long) -> Unit, // ✅ только id
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         contentPadding = PaddingValues(top = 4.dp, bottom = 4.dp)
     ) {
         items(orders) { o ->
-            OrderCard(order = o, onAddItems = { onAddItems(o) })
+            OrderCard(
+                order = o,
+                onClick = { onOpenOrder(o.order.orderId) }, // ✅ тут
+                modifier = Modifier.height(130.dp)
+            )
         }
     }
 }
@@ -349,176 +337,108 @@ private fun OrdersList(
 @Composable
 private fun OrderCard(
     order: OrderWithTableResponse,
-    onAddItems: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val shape = RoundedCornerShape(18.dp)
 
+    val tableTitle =
+        if (order.tableName.equals("Sin mesa", true))
+            "Cuenta #${order.order.orderId}"
+        else (order.tableName ?: "Mesa")
+
+    val total = order.order.total
+    val totalText = total.formatEuro()
+
+    val GreenAvailable = Color(0xFF35D07F)
+    val RedOccupied = Color(0xFFFF5A5A)
+
+    val isAvailable = (total == null) || total.compareTo(BigDecimal.ZERO) == 0
+    val statusText = if (isAvailable) "Disponible" else "Ocupado"
+    val statusColor = if (isAvailable) GreenAvailable else RedOccupied
+
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = shape,
         color = Card,
         shadowElevation = 10.dp
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxSize()
+                .padding(horizontal = 14.dp, vertical = 10.dp)
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                // статус
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
                             .size(6.dp)
                             .clip(CircleShape)
-                            .background(Color.Red)
+                            .background(statusColor)
                     )
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(6.dp))
                     Text(
-                        text = "status",//order.statusLabel.uppercase(),
-                        color = Color.White.copy(alpha = 0.55f),
+                        text = statusText,
+                        color = statusColor,
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold
                     )
                 }
 
-                Spacer(Modifier.height(6.dp))
-
-                Text(
-                    text = order.tableName,
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(Modifier.height(4.dp))
-
-                Text(
-                    text = "subtitle",
-                    color = Color.White.copy(alpha = 0.55f),
-                    style = MaterialTheme.typography.bodySmall
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+                Box(
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.06f)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    OutlinedButton(
-                        onClick = onAddItems,
-                        shape = RoundedCornerShape(12.dp),
-                        border = ButtonDefaults.outlinedButtonBorder.copy(
-                            brush = Brush.linearGradient(
-                                listOf(
-                                    Color.White.copy(alpha = 0.18f),
-                                    Color.White.copy(alpha = 0.10f)
-                                )
-                            )
-                        ),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Color.White.copy(alpha = 0.85f)
-                        ),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
-                    ) {
-                        Text("Add Items", fontWeight = FontWeight.SemiBold)
-                        Spacer(Modifier.width(10.dp))
-                        Box(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.12f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Add,
-                                contentDescription = null,
-                                modifier = Modifier.size(14.dp),
-                                tint = Color.White.copy(alpha = 0.9f)
-                            )
-                        }
-                    }
-
-                    Spacer(Modifier.width(14.dp))
-
-                    Text(
-                        text = order.order.total.formatEuro(),
-                        color = Orange,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleMedium
+                    Icon(
+                        imageVector =
+                            if (order.tableName == null) Icons.Filled.Waves else Icons.Filled.LocalDining,
+                        contentDescription = null,
+                        tint = Orange,
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
 
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.weight(1f))
 
-            // круглый статус-иконка справа
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.06f)),
-                contentAlignment = Alignment.Center
+            Text(
+                text = tableTitle,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(Modifier.weight(1f))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
             ) {
-                Icon(
-                    imageVector = Icons.Filled.LocalDining,
-                    contentDescription = null,
-                    tint = Orange
+                Text(
+                    text = totalText,
+                    color = Orange,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
         }
     }
 }
 
-/** Демо-данные, чтобы сразу увидеть UI */
-private fun demoOrders(): List<OrderUi> = listOf(
-    OrderUi(
-        statusLabel = "Kitchen preparing",
-        statusColor = Orange,
-        tableTitle = "Table12",
-        subtitle = "Order #8829 • 4 items",
-        price = "$42.50",
-        rightIcon = {
-            Icon(
-                imageVector = Icons.Filled.LocalDining,
-                contentDescription = null,
-                tint = Orange
-            )
-        }
-    ),
-    OrderUi(
-        statusLabel = "Just seated",
-        statusColor = Color.White.copy(alpha = 0.55f),
-        tableTitle = "Table 04",
-        subtitle = "Order #8830 • 2 items",
-        price = "$18.00",
-        rightIcon = {
-            Icon(
-                imageVector = Icons.Filled.Waves,
-                contentDescription = null,
-                tint = Color.White.copy(alpha = 0.65f)
-            )
-        }
-    ),
-    OrderUi(
-        statusLabel = "Ready to serve",
-        statusColor = Color(0xFF35D07F),
-        tableTitle = "Table21",
-        subtitle = "Order #8831 • 6 items",
-        price = "$112.40",
-        rightIcon = {
-            Icon(
-                imageVector = Icons.Filled.LocalDining,
-                contentDescription = null,
-                tint = Color(0xFF35D07F)
-            )
-        }
-    )
-)
 fun BigDecimal?.formatEuro(): String {
     val nf = NumberFormat.getCurrencyInstance(Locale.GERMANY)
-    if (this == null) return nf.format(BigDecimal.ZERO)
-    return nf.format(this)
+    return nf.format(this ?: BigDecimal.ZERO)
 }
