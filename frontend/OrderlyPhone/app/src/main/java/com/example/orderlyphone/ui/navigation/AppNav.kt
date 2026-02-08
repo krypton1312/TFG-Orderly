@@ -13,6 +13,8 @@ import com.example.orderlyphone.ui.screen.orderDetails.OrderDetailScreen
 import com.example.orderlyphone.ui.screen.orderDetails.OrderDetailViewModel
 import com.example.orderlyphone.ui.screen.orders.ActiveOrdersScreen
 import com.example.orderlyphone.ui.screen.orders.OrdersViewModel
+import com.example.orderlyphone.ui.screen.products.ProductsScreen
+import com.example.orderlyphone.ui.screen.products.ProductsViewModel
 
 @Composable
 fun AppNav() {
@@ -84,9 +86,30 @@ fun AppNav() {
             OrderDetailScreen(
                 vm = vm,
                 onBack = { navController.popBackStack() },
-                onAddItem = { /* TODO */ },
+                onAddItem = { navController.navigate("products/$orderId") },
                 onFireOrder = { /* TODO */ }
             )
+        }
+        composable(
+            "products/{orderId}",
+            listOf(navArgument("orderId") { type = NavType.LongType })
+        ) {backStackEntry ->
+
+            val orderId =
+                backStackEntry.arguments?.getLong("orderId")
+                    ?: return@composable
+
+            val vm: ProductsViewModel = hiltViewModel()
+
+            ProductsScreen(
+                vm = vm,
+                orderId = orderId,
+                onReviewOrder = { cart ->
+                    navController.popBackStack()
+                }
+            )
+
+
         }
     }
 }

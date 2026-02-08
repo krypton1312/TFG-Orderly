@@ -3,9 +3,11 @@ package com.example.orderlyphone.di
 import android.content.Context
 import com.example.orderlyphone.data.local.TokenStore
 import com.example.orderlyphone.data.remote.AuthApi
+import com.example.orderlyphone.data.remote.CategoryApi
 import com.example.orderlyphone.data.remote.EmployeeApi
 import com.example.orderlyphone.data.remote.OrderDetailApi
 import com.example.orderlyphone.data.remote.OverviewApi
+import com.example.orderlyphone.data.remote.ProductsApi
 import com.example.orderlyphone.data.remote.adapter.LocalDateAdapter
 import com.example.orderlyphone.data.remote.interceptor.AuthInterceptor
 import com.example.orderlyphone.data.repository.AuthRepository
@@ -81,4 +83,14 @@ object AppModule {
     @Singleton
     fun provideOrderDetailApi(retrofit: Retrofit): OrderDetailApi =
         retrofit.create(OrderDetailApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideProductsApi(retrofit: Retrofit): ProductsApi =
+        retrofit.create(ProductsApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideCategoryApi(retrofit: Retrofit): CategoryApi =
+        retrofit.create(CategoryApi::class.java)
 }
