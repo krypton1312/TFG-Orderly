@@ -1,5 +1,7 @@
 package com.example.orderlyphone.ui.screen.login
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -26,16 +28,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
-//@Preview
-//@Composable
-//fun loginScreenPreview(){
-//    LoginScreen(loginViewModel(),
-//        onSuccess = { nav.navigate("home") { popUpTo("login") { inclusive = true } } }
-//    )
-//}
+import kotlin.math.roundToInt
 
 @Composable
 fun LoginScreen(
@@ -48,8 +42,40 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
+    // Shake offset (px-ish as Float), we will convert to dp safely
+    val shakeX = remember { Animatable(0f) }
+
+    fun userFriendlyError(raw: String): String {
+        val lower = raw.lowercase()
+
+        // Подстрой под то, что реально приходит в message:
+        // "403", "unauthorized", "forbidden", "invalid credentials" и т.д.
+        return when {
+            "403" in lower || "forbidden" in lower || "unauthorized" in lower || "401" in lower ->
+                "Correo o contraseña incorrectos"
+            "timeout" in lower || "timed out" in lower ->
+                "Tiempo de espera agotado. Inténtalo de nuevo."
+            "network" in lower || "unable to resolve host" in lower ->
+                "Sin conexión. Revisa Internet."
+            else ->
+                "No se pudo iniciar sesión. Inténtalo de nuevo."
+        }
+    }
+
+    suspend fun runShake() {
+        // быстрый shake: лево-право с затуханием
+        val steps = listOf(-18f, 18f, -14f, 14f, -10f, 10f, -6f, 6f, 0f)
+        for (v in steps) {
+            shakeX.animateTo(v, animationSpec = tween(durationMillis = 45))
+        }
+    }
+
     LaunchedEffect(state) {
-        if (state is LoginState.Success) onSuccess()
+        when (state) {
+            is LoginState.Success -> onSuccess()
+            is LoginState.Error -> runShake()
+            else -> Unit
+        }
     }
 
     val bg = Brush.verticalGradient(
@@ -67,7 +93,6 @@ fun LoginScreen(
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
-        // мягкое “свечение” под карточкой
         Box(
             modifier = Modifier
                 .size(260.dp)
@@ -75,24 +100,23 @@ fun LoginScreen(
                 .background(Color(0xFFFF8A3D).copy(alpha = 0.18f), CircleShape)
         )
 
-        val cardShape = RoundedCornerShape(28.dp)
-
+        // Применяем shake ко всей карточке
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight(),
-            shape = cardShape,
+                .offset(x = (shakeX.value / 3f).roundToInt().dp), // делим, чтобы было мягче
+            shape = RoundedCornerShape(28.dp),
             color = Color(0xFF141416).copy(alpha = 0.92f),
             tonalElevation = 0.dp,
             shadowElevation = 18.dp
         ) {
             Column(
                 modifier = Modifier
-                    .padding(horizontal = 22.dp, vertical = 26.dp)
-                    .align(Alignment.Center),
+                    .fillMaxWidth()
+                    .padding(horizontal = 22.dp, vertical = 26.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                // верхний круглый значок
                 Box(
                     modifier = Modifier
                         .size(44.dp)
@@ -114,7 +138,8 @@ fun LoginScreen(
                     text = "Orderly",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White
+                    color = Color.White,
+                    textAlign = TextAlign.Center
                 )
 
                 Spacer(Modifier.height(6.dp))
@@ -122,25 +147,22 @@ fun LoginScreen(
                 Text(
                     text = "Introduce tu correo electronico y la contraseña para continuar",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.65f)
+                    color = Color.White.copy(alpha = 0.65f),
+                    textAlign = TextAlign.Center
                 )
 
                 Spacer(Modifier.height(18.dp))
 
-                // поле Email
                 DarkField(
                     value = email,
                     onValueChange = { email = it },
                     placeholder = "Correo electronico",
                     leadingIcon = Icons.Filled.Email,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email
-                    )
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
                 )
 
                 Spacer(Modifier.height(12.dp))
 
-                // поле Password
                 DarkField(
                     value = password,
                     onValueChange = { password = it },
@@ -156,9 +178,7 @@ fun LoginScreen(
                         }
                     },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password
-                    )
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                 )
 
                 Spacer(Modifier.height(10.dp))
@@ -177,7 +197,6 @@ fun LoginScreen(
 
                 Spacer(Modifier.height(8.dp))
 
-                // основная кнопка
                 Button(
                     onClick = { vm.login(email.trim(), password) },
                     enabled = state !is LoginState.Loading,
@@ -191,7 +210,7 @@ fun LoginScreen(
                     )
                 ) {
                     if (state is LoginState.Loading) {
-                        CircularProgressIndicator(modifier = Modifier.size(18.dp))
+                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                         Spacer(Modifier.width(8.dp))
                     }
                     Text("LOG IN", fontWeight = FontWeight.Bold)
@@ -199,16 +218,13 @@ fun LoginScreen(
 
                 Spacer(Modifier.height(12.dp))
 
-                // вторичная кнопка (FaceID)
                 OutlinedButton(
                     onClick = { /* TODO face id */ },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(999.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.White
-                    ),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
                     border = ButtonDefaults.outlinedButtonBorder.copy(
                         brush = Brush.linearGradient(
                             listOf(
@@ -229,7 +245,6 @@ fun LoginScreen(
 
                 Spacer(Modifier.height(18.dp))
 
-                // статус + версия
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
@@ -243,12 +258,24 @@ fun LoginScreen(
                     )
                 }
 
+                // Красивое сообщение об ошибке вместо "403"
                 if (state is LoginState.Error) {
                     Spacer(Modifier.height(12.dp))
-                    Text(
-                        text = (state as LoginState.Error).message,
-                        color = MaterialTheme.colorScheme.error
-                    )
+
+                    val msg = userFriendlyError((state as LoginState.Error).message)
+
+                    Surface(
+                        color = MaterialTheme.colorScheme.error.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = msg,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
         }
