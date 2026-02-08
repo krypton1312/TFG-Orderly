@@ -113,7 +113,7 @@ fun ActiveOrdersScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     OrdersHeader(
-                        title = "Active Orders",
+                        title = "Mesas & Cuentas",
                         onBack = onBack,
                         onNewOrder = onNewOrder
                     )
@@ -126,7 +126,7 @@ fun ActiveOrdersScreen(
                     SearchBar(
                         value = query,
                         onValueChange = { query = it },
-                        placeholder = "Search table..."
+                        placeholder = "Buscar una cuenta o mesa..."
                     )
 
                     OrdersGrid(

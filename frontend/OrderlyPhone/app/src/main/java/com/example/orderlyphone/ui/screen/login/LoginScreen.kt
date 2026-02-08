@@ -89,6 +89,7 @@ fun LoginScreen(
             Column(
                 modifier = Modifier
                     .padding(horizontal = 22.dp, vertical = 26.dp)
+                    .align(Alignment.Center),
             ) {
 
                 // верхний круглый значок
@@ -110,7 +111,7 @@ fun LoginScreen(
                 Spacer(Modifier.height(14.dp))
 
                 Text(
-                    text = "Staff Login",
+                    text = "Orderly",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White
@@ -119,7 +120,7 @@ fun LoginScreen(
                 Spacer(Modifier.height(6.dp))
 
                 Text(
-                    text = "Enter your email and password to continue",
+                    text = "Introduce tu correo electronico y la contraseña para continuar",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White.copy(alpha = 0.65f)
                 )
@@ -130,7 +131,7 @@ fun LoginScreen(
                 DarkField(
                     value = email,
                     onValueChange = { email = it },
-                    placeholder = "Email",
+                    placeholder = "Correo electronico",
                     leadingIcon = Icons.Filled.Email,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email
@@ -143,7 +144,7 @@ fun LoginScreen(
                 DarkField(
                     value = password,
                     onValueChange = { password = it },
-                    placeholder = "Password",
+                    placeholder = "Contraseña",
                     leadingIcon = Icons.Filled.Lock,
                     trailingIcon = {
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -168,7 +169,7 @@ fun LoginScreen(
                 ) {
                     TextButton(onClick = { /* TODO forgot password */ }) {
                         Text(
-                            "Forgot password?",
+                            "Has olvidado la contraseña?",
                             color = Color.White.copy(alpha = 0.7f)
                         )
                     }
@@ -233,7 +234,7 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    StatusChip(text = "System Online")
+                    StatusChip(text = "Sistema en linea")
                     Spacer(Modifier.height(6.dp))
                     Text(
                         text = "v2.4.1",

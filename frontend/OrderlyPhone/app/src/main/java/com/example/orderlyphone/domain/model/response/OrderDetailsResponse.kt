@@ -7,6 +7,7 @@ data class OrderDetailsResponse(
     val productId: Long,
     val name: String,
     val orderId: Long,
+    val comment: String?,
     val amount: Int,
     val unitPrice: BigDecimal,
     val status: String,
