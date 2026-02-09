@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.orderlyphone.domain.model.DraftOrderDetailUi
 import com.example.orderlyphone.domain.model.response.OrderDetailsResponse
 import java.math.BigDecimal
 import java.text.NumberFormat
@@ -46,12 +47,21 @@ fun OrderDetailScreen(
 ) {
     val state by vm.state.collectAsState()
     val items by vm.items.collectAsState()
+
+    // ✅ DraftOrderDetailUi: (uiId: String, req: OrderDetailRequest)
+    val draft by vm.draftRequests.collectAsState()
+
     val orderId = vm.getOrderId()
 
-    val total = remember(items) {
-        items.fold(BigDecimal.ZERO) { acc, item ->
+    // ✅ Total считаем по серверным + драфтам
+    val total = remember(items, draft) {
+        val serverSum = items.fold(BigDecimal.ZERO) { acc, item ->
             acc + item.unitPrice.multiply(item.amount.toBigDecimal())
         }
+        val draftSum = draft.fold(BigDecimal.ZERO) { acc, d ->
+            acc + d.req.unitPrice.multiply(d.req.amount.toBigDecimal())
+        }
+        serverSum + draftSum
     }
 
     // высота нижней панели (чтобы список не прятался под ней)
@@ -85,7 +95,11 @@ fun OrderDetailScreen(
                     Header(
                         orderId = orderId,
                         onBack = onBack,
-                        onClear = { vm.clear() }
+                        onClear = {
+                            vm.clear()
+                            // если у тебя есть метод очистки драфтов — раскомментируй:
+                            // vm.clearDraft()
+                        }
                     )
 
                     LazyColumn(
@@ -94,7 +108,17 @@ fun OrderDetailScreen(
                             .padding(bottom = bottomBarPadding),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(items, key = { it.id }) { item ->
+
+                        // ====== SECTION: SERVER ITEMS ======
+                        item(key = "hdr_server") {
+                            Text(
+                                text = "Items",
+                                color = Color.White.copy(alpha = 0.75f),
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+
+                        items(items, key = { "srv_${it.id}" }) { item ->
                             OrderItemCard(
                                 item = item,
                                 description = item.comment,
@@ -103,10 +127,31 @@ fun OrderDetailScreen(
                                 onRemove = { vm.remove(item) }
                             )
                         }
+
+                        // ====== SECTION: DRAFT ITEMS ======
+                        if (draft.isNotEmpty()) {
+                            item(key = "hdr_draft") {
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    text = "Added (draft)",
+                                    color = Orange,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+
+                            items(draft, key = { d -> "dr_${d.uiId}" }) { d ->
+                                DraftItemCard(
+                                    draft = d,
+                                    onRemove = {
+                                        // ✅ у тебя в VM должен быть метод removeDraft(uiId: String)
+                                        vm.removeDraft(d.uiId)
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
 
-                // НИЖНЯЯ ПАНЕЛЬ: Total закреплён снизу
                 BottomTotalBar(
                     total = total,
                     onAddItem = onAddItem,
@@ -196,7 +241,6 @@ private fun OrderItemCard(
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
 
-            // TOP: name + price
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -216,7 +260,6 @@ private fun OrderItemCard(
                 )
             }
 
-            // DESCRIPTION под name
             Spacer(Modifier.height(6.dp))
             if (description != null) {
                 Text(
@@ -230,7 +273,76 @@ private fun OrderItemCard(
 
             Spacer(Modifier.height(12.dp))
 
-            // BOTTOM: Remove + qty stepper (как на примере, но темная палитра)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RemovePill(onRemove = onRemove)
+
+                QuantityStepper(
+                    count = item.amount,
+                    onDecrease = onDecrease,
+                    onIncrease = onIncrease
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DraftItemCard(
+    draft: DraftOrderDetailUi,
+    onRemove: () -> Unit
+) {
+    val req = draft.req
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        color = Card,
+        shadowElevation = 8.dp
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = req.name,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Text(
+                    text = req.unitPrice.formatEuro(),
+                    color = Orange,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(Modifier.height(10.dp))
+
+            // ✅ бейдж "DRAFT"
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(Orange.copy(alpha = 0.14f))
+                    .padding(horizontal = 10.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = "DRAFT",
+                    color = Orange,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(Modifier.height(12.dp))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -239,11 +351,23 @@ private fun OrderItemCard(
 
                 RemovePill(onRemove = onRemove)
 
-                QuantityStepper(
-                    count = item.amount,
-                    onDecrease = onDecrease,
-                    onIncrease = onIncrease
-                )
+                // пока без степпера — просто количество
+                Surface(
+                    shape = RoundedCornerShape(999.dp),
+                    color = Color.White.copy(alpha = 0.05f),
+                    tonalElevation = 0.dp
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "x${req.amount}",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
         }
     }
@@ -293,7 +417,6 @@ private fun QuantityStepper(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // MINUS (меньше)
             Surface(
                 onClick = onDecrease,
                 shape = CircleShape,
@@ -308,7 +431,7 @@ private fun QuantityStepper(
                 }
             }
 
-            Spacer(Modifier.width(12.dp)) // ✅ отступ от кнопки к цифре
+            Spacer(Modifier.width(12.dp))
 
             Text(
                 text = count.toString(),
@@ -316,9 +439,8 @@ private fun QuantityStepper(
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(Modifier.width(12.dp)) // ✅ отступ от цифры к кнопке
+            Spacer(Modifier.width(12.dp))
 
-            // PLUS (меньше + оранжевый)
             Surface(
                 onClick = onIncrease,
                 shape = CircleShape,
@@ -343,7 +465,6 @@ private fun BottomTotalBar(
     onFireOrder: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // фон-градиент снизу (чтобы красиво отделялось от списка)
     val bottomFade = Brush.verticalGradient(
         listOf(
             Color.Transparent,
@@ -363,7 +484,6 @@ private fun BottomTotalBar(
                 .padding(18.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // TOTAL закреплён снизу
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(18.dp),

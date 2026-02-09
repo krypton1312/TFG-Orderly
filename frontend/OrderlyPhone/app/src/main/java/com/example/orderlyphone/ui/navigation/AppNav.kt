@@ -1,6 +1,8 @@
 package com.example.orderlyphone.ui.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
@@ -72,16 +74,11 @@ fun AppNav() {
         /* ───────────── ORDER DETAILS ───────────── */
         composable(
             route = "order_details/{orderId}",
-            arguments = listOf(
-                navArgument("orderId") { type = NavType.LongType }
-            )
+            arguments = listOf(navArgument("orderId") { type = NavType.LongType })
         ) { backStackEntry ->
 
-            val orderId =
-                backStackEntry.arguments?.getLong("orderId")
-                    ?: return@composable
-
-            val vm: OrderDetailViewModel = hiltViewModel()
+            val orderId = backStackEntry.arguments?.getLong("orderId") ?: return@composable
+            val vm: OrderDetailViewModel = hiltViewModel(backStackEntry)
 
             OrderDetailScreen(
                 vm = vm,
@@ -90,26 +87,33 @@ fun AppNav() {
                 onFireOrder = { /* TODO */ }
             )
         }
+
+        /* ───────────── PRODUCTS ───────────── */
         composable(
-            "products/{orderId}",
-            listOf(navArgument("orderId") { type = NavType.LongType })
-        ) {backStackEntry ->
+            route = "products/{orderId}",
+            arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+        ) { backStackEntry ->
 
-            val orderId =
-                backStackEntry.arguments?.getLong("orderId")
-                    ?: return@composable
+            val orderId = backStackEntry.arguments?.getLong("orderId") ?: return@composable
 
-            val vm: ProductsViewModel = hiltViewModel()
+            // ✅ Берём entry родительского экрана, чтобы получить ТОТ ЖЕ OrderDetailViewModel
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry("order_details/$orderId")
+            }
+            val orderVm: OrderDetailViewModel = hiltViewModel(parentEntry)
+
+            val productsVm: ProductsViewModel = hiltViewModel(backStackEntry)
 
             ProductsScreen(
-                vm = vm,
+                vm = productsVm,
                 orderId = orderId,
                 onReviewOrder = { cart ->
+                    // ✅ Вот этого тебе не хватало:
+                    orderVm.addProductsToOrder(cart)
                     navController.popBackStack()
                 }
             )
-
-
         }
+
     }
 }

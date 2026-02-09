@@ -14,4 +14,5 @@ public class DashboardStartResponse {
     private int availableTables;
     private int occupiedTables;
     private ShiftRecordResponse shiftRecord;
+    private Long cashSessionId;
 }

@@ -4,7 +4,6 @@ import com.yebur.backendorderly.cashcount.CashCount;
 import com.yebur.backendorderly.cashcount.CashCountService;
 import com.yebur.backendorderly.cashoperations.CashOperation;
 import com.yebur.backendorderly.cashoperations.CashOperationRepository;
-import com.yebur.backendorderly.cashoperations.CashOperationService;
 import com.yebur.backendorderly.orderdetail.OrderDetailRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -158,5 +157,9 @@ public class CashSessionService implements CashSessionServiceInterface {
         CashSession toDelete = findCashSessionById(id).orElseThrow(() -> new RuntimeException("CashSession not found with this id: " + id));
 
         cashSessionRepository.delete(toDelete);
+    }
+
+    public Long findLastOpenCashSessionId(){
+        return findCashSessionDTOByStatus(CashSessionStatus.OPEN).map(CashSessionResponse::getId).orElse(null);
     }
 }

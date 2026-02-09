@@ -4,5 +4,6 @@ data class DashboardStartResponse(
     val employee: EmployeeResponse,
     val availableTables: Int,
     val occupiedTables: Int,
-    val shiftRecord: ShiftRecordResponse
+    val shiftRecord: ShiftRecordResponse,
+    val cashSessionId: Long?
 )

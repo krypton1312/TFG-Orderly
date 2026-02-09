@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.yebur.backendorderly.cashsessions.CashSessionService;
 import com.yebur.backendorderly.employee.EmployeeResponse;
 import com.yebur.backendorderly.employee.EmployeeService;
 import com.yebur.backendorderly.product.ProductResponse;
@@ -45,6 +46,7 @@ public class OverviewService {
     private final EmployeeService employeeService;
     private final RestTableRepository restTableRepository;
     private final ShiftRecordService shiftRecordService;
+    private final CashSessionService cashSessionService;
 
     public List<TableWithOrderResponse> getOverview() {
                 List<RestTableResponse> tables = restTableService.findAllRestTableDTO();
@@ -159,8 +161,9 @@ public class OverviewService {
             int occupiedTables = restTableRepository.countByStatus(TableStatus.OCCUPIED);
             List<ShiftRecordResponse> shiftRecords = shiftRecordService.findByEmployeeId(employee.getId());
             ShiftRecordResponse lastShiftRecord = shiftRecords.isEmpty() ? null : shiftRecords.get(shiftRecords.size() - 1);
+            Long cashSessionId = cashSessionService.findLastOpenCashSessionId();
 
-            return new DashboardStartResponse(employee, availableTables, occupiedTables, lastShiftRecord);
+            return new DashboardStartResponse(employee, availableTables, occupiedTables, lastShiftRecord, cashSessionId);
         }
 
 }

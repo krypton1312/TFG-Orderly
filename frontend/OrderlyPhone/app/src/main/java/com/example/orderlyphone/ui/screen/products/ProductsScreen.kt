@@ -71,7 +71,8 @@ fun ProductsScreen(
     orderId: Long,
     orderNumber: String = "Cuenta #$orderId",
     tableName: String = "Table4",
-    onReviewOrder: (Map<Long, Int>) -> Unit
+    // ✅ теперь отдаём продукты + qty
+    onReviewOrder: (Map<ProductResponse, Int>) -> Unit
 ) {
     val state by vm.state.collectAsState()
 
@@ -93,9 +94,9 @@ fun ProductsScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(bg)
-            .padding(WindowInsets.statusBars.asPaddingValues()) // ✅ отступ от статус-бара
+            .padding(WindowInsets.statusBars.asPaddingValues())
             .padding(horizontal = 18.dp, vertical = 18.dp)
-            .padding(top = 10.dp) // ✅ чуть ниже верх
+            .padding(top = 10.dp)
     ) {
         when (val s = state) {
             ProductsState.Idle -> Unit
@@ -131,7 +132,7 @@ private fun ProductsContent(
     categories: List<CategoryResponse>,
     orderNumber: String,
     tableName: String,
-    onReviewOrder: (cart: Map<Long, Int>) -> Unit
+    onReviewOrder: (cart: Map<ProductResponse, Int>) -> Unit
 ) {
     val orange = Color(0xFFFF8A3D)
 
@@ -141,6 +142,7 @@ private fun ProductsContent(
     val cardColor = Color(0xFF141416).copy(alpha = 0.92f)
     val cardBorder = Color.White.copy(alpha = 0.06f)
 
+    // ✅ cart ХРАНИМ НАДЁЖНО: productId -> qty
     val cart = remember { mutableStateMapOf<Long, Int>() }
 
     var selectedCategoryId by remember(categories) { mutableStateOf<Long?>(null) }
@@ -175,12 +177,9 @@ private fun ProductsContent(
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // ✅ Убрали странное оранжевое свечение (glow)
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                // ✅ оставляем место снизу: категории + review bar
                 .padding(bottom = 182.dp)
         ) {
             HeaderBlockDark(
@@ -225,7 +224,6 @@ private fun ProductsContent(
             }
         }
 
-        // ✅ Категории закреплены снизу и близко к Review Order
         CategoriesBarDark(
             categories = categories,
             selectedCategoryId = selectedCategoryId,
@@ -234,13 +232,23 @@ private fun ProductsContent(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(horizontal = 14.dp)
-                .padding(bottom = 92.dp) // близко к review bar
+                .padding(bottom = 92.dp)
         )
 
         BottomReviewBarDark(
             itemsCount = itemsCount,
             total = total,
-            onReview = { onReviewOrder(cart.toMap()) },
+            // ✅ здесь формируем Map<ProductResponse, Int> и отдаём наружу
+            onReview = {
+                val mapById = products.associateBy { it.id }
+                val selectedProducts: Map<ProductResponse, Int> =
+                    cart.mapNotNull { (id, qty) ->
+                        val prod = mapById[id] ?: return@mapNotNull null
+                        prod to qty
+                    }.toMap()
+
+                onReviewOrder(selectedProducts)
+            },
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
@@ -269,7 +277,6 @@ private fun HeaderBlockDark(
                 fontWeight = FontWeight.Black
             )
         }
-        // ✅ Иконка поиска сверху убрана
     }
 }
 
@@ -317,7 +324,7 @@ private fun CategoriesBarDark(
     Surface(
         shape = RoundedCornerShape(999.dp),
         color = containerColor,
-        shadowElevation = 14.dp, // ✅ как в Review Order
+        shadowElevation = 14.dp,
         modifier = modifier
             .fillMaxWidth()
             .border(1.dp, Color.White.copy(alpha = 0.06f), RoundedCornerShape(999.dp))
