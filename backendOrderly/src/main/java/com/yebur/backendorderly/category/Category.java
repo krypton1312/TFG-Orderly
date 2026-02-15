@@ -34,7 +34,7 @@ public class Category {
     private Integer index;
 
     @OneToMany(mappedBy = "category")
-    private List<Product> products;
+    private List<Product> products = new ArrayList<>();
 
     @ManyToMany(mappedBy = "categories")
     private List<Supplement> supplements = new ArrayList<>();

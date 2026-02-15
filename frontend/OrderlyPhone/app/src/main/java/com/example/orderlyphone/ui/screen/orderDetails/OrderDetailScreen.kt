@@ -97,8 +97,7 @@ fun OrderDetailScreen(
                         onBack = onBack,
                         onClear = {
                             vm.clear()
-                            // если у тебя есть метод очистки драфтов — раскомментируй:
-                            // vm.clearDraft()
+                            vm.clearDraft()
                         }
                     )
 
@@ -154,6 +153,7 @@ fun OrderDetailScreen(
 
                 BottomTotalBar(
                     total = total,
+                    draft = draft.isNotEmpty(),
                     onAddItem = onAddItem,
                     onFireOrder = onFireOrder,
                     modifier = Modifier.align(Alignment.BottomCenter)
@@ -165,7 +165,7 @@ fun OrderDetailScreen(
 
 @Composable
 private fun Header(
-    orderId: Long,
+    orderId: Long?,
     onBack: () -> Unit,
     onClear: () -> Unit
 ) {
@@ -461,6 +461,7 @@ private fun QuantityStepper(
 @Composable
 private fun BottomTotalBar(
     total: BigDecimal,
+    draft: Boolean,
     onAddItem: () -> Unit,
     onFireOrder: () -> Unit,
     modifier: Modifier = Modifier
@@ -472,6 +473,8 @@ private fun BottomTotalBar(
             BgBot.copy(alpha = 0.95f)
         )
     )
+
+    val buttonText = if(draft) "Guardar cambios" else "Fire Order"
 
     Box(
         modifier = modifier
@@ -531,7 +534,7 @@ private fun BottomTotalBar(
                         contentColor = Color.White
                     )
                 ) {
-                    Text("+ Add Item", fontWeight = FontWeight.SemiBold)
+                    Text("+ Añadir", fontWeight = FontWeight.SemiBold)
                 }
 
                 Button(
@@ -541,7 +544,7 @@ private fun BottomTotalBar(
                     shape = RoundedCornerShape(999.dp)
                 ) {
                     Text(
-                        "Fire Order  ${total.formatEuro()}",
+                        "$buttonText  ${total.formatEuro()}",
                         color = Color.Black,
                         fontWeight = FontWeight.Bold
                     )

@@ -65,40 +65,51 @@ fun AppNav() {
                 vm = vm,
                 onBack = { navController.popBackStack() },
                 onNewOrder = { /* TODO */ },
-                onOpenOrder = { orderId ->
-                    navController.navigate("order_details/$orderId")
+                onOpenOrder = { orderId: Long, tableId: Long ->
+                    navController.navigate("order_details/$orderId/$tableId")
                 }
             )
         }
 
         /* ───────────── ORDER DETAILS ───────────── */
         composable(
-            route = "order_details/{orderId}",
-            arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+            route = "order_details/{orderId}/{tableId}",
+            arguments = listOf(
+                navArgument("orderId") { type = NavType.LongType },
+                navArgument("tableId") { type = NavType.LongType },
+            )
         ) { backStackEntry ->
 
             val orderId = backStackEntry.arguments?.getLong("orderId") ?: return@composable
+            val tableId = backStackEntry.arguments?.getLong("tableId") ?: return@composable
+
             val vm: OrderDetailViewModel = hiltViewModel(backStackEntry)
 
             OrderDetailScreen(
                 vm = vm,
                 onBack = { navController.popBackStack() },
-                onAddItem = { navController.navigate("products/$orderId") },
-                onFireOrder = { /* TODO */ }
+                onAddItem = { navController.navigate("products/$orderId/$tableId") },
+                onFireOrder = {
+                    vm.addProductsToOrder()
+                    navController.popBackStack()
+                }
             )
         }
 
         /* ───────────── PRODUCTS ───────────── */
         composable(
-            route = "products/{orderId}",
-            arguments = listOf(navArgument("orderId") { type = NavType.LongType })
-        ) { backStackEntry ->
+            route = "products/{orderId}/{tableId}",
+            arguments = listOf(
+                navArgument("orderId") { type = NavType.LongType },
+                navArgument("tableId") { type = NavType.LongType },
+                )
+            ) { backStackEntry ->
 
             val orderId = backStackEntry.arguments?.getLong("orderId") ?: return@composable
+            val tableId = backStackEntry.arguments?.getLong("tableId") ?: return@composable
 
-            // ✅ Берём entry родительского экрана, чтобы получить ТОТ ЖЕ OrderDetailViewModel
             val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry("order_details/$orderId")
+                navController.getBackStackEntry("order_details/$orderId/$tableId")
             }
             val orderVm: OrderDetailViewModel = hiltViewModel(parentEntry)
 
@@ -108,8 +119,7 @@ fun AppNav() {
                 vm = productsVm,
                 orderId = orderId,
                 onReviewOrder = { cart ->
-                    // ✅ Вот этого тебе не хватало:
-                    orderVm.addProductsToOrder(cart)
+                    orderVm.addDraftProductsToOrder(cart)
                     navController.popBackStack()
                 }
             )

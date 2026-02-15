@@ -11,12 +11,14 @@ import com.example.orderlyphone.domain.model.request.OrderDetailRequest
 import com.example.orderlyphone.domain.model.response.OrderDetailsResponse
 import com.example.orderlyphone.domain.model.response.ProductResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
@@ -30,6 +32,10 @@ class OrderDetailViewModel @Inject constructor(
 
     private val orderId: Long = checkNotNull(savedStateHandle["orderId"]) {
         "orderId is missing in SavedStateHandle"
+    }
+
+    private val tableId: Long = checkNotNull(savedStateHandle["tableId"]) {
+        "tableId is missing in SavedStateHandle"
     }
 
     private val _state = MutableStateFlow<OrderDetailState>(OrderDetailState.Idle)
@@ -61,14 +67,28 @@ class OrderDetailViewModel @Inject constructor(
     }
 
     fun increase(item: OrderDetailsResponse) {
-        _items.value = _items.value.map {
-            if (it.id == item.id) it.copy(amount = it.amount + 1) else it
-        }
+        addDraftOrderDetailToOrder(item)
     }
 
     fun decrease(item: OrderDetailsResponse) {
-        _items.value = _items.value.map {
-            if (it.id == item.id) it.copy(amount = (it.amount - 1).coerceAtLeast(1)) else it
+        val newAmount = item.amount - 1
+        if (newAmount < 1) return
+
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    api.decreaseAmount(item.id, newAmount)
+                }
+
+                _items.update { list ->
+                    list.map {
+                        if (it.id == item.id) it.copy(amount = newAmount) else it
+                    }
+                }
+
+            } catch (e: Exception) {
+                _state.value = OrderDetailState.Error(e.message ?: e.toString())
+            }
         }
     }
 
@@ -80,9 +100,11 @@ class OrderDetailViewModel @Inject constructor(
         _items.value = emptyList()
     }
 
-    fun getOrderId(): Long = orderId
+    fun getOrderId(): Long? = orderId
 
-    fun addProductsToOrder(products: Map<ProductResponse, Int>) {
+    fun getTableId(): Long? = tableId
+
+    fun addDraftProductsToOrder(products: Map<ProductResponse, Int>) {
         viewModelScope.launch {
             try {
                 val cashSessionId: Long? = cashSessionStore.cashSessionId.first()
@@ -112,7 +134,42 @@ class OrderDetailViewModel @Inject constructor(
                     )
                 }
 
-                // ✅ только один раз
+                _draftRequests.update { old -> old + newDrafts }
+
+            } catch (e: Exception) {
+                _state.value = OrderDetailState.Error(e.message ?: e.toString())
+            }
+        }
+    }
+
+    fun addDraftOrderDetailToOrder(item: OrderDetailsResponse) {
+        viewModelScope.launch {
+            try {
+                val cashSessionId: Long? = cashSessionStore.cashSessionId.first()
+                if (cashSessionId == null) {
+                    _state.value = OrderDetailState.Error("No hay caja abierta (cash session).")
+                    return@launch
+                }
+
+                val batchId = UUID.randomUUID().toString()
+
+                val newDrafts =
+                    DraftOrderDetailUi(
+                        uiId = UUID.randomUUID().toString(),
+                        req = OrderDetailRequest(
+                            productId = item.productId,
+                            orderId = orderId,
+                            name = item.name,
+                            comment = null,
+                            amount = 1,
+                            unitPrice = item.unitPrice,
+                            status = "PENDING",
+                            paymentMethod = null,
+                            batchId = batchId,
+                            createdAt = LocalDateTime.now(),
+                            cashSessionId = cashSessionId
+                        )
+                    )
                 _draftRequests.update { old -> old + newDrafts }
 
             } catch (e: Exception) {
@@ -129,5 +186,29 @@ class OrderDetailViewModel @Inject constructor(
     fun removeDraft(uiId: String) {
         _draftRequests.value = _draftRequests.value.filterNot { it.uiId == uiId }
     }
+
+    fun addProductsToOrder() {
+        viewModelScope.launch {
+            val reqs = _draftRequests.value.map { it.req }
+
+            Log.d("CheckDraft", reqs.toString())
+            Log.d("CheckDraftTableId", tableId.toString())
+
+            try {
+                val hasZeroOrderId = reqs.any { it.orderId == 0L }
+
+                if (hasZeroOrderId) {
+                    Log.d("CheckDraft", "hasZeroOrderId")
+                    api.createOrderDetailsByTable(tableId,reqs)
+                } else {
+                    api.createOrderDetails(reqs)
+                }
+
+            } catch (e: Exception) {
+                Log.d("CheckDraftError", e.message.toString())
+            }
+        }
+    }
+
 
 }

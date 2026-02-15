@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.yebur.backendorderly.orderdetail.OrderDetail;
 import com.yebur.backendorderly.orderdetail.OrderDetailStatus;
 import com.yebur.backendorderly.resttable.*;
 import org.springframework.stereotype.Service;
@@ -191,13 +192,17 @@ public class OrderService implements OrderServiceInterface {
     }
 
     private void isAllOrderDetailsPaid(Long orderId) {
-           Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found with id " + orderId));
 
-           if(order.getOrderDetails().stream().allMatch(odetail -> odetail.getStatus() == OrderDetailStatus.PAID)) {
-               order.setState(OrderStatus.PAID);
-               order.getRestTable().setStatus(TableStatus.AVAILABLE);
-               orderRepository.save(order);
-           }
+        List<OrderDetail> details = order.getOrderDetails();
+
+        if (details != null && !details.isEmpty() && details.stream().allMatch(odetail -> odetail.getStatus() == OrderDetailStatus.PAID)) {
+            order.setState(OrderStatus.PAID);
+            if (order.getRestTable() != null) {
+                order.getRestTable().setStatus(TableStatus.AVAILABLE);
+            }
+            orderRepository.save(order);
+        }
     }
 }

@@ -47,7 +47,7 @@ fun ActiveOrdersScreen(
     vm: OrdersViewModel,
     onBack: () -> Unit,
     onNewOrder: () -> Unit,
-    onOpenOrder: (Long) -> Unit // ✅ callback
+    onOpenOrder: (Long, Long) -> Unit // ✅ callback
 )
  {
     val bg = Brush.verticalGradient(listOf(BgTop, BgMid, BgBot))
@@ -314,7 +314,7 @@ private fun SearchBar(
 @Composable
 private fun OrdersGrid(
     orders: List<OrderWithTableResponse>,
-    onOpenOrder: (Long) -> Unit, // ✅ только id
+    onOpenOrder: (Long, Long) -> Unit, // ✅ только id
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -327,7 +327,7 @@ private fun OrdersGrid(
         items(orders) { o ->
             OrderCard(
                 order = o,
-                onClick = { onOpenOrder(o.order.orderId) }, // ✅ тут
+                onClick = { onOpenOrder(o.order.orderId, o.tableId) }, // ✅ тут
                 modifier = Modifier.height(130.dp)
             )
         }

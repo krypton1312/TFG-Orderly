@@ -8,17 +8,16 @@ import java.util.stream.Collectors;
 
 import com.yebur.backendorderly.cashsessions.CashSession;
 import com.yebur.backendorderly.cashsessions.CashSessionService;
+import com.yebur.backendorderly.order.*;
+import com.yebur.backendorderly.resttable.RestTable;
+import com.yebur.backendorderly.resttable.RestTableService;
 import com.yebur.backendorderly.supplements.Supplement;
 import com.yebur.backendorderly.supplements.SupplementResponse;
 import com.yebur.backendorderly.supplements.SupplementService;
+import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.yebur.backendorderly.order.Order;
-import com.yebur.backendorderly.order.OrderRepository;
-import com.yebur.backendorderly.order.OrderRequest;
-import com.yebur.backendorderly.order.OrderService;
-import com.yebur.backendorderly.order.OrderStatus;
 import com.yebur.backendorderly.product.Product;
 import com.yebur.backendorderly.product.ProductService;
 import com.yebur.backendorderly.websocket.OrdersTabletWebSocketHandler;
@@ -37,6 +36,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
     private final WsNotifier wsNotifier;
     private final SupplementService supplementService;
     private final CashSessionService cashSessionService;
+    private final RestTableService restTableService;
 
     public OrderDetailService(
             OrderDetailRepository orderDetailRepository,
@@ -45,7 +45,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             OrderRepository orderRepository,
             OrdersTabletWebSocketHandler ordersTabletHandler,
             WsNotifier wsNotifier,
-            SupplementService supplementService, CashSessionService cashSessionService) {
+            SupplementService supplementService, CashSessionService cashSessionService, RestTableService restTableService) {
         this.orderDetailRepository = orderDetailRepository;
         this.productService = productService;
         this.orderService = orderService;
@@ -54,6 +54,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         this.wsNotifier = wsNotifier;
         this.supplementService = supplementService;
         this.cashSessionService = cashSessionService;
+        this.restTableService = restTableService;
     }
 
     @Override
@@ -480,6 +481,36 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         notifyOrderTotalChanged(main.getOrder());
     }
 
+    public void decreaseAmount(Long id, int amount) {
+        OrderDetail od = findById(id).orElseThrow();
+        od.setAmount(od.getAmount() - amount);
+        orderDetailRepository.save(od);
+
+        recalculateOrderTotal(od.getOrder());
+        notifyDetailChanged(WsEventType.ORDER_DETAIL_UPDATED, od);
+        notifyOrderTotalChanged(od.getOrder());
+    }
+
+    @Transactional
+    public OrderResponse addOrderDetailsListToTable(Long tableId, List<OrderDetailRequest> reqs) throws BadRequestException {
+
+        if (reqs == null || reqs.isEmpty()) {
+            throw new BadRequestException("Order details list is empty");
+        }
+
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setIdTable(tableId);
+        orderRequest.setState("OPEN");
+
+        OrderResponse order = orderService.createOrder(orderRequest);
+
+        reqs.forEach(r -> {
+            r.setOrderId(order.getId());
+        });
+
+        createOrderDetailList(reqs);
+        return order;
+    }
 
 
     private OrderDetail mapToEntity(OrderDetailRequest dto) {

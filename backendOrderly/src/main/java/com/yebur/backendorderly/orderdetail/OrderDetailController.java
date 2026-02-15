@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.yebur.backendorderly.supplements.SupplementResponse;
 import com.yebur.backendorderly.supplements.SupplementService;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -108,6 +109,16 @@ public class OrderDetailController {
         }
     }
 
+    @PutMapping("/decrease-amount/{id},{amount}")
+    public ResponseEntity<?> decreaseAmount(@PathVariable Long id, @PathVariable int amount) {
+        try {
+            orderDetailService.decreaseAmount(id, amount);
+            return ResponseEntity.ok("Amount decreased successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
     @PostMapping("/update-list")
     public ResponseEntity<?> updateOrderDetailList(@RequestBody Map<String, Object> payload) {
         try {
@@ -166,6 +177,16 @@ public class OrderDetailController {
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/table/{tableId}")
+    public ResponseEntity<?> addOrderDetailsListToTable(@PathVariable Long tableId, @RequestBody List<OrderDetailRequest> orderDetailRequests){
+        try{
+            orderDetailService.addOrderDetailsListToTable(tableId, orderDetailRequests);
+            return ResponseEntity.ok().build();
+        } catch (BadRequestException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 

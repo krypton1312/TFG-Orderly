@@ -9,11 +9,13 @@ import com.example.orderlyphone.data.remote.OrderDetailApi
 import com.example.orderlyphone.data.remote.OverviewApi
 import com.example.orderlyphone.data.remote.ProductsApi
 import com.example.orderlyphone.data.remote.adapter.LocalDateAdapter
+import com.example.orderlyphone.data.remote.adapter.LocalDateTimeAdapter
 import com.example.orderlyphone.data.remote.interceptor.AuthInterceptor
 import com.example.orderlyphone.data.repository.AuthRepository
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import java.time.LocalDate
+import java.time.LocalDateTime
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,6 +49,7 @@ object AppModule {
     fun provideGson(): Gson =
         GsonBuilder()
             .registerTypeAdapter(LocalDate::class.java, LocalDateAdapter())
+            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
             .create()
 
     @Provides

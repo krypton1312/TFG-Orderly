@@ -1,6 +1,8 @@
 package com.yebur.backendorderly.employee;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -63,7 +65,7 @@ public class Employee {
         joinColumns = @JoinColumn(name = "id_employee"),
         inverseJoinColumns = @JoinColumn(name = "id_role")
     )
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     @Column
     @ToString.Include
@@ -89,9 +91,9 @@ public class Employee {
     private EmployeeStatus status;
 
     @OneToMany(mappedBy = "employee")
-    private List<Order> orders;
+    private List<Order> orders = new ArrayList<>();
 
     @OneToMany(mappedBy = "employee")
-    private List<ShiftRecord> shiftRecords;
+    private List<ShiftRecord> shiftRecords = new ArrayList<>();
 
 }
