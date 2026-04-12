@@ -39,8 +39,8 @@
 **Requirements:** INF-01, INF-02, INF-03
 
 **Plans:** 2 plans
-- [ ] 02-01-PLAN.md — Phone configurable BASE_URL via BuildConfig
-- [ ] 02-02-PLAN.md — Network security config (debug-only cleartext) + INF-03 verify
+- [x] 02-01-PLAN.md — Phone configurable BASE_URL via BuildConfig
+- [x] 02-02-PLAN.md — Network security config (debug-only cleartext) + INF-03 verify
 
 **Depends on:** Phase 1
 
