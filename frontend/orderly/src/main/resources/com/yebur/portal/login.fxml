@@ -2,40 +2,72 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 
+<!-- Background matches portal.css .root (#f5f7fa) -->
 <StackPane xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.yebur.controller.LoginController"
-           prefWidth="1024" prefHeight="768"
-           style="-fx-background-color: #1e1e2e;">
+           prefWidth="1024" prefHeight="768">
 
-    <VBox alignment="CENTER" spacing="20" maxWidth="400">
+    <!-- White card (matches data.css .card style) -->
+    <VBox alignment="CENTER" spacing="0"
+          style="-fx-background-color: white; -fx-background-radius: 16; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 24, 0, 0, 8);"
+          maxWidth="400" maxHeight="560">
         <padding>
-            <Insets top="60" right="40" bottom="60" left="40"/>
+            <Insets top="48" right="48" bottom="48" left="48"/>
         </padding>
 
-        <Text text="Orderly" style="-fx-font-size: 36; -fx-fill: #cdd6f4; -fx-font-weight: bold;"/>
-        <Text text="Punto de venta" style="-fx-font-size: 16; -fx-fill: #6c7086;"/>
+        <!-- Logo + Title -->
+        <VBox alignment="CENTER" spacing="12">
+            <ImageView fx:id="logoView" fitWidth="52" fitHeight="52" preserveRatio="true" smooth="true"/>
+            <VBox alignment="CENTER" spacing="4">
+                <Text text="Orderly"
+                      style="-fx-font-size: 28; -fx-font-weight: 700; -fx-fill: #1f2937; -fx-font-family: 'Inter', 'Segoe UI', sans-serif;"/>
+                <Text text="Punto de venta"
+                      style="-fx-font-size: 14; -fx-fill: #6b7280; -fx-font-family: 'Inter', 'Segoe UI', sans-serif;"/>
+            </VBox>
+        </VBox>
 
-        <VBox spacing="8">
-            <Label text="Correo electrónico" style="-fx-text-fill: #cdd6f4;"/>
+        <Region prefHeight="32"/>
+
+        <!-- Email field -->
+        <VBox spacing="6">
+            <Label text="Correo electrónico"
+                   style="-fx-font-size: 13; -fx-text-fill: #374151; -fx-font-weight: 500; -fx-font-family: 'Inter', 'Segoe UI', sans-serif;"/>
             <TextField fx:id="emailField"
                        promptText="admin@orderly.com"
-                       style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4; -fx-prompt-text-fill: #6c7086; -fx-border-color: #45475a; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 8;"/>
+                       style="-fx-background-color: #f9fafb; -fx-background-radius: 8; -fx-border-color: #e5e7eb; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 10 14; -fx-font-size: 14; -fx-text-fill: #1f2937; -fx-prompt-text-fill: #9ca3af; -fx-font-family: 'Inter', 'Segoe UI', sans-serif;"
+                       maxWidth="Infinity"/>
         </VBox>
 
-        <VBox spacing="8">
-            <Label text="Contraseña" style="-fx-text-fill: #cdd6f4;"/>
+        <Region prefHeight="16"/>
+
+        <!-- Password field -->
+        <VBox spacing="6">
+            <Label text="Contraseña"
+                   style="-fx-font-size: 13; -fx-text-fill: #374151; -fx-font-weight: 500; -fx-font-family: 'Inter', 'Segoe UI', sans-serif;"/>
             <PasswordField fx:id="passwordField"
-                           style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4; -fx-border-color: #45475a; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 8;"/>
+                           style="-fx-background-color: #f9fafb; -fx-background-radius: 8; -fx-border-color: #e5e7eb; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 10 14; -fx-font-size: 14; -fx-text-fill: #1f2937; -fx-font-family: 'Inter', 'Segoe UI', sans-serif;"
+                           maxWidth="Infinity"/>
         </VBox>
 
-        <Label fx:id="errorLabel" text="" wrapText="true"
-               style="-fx-text-fill: #f38ba8; -fx-font-size: 13;" maxWidth="320"/>
+        <Region prefHeight="8"/>
 
-        <Button fx:id="loginButton" text="Iniciar sesión" onAction="#onLogin" maxWidth="Infinity"
-                style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e; -fx-font-size: 15; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 0;"/>
+        <!-- Error label -->
+        <Label fx:id="errorLabel" text="" wrapText="true" maxWidth="304"
+               style="-fx-text-fill: #dc2626; -fx-font-size: 13; -fx-font-family: 'Inter', 'Segoe UI', sans-serif;"/>
+
+        <Region prefHeight="20"/>
+
+        <!-- Login button (matches sidebar active: orange) -->
+        <Button fx:id="loginButton"
+                text="Iniciar sesión"
+                onAction="#onLogin"
+                maxWidth="Infinity"
+                style="-fx-background-color: #f97316; -fx-text-fill: white; -fx-font-size: 15; -fx-font-weight: 600; -fx-background-radius: 8; -fx-padding: 12 0; -fx-cursor: hand; -fx-border-width: 0; -fx-font-family: 'Inter', 'Segoe UI', sans-serif;"/>
+
     </VBox>
 
 </StackPane>
