@@ -3,6 +3,8 @@
 /frontend/OrderlyDesktop/Orderly/nbproject/private/
 /frontend/OrderlyDesktop/Orderly/build/
 /frontend/orderly/target
+/frontend/OrderlyPhone/.kotlin/
+/frontend/OrderlyTablet/.kotlin/
 
 .planning/
 backendOrderly/.env

@@ -1,0 +1,111 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+
+        // ─── Backend ────────────────────────────────────────────────────────
+        {
+            "label": "Backend: Start",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile", "-Command",
+                "Get-Content .env | Where-Object { $_ -match '^[A-Z_]+=' } | ForEach-Object { $k,$v = $_ -split '=',2; [System.Environment]::SetEnvironmentVariable($k, $v.Trim(), 'Process') }; .\\mvnw.cmd spring-boot:run"
+            ],
+            "options": { "cwd": "${workspaceFolder}/backendOrderly" },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "group": "orderly",
+                "label": "Backend"
+            },
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "pattern": [{ "regexp": ".", "file": 1, "location": 2, "message": 3 }],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": "Starting BackendOrderlyApplication",
+                        "endsPattern": "Started BackendOrderlyApplication"
+                    }
+                }
+            ]
+        },
+
+        // ─── PC (JavaFX) ─────────────────────────────────────────────────────
+        {
+            "label": "PC: Start",
+            "type": "shell",
+            "command": "mvn",
+            "args": ["-f", "${workspaceFolder}/frontend/orderly/pom.xml", "javafx:run"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "group": "orderly",
+                "label": "PC (JavaFX)"
+            },
+            "isBackground": false,
+            "problemMatcher": []
+        },
+
+        // ─── Tablet (Android) ─────────────────────────────────────────────────
+        {
+            "label": "Tablet: Build & Launch",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile", "-Command",
+                "$adb = \"$env:LOCALAPPDATA\\Android\\Sdk\\platform-tools\\adb.exe\"; .\\gradlew.bat installDebug; if ($LASTEXITCODE -eq 0) { & $adb shell am start -n com.example.orderlytablet/.MainActivity }"
+            ],
+            "options": { "cwd": "${workspaceFolder}/frontend/OrderlyTablet" },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "group": "orderly",
+                "label": "Tablet"
+            },
+            "problemMatcher": []
+        },
+
+        // ─── Phone (Android) ──────────────────────────────────────────────────
+        {
+            "label": "Phone: Build & Launch",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile", "-Command",
+                "$adb = \"$env:LOCALAPPDATA\\Android\\Sdk\\platform-tools\\adb.exe\"; .\\gradlew.bat installDebug; if ($LASTEXITCODE -eq 0) { & $adb shell am start -n com.example.orderlyphone/.app.MainActivity }"
+            ],
+            "options": { "cwd": "${workspaceFolder}/frontend/OrderlyPhone" },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "group": "orderly",
+                "label": "Phone"
+            },
+            "problemMatcher": []
+        },
+
+        // ─── Compound: Launch All ─────────────────────────────────────────────
+        {
+            "label": "Launch All",
+            "dependsOn": [
+                "Backend: Start",
+                "PC: Start",
+                "Tablet: Build & Launch",
+                "Phone: Build & Launch"
+            ],
+            "dependsOrder": "parallel",
+            "presentation": { "reveal": "silent" },
+            "problemMatcher": []
+        },
+
+        // ─── Compound: Backend + PC only ─────────────────────────────────────
+        {
+            "label": "Launch Backend + PC",
+            "dependsOn": ["Backend: Start", "PC: Start"],
+            "dependsOrder": "parallel",
+            "presentation": { "reveal": "silent" },
+            "problemMatcher": []
+        }
+    ]
+}
