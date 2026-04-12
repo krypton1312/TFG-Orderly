@@ -17,9 +17,13 @@ class OrderWebSocketClient {
     // 🔹 Передаем callback с типизированным событием
     fun connect(
         serverUrl: String,
+        token: String,
         onEventReceived: (WsEvent) -> Unit
     ) {
-        val request = Request.Builder().url(serverUrl).build()
+        val request = Request.Builder()
+            .url(serverUrl)
+            .header("Authorization", "Bearer $token")
+            .build()
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
 

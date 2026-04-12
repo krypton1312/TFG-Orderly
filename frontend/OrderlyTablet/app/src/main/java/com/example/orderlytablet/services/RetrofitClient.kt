@@ -1,5 +1,7 @@
 package com.example.orderlytablet.services
 
+import com.example.orderlytablet.data.AuthInterceptor
+import com.example.orderlytablet.data.TokenStore
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -8,29 +10,49 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    // ⚠️ Здесь укажи IP и порт своего Spring Boot приложения
-    // ВАЖНО: обязательно ставь "/" в конце
-    private const val BASE_URL = "http://192.168.1.136:8080/"
+    const val BASE_URL = "http://192.168.1.136:8080/"
 
-    // Логгер для просмотра запросов в Logcat (удобно при разработке)
+    private var tokenStore: TokenStore? = null
+
     private val logging = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
+        level = HttpLoggingInterceptor.Level.HEADERS
     }
 
-    // Настройки HTTP клиента
-    private val okHttp = OkHttpClient.Builder()
-        .addInterceptor(logging)
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
+    // Unauthenticated — used only by AuthApi (login / refresh)
+    val authInstance: Retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .client(
+            OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build()
+        )
+        .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    // Основная настройка Retrofit
-    val instance: ApiService by lazy {
-        Retrofit.Builder()
+    // Authenticated instance — must call init() before use
+    private var _instance: ApiService? = null
+
+    fun init(store: TokenStore) {
+        tokenStore = store
+        val okHttp = OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor(store))
+            .addInterceptor(logging)
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+        _instance = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttp)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
     }
+
+    fun getToken(): String? = tokenStore?.getAccessToken()
+
+    val instance: ApiService
+        get() = _instance
+            ?: throw IllegalStateException("RetrofitClient.init(tokenStore) must be called before use")
 }
