@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
@@ -23,27 +25,22 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
-                // REST API → CSRF не нужен
+                // REST API — CSRF not needed (stateless JWT)
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // JWT → без сессий
+                // Stateless — no HTTP sessions
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // доступы
-
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/auth/**").permitAll()
-//                        .anyRequest().authenticated()
-//                )
-
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                        // Login and token refresh — no token needed
+                        .requestMatchers("/auth/**").permitAll()
+                        // Everything else (including tablet endpoints) requires a valid JWT
+                        .anyRequest().authenticated()
                 )
 
-
-                // JWT фильтр ДО UsernamePasswordAuthenticationFilter
+                // JWT filter runs before Spring's username/password filter
                 .addFilterBefore(
                         jwtAuthFilter,
                         UsernamePasswordAuthenticationFilter.class

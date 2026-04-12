@@ -3,3 +3,6 @@
 /frontend/OrderlyDesktop/Orderly/nbproject/private/
 /frontend/OrderlyDesktop/Orderly/build/
 /frontend/orderly/target
+
+.planning/
+backendOrderly/.env
