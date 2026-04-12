@@ -17,13 +17,16 @@ public class JwtService {
 
     private final SecretKey key;
     private final long expMinutes;
+    private final long refreshExpDays;
 
     public JwtService(
             @Value("${app.jwt.secret}") String secret,
-            @Value("${app.jwt.expiration-minutes}") long expMinutes
+            @Value("${app.jwt.expiration-minutes}") long expMinutes,
+            @Value("${app.jwt.refresh-expiration-days}") long refreshExpDays
     ) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expMinutes = expMinutes;
+        this.refreshExpDays = refreshExpDays;
     }
 
     public String generateToken(UserDetails user) {
@@ -33,6 +36,18 @@ public class JwtService {
                 .setSubject(user.getUsername()) // email
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(now.plusSeconds(expMinutes * 60)))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(UserDetails user) {
+        Instant now = Instant.now();
+
+        return Jwts.builder()
+                .setSubject(user.getUsername())
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(now.plusSeconds(refreshExpDays * 24L * 60 * 60)))
+                .claim("type", "refresh")
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }

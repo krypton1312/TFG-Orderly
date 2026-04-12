@@ -14,6 +14,7 @@ import com.yebur.backendorderly.auth.dto.*;
 import com.yebur.backendorderly.employee.*;
 import com.yebur.backendorderly.role.Role;
 import com.yebur.backendorderly.role.RoleRepository;
+import com.yebur.backendorderly.security.CustomUserDetailsService;
 import com.yebur.backendorderly.security.jwt.JwtService;
 
 import jakarta.validation.Valid;
@@ -29,6 +30,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final CustomUserDetailsService userDetailsService;
 
     @PostMapping("/register")
     public ResponseEntity<Void> register(
@@ -67,6 +69,24 @@ public class AuthController {
         );
 
         UserDetails user = (UserDetails) auth.getPrincipal();
-        return new AuthResponse(jwtService.generateToken(user));
+        String accessToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+        return new AuthResponse(accessToken, refreshToken);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(@RequestBody @Valid RefreshRequest req) {
+        String email;
+        try {
+            email = jwtService.extractEmail(req.refreshToken());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        UserDetails user = userDetailsService.loadUserByUsername(email);
+        if (!jwtService.isValid(req.refreshToken(), user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String newAccessToken = jwtService.generateToken(user);
+        return ResponseEntity.ok(new AuthResponse(newAccessToken, req.refreshToken()));
     }
 }
