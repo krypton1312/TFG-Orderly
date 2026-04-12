@@ -1,7 +1,6 @@
 package com.example.orderlyphone.ui.screen.products
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocalBar
 import androidx.compose.material.icons.filled.LocalCafe
 import androidx.compose.material.icons.filled.Restaurant
@@ -46,16 +46,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -64,15 +63,22 @@ import com.example.orderlyphone.domain.model.response.CategoryResponse
 import com.example.orderlyphone.domain.model.response.ProductResponse
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.text.NumberFormat
+import java.util.Locale
+
+private val Orange = Color(0xFFFF8A3D)
+private val Card = Color(0xFF141416).copy(alpha = 0.92f)
 
 @Composable
 fun ProductsScreen(
     vm: ProductsViewModel,
-    orderId: Long,
-    orderNumber: String = "Cuenta #$orderId",
-    tableName: String = "Table4",
-    // ✅ теперь отдаём продукты + qty
-    onReviewOrder: (Map<ProductResponse, Int>) -> Unit
+    orderLabel: String,
+    tableLabel: String,
+    draftCount: Int,
+    draftTotal: BigDecimal,
+    onBack: () -> Unit,
+    onSelectProduct: (categoryId: Long, productId: Long) -> Unit,
+    onReviewOrder: () -> Unit
 ) {
     val state by vm.state.collectAsState()
 
@@ -82,43 +88,37 @@ fun ProductsScreen(
         }
     }
 
-    val bg = Brush.verticalGradient(
-        listOf(
-            Color(0xFF0B0B0C),
-            Color(0xFF111113),
-            Color(0xFF070708)
-        )
-    )
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg)
+            .background(Color(0xFF0E0E0F))
             .padding(WindowInsets.statusBars.asPaddingValues())
             .padding(horizontal = 18.dp, vertical = 18.dp)
             .padding(top = 10.dp)
     ) {
-        when (val s = state) {
-            ProductsState.Idle -> Unit
-
-            ProductsState.Loading -> {
+        when (val currentState = state) {
+            ProductsState.Idle, ProductsState.Loading -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Color(0xFFFF8A3D))
+                    CircularProgressIndicator(color = Orange)
                 }
             }
 
             is ProductsState.Error -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = s.message, color = MaterialTheme.colorScheme.error)
+                    Text(text = currentState.message, color = MaterialTheme.colorScheme.error)
                 }
             }
 
             is ProductsState.Success -> {
                 ProductsContent(
-                    products = s.products,
-                    categories = s.categories,
-                    orderNumber = orderNumber,
-                    tableName = tableName,
+                    state = currentState,
+                    orderLabel = orderLabel,
+                    tableLabel = tableLabel,
+                    draftCount = draftCount,
+                    draftTotal = draftTotal,
+                    onBack = onBack,
+                    onSelectCategory = vm::selectCategory,
+                    onSelectProduct = onSelectProduct,
                     onReviewOrder = onReviewOrder
                 )
             }
@@ -127,69 +127,48 @@ fun ProductsScreen(
 }
 
 @Composable
-private fun ProductsContent(
-    products: List<ProductResponse>,
-    categories: List<CategoryResponse>,
-    orderNumber: String,
-    tableName: String,
-    onReviewOrder: (cart: Map<ProductResponse, Int>) -> Unit
+fun ProductsContent(
+    state: ProductsState.Success,
+    orderLabel: String,
+    tableLabel: String,
+    draftCount: Int,
+    draftTotal: BigDecimal,
+    onBack: () -> Unit,
+    onSelectCategory: (Long) -> Unit,
+    onSelectProduct: (categoryId: Long, productId: Long) -> Unit,
+    onReviewOrder: () -> Unit
 ) {
-    val orange = Color(0xFFFF8A3D)
-
-    // ✅ Один и тот же цвет для Categories и Review Order
-    val barColor = Color(0xFF141416)
-
-    val cardColor = Color(0xFF141416).copy(alpha = 0.92f)
-    val cardBorder = Color.White.copy(alpha = 0.06f)
-
-    // ✅ cart ХРАНИМ НАДЁЖНО: productId -> qty
-    val cart = remember { mutableStateMapOf<Long, Int>() }
-
-    var selectedCategoryId by remember(categories) { mutableStateOf<Long?>(null) }
     var query by remember { mutableStateOf("") }
 
-    val filtered = remember(products, selectedCategoryId, query) {
-        products
-            .asSequence()
-            .filter { p -> selectedCategoryId == null || p.categoryId == selectedCategoryId }
-            .filter { p ->
-                val q = query.trim()
-                if (q.isEmpty()) true
-                else p.name.contains(q, ignoreCase = true) ||
-                        p.destination.contains(q, ignoreCase = true)
+    val filteredProducts by remember(state.products, query) {
+        derivedStateOf {
+            state.products.filter { product ->
+                val cleanQuery = query.trim()
+                if (cleanQuery.isBlank()) {
+                    true
+                } else {
+                    product.name.contains(cleanQuery, ignoreCase = true) ||
+                        product.destination.contains(cleanQuery, ignoreCase = true)
+                }
             }
-            .toList()
+        }
     }
 
-    val itemsCount = remember(cart) { derivedStateOf { cart.values.sum() } }.value
-
-    val total = remember(cart, products) {
-        derivedStateOf {
-            var sum = BigDecimal.ZERO
-            val mapById = products.associateBy { it.id }
-            cart.forEach { (id, qty) ->
-                val p = mapById[id] ?: return@forEach
-                sum = sum.add(p.price.multiply(BigDecimal(qty)))
-            }
-            sum.setScale(2, RoundingMode.HALF_UP)
-        }
-    }.value
-
     Box(modifier = Modifier.fillMaxSize()) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = 182.dp)
         ) {
-            HeaderBlockDark(
-                orderNumber = orderNumber,
-                tableName = tableName
+            CatalogHeader(
+                orderLabel = orderLabel,
+                tableLabel = tableLabel,
+                onBack = onBack
             )
 
             Spacer(Modifier.height(14.dp))
 
-            SearchFieldDark(
+            SearchField(
                 value = query,
                 onValueChange = { query = it },
                 placeholder = "Buscar producto..."
@@ -197,91 +176,87 @@ private fun ProductsContent(
 
             Spacer(Modifier.height(14.dp))
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                items(filtered, key = { it.id }) { p ->
-                    val qty = cart[p.id] ?: 0
+            CategoriesBar(
+                categories = state.categories,
+                selectedCategoryId = state.selectedCategoryId,
+                onSelectCategory = onSelectCategory
+            )
 
-                    ProductCardDark(
-                        product = p,
-                        qty = qty,
-                        cardColor = cardColor,
-                        borderColor = cardBorder,
-                        onAdd = {
-                            if (p.stock <= 0) return@ProductCardDark
-                            val next = (qty + 1).coerceAtMost(p.stock)
-                            cart[p.id] = next
-                        },
-                        onRemoveAll = { cart.remove(p.id) }
-                    )
+            Spacer(Modifier.height(14.dp))
+
+            if (filteredProducts.isEmpty()) {
+                EmptyProductsState()
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    items(filteredProducts, key = { it.id }) { product ->
+                        ProductCard(
+                            product = product,
+                            onClick = { onSelectProduct(product.categoryId, product.id) }
+                        )
+                    }
                 }
             }
         }
 
-        CategoriesBarDark(
-            categories = categories,
-            selectedCategoryId = selectedCategoryId,
-            onSelect = { selectedCategoryId = it },
-            containerColor = barColor,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(horizontal = 14.dp)
-                .padding(bottom = 92.dp)
-        )
-
-        BottomReviewBarDark(
-            itemsCount = itemsCount,
-            total = total,
-            // ✅ здесь формируем Map<ProductResponse, Int> и отдаём наружу
-            onReview = {
-                val mapById = products.associateBy { it.id }
-                val selectedProducts: Map<ProductResponse, Int> =
-                    cart.mapNotNull { (id, qty) ->
-                        val prod = mapById[id] ?: return@mapNotNull null
-                        prod to qty
-                    }.toMap()
-
-                onReviewOrder(selectedProducts)
-            },
+        BottomReviewBar(
+            draftCount = draftCount,
+            total = draftTotal,
+            onReview = onReviewOrder,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
 }
 
 @Composable
-private fun HeaderBlockDark(
-    orderNumber: String,
-    tableName: String
+private fun CatalogHeader(
+    orderLabel: String,
+    tableLabel: String,
+    onBack: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top
     ) {
+        IconButton(
+            onClick = onBack,
+            modifier = Modifier
+                .size(44.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.06f))
+        ) {
+            Icon(Icons.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
+        }
+
+        Spacer(Modifier.width(12.dp))
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = orderNumber,
+                text = orderLabel,
                 style = MaterialTheme.typography.labelMedium,
-                color = Color(0xFFFF8A3D),
+                color = Orange,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = tableName,
+                text = tableLabel,
                 style = MaterialTheme.typography.headlineSmall,
                 color = Color.White,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
 }
 
 @Composable
-private fun SearchFieldDark(
+private fun SearchField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String
@@ -308,26 +283,24 @@ private fun SearchFieldDark(
             unfocusedContainerColor = Color(0xFF1A1A1D),
             focusedTextColor = Color.White,
             unfocusedTextColor = Color.White,
-            cursorColor = Color(0xFFFF8A3D)
+            cursorColor = Orange
         )
     )
 }
 
 @Composable
-private fun CategoriesBarDark(
+private fun CategoriesBar(
     categories: List<CategoryResponse>,
     selectedCategoryId: Long?,
-    onSelect: (Long?) -> Unit,
-    containerColor: Color,
-    modifier: Modifier = Modifier
+    onSelectCategory: (Long) -> Unit
 ) {
     Surface(
         shape = RoundedCornerShape(999.dp),
-        color = containerColor,
+        color = Color(0xFF141416),
         shadowElevation = 14.dp,
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, Color.White.copy(alpha = 0.06f), RoundedCornerShape(999.dp))
+            .clip(RoundedCornerShape(999.dp))
     ) {
         LazyRow(
             modifier = Modifier
@@ -336,21 +309,12 @@ private fun CategoriesBarDark(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(end = 6.dp)
         ) {
-            item(key = "all") {
-                CategoryPillDark(
-                    title = "All",
-                    icon = Icons.Filled.Restaurant,
-                    selected = selectedCategoryId == null,
-                    onClick = { onSelect(null) }
-                )
-            }
-
-            items(categories, key = { it.id }) { c ->
-                CategoryPillDark(
-                    title = c.name,
-                    icon = iconForCategoryName(c.name),
-                    selected = selectedCategoryId == c.id,
-                    onClick = { onSelect(c.id) }
+            items(categories, key = { it.id }) { category ->
+                CategoryPill(
+                    title = category.name,
+                    icon = iconForCategoryName(category.name),
+                    selected = selectedCategoryId == category.id,
+                    onClick = { onSelectCategory(category.id) }
                 )
             }
         }
@@ -358,34 +322,29 @@ private fun CategoriesBarDark(
 }
 
 private fun iconForCategoryName(name: String): ImageVector {
-    val n = name.lowercase()
+    val normalizedName = name.lowercase()
     return when {
-        "coffee" in n || "café" in n || "cafe" in n -> Icons.Filled.LocalCafe
-        "drink" in n || "bebida" in n || "bar" in n -> Icons.Filled.LocalBar
+        "coffee" in normalizedName || "café" in normalizedName || "cafe" in normalizedName -> Icons.Filled.LocalCafe
+        "drink" in normalizedName || "bebida" in normalizedName || "bar" in normalizedName -> Icons.Filled.LocalBar
         else -> Icons.Filled.Restaurant
     }
 }
 
 @Composable
-private fun CategoryPillDark(
+private fun CategoryPill(
     title: String,
     icon: ImageVector,
     selected: Boolean,
     onClick: () -> Unit
 ) {
-    val orange = Color(0xFFFF8A3D)
-
-    val bg = if (selected) orange else Color.White.copy(alpha = 0.06f)
-    val border = if (selected) Color.Transparent else Color.White.copy(alpha = 0.12f)
-    val textColor = if (selected) Color(0xFF1B1B1B) else Color.White.copy(alpha = 0.88f)
-    val iconColor = if (selected) Color(0xFF1B1B1B) else Color.White.copy(alpha = 0.72f)
+    val backgroundColor = if (selected) Orange else Color.White.copy(alpha = 0.06f)
+    val contentColor = if (selected) Color(0xFF1B1B1B) else Color.White.copy(alpha = 0.88f)
 
     Surface(
         shape = RoundedCornerShape(999.dp),
-        color = bg,
+        color = backgroundColor,
         modifier = Modifier
             .height(44.dp)
-            .border(1.dp, border, RoundedCornerShape(999.dp))
             .clip(RoundedCornerShape(999.dp))
             .clickable(onClick = onClick)
     ) {
@@ -396,13 +355,13 @@ private fun CategoryPillDark(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = iconColor,
+                tint = contentColor,
                 modifier = Modifier.size(18.dp)
             )
             Spacer(Modifier.width(8.dp))
             Text(
                 text = title,
-                color = textColor,
+                color = contentColor,
                 fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
@@ -413,172 +372,134 @@ private fun CategoryPillDark(
 }
 
 @Composable
-private fun ProductCardDark(
+private fun ProductCard(
     product: ProductResponse,
-    qty: Int,
-    cardColor: Color,
-    borderColor: Color,
-    onAdd: () -> Unit,
-    onRemoveAll: () -> Unit
+    onClick: () -> Unit
 ) {
-    val selected = qty > 0
-    val orange = Color(0xFFFF8A3D)
+    val isAvailable = product.stock > 0
 
     Surface(
-        shape = RoundedCornerShape(22.dp),
-        color = cardColor,
-        shadowElevation = 10.dp,
         modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (selected) Modifier.border(2.dp, orange, RoundedCornerShape(22.dp))
-                else Modifier.border(1.dp, borderColor, RoundedCornerShape(22.dp))
-            )
+            .testTag("product-card-${product.id}")
+            .clip(RoundedCornerShape(22.dp))
+            .clickable(enabled = isAvailable, onClick = onClick),
+        shape = RoundedCornerShape(22.dp),
+        color = Card,
+        shadowElevation = 10.dp
     ) {
-        Box(modifier = Modifier.padding(14.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = product.name,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
 
-            if (selected) {
-                Surface(
-                    shape = CircleShape,
-                    color = orange,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .size(22.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = qty.toString(),
-                            color = Color(0xFF1B1B1B),
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Black
-                        )
-                    }
-                }
-            }
+            Text(
+                text = product.destination,
+                color = Color.White.copy(alpha = 0.58f),
+                style = MaterialTheme.typography.bodySmall
+            )
 
-            Column {
+            Spacer(Modifier.weight(1f))
+
+            Text(
+                text = product.price.formatEuro(),
+                color = Orange,
+                fontWeight = FontWeight.Black,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Surface(
+                shape = RoundedCornerShape(999.dp),
+                color = if (isAvailable) Orange.copy(alpha = 0.14f) else Color.White.copy(alpha = 0.06f)
+            ) {
                 Text(
-                    text = product.name,
-                    style = MaterialTheme.typography.titleMedium,
+                    text = if (isAvailable) "Stock ${product.stock}" else "Sin stock",
+                    color = if (isAvailable) Orange else Color.White.copy(alpha = 0.48f),
+                    style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                 )
-
-                Spacer(Modifier.height(4.dp))
-
-                Text(
-                    text = product.destination,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.55f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(Modifier.height(14.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    Text(
-                        text = formatMoney(product.price),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Black,
-                        color = if (selected) Color(0xFFFF8A3D) else Color.White
-                    )
-
-                    Spacer(Modifier.weight(1f))
-
-                    Surface(
-                        shape = CircleShape,
-                        color = if (selected) Color(0xFFFF8A3D) else Color(0xFFFF8A3D).copy(alpha = 0.16f),
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        IconButton(onClick = { if (selected) onRemoveAll() else onAdd() }) {
-                            Text(
-                                text = if (selected) "✓" else "+",
-                                color = if (selected) Color(0xFF1B1B1B) else Color(0xFFFF8A3D),
-                                fontWeight = FontWeight.Black
-                            )
-                        }
-                    }
-                }
             }
         }
     }
 }
 
 @Composable
-private fun BottomReviewBarDark(
-    itemsCount: Int,
+private fun BottomReviewBar(
+    draftCount: Int,
     total: BigDecimal,
     onReview: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val orange = Color(0xFFFF8A3D)
-
-    Column(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 14.dp, vertical = 12.dp)
+            .padding(horizontal = 14.dp),
+        shape = RoundedCornerShape(28.dp),
+        color = Color(0xFF141416),
+        shadowElevation = 18.dp
     ) {
-        Surface(
-            shape = RoundedCornerShape(999.dp),
-            color = Color(0xFF141416),
-            shadowElevation = 14.dp,
-            modifier = Modifier.border(1.dp, Color.White.copy(alpha = 0.06f), RoundedCornerShape(999.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .padding(horizontal = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Surface(
-                    shape = CircleShape,
-                    color = Color(0xFF232326),
-                    modifier = Modifier.size(40.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = itemsCount.toString(),
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                Spacer(Modifier.width(12.dp))
-
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "REVIEW ORDER",
+                    text = if (draftCount == 0) "Borrador vacío" else "$draftCount líneas en borrador",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
+                    style = MaterialTheme.typography.bodyLarge
                 )
+                Text(
+                    text = total.setScale(2, RoundingMode.HALF_UP).formatEuro(),
+                    color = Orange,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
 
-                Button(
-                    onClick = onReview,
-                    enabled = itemsCount > 0,
-                    shape = RoundedCornerShape(999.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = orange,
-                        contentColor = Color(0xFF1B1B1B),
-                        disabledContainerColor = orange.copy(alpha = 0.35f),
-                        disabledContentColor = Color(0xFF1B1B1B).copy(alpha = 0.6f)
-                    ),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
-                ) {
-                    Text(text = formatMoney(total), fontWeight = FontWeight.Black)
-                }
+            Button(
+                onClick = onReview,
+                enabled = draftCount > 0,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Orange,
+                    contentColor = Color(0xFF1B1B1B),
+                    disabledContainerColor = Color.White.copy(alpha = 0.08f),
+                    disabledContentColor = Color.White.copy(alpha = 0.42f)
+                )
+            ) {
+                Text("Revisar pedido")
             }
         }
     }
 }
 
-private fun formatMoney(value: BigDecimal): String {
-    return "$" + value.setScale(2, RoundingMode.HALF_UP).toPlainString()
+@Composable
+private fun EmptyProductsState() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "No hay productos para esta categoría",
+            color = Color.White.copy(alpha = 0.65f),
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+}
+
+private fun BigDecimal.formatEuro(): String {
+    return NumberFormat.getCurrencyInstance(Locale("es", "ES")).format(this)
 }

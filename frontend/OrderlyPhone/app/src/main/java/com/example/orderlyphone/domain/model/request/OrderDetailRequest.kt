@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 
 data class OrderDetailRequest(
     val productId: Long,
-    val orderId: Long,
+    val orderId: Long?,
     val name: String,
     val comment: String?,
     val amount: Int,

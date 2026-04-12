@@ -512,6 +512,24 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         return order;
     }
 
+    @Transactional
+    public OrderResponse addOrderDetailsListWithoutTable(List<OrderDetailRequest> reqs) throws BadRequestException {
+
+        if (reqs == null || reqs.isEmpty()) {
+            throw new BadRequestException("Order details list is empty");
+        }
+
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setState("OPEN");
+
+        OrderResponse order = orderService.createOrder(orderRequest);
+
+        reqs.forEach(r -> r.setOrderId(order.getId()));
+
+        createOrderDetailList(reqs);
+        return order;
+    }
+
 
     private OrderDetail mapToEntity(OrderDetailRequest dto) {
         CashSession cs = cashSessionService.findCashSessionById(dto.getCashSessionId())

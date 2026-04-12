@@ -8,6 +8,7 @@ import com.example.orderlyphone.data.remote.EmployeeApi
 import com.example.orderlyphone.data.remote.OrderDetailApi
 import com.example.orderlyphone.data.remote.OverviewApi
 import com.example.orderlyphone.data.remote.ProductsApi
+import com.example.orderlyphone.data.remote.RestTableApi
 import com.example.orderlyphone.data.remote.adapter.LocalDateAdapter
 import com.example.orderlyphone.data.remote.adapter.LocalDateTimeAdapter
 import com.example.orderlyphone.data.remote.interceptor.AuthInterceptor
@@ -81,6 +82,11 @@ object AppModule {
     @Singleton
     fun provideOverviewApi(retrofit: Retrofit): OverviewApi =
         retrofit.create(OverviewApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideRestTableApi(retrofit: Retrofit): RestTableApi =
+        retrofit.create(RestTableApi::class.java)
 
     @Provides
     @Singleton

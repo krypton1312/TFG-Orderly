@@ -48,11 +48,17 @@
 
 ### Phase 3: Phone App — Core Waiter Flow
 
-**Goal:** Complete the waiter's primary workflow on the phone: log in, select a table, create/open an order, browse menu by category, add products with comments, send to kitchen. Works on a real Android device.
+**Goal:** Complete the waiter's primary workflow on the phone: log in, select a table, create/open an order, browse menu by category, configure each item before adding it to the order (quantity, comment, supplements), review draft vs sent items, and send to kitchen. Works on a real Android device.
 
 **Requirements:** PHN-01, PHN-02, PHN-03, PHN-04, PHN-05
 
-**Plans:** TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Contract alignment for table/open-order flow
+- [ ] 03-02-PLAN.md — Shared table picker screen + Home/Orders navigation wiring
+- [ ] 03-03-PLAN.md — Category catalog + full-screen product configurator
+- [ ] 03-04-PLAN.md — Draft review, fire-to-kitchen, and real-device verification
 
 **Depends on:** Phase 1, Phase 2
 

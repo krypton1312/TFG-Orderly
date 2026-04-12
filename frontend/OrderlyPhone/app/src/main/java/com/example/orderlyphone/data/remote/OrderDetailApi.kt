@@ -2,6 +2,7 @@ package com.example.orderlyphone.data.remote
 
 import com.example.orderlyphone.domain.model.request.OrderDetailRequest
 import com.example.orderlyphone.domain.model.response.OrderDetailsResponse
+import com.example.orderlyphone.domain.model.response.OrderResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -22,5 +23,8 @@ interface OrderDetailApi {
     suspend fun decreaseAmount(@Path("id") id: Long, @Path("amount") amount: Int)
 
     @POST("orderDetails/table/{tableId}")
-    suspend fun createOrderDetailsByTable(@Path("tableId") tableId: Long, @Body orderDetails: List<OrderDetailRequest>): List<OrderDetailsResponse>
+    suspend fun createOrderDetailsByTable(@Path("tableId") tableId: Long, @Body orderDetails: List<OrderDetailRequest>)
+
+    @POST("orderDetails/without-table")
+    suspend fun createOrderDetailsWithoutTable(@Body orderDetails: List<OrderDetailRequest>): OrderResponse
 }

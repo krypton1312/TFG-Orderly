@@ -24,7 +24,7 @@
 
 - [ ] **PHN-01**: Waiter selects a table from the floor plan / table list
 - [ ] **PHN-02**: Waiter creates a new order for a table or opens an existing one
-- [ ] **PHN-03**: Waiter browses menu by category and adds products with optional comment
+- [ ] **PHN-03**: Waiter browses menu by category and configures each product before adding it to the draft order, including quantity, optional comment, and compatible supplements that can change the item name and price
 - [ ] **PHN-04**: Waiter sends the order to the kitchen (orderDetails POSTed with status=SENT, WebSocket fires to tablet)
 - [ ] **PHN-05**: Waiter can view existing order details for a table (item list with status badges)
 - [ ] **PHN-06**: Waiter sees real-time status updates on their order (SENT → IN_PROGRESS → SERVED)
@@ -112,4 +112,4 @@
 
 ---
 *Requirements defined: April 12, 2026*
-*Last updated: April 12, 2026 — Phase 1 and Phase 2 marked complete; SEC-06 added (dual-token JWT for PC session persistence); SEC-04 updated (tablet also requires login)*
+*Last updated: April 12, 2026 — Phase 1 and Phase 2 marked complete; SEC-06 added (dual-token JWT for PC session persistence); SEC-04 updated (tablet also requires login); PHN-03 expanded to include phone item configurator with quantity/comment/supplements*

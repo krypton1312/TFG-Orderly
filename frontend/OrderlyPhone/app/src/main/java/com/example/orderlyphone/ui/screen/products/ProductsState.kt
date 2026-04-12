@@ -2,13 +2,16 @@ package com.example.orderlyphone.ui.screen.products
 
 import com.example.orderlyphone.domain.model.response.CategoryResponse
 import com.example.orderlyphone.domain.model.response.ProductResponse
+import com.example.orderlyphone.domain.model.response.SupplementResponse
 
 sealed class ProductsState {
     object Idle : ProductsState()
     object Loading : ProductsState()
     data class Success(
         val products: List<ProductResponse>,
-        val categories: List<CategoryResponse>
+        val categories: List<CategoryResponse>,
+        val selectedCategoryId: Long?,
+        val supplements: List<SupplementResponse>
     ): ProductsState()
     data class Error(val message: String) : ProductsState()
 }

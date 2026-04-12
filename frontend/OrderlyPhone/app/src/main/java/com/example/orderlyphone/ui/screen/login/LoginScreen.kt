@@ -18,7 +18,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -78,28 +77,13 @@ fun LoginScreen(
         }
     }
 
-    val bg = Brush.verticalGradient(
-        listOf(
-            Color(0xFF0E0E0F),
-            Color(0xFF141416),
-            Color(0xFF0B0B0C)
-        )
-    )
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg)
+            .background(Color(0xFF0E0E0F))
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(260.dp)
-                .blur(50.dp)
-                .background(Color(0xFFFF8A3D).copy(alpha = 0.18f), CircleShape)
-        )
-
         // Применяем shake ко всей карточке
         Surface(
             modifier = Modifier

@@ -20,24 +20,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.orderlyphone.domain.model.response.OrderWithTableResponse
 import java.math.BigDecimal
 import java.text.NumberFormat
 import java.util.Locale
 
 private val Orange = Color(0xFFFF8A3D)
-private val BgTop = Color(0xFF0B0B0C)
-private val BgMid = Color(0xFF111113)
-private val BgBot = Color(0xFF070708)
 private val Card = Color(0xFF1A1A1D).copy(alpha = 0.92f)
 
 enum class OrdersTab { ALL, DINE_IN, TAKEAWAY }
@@ -47,10 +42,9 @@ fun ActiveOrdersScreen(
     vm: OrdersViewModel,
     onBack: () -> Unit,
     onNewOrder: () -> Unit,
-    onOpenOrder: (Long, Long) -> Unit // ✅ callback
+    onOpenOrder: (Long, Long?) -> Unit
 )
  {
-    val bg = Brush.verticalGradient(listOf(BgTop, BgMid, BgBot))
     var tab by remember { mutableStateOf(OrdersTab.ALL) }
     var query by remember { mutableStateOf("") }
 
@@ -63,7 +57,7 @@ fun ActiveOrdersScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg)
+            .background(Color(0xFF0E0E0F))
             .statusBarsPadding()
     ) {
         when (val s = state) {
@@ -93,7 +87,7 @@ fun ActiveOrdersScreen(
                         val hasTable = !order.tableName.equals("Sin mesa", true)
 
                         val matchesQuery =
-                            query.isBlank() || (title?.contains(query, ignoreCase = true) == true)
+                            query.isBlank() || title.contains(query, ignoreCase = true)
 
                         val matchesTab = when (tab) {
                             OrdersTab.ALL -> true
@@ -161,7 +155,7 @@ private fun OrdersHeader(
         ) {
             Icon(
                 imageVector = Icons.Filled.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = "Volver",
                 tint = Color.White.copy(alpha = 0.85f)
             )
         }
@@ -180,13 +174,14 @@ private fun OrdersHeader(
         IconButton(
             onClick = onNewOrder,
             modifier = Modifier
+                .testTag("orders-new-order")
                 .size(44.dp)
                 .clip(CircleShape)
                 .background(Orange)
         ) {
             Icon(
                 imageVector = Icons.Filled.Add,
-                contentDescription = "New order",
+                contentDescription = "Nuevo pedido",
                 tint = Color(0xFF1B1B1B)
             )
         }
@@ -314,7 +309,7 @@ private fun SearchBar(
 @Composable
 private fun OrdersGrid(
     orders: List<OrderWithTableResponse>,
-    onOpenOrder: (Long, Long) -> Unit, // ✅ только id
+    onOpenOrder: (Long, Long?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -327,7 +322,13 @@ private fun OrdersGrid(
         items(orders) { o ->
             OrderCard(
                 order = o,
-                onClick = { onOpenOrder(o.order.orderId, o.tableId) }, // ✅ тут
+                onClick = {
+                    val orderId = o.order.orderId
+                    val tableId = o.tableId
+                    if (orderId != null) {
+                        onOpenOrder(orderId, tableId)
+                    }
+                },
                 modifier = Modifier.height(130.dp)
             )
         }
@@ -344,16 +345,16 @@ private fun OrderCard(
 
     val tableTitle =
         if (order.tableName.equals("Sin mesa", true))
-            "Cuenta #${order.order.orderId}"
-        else (order.tableName ?: "Mesa")
+            "Cuenta #${order.order.orderId ?: "--"}"
+        else order.tableName
 
     val total = order.order.total
-    val totalText = total.formatEuro()
+    val totalText = total?.formatEuro() ?: "0,00 €"
 
     val GreenAvailable = Color(0xFF35D07F)
     val RedOccupied = Color(0xFFFF5A5A)
 
-    val isAvailable = (total == null) || total.compareTo(BigDecimal.ZERO) == 0
+    val isAvailable = order.tableId != null && order.order.orderId == null
     val statusText = if (isAvailable) "Disponible" else "Ocupado"
     val statusColor = if (isAvailable) GreenAvailable else RedOccupied
 
@@ -400,7 +401,7 @@ private fun OrderCard(
                 ) {
                     Icon(
                         imageVector =
-                            if (order.tableName == null) Icons.Filled.Waves else Icons.Filled.LocalDining,
+                            if (order.tableName.equals("Sin mesa", true)) Icons.Filled.Waves else Icons.Filled.LocalDining,
                         contentDescription = null,
                         tint = Orange,
                         modifier = Modifier.size(16.dp)

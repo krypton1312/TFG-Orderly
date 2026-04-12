@@ -1,22 +1,71 @@
 package com.example.orderlyphone.ui.navigation
 
-import android.util.Log
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
-import androidx.navigation.compose.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.orderlyphone.domain.model.DraftOrderDetailUi
 import com.example.orderlyphone.ui.screen.home.HomeScreen
 import com.example.orderlyphone.ui.screen.home.HomeViewModel
 import com.example.orderlyphone.ui.screen.login.LoginScreen
 import com.example.orderlyphone.ui.screen.login.LoginViewModel
 import com.example.orderlyphone.ui.screen.orderDetails.OrderDetailScreen
 import com.example.orderlyphone.ui.screen.orderDetails.OrderDetailViewModel
+import com.example.orderlyphone.ui.screen.orderDetails.SubmitDraftResult
 import com.example.orderlyphone.ui.screen.orders.ActiveOrdersScreen
 import com.example.orderlyphone.ui.screen.orders.OrdersViewModel
+import com.example.orderlyphone.ui.screen.productConfigurator.ProductConfiguratorScreen
+import com.example.orderlyphone.ui.screen.productConfigurator.ProductConfiguratorViewModel
 import com.example.orderlyphone.ui.screen.products.ProductsScreen
 import com.example.orderlyphone.ui.screen.products.ProductsViewModel
+import com.example.orderlyphone.ui.screen.tablePicker.TablePickerScreen
+import com.example.orderlyphone.ui.screen.tablePicker.TablePickerViewModel
+import java.math.BigDecimal
+import java.math.RoundingMode
+import kotlinx.coroutines.launch
+
+private const val LoginRoute = "login"
+private const val HomeRoute = "home"
+private const val OrdersRoute = "orders"
+private const val TablePickerRoute = "table_picker"
+private const val NoTableRouteValue = "no-table"
+private const val OrderDetailsRoute = "order_details/{orderId}/{tableRef}"
+private const val ExistingProductsRoute = "products/{orderId}/{tableRef}"
+private const val ExistingConfiguratorRoute = "product_configurator/{orderId}/{tableRef}/{categoryId}/{productId}"
+private const val NewOrderGraphRoute = "order_flow/new/{tableRef}"
+private const val NewProductsRoute = "products/new/{tableRef}"
+private const val NewConfiguratorRoute = "product_configurator/new/{tableRef}/{categoryId}/{productId}"
+private const val NewReviewRoute = "review/new/{tableRef}"
+private const val SnackbarMessageKey = "snackbar_message"
+
+private fun toTableRef(tableId: Long?) = tableId?.toString() ?: NoTableRouteValue
+
+private fun existingOrderRoute(orderId: Long, tableId: Long?) = "order_details/$orderId/${toTableRef(tableId)}"
+private fun existingProductsRoute(orderId: Long, tableId: Long?) = "products/$orderId/${toTableRef(tableId)}"
+private fun existingConfiguratorRoute(orderId: Long, tableId: Long?, categoryId: Long, productId: Long) =
+    "product_configurator/$orderId/${toTableRef(tableId)}/$categoryId/$productId"
+
+private fun newOrderGraphRoute(tableId: Long?) = "order_flow/new/${toTableRef(tableId)}"
+private fun newProductsRoute(tableId: Long?) = "products/new/${toTableRef(tableId)}"
+private fun newConfiguratorRoute(tableId: Long?, categoryId: Long, productId: Long) =
+    "product_configurator/new/${toTableRef(tableId)}/$categoryId/$productId"
+
+private fun newReviewRoute(tableId: Long?) = "review/new/${toTableRef(tableId)}"
+
+private fun NavBackStackEntry.tableIdOrNull(): Long? = arguments?.getString("tableRef")?.toLongOrNull()
+
+private fun tableLabel(tableId: Long?): String = tableId?.let { "Mesa $it" } ?: "Sin mesa"
 
 @Composable
 fun AppNav() {
@@ -24,106 +73,283 @@ fun AppNav() {
 
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = LoginRoute
     ) {
-
-        /* ───────────── LOGIN ───────────── */
-        composable("login") {
+        composable(LoginRoute) {
             val vm: LoginViewModel = hiltViewModel()
             LoginScreen(
                 vm = vm,
                 onSuccess = {
-                    navController.navigate("home") {
-                        popUpTo("login") { inclusive = true }
+                    navController.navigate(HomeRoute) {
+                        popUpTo(LoginRoute) { inclusive = true }
                     }
                 }
             )
         }
 
-        /* ───────────── HOME ───────────── */
-        composable("home") {
+        composable(HomeRoute) {
             val vm: HomeViewModel = hiltViewModel()
             HomeScreen(
                 vm = vm,
-                onOrders = { navController.navigate("orders") },
-                onNewOrder = { /* TODO */ },
-                onShiftToggle = { /* TODO */ },
-                onSettings = { /* TODO */ },
+                onOrders = { navController.navigate(OrdersRoute) },
+                onNewOrder = { navController.navigate(TablePickerRoute) },
+                onShiftToggle = { },
+                onSettings = { },
                 onLogout = {
-                    navController.navigate("login") {
-                        popUpTo("home") { inclusive = true }
+                    navController.navigate(LoginRoute) {
+                        popUpTo(HomeRoute) { inclusive = true }
                     }
                 }
             )
         }
 
-        /* ───────────── ORDERS LIST ───────────── */
-        composable("orders") {
+        composable(OrdersRoute) {
             val vm: OrdersViewModel = hiltViewModel()
 
             ActiveOrdersScreen(
                 vm = vm,
                 onBack = { navController.popBackStack() },
-                onNewOrder = { /* TODO */ },
-                onOpenOrder = { orderId: Long, tableId: Long ->
-                    navController.navigate("order_details/$orderId/$tableId")
+                onNewOrder = { navController.navigate(TablePickerRoute) },
+                onOpenOrder = { orderId: Long, tableId: Long? ->
+                    navController.navigate(existingOrderRoute(orderId, tableId))
                 }
             )
         }
 
-        /* ───────────── ORDER DETAILS ───────────── */
+        composable(TablePickerRoute) {
+            val vm: TablePickerViewModel = hiltViewModel()
+            TablePickerScreen(
+                vm = vm,
+                onBack = { navController.popBackStack() },
+                onOpenOrder = { orderId, tableId ->
+                    navController.navigate(existingOrderRoute(orderId, tableId))
+                },
+                onStartNewOrder = { tableId ->
+                    navController.navigate(newOrderGraphRoute(tableId))
+                }
+            )
+        }
+
         composable(
-            route = "order_details/{orderId}/{tableId}",
+            route = OrderDetailsRoute,
             arguments = listOf(
                 navArgument("orderId") { type = NavType.LongType },
-                navArgument("tableId") { type = NavType.LongType },
+                navArgument("tableRef") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-
             val orderId = backStackEntry.arguments?.getLong("orderId") ?: return@composable
-            val tableId = backStackEntry.arguments?.getLong("tableId") ?: return@composable
-
+            val tableId = backStackEntry.tableIdOrNull()
             val vm: OrderDetailViewModel = hiltViewModel(backStackEntry)
+            val snackbarHostState = remember { SnackbarHostState() }
+            val scope = rememberCoroutineScope()
+
+            BindQueuedSnackbar(backStackEntry = backStackEntry, snackbarHostState = snackbarHostState)
 
             OrderDetailScreen(
                 vm = vm,
+                orderLabel = "Cuenta #$orderId",
+                tableLabel = tableLabel(tableId),
+                snackbarHostState = snackbarHostState,
                 onBack = { navController.popBackStack() },
-                onAddItem = { navController.navigate("products/$orderId/$tableId") },
+                onAddItem = { navController.navigate(existingProductsRoute(orderId, tableId)) },
                 onFireOrder = {
-                    vm.addProductsToOrder()
-                    navController.popBackStack()
+                    scope.launch {
+                        when (vm.submitDraft()) {
+                            SubmitDraftResult.ExistingOrderUpdated -> {
+                                snackbarHostState.showSnackbar("Enviado a cocina")
+                            }
+
+                            else -> Unit
+                        }
+                    }
                 }
             )
         }
 
-        /* ───────────── PRODUCTS ───────────── */
         composable(
-            route = "products/{orderId}/{tableId}",
+            route = ExistingProductsRoute,
             arguments = listOf(
                 navArgument("orderId") { type = NavType.LongType },
-                navArgument("tableId") { type = NavType.LongType },
-                )
-            ) { backStackEntry ->
-
+                navArgument("tableRef") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
             val orderId = backStackEntry.arguments?.getLong("orderId") ?: return@composable
-            val tableId = backStackEntry.arguments?.getLong("tableId") ?: return@composable
-
+            val tableId = backStackEntry.tableIdOrNull()
             val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry("order_details/$orderId/$tableId")
+                navController.getBackStackEntry(existingOrderRoute(orderId, tableId))
             }
             val orderVm: OrderDetailViewModel = hiltViewModel(parentEntry)
-
             val productsVm: ProductsViewModel = hiltViewModel(backStackEntry)
+            val drafts by orderVm.draftRequests.collectAsState()
 
             ProductsScreen(
                 vm = productsVm,
-                orderId = orderId,
-                onReviewOrder = { cart ->
-                    orderVm.addDraftProductsToOrder(cart)
+                orderLabel = "Cuenta #$orderId",
+                tableLabel = tableLabel(tableId),
+                draftCount = drafts.size,
+                draftTotal = drafts.draftTotal(),
+                onBack = { navController.popBackStack() },
+                onSelectProduct = { categoryId, productId ->
+                    navController.navigate(existingConfiguratorRoute(orderId, tableId, categoryId, productId))
+                },
+                onReviewOrder = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = ExistingConfiguratorRoute,
+            arguments = listOf(
+                navArgument("orderId") { type = NavType.LongType },
+                navArgument("tableRef") { type = NavType.StringType },
+                navArgument("categoryId") { type = NavType.LongType },
+                navArgument("productId") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val orderId = backStackEntry.arguments?.getLong("orderId") ?: return@composable
+            val tableId = backStackEntry.tableIdOrNull()
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(existingOrderRoute(orderId, tableId))
+            }
+            val orderVm: OrderDetailViewModel = hiltViewModel(parentEntry)
+            val configuratorVm: ProductConfiguratorViewModel = hiltViewModel(backStackEntry)
+
+            ProductConfiguratorScreen(
+                vm = configuratorVm,
+                onBack = { navController.popBackStack() },
+                onConfirm = { line ->
+                    orderVm.addConfiguredDraft(line)
                     navController.popBackStack()
                 }
             )
         }
 
+        navigation(
+            route = NewOrderGraphRoute,
+            startDestination = NewProductsRoute,
+            arguments = listOf(
+                navArgument("tableRef") { type = NavType.StringType }
+            )
+        ) {
+            composable(
+                route = NewProductsRoute,
+                arguments = listOf(
+                    navArgument("tableRef") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val tableId = backStackEntry.tableIdOrNull()
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(newOrderGraphRoute(tableId))
+                }
+                val orderVm: OrderDetailViewModel = hiltViewModel(parentEntry)
+                val productsVm: ProductsViewModel = hiltViewModel(backStackEntry)
+                val drafts by orderVm.draftRequests.collectAsState()
+
+                ProductsScreen(
+                    vm = productsVm,
+                    orderLabel = "Nuevo pedido",
+                    tableLabel = tableLabel(tableId),
+                    draftCount = drafts.size,
+                    draftTotal = drafts.draftTotal(),
+                    onBack = { navController.popBackStack() },
+                    onSelectProduct = { categoryId, productId ->
+                        navController.navigate(newConfiguratorRoute(tableId, categoryId, productId))
+                    },
+                    onReviewOrder = { navController.navigate(newReviewRoute(tableId)) }
+                )
+            }
+
+            composable(
+                route = NewConfiguratorRoute,
+                arguments = listOf(
+                    navArgument("tableRef") { type = NavType.StringType },
+                    navArgument("categoryId") { type = NavType.LongType },
+                    navArgument("productId") { type = NavType.LongType }
+                )
+            ) { backStackEntry ->
+                val tableId = backStackEntry.tableIdOrNull()
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(newOrderGraphRoute(tableId))
+                }
+                val orderVm: OrderDetailViewModel = hiltViewModel(parentEntry)
+                val configuratorVm: ProductConfiguratorViewModel = hiltViewModel(backStackEntry)
+
+                ProductConfiguratorScreen(
+                    vm = configuratorVm,
+                    onBack = { navController.popBackStack() },
+                    onConfirm = { line ->
+                        orderVm.addConfiguredDraft(line)
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(
+                route = NewReviewRoute,
+                arguments = listOf(
+                    navArgument("tableRef") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val tableId = backStackEntry.tableIdOrNull()
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(newOrderGraphRoute(tableId))
+                }
+                val orderVm: OrderDetailViewModel = hiltViewModel(parentEntry)
+                val snackbarHostState = remember { SnackbarHostState() }
+                val scope = rememberCoroutineScope()
+
+                OrderDetailScreen(
+                    vm = orderVm,
+                    orderLabel = "Nuevo pedido",
+                    tableLabel = tableLabel(tableId),
+                    snackbarHostState = snackbarHostState,
+                    onBack = { navController.popBackStack() },
+                    onAddItem = { navController.navigate(newProductsRoute(tableId)) },
+                    onFireOrder = {
+                        scope.launch {
+                            when (val result = orderVm.submitDraft()) {
+                                is SubmitDraftResult.OpenedNewOrder -> {
+                                    val targetRoute = existingOrderRoute(result.orderId, result.tableId)
+                                    navController.navigate(targetRoute) {
+                                        popUpTo(newOrderGraphRoute(result.tableId)) { inclusive = true }
+                                    }
+                                    navController
+                                        .getBackStackEntry(targetRoute)
+                                        .savedStateHandle[SnackbarMessageKey] = "Enviado a cocina"
+                                }
+
+                                SubmitDraftResult.ExistingOrderUpdated -> {
+                                    snackbarHostState.showSnackbar("Enviado a cocina")
+                                }
+
+                                else -> Unit
+                            }
+                        }
+                    }
+                )
+            }
+        }
     }
+}
+
+@Composable
+private fun BindQueuedSnackbar(
+    backStackEntry: NavBackStackEntry,
+    snackbarHostState: SnackbarHostState
+) {
+    val snackbarMessage by backStackEntry.savedStateHandle
+        .getStateFlow<String?>(SnackbarMessageKey, null)
+        .collectAsState()
+
+    LaunchedEffect(snackbarMessage) {
+        if (!snackbarMessage.isNullOrBlank()) {
+            snackbarHostState.showSnackbar(snackbarMessage!!)
+            backStackEntry.savedStateHandle[SnackbarMessageKey] = null
+        }
+    }
+}
+
+private fun List<DraftOrderDetailUi>.draftTotal(): BigDecimal {
+    return fold(BigDecimal.ZERO) { acc, item ->
+        acc.add(item.line.lineTotal)
+    }.setScale(2, RoundingMode.HALF_UP)
 }

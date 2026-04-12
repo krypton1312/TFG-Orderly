@@ -5,11 +5,11 @@
         // ─── Backend ────────────────────────────────────────────────────────
         {
             "label": "Backend: Start",
-            "type": "shell",
+            "type": "process",
             "command": "powershell",
             "args": [
                 "-NoProfile", "-Command",
-                "Get-Content .env | Where-Object { $_ -match '^[A-Z_]+=' } | ForEach-Object { $k,$v = $_ -split '=',2; [System.Environment]::SetEnvironmentVariable($k, $v.Trim(), 'Process') }; .\\mvnw.cmd spring-boot:run"
+                "$envFile = Join-Path $PWD \".env\"; if (Test-Path $envFile) { Get-Content $envFile | Where-Object { $_ -match \"^[A-Z_][A-Z0-9_]*=\" } | ForEach-Object { $k,$v = $_ -split '=',2; Set-Item -Path (\"Env:\" + $k) -Value $v.Trim() } }; $listener = Get-NetTCPConnection -LocalPort 8080 -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1; if ($listener) { $processName = (Get-Process -Id $listener.OwningProcess -ErrorAction SilentlyContinue).ProcessName; if ($processName -match \"^javaw?$\") { Write-Output \"Starting BackendOrderlyApplication (already running on port 8080)\"; Write-Output \"Started BackendOrderlyApplication (reusing existing process)\"; exit 0 } else { Write-Error (\"Port 8080 is already in use by process '{0}'. Stop it or change the backend port.\" -f $processName); exit 1 } }; .\\mvnw.cmd spring-boot:run"
             ],
             "options": { "cwd": "${workspaceFolder}/backendOrderly" },
             "presentation": {
@@ -50,11 +50,11 @@
         // ─── Tablet (Android) ─────────────────────────────────────────────────
         {
             "label": "Tablet: Build & Launch",
-            "type": "shell",
+            "type": "process",
             "command": "powershell",
             "args": [
                 "-NoProfile", "-Command",
-                "$adb = \"$env:LOCALAPPDATA\\Android\\Sdk\\platform-tools\\adb.exe\"; .\\gradlew.bat installDebug; if ($LASTEXITCODE -eq 0) { & $adb shell am start -n com.example.orderlytablet/.MainActivity }"
+                "$adb = Join-Path $env:LOCALAPPDATA 'Android\\Sdk\\platform-tools\\adb.exe'; $devices = & $adb devices | Where-Object { $_ -and $_.Trim().EndsWith('device') -and -not $_.StartsWith('List of devices') } | ForEach-Object { $serial = $_.ToString().Split([char]9)[0].Trim(); $avd = (& $adb -s $serial emu avd name 2>$null | Select-Object -First 1).Trim(); [pscustomobject]@{ Serial = $serial; Avd = $avd } }; $target = $devices | Where-Object { $_.Avd -match 'Tablet' } | Select-Object -First 1; if (-not $target) { Write-Error 'No online tablet emulator found.'; exit 1 }; Write-Output (\"Using Android target: {0} ({1})\" -f $target.Avd, $target.Serial); .\\gradlew.bat assembleDebug; if ($LASTEXITCODE -eq 0) { $apk = Join-Path $PWD 'app\\build\\outputs\\apk\\debug\\app-debug.apk'; if (-not (Test-Path $apk)) { Write-Error (\"APK not found: {0}\" -f $apk); exit 1 }; & $adb -s $target.Serial install -r $apk; if ($LASTEXITCODE -eq 0) { & $adb -s $target.Serial shell am start -n 'com.example.orderlytablet/.MainActivity' } }"
             ],
             "options": { "cwd": "${workspaceFolder}/frontend/OrderlyTablet" },
             "presentation": {
@@ -69,11 +69,11 @@
         // ─── Phone (Android) ──────────────────────────────────────────────────
         {
             "label": "Phone: Build & Launch",
-            "type": "shell",
+            "type": "process",
             "command": "powershell",
             "args": [
                 "-NoProfile", "-Command",
-                "$adb = \"$env:LOCALAPPDATA\\Android\\Sdk\\platform-tools\\adb.exe\"; .\\gradlew.bat installDebug; if ($LASTEXITCODE -eq 0) { & $adb shell am start -n com.example.orderlyphone/.app.MainActivity }"
+                "$adb = Join-Path $env:LOCALAPPDATA 'Android\\Sdk\\platform-tools\\adb.exe'; $devices = & $adb devices | Where-Object { $_ -and $_.Trim().EndsWith('device') -and -not $_.StartsWith('List of devices') } | ForEach-Object { $serial = $_.ToString().Split([char]9)[0].Trim(); $avd = (& $adb -s $serial emu avd name 2>$null | Select-Object -First 1).Trim(); [pscustomobject]@{ Serial = $serial; Avd = $avd } }; $target = $devices | Where-Object { $_.Avd -match 'Phone' } | Select-Object -First 1; if (-not $target) { Write-Error 'No online phone emulator found.'; exit 1 }; Write-Output (\"Using Android target: {0} ({1})\" -f $target.Avd, $target.Serial); .\\gradlew.bat assembleDebug; if ($LASTEXITCODE -eq 0) { $apk = Join-Path $PWD 'app\\build\\outputs\\apk\\debug\\app-debug.apk'; if (-not (Test-Path $apk)) { Write-Error (\"APK not found: {0}\" -f $apk); exit 1 }; & $adb -s $target.Serial install -r $apk; if ($LASTEXITCODE -eq 0) { & $adb -s $target.Serial shell am start -n 'com.example.orderlyphone/.app.MainActivity' } }"
             ],
             "options": { "cwd": "${workspaceFolder}/frontend/OrderlyPhone" },
             "presentation": {

@@ -1,6 +1,5 @@
 package com.yebur.backendorderly.order;
 
-import com.yebur.backendorderly.resttable.RestTable;
 import com.yebur.backendorderly.resttable.RestTableRepository;
 import com.yebur.backendorderly.resttable.RestTableService;
 import com.yebur.backendorderly.websocket.WsNotifier;
@@ -13,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -70,6 +70,26 @@ public class OrderServiceTest {
         // Assert that state is still OPEN (or whatever it was set to in request)
         // Since request had "OPEN", it should stay "OPEN"
         // If it was wrongly marked as PAID, it would be PAID
-        org.junit.jupiter.api.Assertions.assertEquals(OrderStatus.OPEN, order.getState());
+        assertEquals(OrderStatus.OPEN, order.getState());
+    }
+
+    @Test
+    public void testCreateOrder_RejectsSecondOpenOrderForSameTable() {
+        Long tableId = 9L;
+
+        OrderRequest request = new OrderRequest();
+        request.setIdTable(tableId);
+        request.setState("OPEN");
+
+        Order existingOrder = new Order();
+        existingOrder.setId(99L);
+        existingOrder.setState(OrderStatus.OPEN);
+
+        when(orderRepository.findFirstByRestTableIdAndState(tableId, OrderStatus.OPEN))
+                .thenReturn(Optional.of(existingOrder));
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> orderService.createOrder(request));
+
+        assertEquals("Open order already exists for table 9", exception.getMessage());
     }
 }

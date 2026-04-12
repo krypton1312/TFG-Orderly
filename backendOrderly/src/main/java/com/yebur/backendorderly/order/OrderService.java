@@ -69,6 +69,11 @@ public class OrderService implements OrderServiceInterface {
         order.setDatetime(LocalDateTime.now());
 
         if(orderRequest.getIdTable() != null) {
+            orderRepository.findFirstByRestTableIdAndState(orderRequest.getIdTable(), OrderStatus.OPEN)
+                    .ifPresent(existingOrder -> {
+                        throw new IllegalStateException("Open order already exists for table " + orderRequest.getIdTable());
+                    });
+
             RestTable table = restTableRepository.findById(orderRequest.getIdTable()).orElseThrow(() -> new RuntimeException("Table not found"));
             order.setRestTable(table);
             table.setStatus(TableStatus.OCCUPIED);

@@ -190,6 +190,15 @@ public class OrderDetailController {
         }
     }
 
+    @PostMapping("/without-table")
+    public ResponseEntity<?> addOrderDetailsListWithoutTable(@RequestBody List<OrderDetailRequest> orderDetailRequests) {
+        try {
+            return ResponseEntity.ok(orderDetailService.addOrderDetailsListWithoutTable(orderDetailRequests));
+        } catch (BadRequestException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 
     private ResponseEntity<?> validation(BindingResult result) {
         Map<String, String> errors = new HashMap<>();

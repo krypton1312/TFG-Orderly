@@ -18,10 +18,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -41,18 +40,10 @@ fun HomeScreen(
         vm.loadEmployeeData()
     }
 
-    val bg = Brush.verticalGradient(
-        listOf(
-            Color(0xFF0B0B0C),
-            Color(0xFF111113),
-            Color(0xFF070708)
-        )
-    )
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg)
+            .background(Color(0xFF0E0E0F))
             .padding(horizontal = 18.dp, vertical = 18.dp)
     ) {
         when (val s = state) {
@@ -84,7 +75,7 @@ fun HomeScreen(
                     role = roles,
                     shiftLabel = response.shiftRecord?.let {
                         "Turno #${it.id}"
-                    } ?: "No estas fichado/a",
+                    } ?: "No estás fichado/a",
                     online = true,
                     activeTables = response.availableTables,
                     occupiedTables = response.occupiedTables,
@@ -114,7 +105,6 @@ private fun HomeContent(
     onSettings: () -> Unit,
     onLogout: () -> Unit
 ) {
-    // фоновые “свечения”
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -151,12 +141,12 @@ private fun HomeContent(
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     ActionTile(
-                        title = "Start/End Shift",
+                        title = "Abrir/Cerrar turno",
                         icon = if (online) Icons.Filled.Stop else Icons.Filled.PlayArrow,
                         onClick = onShiftToggle
                     )
                     ActionTile(
-                        title = "Settings",
+                        title = "Ajustes",
                         icon = Icons.Filled.Settings,
                         onClick = onSettings
                     )
@@ -239,7 +229,7 @@ private fun TopHeader(
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    text = if (online) "Online" else "Offline",
+                    text = if (online) "En línea" else "Sin conexión",
                     color = if (online) Color(0xFF35D07F) else Color.White.copy(alpha = 0.55f),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold
@@ -259,30 +249,10 @@ fun NewOrderButton(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
-        // ✅ Glow слой 1 (широкий мягкий)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.92f)          // <— НЕ на всю ширину
-                .height(72.dp)
-                .clip(RoundedCornerShape(999.dp))
-                .background(orange.copy(alpha = 0.22f))
-                .blur(38.dp)
-        )
-
-        // ✅ Glow слой 2 (более яркий, узкий, чтобы "кольцо" было вокруг кнопки)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.82f)
-                .height(56.dp)
-                .clip(RoundedCornerShape(999.dp))
-                .background(orange.copy(alpha = 0.28f))
-                .blur(28.dp)
-        )
-
-        // 🟧 Кнопка
         Button(
             onClick = onClick,
             modifier = Modifier
+                .testTag("home-new-order")
                 .fillMaxWidth()
                 .height(72.dp),
             shape = RoundedCornerShape(999.dp),
@@ -317,11 +287,11 @@ fun NewOrderButton(
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        "New Order",
+                        "Nuevo pedido",
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "Start a fresh table",
+                        "Abrir una mesa",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color(0xFF1B1B1B).copy(alpha = 0.75f)
                     )
@@ -407,7 +377,7 @@ private fun InfoCard(
             // Левая часть: заголовок + 2 метрики в ряд
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Current Tables",
+                    text = "Resumen de mesas",
                     color = Color.White.copy(alpha = 0.65f),
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -501,7 +471,7 @@ private fun LogoutRow(onLogout: () -> Unit) {
         )
         Spacer(Modifier.width(8.dp))
         Text(
-            text = "Logout",
+            text = "Cerrar sesión",
             color = Color.White.copy(alpha = 0.65f),
             style = MaterialTheme.typography.bodySmall
         )
