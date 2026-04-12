@@ -10,7 +10,8 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    const val BASE_URL = "http://192.168.1.136:8080/"
+    // 10.0.2.2 is the Android emulator alias for the host machine's localhost
+    const val BASE_URL = "http://10.0.2.2:8080/"
 
     private var tokenStore: TokenStore? = null
 

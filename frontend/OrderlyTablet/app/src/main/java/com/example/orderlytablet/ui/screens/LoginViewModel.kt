@@ -53,8 +53,16 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 val resp = authApi.login(LoginRequest(email, password))
                 tokenStore.save(resp.token, resp.refreshToken)
                 _uiState.value = LoginUiState.NavigateToOrders
+            } catch (e: retrofit2.HttpException) {
+                val msg = when (e.code()) {
+                    401, 403 -> "Credenciales incorrectas."
+                    else -> "Error del servidor (${e.code()})."
+                }
+                _uiState.value = LoginUiState.LoginError(msg)
+            } catch (e: java.net.ConnectException) {
+                _uiState.value = LoginUiState.LoginError("No se puede conectar al servidor. Comprueba la red.")
             } catch (e: Exception) {
-                _uiState.value = LoginUiState.LoginError("Credenciales incorrectas.")
+                _uiState.value = LoginUiState.LoginError("Error: ${e.message}")
             }
         }
     }
