@@ -19,11 +19,28 @@ public class ApiClient {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/json");
+        addAuthHeader(conn);
 
         return readResponse(conn);
     }
 
     public static String post(String endpoint, String jsonInput) throws IOException, ApiException {
+        URL url = URI.create(BASE_URL + endpoint).toURL();
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+        addAuthHeader(conn);
+
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(jsonInput.getBytes(StandardCharsets.UTF_8));
+        }
+
+        return readResponse(conn);
+    }
+
+    // Unauthenticated POST — for /auth/login and /auth/refresh only
+    public static String postNoAuth(String endpoint, String jsonInput) throws IOException, ApiException {
         URL url = URI.create(BASE_URL + endpoint).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
@@ -43,6 +60,7 @@ public class ApiClient {
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoOutput(false);
+        addAuthHeader(conn);
         return readResponse(conn);
     }
 
@@ -52,6 +70,7 @@ public class ApiClient {
         conn.setRequestMethod("PUT");
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoOutput(true);
+        addAuthHeader(conn);
 
         try (OutputStream os = conn.getOutputStream()) {
             os.write(jsonInput.getBytes(StandardCharsets.UTF_8));
@@ -64,8 +83,16 @@ public class ApiClient {
         URL url = URI.create(BASE_URL + endpoint).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("DELETE");
+        addAuthHeader(conn);
 
         return readResponse(conn);
+    }
+
+    private static void addAuthHeader(HttpURLConnection conn) {
+        String token = SessionStore.getAccessToken();
+        if (token != null && !token.isBlank()) {
+            conn.setRequestProperty("Authorization", "Bearer " + token);
+        }
     }
 
     private static String readResponse(HttpURLConnection conn) throws IOException, ApiException {

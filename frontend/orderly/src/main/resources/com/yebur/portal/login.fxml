@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.yebur.controller.LoginController"
+           prefWidth="1024" prefHeight="768"
+           style="-fx-background-color: #1e1e2e;">
+
+    <VBox alignment="CENTER" spacing="20" maxWidth="400">
+        <padding>
+            <Insets top="60" right="40" bottom="60" left="40"/>
+        </padding>
+
+        <Text text="Orderly" style="-fx-font-size: 36; -fx-fill: #cdd6f4; -fx-font-weight: bold;"/>
+        <Text text="Punto de venta" style="-fx-font-size: 16; -fx-fill: #6c7086;"/>
+
+        <VBox spacing="8">
+            <Label text="Correo electrónico" style="-fx-text-fill: #cdd6f4;"/>
+            <TextField fx:id="emailField"
+                       promptText="admin@orderly.com"
+                       style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4; -fx-prompt-text-fill: #6c7086; -fx-border-color: #45475a; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 8;"/>
+        </VBox>
+
+        <VBox spacing="8">
+            <Label text="Contraseña" style="-fx-text-fill: #cdd6f4;"/>
+            <PasswordField fx:id="passwordField"
+                           style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4; -fx-border-color: #45475a; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 8;"/>
+        </VBox>
+
+        <Label fx:id="errorLabel" text="" wrapText="true"
+               style="-fx-text-fill: #f38ba8; -fx-font-size: 13;" maxWidth="320"/>
+
+        <Button fx:id="loginButton" text="Iniciar sesión" onAction="#onLogin" maxWidth="Infinity"
+                style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e; -fx-font-size: 15; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 0;"/>
+    </VBox>
+
+</StackPane>

@@ -9,6 +9,7 @@ module com.yebur {
     // Java / HTTP / AWT
     requires java.net.http;
     requires java.desktop;              // BufferedImage, Graphics2D и т.п.
+    requires java.prefs;
 
     // Jackson
     requires com.fasterxml.jackson.databind;
