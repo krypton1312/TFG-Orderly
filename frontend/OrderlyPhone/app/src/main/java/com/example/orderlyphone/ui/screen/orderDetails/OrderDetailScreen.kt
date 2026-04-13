@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,8 +40,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.orderlyphone.domain.model.DraftOrderDetailUi
 import com.example.orderlyphone.domain.model.response.OrderDetailsResponse
 import java.math.BigDecimal
@@ -144,9 +147,36 @@ fun OrderDetailScreen(
                 }
 
                 showBlockingError -> {
-                    val message = (state as OrderDetailState.Error).message
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = message, color = MaterialTheme.colorScheme.error)
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.WifiOff,
+                                contentDescription = null,
+                                tint = Color(0xFF555558),
+                                modifier = Modifier.size(56.dp)
+                            )
+                            Text(
+                                text = "Sin conexión",
+                                color = Color(0xFFCCCCCC),
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 18.sp
+                            )
+                            Text(
+                                text = "Comprueba la red e inténtalo de nuevo",
+                                color = Color(0xFF777779),
+                                fontSize = 13.sp,
+                                textAlign = TextAlign.Center
+                            )
+                            Button(
+                                onClick = { vm.load() },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF8A3D))
+                            ) {
+                                Text("Reintentar", color = Color.Black, fontWeight = FontWeight.Bold)
+                            }
+                        }
                     }
                 }
 
