@@ -21,10 +21,9 @@ Requirement: **PC-04**.
 - `data.fxml` grid goes from 2×2 → 2×3
 
 ### D-02 — "Cambiar PIN" Meaning
-**Decision:** "Cambiar PIN" = change the `password` field (min 8 chars).
-- Dialog label: "Nueva contraseña"
-- No separate numeric PIN field; no schema migration needed
-- Backend endpoint: `PUT /employees/{id}` with updated `password` in `EmployeeRequest`
+**Decision (revised — out-of-phase temp password flow implemented):**
+- Employee creation: no manual password in the ADD form — backend auto-generates `TmpXXXXXX` and sets `mustChangePassword=true`. The temp password is returned in the response and shown to the manager in a dialog ("Contraseña temporal: TmpXXXXXX — Dísela al empleado").
+- Separate `POST /employees/{id}/reset-password` endpoint exists to reset to a new temp password.
 
 ### D-03 — Status Management
 **Decision:** All **three** statuses are visible/settable from PC:
@@ -47,10 +46,11 @@ Requirement: **PC-04**.
 - Calls `PUT /employees/{id}` with `status: INACTIVO`
 
 ### D-07 — Password Change in EDIT Mode
-**Decision:** A separate **"Cambiar contraseña"** button appears inside the EDIT form.
-- Clicking it reveals a `PasswordField` ("Nueva contraseña") inline
-- If left empty → password is not sent in the PUT request (unchanged)
-- If filled → included in `EmployeeRequest`
+**Decision (revised — out-of-phase temp password flow implemented):**
+- A separate **"Cambiar contraseña"** button in the EDIT form calls `POST /employees/{id}/reset-password`.
+- Backend generates a new `TmpXXXXXX` temp password, sets `mustChangePassword=true` on the employee, and returns it.
+- Manager sees the temp password in a one-time dialog to communicate to the employee.
+- Employee's next login forces a password change (handled by Phone/Tablet ChangePasswordScreen).
 
 ---
 

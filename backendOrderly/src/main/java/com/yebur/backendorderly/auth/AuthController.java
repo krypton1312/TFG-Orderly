@@ -72,7 +72,14 @@ public class AuthController {
         UserDetails user = (UserDetails) auth.getPrincipal();
         String accessToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
-        return new AuthResponse(accessToken, refreshToken);
+
+        boolean mustChange = employeeRepository
+                .findByEmail(user.getUsername())
+                .or(() -> employeeRepository.findByUsername(user.getUsername()))
+                .map(Employee::isMustChangePassword)
+                .orElse(false);
+
+        return new AuthResponse(accessToken, refreshToken, mustChange);
     }
 
     private String generateUsername(String name, String lastname) {
@@ -98,6 +105,22 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         String newAccessToken = jwtService.generateToken(user);
-        return ResponseEntity.ok(new AuthResponse(newAccessToken, req.refreshToken()));
+        return ResponseEntity.ok(new AuthResponse(newAccessToken, req.refreshToken(), false));
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(
+            Authentication auth,
+            @RequestBody @Valid ChangePasswordRequest req
+    ) {
+        String identifier = auth.getName();
+        Employee employee = employeeRepository.findByEmail(identifier)
+                .or(() -> employeeRepository.findByUsername(identifier))
+                .orElseThrow(() -> new IllegalStateException("Authenticated employee not found"));
+
+        employee.setPassword(passwordEncoder.encode(req.newPassword()));
+        employee.setMustChangePassword(false);
+        employeeRepository.save(employee);
+        return ResponseEntity.noContent().build();
     }
 }

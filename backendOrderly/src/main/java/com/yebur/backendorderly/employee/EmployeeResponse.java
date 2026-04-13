@@ -23,6 +23,8 @@ public class EmployeeResponse {
     private String username;
     private LocalDate hireDate;
     private String status;
+    /** Only populated on create / reset-password. Null in all other responses. */
+    private String tempPassword;
 
     public static EmployeeResponse mapToResponse(Employee employee) {
         return new EmployeeResponse(
@@ -36,7 +38,8 @@ public class EmployeeResponse {
                 employee.getEmail(),
                 employee.getUsername(),
                 employee.getHireDate(),
-                employee.getStatus() != null ? employee.getStatus().getSpanishName() : null
+                employee.getStatus() != null ? employee.getStatus().getSpanishName() : null,
+                null
         );
     }
 }

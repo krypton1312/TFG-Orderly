@@ -13,4 +13,5 @@ public interface EmployeeServiceInterface {
     EmployeeResponse create(EmployeeRequest request);
     EmployeeResponse update(Long id, EmployeeRequest request);
     void delete(Long id);
+    String resetPassword(Long id);
 }

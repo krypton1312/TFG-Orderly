@@ -101,6 +101,20 @@ public class EmployeeController {
         }
     }
 
+    @PostMapping("/{id}/reset-password")
+    public ResponseEntity<?> resetPassword(@PathVariable Long id) {
+        try {
+            String tempPwd = employeeService.resetPassword(id);
+            Map<String, String> body = new HashMap<>();
+            body.put("tempPassword", tempPwd);
+            return ResponseEntity.ok(body);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
+    }
+
     private ResponseEntity<?> validation(BindingResult result) {
         Map<String, String> errors = new HashMap<>();
         result.getFieldErrors().forEach(error -> {

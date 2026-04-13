@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.orderlytablet.data.TokenStore
 import com.example.orderlytablet.services.RetrofitClient
+import com.example.orderlytablet.ui.screens.ChangePasswordScreen
 import com.example.orderlytablet.ui.screens.LoginScreen
 import com.example.orderlytablet.ui.screens.LoginUiState
 import com.example.orderlytablet.ui.screens.LoginViewModel
@@ -47,6 +48,7 @@ fun OrderlyTabletApp(loginViewModel: LoginViewModel) {
                 }
                 is LoginUiState.ShowLogin,
                 is LoginUiState.LoginError -> LoginScreen(viewModel = loginViewModel)
+                is LoginUiState.MustChangePassword -> ChangePasswordScreen(viewModel = loginViewModel)
                 is LoginUiState.NavigateToOrders -> OrdersScreen()
             }
         }

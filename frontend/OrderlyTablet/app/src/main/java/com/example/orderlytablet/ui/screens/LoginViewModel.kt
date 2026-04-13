@@ -16,6 +16,7 @@ sealed class LoginUiState {
     object Loading : LoginUiState()
     object ShowLogin : LoginUiState()
     object NavigateToOrders : LoginUiState()
+    object MustChangePassword : LoginUiState()
     data class LoginError(val message: String) : LoginUiState()
 }
 
@@ -52,7 +53,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val resp = authApi.login(LoginRequest(identifier, password))
                 tokenStore.save(resp.token, resp.refreshToken)
-                _uiState.value = LoginUiState.NavigateToOrders
+                _uiState.value = if (resp.mustChangePassword) LoginUiState.MustChangePassword
+                                 else LoginUiState.NavigateToOrders
             } catch (e: retrofit2.HttpException) {
                 val msg = when (e.code()) {
                     401, 403 -> "Credenciales incorrectas."
@@ -63,6 +65,18 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 _uiState.value = LoginUiState.LoginError("No se puede conectar al servidor. Comprueba la red.")
             } catch (e: Exception) {
                 _uiState.value = LoginUiState.LoginError("Error: ${e.message}")
+            }
+        }
+    }
+
+    fun changePassword(newPassword: String) {
+        viewModelScope.launch {
+            try {
+                authApi.changePassword(com.example.orderlytablet.data.ChangePasswordRequest(newPassword))
+                _uiState.value = LoginUiState.NavigateToOrders
+            } catch (e: Exception) {
+                // keep MustChangePassword state, error shown in UI
+                _uiState.value = LoginUiState.MustChangePassword
             }
         }
     }

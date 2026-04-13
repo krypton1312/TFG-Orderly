@@ -5,7 +5,8 @@ import retrofit2.http.POST
 
 data class LoginRequest(val identifier: String, val password: String)
 data class RefreshRequest(val refreshToken: String)
-data class AuthResponse(val token: String, val refreshToken: String)
+data class AuthResponse(val token: String, val refreshToken: String, val mustChangePassword: Boolean = false)
+data class ChangePasswordRequest(val newPassword: String)
 
 interface AuthApi {
     @POST("auth/login")
@@ -13,4 +14,7 @@ interface AuthApi {
 
     @POST("auth/refresh")
     suspend fun refresh(@Body body: RefreshRequest): AuthResponse
+
+    @POST("auth/change-password")
+    suspend fun changePassword(@Body body: ChangePasswordRequest)
 }

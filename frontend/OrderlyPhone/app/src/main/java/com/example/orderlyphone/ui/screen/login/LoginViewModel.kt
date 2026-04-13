@@ -31,8 +31,8 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = LoginState.Loading
             try {
-                repo.login(identifier, password)
-                _state.value = LoginState.Success
+                val mustChangePassword = repo.login(identifier, password)
+                _state.value = if (mustChangePassword) LoginState.MustChangePassword else LoginState.Success
             } catch (e: Exception) {
                 _state.value = LoginState.Error(e.message ?: "Login failed")
             }

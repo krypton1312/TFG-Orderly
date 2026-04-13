@@ -21,6 +21,7 @@ import com.example.orderlyphone.ui.screen.home.HomeScreen
 import com.example.orderlyphone.ui.screen.home.HomeViewModel
 import com.example.orderlyphone.ui.screen.login.LoginScreen
 import com.example.orderlyphone.ui.screen.login.LoginViewModel
+import com.example.orderlyphone.ui.screen.changepassword.ChangePasswordScreen
 import com.example.orderlyphone.ui.screen.orderDetails.OrderDetailScreen
 import com.example.orderlyphone.ui.screen.orderDetails.OrderDetailViewModel
 import com.example.orderlyphone.ui.screen.orderDetails.SubmitDraftResult
@@ -37,6 +38,7 @@ import java.math.RoundingMode
 import kotlinx.coroutines.launch
 
 private const val LoginRoute = "login"
+private const val ChangePasswordRoute = "change_password"
 private const val HomeRoute = "home"
 private const val OrdersRoute = "orders"
 private const val TablePickerRoute = "table_picker"
@@ -81,6 +83,22 @@ fun AppNav(webSocketClient: OrderWebSocketClient) {
             LoginScreen(
                 vm = loginVm,
                 onSuccess = {
+                    webSocketClient.connect()
+                    navController.navigate(HomeRoute) {
+                        popUpTo(LoginRoute) { inclusive = true }
+                    }
+                },
+                onMustChangePassword = {
+                    navController.navigate(ChangePasswordRoute) {
+                        popUpTo(LoginRoute) { inclusive = false }
+                    }
+                }
+            )
+        }
+
+        composable(ChangePasswordRoute) {
+            ChangePasswordScreen(
+                onPasswordChanged = {
                     webSocketClient.connect()
                     navController.navigate(HomeRoute) {
                         popUpTo(LoginRoute) { inclusive = true }

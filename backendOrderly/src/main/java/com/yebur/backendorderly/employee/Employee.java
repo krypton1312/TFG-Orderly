@@ -80,6 +80,9 @@ public class Employee {
     private String username;
 
     @Column(nullable = false)
+    private boolean mustChangePassword = false;
+
+    @Column(nullable = false)
     @ToString.Include
     private LocalDate hireDate;
 

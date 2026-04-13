@@ -34,7 +34,8 @@ import kotlin.math.roundToInt
 @Composable
 fun LoginScreen(
     vm: LoginViewModel,
-    onSuccess: () -> Unit
+    onSuccess: () -> Unit,
+    onMustChangePassword: () -> Unit = {}
 ) {
     val state by vm.state.collectAsState()
 
@@ -73,6 +74,7 @@ fun LoginScreen(
     LaunchedEffect(state) {
         when (state) {
             is LoginState.Success -> onSuccess()
+            is LoginState.MustChangePassword -> onMustChangePassword()
             is LoginState.Error -> runShake()
             else -> Unit
         }
