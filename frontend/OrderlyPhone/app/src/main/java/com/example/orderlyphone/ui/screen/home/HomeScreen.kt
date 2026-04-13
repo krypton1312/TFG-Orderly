@@ -24,17 +24,19 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeScreen(
     vm: HomeViewModel,
     onOrders: () -> Unit = {},
     onNewOrder: () -> Unit = {},
-    onShiftToggle: () -> Unit = {},   // Start/End Shift (заглушка)
-    onSettings: () -> Unit = {},      // Settings (заглушка)
-    onLogout: () -> Unit = {}         // Logout (заглушка)
+    onSettings: () -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val state by vm.state.collectAsState()
+    val shiftLoading by vm.shiftLoading.collectAsState()
 
     LaunchedEffect(Unit) {
         vm.loadEmployeeData()
@@ -67,25 +69,24 @@ fun HomeScreen(
             is HomeState.Success -> {
                 val response = s.dashboardStartResponse
                 val employee = response.employee
-
                 val roles = employee.roles.joinToString("/") { it.name }
+                val isClockedIn = response.shiftRecord != null
 
                 HomeContent(
                     employeeName = "${employee.name} ${employee.lastname}",
                     role = roles,
-                    shiftLabel = response.shiftRecord?.let {
-                        "Turno #${it.id}"
-                    } ?: "No estás fichado/a",
+                    isClockedIn = isClockedIn,
+                    shiftStartTime = response.shiftRecord?.startTime,
+                    shiftLoading = shiftLoading,
                     online = true,
                     activeTables = response.availableTables,
                     occupiedTables = response.occupiedTables,
                     onOrders = onOrders,
                     onNewOrder = onNewOrder,
-                    onShiftToggle = onShiftToggle,
+                    onShiftToggle = { if (isClockedIn) vm.clockOut() else vm.clockIn() },
                     onSettings = onSettings,
                     onLogout = onLogout
                 )
-
             }
         }
     }
@@ -95,7 +96,9 @@ fun HomeScreen(
 private fun HomeContent(
     employeeName: String,
     role: String,
-    shiftLabel: String,
+    isClockedIn: Boolean,
+    shiftStartTime: LocalDateTime?,
+    shiftLoading: Boolean,
     online: Boolean,
     activeTables: Int,
     occupiedTables: Int,
@@ -123,11 +126,12 @@ private fun HomeContent(
                 TopHeader(
                     employeeName = employeeName,
                     role = role,
-                    shiftLabel = shiftLabel,
+                    isClockedIn = isClockedIn,
+                    shiftStartTime = shiftStartTime,
                     online = online
                 )
 
-                InfoCard(activeTables = activeTables, occupiedTables = occupiedTables, onClick = onOrders)
+                InfoCard(activeTables = activeTables, occupiedTables = occupiedTables, onClick = onNewOrder)
             }
 
             Column(
@@ -141,8 +145,9 @@ private fun HomeContent(
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     ActionTile(
-                        title = "Abrir/Cerrar turno",
-                        icon = if (online) Icons.Filled.Stop else Icons.Filled.PlayArrow,
+                        title = if (isClockedIn) "Fichar salida" else "Fichar entrada",
+                        icon = if (isClockedIn) Icons.Filled.Stop else Icons.Filled.PlayArrow,
+                        loading = shiftLoading,
                         onClick = onShiftToggle
                     )
                     ActionTile(
@@ -163,7 +168,8 @@ private fun HomeContent(
 private fun TopHeader(
     employeeName: String,
     role: String,
-    shiftLabel: String,
+    isClockedIn: Boolean,
+    shiftStartTime: LocalDateTime?,
     online: Boolean
 ) {
     Row(
@@ -213,12 +219,7 @@ private fun TopHeader(
         }
 
         Column(horizontalAlignment = Alignment.End) {
-            Text(
-                text = shiftLabel,
-                color = Color.White.copy(alpha = 0.75f),
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.SemiBold
-            )
+            ShiftStatusBadge(isClockedIn = isClockedIn, startTime = shiftStartTime)
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
@@ -233,6 +234,38 @@ private fun TopHeader(
                     color = if (online) Color(0xFF35D07F) else Color.White.copy(alpha = 0.55f),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ShiftStatusBadge(isClockedIn: Boolean, startTime: LocalDateTime?) {
+    val green = Color(0xFF35D07F)
+    val inactive = Color.White.copy(alpha = 0.45f)
+    val formatter = remember { DateTimeFormatter.ofPattern("dd/MM HH:mm") }
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(7.dp)
+                .clip(CircleShape)
+                .background(if (isClockedIn) green else inactive)
+        )
+        Spacer(Modifier.width(5.dp))
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                text = if (isClockedIn) "Fichado" else "No fichado",
+                color = if (isClockedIn) green else Color.White.copy(alpha = 0.65f),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+            if (isClockedIn && startTime != null) {
+                Text(
+                    text = "desde ${startTime.format(formatter)}",
+                    color = Color.White.copy(alpha = 0.50f),
+                    style = MaterialTheme.typography.labelSmall
                 )
             }
         }
@@ -310,6 +343,7 @@ fun NewOrderButton(
 private fun RowScope.ActionTile(
     title: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
+    loading: Boolean = false,
     onClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(20.dp)
@@ -336,11 +370,19 @@ private fun RowScope.ActionTile(
                     .background(Color.White.copy(alpha = 0.06f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = Color(0xFFFF8A3D)
-                )
+                if (loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(22.dp),
+                        color = Color(0xFFFF8A3D),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = Color(0xFFFF8A3D)
+                    )
+                }
             }
 
             Text(

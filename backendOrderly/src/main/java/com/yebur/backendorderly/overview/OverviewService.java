@@ -159,11 +159,10 @@ public class OverviewService {
             EmployeeResponse employee = employeeService.findCurrentEmployeeDTO(authentication).orElseThrow();
             int availableTables = restTableRepository.countByStatus(TableStatus.AVAILABLE);
             int occupiedTables = restTableRepository.countByStatus(TableStatus.OCCUPIED);
-            List<ShiftRecordResponse> shiftRecords = shiftRecordService.findByEmployeeId(employee.getId());
-            ShiftRecordResponse lastShiftRecord = shiftRecords.isEmpty() ? null : shiftRecords.get(shiftRecords.size() - 1);
+            ShiftRecordResponse openShift = shiftRecordService.findOpenShiftByEmployeeId(employee.getId()).orElse(null);
             Long cashSessionId = cashSessionService.findLastOpenCashSessionId();
 
-            return new DashboardStartResponse(employee, availableTables, occupiedTables, lastShiftRecord, cashSessionId);
+            return new DashboardStartResponse(employee, availableTables, occupiedTables, openShift, cashSessionId);
         }
 
 }

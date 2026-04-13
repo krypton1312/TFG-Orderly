@@ -9,6 +9,7 @@ import com.example.orderlyphone.data.remote.OrderDetailApi
 import com.example.orderlyphone.data.remote.OverviewApi
 import com.example.orderlyphone.data.remote.ProductsApi
 import com.example.orderlyphone.data.remote.RestTableApi
+import com.example.orderlyphone.data.remote.ShiftRecordApi
 import com.example.orderlyphone.data.remote.adapter.LocalDateAdapter
 import com.example.orderlyphone.data.remote.adapter.LocalDateTimeAdapter
 import com.example.orderlyphone.data.remote.interceptor.AuthInterceptor
@@ -102,4 +103,9 @@ object AppModule {
     @Singleton
     fun provideCategoryApi(retrofit: Retrofit): CategoryApi =
         retrofit.create(CategoryApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideShiftRecordApi(retrofit: Retrofit): ShiftRecordApi =
+        retrofit.create(ShiftRecordApi::class.java)
 }

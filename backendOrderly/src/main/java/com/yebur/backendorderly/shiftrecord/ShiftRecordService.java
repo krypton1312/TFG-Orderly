@@ -99,4 +99,40 @@ public class ShiftRecordService implements ShiftRecordServiceInterface {
         }
         shiftRecordRepository.deleteById(id);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<ShiftRecordResponse> findOpenShiftByEmployeeId(Long employeeId) {
+        return shiftRecordRepository.findFirstByEmployeeIdAndEndTimeIsNull(employeeId)
+                .map(ShiftRecordResponse::mapToResponse);
+    }
+
+    @Override
+    @Transactional
+    public ShiftRecordResponse clockIn(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found with id: " + employeeId));
+
+        shiftRecordRepository.findFirstByEmployeeIdAndEndTimeIsNull(employeeId).ifPresent(s -> {
+            throw new IllegalStateException("Employee already has an open shift");
+        });
+
+        ShiftRecord shiftRecord = new ShiftRecord();
+        shiftRecord.setEmployee(employee);
+        shiftRecord.setStartTime(LocalDateTime.now());
+
+        ShiftRecord saved = shiftRecordRepository.save(shiftRecord);
+        return ShiftRecordResponse.mapToResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public ShiftRecordResponse clockOut(Long employeeId) {
+        ShiftRecord openShift = shiftRecordRepository.findFirstByEmployeeIdAndEndTimeIsNull(employeeId)
+                .orElseThrow(() -> new IllegalStateException("No open shift found for employee: " + employeeId));
+
+        openShift.setEndTime(LocalDateTime.now());
+        ShiftRecord saved = shiftRecordRepository.save(openShift);
+        return ShiftRecordResponse.mapToResponse(saved);
+    }
 }

@@ -136,10 +136,6 @@ fun ProductConfiguratorContent(
                         }
 
                         item {
-                            CommentCard(value = state.comment, onValueChange = onCommentChange)
-                        }
-
-                        item {
                             Text(
                                 text = "Suplementos",
                                 color = Color.White,
@@ -167,6 +163,10 @@ fun ProductConfiguratorContent(
                                 )
                             }
                         }
+
+                        item {
+                            CommentCard(value = state.comment, onValueChange = onCommentChange)
+                        }
                     }
 
                     Button(
@@ -176,7 +176,7 @@ fun ProductConfiguratorContent(
                             .padding(top = 12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color(0xFF1B1B1B))
                     ) {
-                        Text("Añadir al borrador")
+                        Text("Confirmar")
                     }
                 }
             }
@@ -319,7 +319,7 @@ private fun CommentCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Comentario para cocina",
+                text = "Comentario",
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium

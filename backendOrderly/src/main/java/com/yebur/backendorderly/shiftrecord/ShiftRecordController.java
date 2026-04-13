@@ -91,4 +91,40 @@ public class ShiftRecordController {
         });
         return ResponseEntity.badRequest().body(errors);
     }
+
+    @PostMapping("/clock-in")
+    public ResponseEntity<?> clockIn(Authentication auth) {
+        try {
+            Long employeeId = employeeService.findCurrentEmployeeDTO(auth)
+                    .map(EmployeeResponse::getId)
+                    .orElseThrow(() -> new IllegalArgumentException("Authenticated employee not found"));
+            return ResponseEntity.status(HttpStatus.CREATED).body(shiftRecordService.clockIn(employeeId));
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (IllegalStateException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        }
+    }
+
+    @PostMapping("/clock-out")
+    public ResponseEntity<?> clockOut(Authentication auth) {
+        try {
+            Long employeeId = employeeService.findCurrentEmployeeDTO(auth)
+                    .map(EmployeeResponse::getId)
+                    .orElseThrow(() -> new IllegalArgumentException("Authenticated employee not found"));
+            return ResponseEntity.ok(shiftRecordService.clockOut(employeeId));
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (IllegalStateException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        }
+    }
 }

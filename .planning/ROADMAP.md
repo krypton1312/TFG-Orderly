@@ -55,10 +55,10 @@
 **Plans:** 4 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Contract alignment for table/open-order flow
-- [ ] 03-02-PLAN.md — Shared table picker screen + Home/Orders navigation wiring
-- [ ] 03-03-PLAN.md — Category catalog + full-screen product configurator
-- [ ] 03-04-PLAN.md — Draft review, fire-to-kitchen, and real-device verification
+- [x] 03-01-PLAN.md — Contract alignment for table/open-order flow
+- [x] 03-02-PLAN.md — Shared table picker screen + Home/Orders navigation wiring
+- [x] 03-03-PLAN.md — Category catalog + full-screen product configurator
+- [x] 03-04-PLAN.md — Draft review, fire-to-kitchen, and real-device verification
 
 **Depends on:** Phase 1, Phase 2
 
@@ -164,6 +164,18 @@ Plans:
 
 ### 999.5 Stock Management
 - Inventory decrement on payment, low-stock alerts
+
+### 999.6 Entity Cascade & DB Relations Audit
+- Audit all JPA entities: cascades, orphanRemoval, fetch types, DB relations, indexes, nullable constraints
+
+### 999.7 PC Employee Management
+- Full employee CRUD on the PC frontend (gestión de empleados), consistent with how other entities (products, categories, etc.) are managed in the JavaFX app
+
+### 999.8 PC Shift Management
+- View and manage all employee shifts from the PC frontend — UX placement and design TBD (needs discussion: dedicated section, inline in employee view, calendar view, etc.)
+
+### 999.9 Shift Close / Cash Register Close
+- Complete the shift-closing flow (cierre de caja): summarize sales, reconcile cash, record totals, mark shift as closed — currently partially implemented
 
 ---
 *Roadmap created: April 12, 2026*

@@ -70,15 +70,15 @@ private fun tableLabel(tableId: Long?): String = tableId?.let { "Mesa $it" } ?: 
 @Composable
 fun AppNav() {
     val navController = rememberNavController()
+    val loginVm: LoginViewModel = hiltViewModel()
 
     NavHost(
         navController = navController,
         startDestination = LoginRoute
     ) {
         composable(LoginRoute) {
-            val vm: LoginViewModel = hiltViewModel()
             LoginScreen(
-                vm = vm,
+                vm = loginVm,
                 onSuccess = {
                     navController.navigate(HomeRoute) {
                         popUpTo(LoginRoute) { inclusive = true }
@@ -93,9 +93,9 @@ fun AppNav() {
                 vm = vm,
                 onOrders = { navController.navigate(OrdersRoute) },
                 onNewOrder = { navController.navigate(TablePickerRoute) },
-                onShiftToggle = { },
                 onSettings = { },
                 onLogout = {
+                    loginVm.logout()
                     navController.navigate(LoginRoute) {
                         popUpTo(HomeRoute) { inclusive = true }
                     }

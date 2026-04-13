@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.orderlyphone.data.local.CashSessionStore
 import com.example.orderlyphone.data.remote.OverviewApi
+import com.example.orderlyphone.data.remote.ShiftRecordApi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,31 +15,58 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val overviewApi: OverviewApi,
-    private val cashSessionStore: CashSessionStore
+    private val cashSessionStore: CashSessionStore,
+    private val shiftRecordApi: ShiftRecordApi
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<HomeState>(HomeState.Idle)
-
     val state: StateFlow<HomeState> = _state
+
+    private val _shiftLoading = MutableStateFlow(false)
+    val shiftLoading: StateFlow<Boolean> = _shiftLoading
 
     fun loadEmployeeData() {
         viewModelScope.launch {
             _state.value = HomeState.Loading
             try {
                 val response = overviewApi.getDashboardStart()
-                _state.value = HomeState.Success(
-                    response
-                )
+                _state.value = HomeState.Success(response)
                 val cashSessionId = response.cashSessionId
-
                 if (cashSessionId != null) {
                     cashSessionStore.saveCashSessionId(cashSessionId)
                 } else {
                     cashSessionStore.clear()
                 }
-
             } catch (e: Exception) {
                 _state.value = HomeState.Error(e.message ?: e.toString())
+            }
+        }
+    }
+
+    fun clockIn() {
+        viewModelScope.launch {
+            _shiftLoading.value = true
+            try {
+                shiftRecordApi.clockIn()
+                loadEmployeeData()
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "clockIn failed", e)
+            } finally {
+                _shiftLoading.value = false
+            }
+        }
+    }
+
+    fun clockOut() {
+        viewModelScope.launch {
+            _shiftLoading.value = true
+            try {
+                shiftRecordApi.clockOut()
+                loadEmployeeData()
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "clockOut failed", e)
+            } finally {
+                _shiftLoading.value = false
             }
         }
     }

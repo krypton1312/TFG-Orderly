@@ -62,9 +62,8 @@ class ProductConfiguratorViewModel @Inject constructor(
     }
 
     fun increaseQuantity() {
-        val product = _state.value.product ?: return
         _state.update { current ->
-            current.copy(quantity = (current.quantity + 1).coerceAtMost(product.stock.coerceAtLeast(1)))
+            current.copy(quantity = (current.quantity + 1).coerceAtMost(99))
         }
     }
 

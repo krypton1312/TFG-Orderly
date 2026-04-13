@@ -7,7 +7,10 @@ public interface ShiftRecordServiceInterface {
     List<ShiftRecordResponse> findAll();
     Optional<ShiftRecordResponse> findById(Long id);
     List<ShiftRecordResponse> findByEmployeeId(Long employeeId);
+    Optional<ShiftRecordResponse> findOpenShiftByEmployeeId(Long employeeId);
     ShiftRecordResponse create(ShiftRecordRequest request);
     ShiftRecordResponse update(Long id, ShiftRecordRequest request, Long editorId);
     void delete(Long id);
+    ShiftRecordResponse clockIn(Long employeeId);
+    ShiftRecordResponse clockOut(Long employeeId);
 }

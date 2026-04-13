@@ -537,7 +537,7 @@ private fun BottomActionBar(
                         disabledContentColor = Color.White.copy(alpha = 0.42f)
                     )
                 ) {
-                    Text(if (isSubmitting) "Enviando..." else "Enviar a cocina")
+                    Text(if (isSubmitting) "Enviando..." else "Confirmar")
                 }
             }
         }
