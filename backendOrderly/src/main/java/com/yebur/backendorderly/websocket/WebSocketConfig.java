@@ -19,5 +19,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(ordersTabletWebSocketHandler, "/ws/overview/tablet")
                 .setAllowedOrigins("*");
+        registry.addHandler(ordersTabletWebSocketHandler, "/ws/orders/phone")
+                .setAllowedOrigins("*");
     }
 }

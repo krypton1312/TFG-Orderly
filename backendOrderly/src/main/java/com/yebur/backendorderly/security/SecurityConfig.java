@@ -39,6 +39,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Login and token refresh — no token needed
                         .requestMatchers("/auth/**").permitAll()
+                        // WebSocket handshake is a plain HTTP GET — must be permitted before JWT filter
+                        .requestMatchers("/ws/**").permitAll()
                         // Everything else (including tablet endpoints) requires a valid JWT
                         .anyRequest().authenticated()
                 )
