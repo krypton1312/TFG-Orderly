@@ -35,7 +35,9 @@ class OrdersViewModel : ViewModel() {
     }
 
     private fun connectWebSocket() {
-        val serverUrl = "ws://192.168.1.136:8080/ws/overview/tablet"
+        val serverUrl = RetrofitClient.BASE_URL
+            .trimEnd('/')
+            .replaceFirst("http://", "ws://") + "/ws/overview/tablet"
 
         wsClient.connect(serverUrl, RetrofitClient.getToken() ?: "") { event ->
             Log.d("OrdersViewModel", "📡 WS Event: ${event.type}")
