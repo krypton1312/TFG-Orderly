@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.orderlyphone.data.remote.OverviewApi
+import com.example.orderlyphone.data.remote.websocket.OrderWebSocketClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,13 +13,22 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OrdersViewModel @Inject constructor(
-    private val overviewApi: OverviewApi
-): ViewModel(){
+    private val overviewApi: OverviewApi,
+    private val webSocketClient: OrderWebSocketClient
+): ViewModel() {
     private val _state = MutableStateFlow<OrdersState>(OrdersState.Idle)
 
     val state: StateFlow<OrdersState> = _state
 
-    fun loadOrdersData(){
+    init {
+        viewModelScope.launch {
+            webSocketClient.events.collect {
+                loadOrdersData()
+            }
+        }
+    }
+
+    fun loadOrdersData() {
         viewModelScope.launch {
             _state.value = OrdersState.Loading
             try {

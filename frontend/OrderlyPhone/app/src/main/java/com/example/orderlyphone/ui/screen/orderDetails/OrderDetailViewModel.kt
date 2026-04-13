@@ -10,6 +10,7 @@ import com.example.orderlyphone.domain.model.ConfiguredOrderLineUi
 import com.example.orderlyphone.domain.model.DraftOrderDetailUi
 import com.example.orderlyphone.domain.model.request.OrderDetailRequest
 import com.example.orderlyphone.domain.model.response.OrderDetailsResponse
+import com.example.orderlyphone.data.remote.websocket.OrderWebSocketClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDateTime
 import java.util.UUID
@@ -17,6 +18,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -33,7 +35,8 @@ class OrderDetailViewModel @Inject constructor(
     private val api: OrderDetailApi,
     private val overviewApi: OverviewApi,
     savedStateHandle: SavedStateHandle,
-    private val cashSessionStore: CashSessionStore
+    private val cashSessionStore: CashSessionStore,
+    private val webSocketClient: OrderWebSocketClient
 ) : ViewModel() {
 
     private val orderId: Long? = savedStateHandle["orderId"]
@@ -65,6 +68,12 @@ class OrderDetailViewModel @Inject constructor(
     init {
         if (orderId != null) {
             load()
+            val oid: Long = orderId
+            viewModelScope.launch {
+                webSocketClient.events
+                    .filter { it.orderId == oid }
+                    .collect { load() }
+            }
         }
     }
 

@@ -93,7 +93,8 @@ fun OrderDetailScreen(
             onBack = onBack,
             onAddItem = onAddItem,
             onFireOrder = onFireOrder,
-            onRemoveDraft = vm::removeDraft
+            onRemoveDraft = vm::removeDraft,
+            onRetry = vm::load
         )
 
     }
@@ -112,7 +113,8 @@ fun OrderDetailScreen(
         onBack: () -> Unit,
         onAddItem: () -> Unit,
         onFireOrder: () -> Unit,
-        onRemoveDraft: (String) -> Unit
+        onRemoveDraft: (String) -> Unit,
+        onRetry: () -> Unit
     ) {
     val showBlockingError = state is OrderDetailState.Error && items.isEmpty() && draft.isEmpty()
 
@@ -171,7 +173,7 @@ fun OrderDetailScreen(
                                 textAlign = TextAlign.Center
                             )
                             Button(
-                                onClick = { vm.load() },
+                                onClick = onRetry,
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF8A3D))
                             ) {
                                 Text("Reintentar", color = Color.Black, fontWeight = FontWeight.Bold)

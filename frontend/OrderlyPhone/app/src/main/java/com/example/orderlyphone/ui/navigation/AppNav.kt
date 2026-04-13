@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.orderlyphone.data.remote.websocket.OrderWebSocketClient
 import com.example.orderlyphone.domain.model.DraftOrderDetailUi
 import com.example.orderlyphone.ui.screen.home.HomeScreen
 import com.example.orderlyphone.ui.screen.home.HomeViewModel
@@ -68,7 +69,7 @@ private fun NavBackStackEntry.tableIdOrNull(): Long? = arguments?.getString("tab
 private fun tableLabel(tableId: Long?): String = tableId?.let { "Mesa $it" } ?: "Sin mesa"
 
 @Composable
-fun AppNav() {
+fun AppNav(webSocketClient: OrderWebSocketClient) {
     val navController = rememberNavController()
     val loginVm: LoginViewModel = hiltViewModel()
 
@@ -80,6 +81,7 @@ fun AppNav() {
             LoginScreen(
                 vm = loginVm,
                 onSuccess = {
+                    webSocketClient.connect()
                     navController.navigate(HomeRoute) {
                         popUpTo(LoginRoute) { inclusive = true }
                     }
@@ -95,6 +97,7 @@ fun AppNav() {
                 onNewOrder = { navController.navigate(TablePickerRoute) },
                 onSettings = { },
                 onLogout = {
+                    webSocketClient.disconnect()
                     loginVm.logout()
                     navController.navigate(LoginRoute) {
                         popUpTo(HomeRoute) { inclusive = true }
