@@ -33,7 +33,7 @@ private val ErrorRed = Color(0xFFDC2626)
 fun LoginScreen(viewModel: LoginViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
-    var email by remember { mutableStateOf("") }
+    var identifier by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -75,14 +75,14 @@ fun LoginScreen(viewModel: LoginViewModel) {
 
                 // ─── Email ───────────────────────────────────────────────────
                 Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("Correo electrónico", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = TextPri)
+                    Text("Correo electrónico / usuario", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = TextPri)
                     OutlinedTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        placeholder = { Text("admin@orderly.com", color = TextSec, fontSize = 14.sp) },
+                        value = identifier,
+                        onValueChange = { identifier = it },
+                        placeholder = { Text("correo o nombre de usuario", color = TextSec, fontSize = 14.sp) },
                         singleLine = true,
                         enabled = !isLoading,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                         shape = RoundedCornerShape(10.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Accent,
@@ -141,7 +141,7 @@ fun LoginScreen(viewModel: LoginViewModel) {
                     CircularProgressIndicator(color = Accent, modifier = Modifier.size(40.dp))
                 } else {
                     Button(
-                        onClick = { viewModel.login(email, password) },
+                        onClick = { viewModel.login(identifier, password) },
                         modifier = Modifier.fillMaxWidth().height(50.dp),
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Accent)

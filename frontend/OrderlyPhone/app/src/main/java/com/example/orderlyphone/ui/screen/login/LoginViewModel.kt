@@ -27,11 +27,11 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun login(email: String, password: String) {
+    fun login(identifier: String, password: String) {
         viewModelScope.launch {
             _state.value = LoginState.Loading
             try {
-                repo.login(email, password)
+                repo.login(identifier, password)
                 _state.value = LoginState.Success
             } catch (e: Exception) {
                 _state.value = LoginState.Error(e.message ?: "Login failed")

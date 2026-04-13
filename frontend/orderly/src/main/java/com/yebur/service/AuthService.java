@@ -12,7 +12,7 @@ public class AuthService {
 
     public static void login(String email, String password) throws IOException, ApiException {
         String body = new ObjectMapper()
-                .writeValueAsString(Map.of("email", email, "password", password));
+                .writeValueAsString(Map.of("identifier", email, "password", password));
         String response = ApiClient.postNoAuth("/auth/login", body);
         parseAndSave(response);
     }

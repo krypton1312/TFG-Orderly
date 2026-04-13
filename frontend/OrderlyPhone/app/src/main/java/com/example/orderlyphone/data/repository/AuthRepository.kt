@@ -8,9 +8,9 @@ class AuthRepository(
     private val api: AuthApi,
     private val tokenStore: TokenStore
 ) {
-    suspend fun login(email: String, password: String) {
-        val resp = api.login(LoginRequest(email, password))
+    suspend fun login(identifier: String, password: String) {
+        val resp = api.login(LoginRequest(identifier, password))
         tokenStore.save(resp.token)
-        tokenStore.saveEmail(email)
+        tokenStore.saveEmail(identifier)
     }
 }

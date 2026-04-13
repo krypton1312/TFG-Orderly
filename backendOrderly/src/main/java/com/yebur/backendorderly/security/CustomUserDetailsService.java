@@ -18,11 +18,17 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email)
+    public UserDetails loadUserByUsername(String identifier)
             throws UsernameNotFoundException {
 
-        Employee e = employeeRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Employee not found"));
+        Employee e;
+        if (identifier.contains("@")) {
+            e = employeeRepository.findByEmail(identifier)
+                    .orElseThrow(() -> new UsernameNotFoundException("Employee not found"));
+        } else {
+            e = employeeRepository.findByUsername(identifier)
+                    .orElseThrow(() -> new UsernameNotFoundException("Employee not found"));
+        }
 
         var authorities = e.getRoles().stream()
                 .map(r -> new SimpleGrantedAuthority("ROLE_" + r.getName()))

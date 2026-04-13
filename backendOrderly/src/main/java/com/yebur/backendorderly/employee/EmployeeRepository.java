@@ -14,7 +14,12 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @EntityGraph(attributePaths = "roles")
     Optional<Employee> findByEmail(String email);
 
+    @EntityGraph(attributePaths = "roles")
+    Optional<Employee> findByUsername(String username);
+
     boolean existsByEmail(String email);
+
+    boolean existsByUsername(String username);
 
     @Override
     @NonNull

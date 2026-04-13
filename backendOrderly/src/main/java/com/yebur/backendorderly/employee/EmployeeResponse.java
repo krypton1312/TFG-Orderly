@@ -20,6 +20,7 @@ public class EmployeeResponse {
     private List<RoleResponse> roles;
     private String phoneNumber;
     private String email;
+    private String username;
     private LocalDate hireDate;
     private String status;
 
@@ -33,6 +34,7 @@ public class EmployeeResponse {
                         .collect(Collectors.toList()) : null,
                 employee.getPhoneNumber(),
                 employee.getEmail(),
+                employee.getUsername(),
                 employee.getHireDate(),
                 employee.getStatus() != null ? employee.getStatus().getSpanishName() : null
         );

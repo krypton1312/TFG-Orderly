@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -37,7 +38,7 @@ fun LoginScreen(
 ) {
     val state by vm.state.collectAsState()
 
-    var email by remember { mutableStateOf("") }
+    var identifier by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -129,7 +130,7 @@ fun LoginScreen(
                 Spacer(Modifier.height(6.dp))
 
                 Text(
-                    text = "Introduce tu correo electronico y la contraseña para continuar",
+                    text = "Introduce tu correo o nombre de usuario para continuar",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White.copy(alpha = 0.65f),
                     textAlign = TextAlign.Center
@@ -138,11 +139,11 @@ fun LoginScreen(
                 Spacer(Modifier.height(18.dp))
 
                 DarkField(
-                    value = email,
-                    onValueChange = { email = it },
-                    placeholder = "Correo electronico",
-                    leadingIcon = Icons.Filled.Email,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                    value = identifier,
+                    onValueChange = { identifier = it },
+                    placeholder = "Correo o usuario",
+                    leadingIcon = Icons.Filled.Person,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
 
                 Spacer(Modifier.height(12.dp))
@@ -182,7 +183,7 @@ fun LoginScreen(
                 Spacer(Modifier.height(8.dp))
 
                 Button(
-                    onClick = { vm.login(email.trim(), password) },
+                    onClick = { vm.login(identifier.trim(), password) },
                     enabled = state !is LoginState.Loading,
                     modifier = Modifier
                         .fillMaxWidth()

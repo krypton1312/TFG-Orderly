@@ -32,12 +32,12 @@
 
         <Region prefHeight="32"/>
 
-        <!-- Email field -->
+        <!-- Identifier field -->
         <VBox spacing="6">
-            <Label text="Correo electrónico"
+            <Label text="Correo electrónico / usuario"
                    style="-fx-font-size: 13; -fx-text-fill: #374151; -fx-font-weight: 500; -fx-font-family: 'Inter', 'Segoe UI', sans-serif;"/>
             <TextField fx:id="emailField"
-                       promptText="admin@orderly.com"
+                       promptText="correo o nombre de usuario"
                        style="-fx-background-color: #f9fafb; -fx-background-radius: 8; -fx-border-color: #e5e7eb; -fx-border-radius: 8; -fx-border-width: 1; -fx-padding: 10 14; -fx-font-size: 14; -fx-text-fill: #1f2937; -fx-prompt-text-fill: #9ca3af; -fx-font-family: 'Inter', 'Segoe UI', sans-serif;"
                        maxWidth="Infinity"/>
         </VBox>

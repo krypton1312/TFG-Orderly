@@ -47,6 +47,7 @@ public class AuthController {
         e.setName(req.name());
         e.setLastname(req.lastname());
         e.setEmail(req.email());
+        e.setUsername(generateUsername(req.name(), req.lastname()));
         e.setPassword(passwordEncoder.encode(req.password()));
         e.setHireDate(LocalDate.now());
         e.setStatus(EmployeeStatus.ACTIVE);
@@ -63,7 +64,7 @@ public class AuthController {
     ) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        req.email(),
+                        req.identifier(),
                         req.password()
                 )
         );
@@ -72,6 +73,16 @@ public class AuthController {
         String accessToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
         return new AuthResponse(accessToken, refreshToken);
+    }
+
+    private String generateUsername(String name, String lastname) {
+        String base = (String.valueOf(name.charAt(0)) + lastname)
+                .toLowerCase()
+                .replaceAll("[^a-z0-9]", "");
+        if (!employeeRepository.existsByUsername(base)) return base;
+        int i = 1;
+        while (employeeRepository.existsByUsername(base + i)) i++;
+        return base + i;
     }
 
     @PostMapping("/refresh")

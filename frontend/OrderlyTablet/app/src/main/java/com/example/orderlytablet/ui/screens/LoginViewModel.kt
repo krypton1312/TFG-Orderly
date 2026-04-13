@@ -46,11 +46,11 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.value = LoginUiState.ShowLogin
     }
 
-    fun login(email: String, password: String) {
+    fun login(identifier: String, password: String) {
         _uiState.value = LoginUiState.Loading
         viewModelScope.launch {
             try {
-                val resp = authApi.login(LoginRequest(email, password))
+                val resp = authApi.login(LoginRequest(identifier, password))
                 tokenStore.save(resp.token, resp.refreshToken)
                 _uiState.value = LoginUiState.NavigateToOrders
             } catch (e: retrofit2.HttpException) {

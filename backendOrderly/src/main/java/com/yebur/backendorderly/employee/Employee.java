@@ -76,6 +76,9 @@ public class Employee {
     @ToString.Include
     private String email;
 
+    @Column(unique = true)
+    private String username;
+
     @Column(nullable = false)
     @ToString.Include
     private LocalDate hireDate;

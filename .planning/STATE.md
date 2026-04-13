@@ -65,6 +65,12 @@ progress:
 - `onNewOrder`, `onShiftToggle`, `onSettings` are TODO stubs in Phone
 - No WebSocket reconnection on tablet disconnect
 
+## Out-of-Phase Changes
+
+| Date | Description | Files |
+|------|-------------|-------|
+| 2026-04-13 | **Login by username (first-letter-name + lastname)** — added `username` column to `Employee`, dual-lookup in `CustomUserDetailsService` (email if `@`, else username), `LoginRequest.identifier` replaces `email`, auto-generated username on register. All clients (PC, Phone, Tablet) updated. | `Employee.java`, `EmployeeRepository.java`, `CustomUserDetailsService.java`, `LoginRequest.java` (backend), `AuthController.java`, `EmployeeResponse.java`, `AuthService.java` (PC), `LoginRequest.kt`, `AuthRepository.kt`, `LoginViewModel.kt`, `LoginScreen.kt` (Phone + Tablet) |
+
 ## Pending Todos
 
 - (none yet — added as work progresses)
