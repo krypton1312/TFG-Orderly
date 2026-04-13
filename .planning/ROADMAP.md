@@ -88,7 +88,12 @@ Plans:
 
 **Requirements:** PC-04
 
-**Plans:** TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — EmployeeResponse, RoleResponse, EmployeeRequest DTOs + EmployeeService + RoleService
+- [ ] 05-02-PLAN.md — Empleados card in data.fxml + DataController routing + EntityType.EMPLOYEE wiring
+- [ ] 05-03-PLAN.md — Employee ADD/EDIT/DELETE forms (DatePicker, role ToggleButtons, status ComboBox, soft delete, temp password dialog)
 
 **Depends on:** Phase 1
 
