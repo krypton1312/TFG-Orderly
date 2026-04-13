@@ -70,7 +70,13 @@ Plans:
 
 **Requirements:** PHN-06, PHN-07, RT-01, RT-02, TAB-01, TAB-02
 
-**Plans:** TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Backend: register /ws/orders/phone endpoint + Security permitAll /ws/**
+- [ ] 04-02-PLAN.md — Phone: error states UI with WifiOff icon + Reintentar button on all 3 screens
+- [ ] 04-03-PLAN.md — Tablet: WebSocket reconnect with exponential backoff + URL from BASE_URL
+- [ ] 04-04-PLAN.md — Phone: OrderWebSocketClient singleton (SharedFlow) + VM wiring + AppNav connect/disconnect
 
 **Depends on:** Phase 3
 
