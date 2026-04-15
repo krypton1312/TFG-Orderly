@@ -29,6 +29,8 @@ public class DataController {
     public VBox suplementVBox;
     @FXML
     public VBox tableVBox;
+    @FXML
+    public VBox employeeVBox;
 
     private final Map<String, Node> loadedViews = new HashMap<>();
 
@@ -57,6 +59,9 @@ public class DataController {
         }
         else if (source == tableVBox) {
             loadCenterContent("/com/yebur/portal/views/dataOperation.fxml", "table");
+        }
+        else if (source == employeeVBox) {
+            loadCenterContent("/com/yebur/portal/views/dataOperation.fxml", "employee");
         }
     }
 

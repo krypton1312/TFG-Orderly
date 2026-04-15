@@ -38,7 +38,7 @@ import static com.yebur.ui.CustomDialog.showError;
 public class DataOperationController {
 
     // ---------- ENUMS ----------
-    private enum EntityType {PRODUCT, CATEGORY, TABLE, SUPPLEMENT}
+    private enum EntityType {PRODUCT, CATEGORY, TABLE, SUPPLEMENT, EMPLOYEE}
 
     private enum ActionType {ADD, EDIT, DELETE}
 
@@ -160,6 +160,7 @@ public class DataOperationController {
             case CATEGORY -> setupCategoryUI();
             case TABLE -> setupTableUI();
             case SUPPLEMENT -> setupSupplementUI();
+            case EMPLOYEE -> setupEmployeeUI();
         }
 
         submitButton.setOnAction(event -> handleSubmitButton());
@@ -550,6 +551,7 @@ public class DataOperationController {
                 case CATEGORY -> handleCategorySubmit();
                 case TABLE -> handleTableSubmit();
                 case SUPPLEMENT -> handleSupplementSubmit();
+                case EMPLOYEE -> handleEmployeeSubmit();
             }
         } catch (Exception e) {
             System.err.println("❌ Error: " + e.getMessage());
@@ -1335,11 +1337,23 @@ public class DataOperationController {
                             loadSupplementResponses();
                         }
                     }
+                    case EMPLOYEE -> {
+                        // Refresh handled in setupEmployeeUI after submit
+                    }
                 }
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
         });
+    }
+
+    // ---------- EMPLOYEE UI SETUP (Plan 03) ----------
+    private void setupEmployeeUI() {
+        // Implemented in Phase 05 Plan 03
+    }
+
+    private void handleEmployeeSubmit() {
+        // Implemented in Phase 05 Plan 03
     }
 
     private boolean confirmDataModification(Stage stage, String message) {
