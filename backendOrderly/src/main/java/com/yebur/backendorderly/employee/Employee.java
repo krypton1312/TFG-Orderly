@@ -79,7 +79,7 @@ public class Employee {
     @Column(unique = true)
     private String username;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "boolean not null default false")
     private boolean mustChangePassword = false;
 
     @Column(nullable = false)

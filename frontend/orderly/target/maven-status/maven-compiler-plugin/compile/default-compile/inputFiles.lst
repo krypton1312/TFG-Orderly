@@ -13,6 +13,7 @@ D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\app\App.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\ProductResponseSummary.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\OrderSummary.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\PosController.java
+D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\EmployeeResponse.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\module-info.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\DataOperationController.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\CategoryService.java
@@ -21,8 +22,11 @@ D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\PartialPaymen
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\SupplementRequest.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\ProductService.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\ui\CustomDialog.java
+D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\RoleService.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\CashOperationRequest.java
+D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\RoleResponse.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\ShiftOperationCloseController.java
+D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\EmployeeService.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\OperationsController.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\CategoryRequest.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\ReceiptFxToPdfService.java
@@ -33,6 +37,7 @@ D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\ReceiptContro
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\ErrorResponse.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\CashSessionRequest.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\ApiClient.java
+D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\request\EmployeeRequest.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\AuthService.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\SupplementService.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\ApiException.java
