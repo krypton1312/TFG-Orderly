@@ -1,13 +1,16 @@
 package com.yebur.controller;
 
 import com.yebur.model.request.CategoryRequest;
+import com.yebur.model.request.EmployeeRequest;
 import com.yebur.model.request.ProductRequest;
 import com.yebur.model.request.RestTableRequest;
 import com.yebur.model.request.SupplementRequest;
 import com.yebur.model.response.*;
 import com.yebur.service.CategoryService;
+import com.yebur.service.EmployeeService;
 import com.yebur.service.ProductService;
 import com.yebur.service.RestTableService;
+import com.yebur.service.RoleService;
 import com.yebur.service.SupplementService;
 import com.yebur.ui.CustomDialog;
 import javafx.animation.PauseTransition;
@@ -31,7 +34,11 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.yebur.ui.CustomDialog.showError;
 
@@ -79,6 +86,27 @@ public class DataOperationController {
     private Button tablePositionInside;
     private FlowPane selectedCategoriesPane, selectedProductsPane;
     private GridPane gridPane = new GridPane();
+
+    // ---------- EMPLOYEE FIELDS ----------
+    private TextField lastnameTextField;
+    private TextField emailTextField;
+    private TextField phoneNumberTextField;
+    private DatePicker hireDatePicker;
+    private VBox lastnameVBox;
+    private VBox emailVBox;
+    private VBox phoneVBox;
+    private VBox hireDateVBox;
+    private VBox rolesOuterVBox;
+    private HBox rolesButtonsHBox;
+    private ComboBox<String> statusComboBox;
+    private VBox statusVBox;
+    private Label usernameDisplayLabel;
+
+    private static final Map<String, String> STATUS_TO_ENUM = Map.of(
+            "ACTIVO", "ACTIVE",
+            "INACTIVO", "INACTIVE",
+            "SUSPENDIDO", "SUSPENDED"
+    );
 
     // ---------- LIST SUPPORT ----------
     private ObservableList<?> items;
@@ -758,8 +786,20 @@ public class DataOperationController {
         }
         selectedCategoriesForSupplement.clear();
         selectedProductsForSupplement.clear();
-        selectedCategoriesPane.getChildren().clear();
-        selectedProductsPane.getChildren().clear();
+        if (selectedCategoriesPane != null) selectedCategoriesPane.getChildren().clear();
+        if (selectedProductsPane != null) selectedProductsPane.getChildren().clear();
+        // Reset employee-specific widgets
+        if (hireDatePicker != null) {
+            hireDatePicker.setValue(selectedAction == ActionType.ADD ? LocalDate.now() : null);
+        }
+        if (rolesButtonsHBox != null) {
+            rolesButtonsHBox.getChildren().stream()
+                .filter(n -> n instanceof ToggleButton)
+                .forEach(n -> ((ToggleButton) n).setSelected(false));
+        }
+        if (statusComboBox != null) {
+            statusComboBox.setValue(null);
+        }
     }
 
     private boolean verifyNotBlank() {
@@ -768,7 +808,7 @@ public class DataOperationController {
             if (vbox instanceof VBox vb) {
                 for (Node child : vb.getChildren()) {
                     if (child instanceof TextField tf && tf.getText().trim().isEmpty()) {
-                        if (tf == supplementCategoriesTextField || tf == supplementProductsTextField) {
+                        if (tf == supplementCategoriesTextField || tf == supplementProductsTextField || tf == phoneNumberTextField) {
                             continue;
                         }
                         child.getStyleClass().add("blank-element");
@@ -1347,13 +1387,304 @@ public class DataOperationController {
         });
     }
 
-    // ---------- EMPLOYEE UI SETUP (Plan 03) ----------
+    // ---------- EMPLOYEE UI SETUP ----------
     private void setupEmployeeUI() {
-        // Implemented in Phase 05 Plan 03
+        switch (selectedAction) {
+            case ADD    -> showEmployeeAddForm();
+            case EDIT   -> showEmployeeEditForm();
+            case DELETE -> showEmployeeDeleteForm();
+        }
+    }
+
+    private void showEmployeeAddForm() {
+        createGridPane();
+
+        nameLabel.setText("Nombre:");
+        addClickHandler(nameTextField);
+
+        lastnameVBox = new VBox(5);
+        Label empLbl1 = new Label("Apellido:");
+        lastnameTextField = new TextField();
+        lastnameVBox.getChildren().addAll(empLbl1, lastnameTextField);
+        addClickHandler(lastnameTextField);
+
+        emailVBox = new VBox(5);
+        Label empLbl2 = new Label("Email:");
+        emailTextField = new TextField();
+        emailVBox.getChildren().addAll(empLbl2, emailTextField);
+        addClickHandler(emailTextField);
+
+        phoneVBox = new VBox(5);
+        Label empLbl3 = new Label("Teléfono (opcional):");
+        phoneNumberTextField = new TextField();
+        phoneVBox.getChildren().addAll(empLbl3, phoneNumberTextField);
+
+        hireDateVBox = new VBox(5);
+        Label empLbl4 = new Label("Fecha de contratación:");
+        hireDatePicker = new DatePicker(LocalDate.now());
+        hireDatePicker.setMaxWidth(Double.MAX_VALUE);
+        hireDateVBox.getChildren().addAll(empLbl4, hireDatePicker);
+        addClickHandler(hireDateVBox);
+
+        rolesOuterVBox = new VBox(8);
+        Label empLbl5 = new Label("Roles:");
+        rolesButtonsHBox = new HBox(8);
+        rolesOuterVBox.getChildren().addAll(empLbl5, rolesButtonsHBox);
+        addClickHandler(rolesOuterVBox);
+        try {
+            for (RoleResponse role : RoleService.getAllRoles()) {
+                ToggleButton btn = new ToggleButton(role.getName());
+                btn.setUserData(role);
+                btn.getStyleClass().add("table-buttons");
+                rolesButtonsHBox.getChildren().add(btn);
+            }
+        } catch (Exception e) {
+            CustomDialog.showError("No se pudieron cargar los roles: " + e.getMessage());
+        }
+
+        gridPane.add(name, 0, 0);
+        gridPane.add(lastnameVBox, 1, 0);
+        gridPane.add(emailVBox, 0, 1, 2, 1);
+        gridPane.add(phoneVBox, 0, 2);
+        gridPane.add(hireDateVBox, 1, 2);
+        gridPane.add(rolesOuterVBox, 0, 3, 2, 1);
+
+        submitButton.setText("Crear empleado");
+        dynamicFormVB.getChildren().setAll(gridPane);
+        applyFormStyles(gridPane);
+    }
+
+    private void showEmployeeEditForm() {
+        createGridPane();
+
+        lastnameVBox = new VBox(5);
+        Label empLbl1 = new Label("Apellido:");
+        lastnameTextField = new TextField();
+        lastnameVBox.getChildren().addAll(empLbl1, lastnameTextField);
+        addClickHandler(lastnameTextField);
+
+        emailVBox = new VBox(5);
+        Label empLbl2 = new Label("Email:");
+        emailTextField = new TextField();
+        emailVBox.getChildren().addAll(empLbl2, emailTextField);
+        addClickHandler(emailTextField);
+
+        phoneVBox = new VBox(5);
+        Label empLbl3 = new Label("Teléfono (opcional):");
+        phoneNumberTextField = new TextField();
+        phoneVBox.getChildren().addAll(empLbl3, phoneNumberTextField);
+
+        hireDateVBox = new VBox(5);
+        Label empLbl4 = new Label("Fecha de contratación:");
+        hireDatePicker = new DatePicker();
+        hireDatePicker.setMaxWidth(Double.MAX_VALUE);
+        hireDateVBox.getChildren().addAll(empLbl4, hireDatePicker);
+        addClickHandler(hireDateVBox);
+
+        rolesOuterVBox = new VBox(8);
+        Label empLbl5 = new Label("Roles:");
+        rolesButtonsHBox = new HBox(8);
+        rolesOuterVBox.getChildren().addAll(empLbl5, rolesButtonsHBox);
+        addClickHandler(rolesOuterVBox);
+        try {
+            for (RoleResponse role : RoleService.getAllRoles()) {
+                ToggleButton btn = new ToggleButton(role.getName());
+                btn.setUserData(role);
+                btn.getStyleClass().add("table-buttons");
+                rolesButtonsHBox.getChildren().add(btn);
+            }
+        } catch (Exception e) {
+            CustomDialog.showError("No se pudieron cargar los roles: " + e.getMessage());
+        }
+
+        statusVBox = new VBox(5);
+        Label empLbl6 = new Label("Estado:");
+        statusComboBox = new ComboBox<>();
+        statusComboBox.getItems().addAll("ACTIVO", "INACTIVO", "SUSPENDIDO");
+        statusComboBox.setMaxWidth(Double.MAX_VALUE);
+        statusVBox.getChildren().addAll(empLbl6, statusComboBox);
+        addClickHandler(statusComboBox);
+
+        VBox usernameVBox = new VBox(5);
+        Label empLbl7 = new Label("Usuario (generado):");
+        usernameDisplayLabel = new Label("");
+        usernameDisplayLabel.getStyleClass().add("form-label");
+        usernameVBox.getChildren().addAll(empLbl7, usernameDisplayLabel);
+
+        // Wire search to pre-populate fields once an employee is selected
+        try {
+            List<EmployeeResponse> employees = EmployeeService.getAllEmployees();
+            setupDynamicList(
+                    employees,
+                    findItemTextField,
+                    emp -> emp.getName() + " " + emp.getLastname() + " (" + emp.getUsername() + ")",
+                    emp -> {
+                        selectedItemPopup = emp;
+                        nameTextField.setText(emp.getName());
+                        lastnameTextField.setText(emp.getLastname());
+                        emailTextField.setText(emp.getEmail());
+                        phoneNumberTextField.setText(emp.getPhoneNumber() != null ? emp.getPhoneNumber() : "");
+                        hireDatePicker.setValue(emp.getHireDate());
+                        if (usernameDisplayLabel != null) usernameDisplayLabel.setText(emp.getUsername());
+                        Set<Long> existingRoleIds = emp.getRoles().stream()
+                                .map(RoleResponse::getId)
+                                .collect(Collectors.toSet());
+                        rolesButtonsHBox.getChildren().stream()
+                                .filter(n -> n instanceof ToggleButton)
+                                .map(n -> (ToggleButton) n)
+                                .forEach(tbtn -> tbtn.setSelected(
+                                        existingRoleIds.contains(((RoleResponse) tbtn.getUserData()).getId())));
+                        statusComboBox.setValue(emp.getStatus());
+                    },
+                    false
+            );
+        } catch (Exception e) {
+            CustomDialog.showError("No se pudieron cargar los empleados: " + e.getMessage());
+        }
+
+        nameLabel.setText("Nombre:");
+        findItemLabel.setText("Buscar empleado:");
+        gridPane.add(findItem, 0, 0, 2, 1);
+        gridPane.add(name, 0, 1);
+        gridPane.add(lastnameVBox, 1, 1);
+        gridPane.add(usernameVBox, 0, 2, 2, 1);
+        gridPane.add(emailVBox, 0, 3, 2, 1);
+        gridPane.add(phoneVBox, 0, 4);
+        gridPane.add(hireDateVBox, 1, 4);
+        gridPane.add(rolesOuterVBox, 0, 5, 2, 1);
+        gridPane.add(statusVBox, 0, 6, 2, 1);
+
+        Button changePasswordBtn = new Button("Cambiar contraseña");
+        changePasswordBtn.getStyleClass().add("submit-button");
+        changePasswordBtn.setOnAction(ev -> {
+            if (!(selectedItemPopup instanceof EmployeeResponse emp)) return;
+            try {
+                String tmpPwd = EmployeeService.resetPassword(emp.getId());
+                CustomDialog.showError("Contraseña temporal: " + tmpPwd + "\nDísela al empleado.");
+            } catch (Exception ex) {
+                CustomDialog.showError("No se pudo restablecer la contraseña: " + ex.getMessage());
+            }
+        });
+
+        submitButton.setText("Guardar cambios");
+        dynamicFormVB.getChildren().setAll(gridPane, changePasswordBtn);
+        applyFormStyles(gridPane);
+    }
+
+    private void showEmployeeDeleteForm() {
+        createGridPane();
+
+        try {
+            List<EmployeeResponse> employees = EmployeeService.getAllEmployees();
+            setupDynamicList(
+                    employees,
+                    findItemTextField,
+                    emp -> emp.getName() + " " + emp.getLastname() + " (" + emp.getUsername() + ")",
+                    emp -> selectedItemPopup = emp,
+                    false
+            );
+        } catch (Exception e) {
+            CustomDialog.showError("No se pudieron cargar los empleados: " + e.getMessage());
+        }
+
+        findItemLabel.setText("Buscar empleado:");
+        gridPane.add(findItem, 0, 0, 2, 1);
+        submitButton.setText("Archivar empleado");
+        dynamicFormVB.getChildren().setAll(gridPane);
+        applyFormStyles(gridPane);
     }
 
     private void handleEmployeeSubmit() {
-        // Implemented in Phase 05 Plan 03
+        boolean hasError = verifyNotBlank();
+
+        if (selectedAction != ActionType.DELETE) {
+            if (hireDatePicker != null && hireDatePicker.getValue() == null) {
+                if (!hireDateVBox.getStyleClass().contains("blank-element"))
+                    hireDateVBox.getStyleClass().add("blank-element");
+                hasError = true;
+            }
+            if (rolesButtonsHBox != null) {
+                boolean anySelected = rolesButtonsHBox.getChildren().stream()
+                        .filter(n -> n instanceof ToggleButton)
+                        .map(n -> (ToggleButton) n)
+                        .anyMatch(ToggleButton::isSelected);
+                if (!anySelected) {
+                    if (!rolesOuterVBox.getStyleClass().contains("blank-element"))
+                        rolesOuterVBox.getStyleClass().add("blank-element");
+                    hasError = true;
+                }
+            }
+        }
+
+        if (hasError) return;
+
+        Set<Long> selectedRoleIds = (rolesButtonsHBox == null) ? Set.of() :
+                rolesButtonsHBox.getChildren().stream()
+                        .filter(n -> n instanceof ToggleButton)
+                        .map(n -> (ToggleButton) n)
+                        .filter(ToggleButton::isSelected)
+                        .map(btn -> ((RoleResponse) btn.getUserData()).getId())
+                        .collect(Collectors.toSet());
+
+        try {
+            switch (selectedAction) {
+                case ADD -> {
+                    EmployeeRequest req = new EmployeeRequest();
+                    req.setName(nameTextField.getText().trim());
+                    req.setLastname(lastnameTextField.getText().trim());
+                    req.setEmail(emailTextField.getText().trim());
+                    String addPhone = phoneNumberTextField.getText().trim();
+                    req.setPhoneNumber(addPhone.isEmpty() ? null : addPhone);
+                    req.setHireDate(hireDatePicker.getValue());
+                    req.setRoles(selectedRoleIds);
+                    req.setPassword(null);
+                    req.setStatus(null);
+
+                    EmployeeResponse created = EmployeeService.createEmployee(req);
+                    CustomDialog.showError("Empleado creado.\nContraseña temporal: "
+                            + created.getTempPassword() + "\nDísela al empleado.");
+                    setupEmployeeUI();
+                }
+                case EDIT -> {
+                    if (!(selectedItemPopup instanceof EmployeeResponse emp)) return;
+                    EmployeeRequest req = new EmployeeRequest();
+                    req.setName(nameTextField.getText().trim());
+                    req.setLastname(lastnameTextField.getText().trim());
+                    req.setEmail(emailTextField.getText().trim());
+                    String editPhone = phoneNumberTextField.getText().trim();
+                    req.setPhoneNumber(editPhone.isEmpty() ? null : editPhone);
+                    req.setHireDate(hireDatePicker.getValue());
+                    req.setRoles(selectedRoleIds);
+                    req.setPassword(null);
+                    String statusSpanish = statusComboBox.getValue();
+                    req.setStatus(statusSpanish != null ? STATUS_TO_ENUM.get(statusSpanish) : null);
+
+                    EmployeeService.updateEmployee(emp.getId(), req);
+                    CustomDialog.showError("Empleado modificado correctamente.");
+                    setupEmployeeUI();
+                }
+                case DELETE -> {
+                    if (!(selectedItemPopup instanceof EmployeeResponse emp)) return;
+                    EmployeeRequest req = new EmployeeRequest();
+                    req.setName(emp.getName());
+                    req.setLastname(emp.getLastname());
+                    req.setEmail(emp.getEmail());
+                    req.setPhoneNumber(emp.getPhoneNumber());
+                    req.setHireDate(emp.getHireDate());
+                    Set<Long> existingRoles = emp.getRoles().stream()
+                            .map(RoleResponse::getId).collect(Collectors.toSet());
+                    req.setRoles(existingRoles);
+                    req.setPassword(null);
+                    req.setStatus("INACTIVE");
+
+                    EmployeeService.updateEmployee(emp.getId(), req);
+                    CustomDialog.showError("Empleado archivado correctamente.");
+                    setupEmployeeUI();
+                }
+            }
+        } catch (Exception e) {
+            CustomDialog.showError("Error al procesar la solicitud: " + e.getMessage());
+        }
     }
 
     private boolean confirmDataModification(Stage stage, String message) {
