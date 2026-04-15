@@ -156,6 +156,75 @@
     -fx-background-radius: 50;
 }
 
+/* ---- Employee: role add buttons ---- */
+.role-add-btn {
+    -fx-background-color: #f5f7fa;
+    -fx-background-radius: 8px;
+    -fx-text-fill: #374151;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-padding: 4 12 4 12;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+}
+.role-add-btn:hover {
+    -fx-background-color: #fed7aa;
+    -fx-text-fill: #9a3412;
+    -fx-border-color: #f97316;
+}
 
-
+/* ---- Employee: DatePicker ---- */
+.emp-datepicker {
+    -fx-background-color: #f5f7fa;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1f2937;
+}
+.emp-datepicker .text-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1f2937;
+    -fx-padding: 6 4 6 8;
+}
+.emp-datepicker .arrow-button {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+.emp-datepicker .arrow-button .arrow {
+    -fx-background-color: #f97316;
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z";
+}
+.emp-datepicker:focused,
+.emp-datepicker .text-field:focused {
+    -fx-border-color: #f97316;
+}
+.date-picker-popup .calendar-grid {
+    -fx-background-color: #ffffff;
+}
+.date-picker-popup .day-cell:hover > .text {
+    -fx-fill: #9a3412;
+}
+.date-picker-popup .selected > .text {
+    -fx-fill: white;
+}
+.date-picker-popup .selected {
+    -fx-background-color: #f97316;
+    -fx-background-radius: 50%;
+}
+.date-picker-popup .month-year-pane {
+    -fx-background-color: #f97316;
+}
+.date-picker-popup .spinner .button {
+    -fx-background-color: transparent;
+}
+.date-picker-popup .spinner .left-button .left-arrow,
+.date-picker-popup .spinner .right-button .right-arrow {
+    -fx-background-color: white;
+}
 

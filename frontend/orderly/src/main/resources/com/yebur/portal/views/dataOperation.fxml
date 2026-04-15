@@ -48,6 +48,7 @@
 
         <VBox fx:id="dynamicFormVB"/>
         <HBox>
+            <Button fx:id="changePasswordBtn" styleClass="submit-button" managed="false" visible="false"/>
             <Pane HBox.hgrow="ALWAYS" />
             <Button fx:id="submitButton" styleClass="submit-button"/>
         </HBox>
