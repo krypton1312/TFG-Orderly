@@ -91,9 +91,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — EmployeeResponse, RoleResponse, EmployeeRequest DTOs + EmployeeService + RoleService
-- [ ] 05-02-PLAN.md — Empleados card in data.fxml + DataController routing + EntityType.EMPLOYEE wiring
-- [ ] 05-03-PLAN.md — Employee ADD/EDIT/DELETE forms (DatePicker, role ToggleButtons, status ComboBox, soft delete, temp password dialog)
+- [x] 05-01-PLAN.md — EmployeeResponse, RoleResponse, EmployeeRequest DTOs + EmployeeService + RoleService
+- [x] 05-02-PLAN.md — Empleados card in data.fxml + DataController routing + EntityType.EMPLOYEE wiring
+- [x] 05-03-PLAN.md — Employee ADD/EDIT/DELETE forms (DatePicker, role ToggleButtons, status ComboBox, soft delete, temp password dialog)
 
 **Depends on:** Phase 1
 
