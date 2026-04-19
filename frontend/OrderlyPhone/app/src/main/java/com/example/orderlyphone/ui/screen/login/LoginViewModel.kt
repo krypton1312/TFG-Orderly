@@ -40,9 +40,9 @@ class LoginViewModel @Inject constructor(
     }
 
     fun logout() {
+        _state.value = LoginState.Idle  // синхронно — до navigate
         viewModelScope.launch {
             tokenStore.clear()
-            _state.value = LoginState.Idle
         }
     }
 }

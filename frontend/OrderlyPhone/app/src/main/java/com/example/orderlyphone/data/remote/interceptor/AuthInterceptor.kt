@@ -1,6 +1,7 @@
 package com.example.orderlyphone.data.remote.interceptor
 
 import com.example.orderlyphone.data.local.TokenStore
+import com.example.orderlyphone.data.remote.AuthEventBus
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -12,8 +13,8 @@ class AuthInterceptor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val req = chain.request()
 
-        // Не добавляем токен на /auth/*
-        if (req.url.encodedPath.startsWith("/auth/")) {
+        // Не добавляем токен только на /auth/login
+        if (req.url.encodedPath == "/auth/login") {
             return chain.proceed(req)
         }
 
@@ -24,6 +25,13 @@ class AuthInterceptor(
             .header("Authorization", "Bearer $token")
             .build()
 
-        return chain.proceed(authed)
+        val response = chain.proceed(authed)
+
+        if (response.code == 401) {
+            runBlocking { tokenStore.clear() }
+            AuthEventBus.emitUnauthorized()
+        }
+
+        return response
     }
 }

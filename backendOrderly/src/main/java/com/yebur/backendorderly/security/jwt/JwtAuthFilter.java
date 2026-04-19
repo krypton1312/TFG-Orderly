@@ -33,8 +33,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        // 🔥 ВАЖНО
-        if (path.startsWith("/auth")) {
+        // Skip token injection only for public auth endpoints
+        if (path.equals("/auth/login") || path.equals("/auth/refresh")) {
             filterChain.doFilter(request, response);
             return;
         }

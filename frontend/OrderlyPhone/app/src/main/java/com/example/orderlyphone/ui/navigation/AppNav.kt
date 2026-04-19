@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.orderlyphone.data.remote.AuthEventBus
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -74,6 +75,17 @@ private fun tableLabel(tableId: Long?): String = tableId?.let { "Mesa $it" } ?: 
 fun AppNav(webSocketClient: OrderWebSocketClient) {
     val navController = rememberNavController()
     val loginVm: LoginViewModel = hiltViewModel()
+
+    // Глобальный обработчик 401 — перебрасывает на логин из любого экрана
+    LaunchedEffect(Unit) {
+        AuthEventBus.unauthorizedEvent.collect {
+            webSocketClient.disconnect()
+            loginVm.logout()
+            navController.navigate(LoginRoute) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
 
     NavHost(
         navController = navController,
