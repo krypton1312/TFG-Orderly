@@ -144,8 +144,8 @@ public class StartController {
             stage.setResizable(false);
             stage.setScene(scene);
 
-            stage.setOnHidden(ev -> openPosWindow());
             stage.showAndWait();
+            openPosWindow();
 
         } catch (Exception ex) {
             ex.printStackTrace();
