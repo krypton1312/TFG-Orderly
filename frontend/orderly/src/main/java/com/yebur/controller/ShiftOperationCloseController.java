@@ -1,5 +1,6 @@
 package com.yebur.controller;
 
+import com.yebur.model.request.CashSessionRequest;
 import com.yebur.model.request.CashCountRequest;
 import com.yebur.model.response.CashCountResponse;
 import com.yebur.model.response.CashOperationResponse;
@@ -29,6 +30,7 @@ import javafx.util.Duration;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
+import java.util.Comparator;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -61,6 +63,7 @@ public class ShiftOperationCloseController {
     private final StringBuilder input = new StringBuilder("0");
 
     private CashCountModelController cashCountController;
+    private CashCountResponse currentSessionCashCount;
 
     // ТЕПЕРЬ ЭТО НЕ "totals", а "текущие суммы"
     private BigDecimal cashAmount = BigDecimal.ZERO;
@@ -206,27 +209,20 @@ public class ShiftOperationCloseController {
         while (node != null && !(node instanceof HBox)) node = node.getParent();
         if (!(node instanceof HBox row)) return;
 
-        BigDecimal value = parseInputToBigDecimal().setScale(2, RoundingMode.HALF_UP);
-
-        // double click: CASH -> open modal
-        if (e.getClickCount() == 2) {
+        if (row == cashHBox) {
             if (singleClickTimer != null) singleClickTimer.stop();
-            if (row == cashHBox) openCashCountModal();
+            openCashCountModal();
             return;
         }
+
+        BigDecimal value = parseInputToBigDecimal().setScale(2, RoundingMode.HALF_UP);
 
         // single click with timer
         if (singleClickTimer != null) singleClickTimer.stop();
 
         singleClickTimer = new PauseTransition(Duration.millis(220));
         singleClickTimer.setOnFinished(ev -> {
-            if (row == cashHBox) {
-                // УСТАНАВЛИВАЕМ сумму налички (если ввёл 0 -> будет вычитание/обнуление)
-                cashAmount = value;
-                refreshAll();
-                onClear();
-
-            } else if (row == cardHBox) {
+            if (row == cardHBox) {
                 // УСТАНАВЛИВАЕМ сумму карты
                 cardAmount = value;
                 refreshAll();
@@ -257,17 +253,43 @@ public class ShiftOperationCloseController {
             stage.setResizable(false);
             stage.setScene(scene);
 
-            this.cashCountController = loader.getController();
-            cashCountController.setCurrentCashSession(cashSession);
+            CashCountModelController efectivoCtrl = loader.getController();
+            efectivoCtrl.setCurrentCashSession(cashSession);
+
+            if (cashSession != null) {
+                try {
+                    currentSessionCashCount = CashCountService.getCashCountBySessionId(cashSession.getId());
+                    efectivoCtrl.preload(currentSessionCashCount);
+                } catch (Exception ignored) {
+                    currentSessionCashCount = null;
+                }
+            }
 
             stage.setOnHidden(ev -> {
-                BigDecimal modalTotal = cashCountController != null ? cashCountController.getTotal() : null;
-                if (modalTotal == null) modalTotal = BigDecimal.ZERO;
+                if (!efectivoCtrl.isAccepted()) {
+                    return;
+                }
 
-                // Модалка возвращает ИТОГ НАЛИЧКИ -> просто устанавливаем
-                cashAmount = modalTotal;
+                this.cashCountController = efectivoCtrl;
 
-                refreshAll();
+                try {
+                    if (cashSession != null) {
+                        currentSessionCashCount = CashCountService.getCashCountBySessionId(cashSession.getId());
+                    }
+
+                    BigDecimal modalTotal = currentSessionCashCount != null
+                            ? cashCountTotal(currentSessionCashCount)
+                            : efectivoCtrl.getTotal();
+                    if (modalTotal == null) modalTotal = BigDecimal.ZERO;
+
+                    cashAmount = modalTotal;
+                    updateCurrentSessionCashEndActual(modalTotal);
+                    closeErrorLabel.setText("");
+                    refreshAll();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    closeErrorLabel.setText("No se pudo actualizar el arqueo de efectivo.");
+                }
             });
 
             stage.showAndWait();
@@ -298,6 +320,14 @@ public class ShiftOperationCloseController {
 
             CashCountModelController ctrl = loader.getController();
             ctrl.setCurrentCashSession(cashSession);
+            ctrl.setPersistCashCountOnAccept(false);
+
+            CashCountResponse depositSource = findDepositSourceCashCount();
+            if (depositSource != null) {
+                ctrl.preload(depositSource);
+            } else {
+                ctrl.preloadFromTotal(cashSession != null ? cashSession.getCashStart() : BigDecimal.ZERO);
+            }
 
             // Dim the portal background while the modal is open
             Scene ownerScene = cashRoot.getScene();
@@ -309,29 +339,23 @@ public class ShiftOperationCloseController {
             dimWrapper.getChildren().add(dimOverlay);
             ownerScene.setRoot(dimWrapper);
 
-            // Preload after hookDenomTextFields has run (both are Platform.runLater,
-            // hookDenomTextFields was queued first during loader.load(), so it runs first)
-            if (cashSession != null) {
-                stage.setOnShown(ev -> {
-                    try {
-                        CashCountResponse existing = CashCountService.getCashCountBySessionId(cashSession.getId());
-                        ctrl.preload(existing);
-                    } catch (Exception ignored) {
-                        // No CashCount yet — fields stay at zero
-                    }
-                });
-            }
-
             stage.setOnHidden(ev -> {
                 // Must remove originalRoot from dimWrapper before restoring it as scene root;
                 // otherwise JavaFX throws "already inside a scene-graph" exception.
                 dimWrapper.getChildren().remove(originalRoot);
                 ownerScene.setRoot(originalRoot);
-                this.cashCountController = ctrl;
-                BigDecimal modalTotal = ctrl.getTotal();
-                if (modalTotal == null) modalTotal = BigDecimal.ZERO;
-                cashAmount = modalTotal;
-                refreshAll();
+
+                if (ctrl.isAccepted()) {
+                    try {
+                        syncDepositWithPreviousShift(ctrl, depositSource);
+                        updateCurrentSessionCashStart(ctrl.getTotal());
+                        cashStartLabel.setText(currencyFormatter.format(cashSession.getCashStart()));
+                        closeErrorLabel.setText("");
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        closeErrorLabel.setText("No se pudo actualizar el depósito entre turnos.");
+                    }
+                }
             });
 
             stage.showAndWait();
@@ -349,14 +373,17 @@ public class ShiftOperationCloseController {
         }
         closeErrorLabel.setText("");
         try {
-            CashCountRequest req = cashCountController != null
-                    ? cashCountController.buildCashCountRequest()
-                    : new CashCountRequest();
+            CashCountRequest req;
+            if (cashCountController != null) {
+                req = cashCountController.buildCashCountRequest();
+            } else {
+                req = new CashCountRequest();
+            }
 
             CashSessionResponse closed = CashSessionService.closeCashSession(cashSession.getId(), req);
 
             List<CashOperationResponse> ops =
-                    CashOperationService.getCashOperationsBySessionId(closed.getId());
+                    CashOperationService.getRealCashOperationsBySessionId(closed.getId());
 
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/com/yebur/portal/views/shiftCloseReport.fxml")
@@ -376,7 +403,161 @@ public class ShiftOperationCloseController {
             stage.showAndWait();
 
         } catch (Exception e) {
+            e.printStackTrace();
             closeErrorLabel.setText("Error al cerrar el turno. Inténtelo de nuevo.");
         }
+    }
+
+    private BigDecimal cashCountTotal(CashCountResponse cc) {
+        if (cc == null) return BigDecimal.ZERO;
+        BigDecimal t = BigDecimal.ZERO;
+        t = t.add(denom("0.01", cc.getC001()));
+        t = t.add(denom("0.02", cc.getC002()));
+        t = t.add(denom("0.05", cc.getC005()));
+        t = t.add(denom("0.10", cc.getC010()));
+        t = t.add(denom("0.20", cc.getC020()));
+        t = t.add(denom("0.50", cc.getC050()));
+        t = t.add(denom("1.00", cc.getC100()));
+        t = t.add(denom("2.00", cc.getC200()));
+        t = t.add(denom("5.00", cc.getB005()));
+        t = t.add(denom("10.00", cc.getB010()));
+        t = t.add(denom("20.00", cc.getB020()));
+        t = t.add(denom("50.00", cc.getB050()));
+        t = t.add(denom("100.00", cc.getB100()));
+        t = t.add(denom("200.00", cc.getB200()));
+        t = t.add(denom("500.00", cc.getB500()));
+        return t;
+    }
+
+    private BigDecimal denom(String value, Integer count) {
+        return new BigDecimal(value).multiply(BigDecimal.valueOf(count != null ? count : 0));
+    }
+
+    private void updateCurrentSessionCashStart(BigDecimal cashStart) throws Exception {
+        CashSessionRequest request = new CashSessionRequest();
+        request.setClosedAt(cashSession.getClosedAt());
+        request.setCashStart(cashStart);
+        request.setCashEndExpected(cashSession.getCashEndExpected());
+        request.setCashEndActual(cashSession.getCashEndActual());
+        request.setDifference(cashSession.getDifference());
+        request.setTotalSalesCash(cashSession.getTotalSalesCash());
+        request.setTotalSalesCard(cashSession.getTotalSalesCard());
+        request.setStatus(toBackendCashSessionStatus(cashSession.getStatus()));
+        this.cashSession = CashSessionService.updateCashSession(cashSession.getId(), request);
+    }
+
+    private void updateCurrentSessionCashEndActual(BigDecimal cashEndActual) throws Exception {
+        CashSessionRequest request = new CashSessionRequest();
+        request.setClosedAt(cashSession.getClosedAt());
+        request.setCashStart(cashSession.getCashStart());
+        request.setCashEndExpected(cashSession.getCashEndExpected());
+        request.setCashEndActual(cashEndActual);
+        request.setDifference(cashSession.getDifference());
+        request.setTotalSalesCash(cashSession.getTotalSalesCash());
+        request.setTotalSalesCard(cashSession.getTotalSalesCard());
+        request.setStatus(toBackendCashSessionStatus(cashSession.getStatus()));
+        this.cashSession = CashSessionService.updateCashSession(cashSession.getId(), request);
+    }
+
+    private void syncDepositWithPreviousShift(CashCountModelController ctrl, CashCountResponse depositSource) throws Exception {
+        CashCountRequest request = ctrl.buildCashCountRequest();
+
+        if (depositSource != null && depositSource.getId() != null) {
+            request.setSessionId(depositSource.getSession_id());
+
+            try {
+                CashCountService.updateCashCount(depositSource.getId(), request);
+                return;
+            } catch (Exception ignored) {
+                if (depositSource.getSession_id() != null) {
+                    CashCountService.createCashCount(request);
+                    return;
+                }
+            }
+        }
+
+        CashSessionResponse previousClosed = findPreviousClosedShift();
+
+        if (previousClosed != null) {
+            request.setSessionId(previousClosed.getId());
+
+            try {
+                CashCountResponse existing = CashCountService.getCashCountBySessionId(previousClosed.getId());
+                CashCountService.updateCashCount(existing.getId(), request);
+            } catch (Exception ignored) {
+                CashCountService.createCashCount(request);
+            }
+            return;
+        }
+
+        request.setSessionId(null);
+
+        try {
+            CashCountResponse existing = CashCountService.getLatestUnassignedCashCount();
+            if (existing == null) {
+                CashCountService.createCashCount(request);
+                return;
+            }
+            CashCountService.updateCashCount(existing.getId(), request);
+        } catch (Exception ignored) {
+            CashCountService.createCashCount(request);
+        }
+    }
+
+    private CashCountResponse findDepositSourceCashCount() throws Exception {
+        CashSessionResponse previousClosed = findPreviousClosedShift();
+
+        if (previousClosed != null) {
+            try {
+                return CashCountService.getCashCountBySessionId(previousClosed.getId());
+            } catch (Exception ignored) {
+                // Fall through to bootstrap cash count fallback
+            }
+        }
+
+        return CashCountService.getLatestUnassignedCashCount();
+    }
+
+    private CashSessionResponse findPreviousClosedShift() throws Exception {
+        return CashSessionService.getAllCashSessions().stream()
+                .filter(session -> session != null
+                        && session.getId() != null
+                        && !session.getId().equals(cashSession.getId())
+                        && isClosedStatus(session.getStatus())
+                        && session.getClosedAt() != null)
+                .filter(session -> cashSession.getOpenedAt() == null || !session.getClosedAt().isAfter(cashSession.getOpenedAt()))
+                .max(Comparator.comparing(CashSessionResponse::getClosedAt))
+                .orElse(null);
+    }
+
+    private boolean isClosedStatus(String status) {
+        return "CLOSED".equalsIgnoreCase(status) || "Cerrado".equalsIgnoreCase(status);
+    }
+
+    private String toBackendCashSessionStatus(String status) {
+        if (status == null || status.isBlank()) return "OPEN";
+        if ("Abierto".equalsIgnoreCase(status)) return "OPEN";
+        if ("Cerrado".equalsIgnoreCase(status)) return "CLOSED";
+        return status.toUpperCase(Locale.ROOT);
+    }
+
+    private CashCountRequest buildCashCountRequestFromResponse(CashCountResponse cc) {
+        CashCountRequest req = new CashCountRequest();
+        req.setC001(cc.getC001());
+        req.setC002(cc.getC002());
+        req.setC005(cc.getC005());
+        req.setC010(cc.getC010());
+        req.setC020(cc.getC020());
+        req.setC050(cc.getC050());
+        req.setC100(cc.getC100());
+        req.setC200(cc.getC200());
+        req.setB005(cc.getB005());
+        req.setB010(cc.getB010());
+        req.setB020(cc.getB020());
+        req.setB050(cc.getB050());
+        req.setB100(cc.getB100());
+        req.setB200(cc.getB200());
+        req.setB500(cc.getB500());
+        return req;
     }
 }

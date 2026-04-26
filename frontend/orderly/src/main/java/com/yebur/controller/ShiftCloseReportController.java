@@ -66,10 +66,10 @@ public class ShiftCloseReportController {
         row.setAlignment(Pos.CENTER_LEFT);
         row.setMaxWidth(Double.MAX_VALUE);
 
-        Label horaLabel = new Label(op.getCreatedAt().format(timeFmt));
+        Label horaLabel = new Label(op.getCreatedAt() != null ? op.getCreatedAt().format(timeFmt) : "--:--");
         horaLabel.getStyleClass().addAll("grid-name", "col-time");
 
-        boolean isEntry = "IN".equals(op.getType());
+        boolean isEntry = "ENTRADA".equals(op.getType());
 
         Label tipoLabel = new Label(isEntry ? "ENTRADA" : "SALIDA");
         tipoLabel.getStyleClass().addAll("grid-name", "col-type");

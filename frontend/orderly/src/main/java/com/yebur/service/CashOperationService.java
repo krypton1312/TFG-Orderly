@@ -30,6 +30,11 @@ public class CashOperationService {
         return mapper.readValue(json, new TypeReference<List<CashOperationResponse>>() {});
     }
 
+    public static List<CashOperationResponse> getRealCashOperationsBySessionId(Long id) throws Exception {
+        String json = ApiClient.get("/cashOperation/cashSession/real/id/" + id);
+        return mapper.readValue(json, new TypeReference<List<CashOperationResponse>>() {});
+    }
+
 
     public static CashOperationResponse createCashOperation(CashOperationRequest request) throws Exception {
         String jsonInput = mapper.writeValueAsString(request);

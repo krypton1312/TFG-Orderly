@@ -125,32 +125,78 @@ public class CustomDialog {
 
     public static void showError(String message) {
         Stage dialog = new Stage();
-        dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-        dialog.setTitle("Error");
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setResizable(false);
 
-        VBox dialogVBox = new VBox(15);
-        dialogVBox.setAlignment(Pos.CENTER);
-        dialogVBox.setStyle("-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 10;");
+        StackPane overlay = new StackPane();
+
+        StackPane card = new StackPane();
+        card.setMaxWidth(440);
+        card.setPrefWidth(440);
+        card.setStyle("""
+            -fx-background-color: white;
+            -fx-background-radius: 18;
+            -fx-border-radius: 18;
+            -fx-border-color: #fee2e2;
+            -fx-border-width: 1;
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
+        """);
+
+        VBox content = new VBox(16);
+        content.setAlignment(Pos.TOP_CENTER);
+        content.setPadding(new Insets(28, 28, 24, 28));
+
+        Circle iconBg = new Circle(26, Color.web("#FEF2F2"));
+        Label icon = new Label("⚠");
+        icon.setStyle("-fx-font-size: 18px; -fx-text-fill: #ef4444;");
+        StackPane iconHolder = new StackPane(iconBg, icon);
+        iconHolder.setMinSize(52, 52);
+        iconHolder.setMaxSize(52, 52);
+
+        Label title = new Label("Error");
+        title.setStyle("-fx-text-fill: #111827; -fx-font-size: 20px; -fx-font-weight: 800;");
 
         Label messageL = new Label(message);
-        messageL.setStyle("-fx-font-size: 16px; -fx-text-fill: #1f2937; -fx-font-weight: bold;");
+        messageL.setWrapText(true);
+        messageL.setMaxWidth(380);
+        messageL.setAlignment(Pos.CENTER);
+        messageL.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 14px;");
 
-        Button closeButton = new Button("OK");
-        closeButton.setStyle("""
-                    -fx-background-color: #f63b3bff;
-                    -fx-text-fill: white;
-                    -fx-font-weight: bold;
-                    -fx-background-radius: 8;
-                    -fx-cursor: hand;
-                    -fx-padding: 6 20;
-                """);
-        closeButton.setPrefSize(60, 40);
-        closeButton.setOnAction(e -> dialog.close());
+        Button okBtn = new Button("OK");
+        okBtn.setPrefHeight(42);
+        okBtn.setPrefWidth(140);
+        String btnNormal = "-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
+        String btnHover  = "-fx-background-color: #dc2626; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
+        okBtn.setStyle(btnNormal);
+        okBtn.setOnMouseEntered(e -> okBtn.setStyle(btnHover));
+        okBtn.setOnMouseExited(e -> okBtn.setStyle(btnNormal));
+        okBtn.setOnAction(e -> dialog.close());
 
-        dialogVBox.getChildren().addAll(messageL, closeButton);
+        content.getChildren().addAll(iconHolder, title, messageL, okBtn);
+        card.getChildren().add(content);
+        overlay.getChildren().add(card);
 
-        Scene dialogScene = new Scene(dialogVBox, 400, 100);
-        dialog.setScene(dialogScene);
+        Scene scene = new Scene(overlay, 440, 260);
+        scene.setFill(Color.TRANSPARENT);
+        dialog.setScene(scene);
+
+        double sw = Screen.getPrimary().getVisualBounds().getWidth();
+        double sh = Screen.getPrimary().getVisualBounds().getHeight();
+        dialog.setX(sw / 2 - 220);
+        dialog.setY(sh / 2 - 130);
+
+        card.setOpacity(0);
+        card.setTranslateY(18);
+        FadeTransition fade = new FadeTransition(Duration.millis(180), card);
+        fade.setFromValue(0);
+        fade.setToValue(1);
+        TranslateTransition slide = new TranslateTransition(Duration.millis(180), card);
+        slide.setFromY(18);
+        slide.setToY(0);
+        fade.play();
+        slide.play();
+
         dialog.showAndWait();
     }
 

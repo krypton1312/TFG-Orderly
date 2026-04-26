@@ -46,8 +46,12 @@ public class CashOperationService implements CashOperationServiceInterface{
         BigDecimal paidCash = orderDetailRepository.getPaidSalesByCashSessionAndPaymentMethod(id, "CASH");
         System.out.println(paidCash + " " + paidCard);
         operations.add(0, new CashOperationResponse(null, id, CashOperationType.DEPOSIT, "CARD", "COBROS EN TARJETA", paidCard, null));
-        operations.add(0,new CashOperationResponse(null, id, CashOperationType.DEPOSIT, "CASH" , "COBROS EN EFECTIVO", paidCash, null));
+        operations.add(0, new CashOperationResponse(null, id, CashOperationType.DEPOSIT, "CASH", "COBROS EN EFECTIVO", paidCash, null));
         return operations;
+    }
+
+    public List<CashOperationResponse> findRealCashOperationDTOBySessionId(Long id){
+        return cashOperationRepository.findCashOperationBySessionId(id);
     }
 
     @Override
