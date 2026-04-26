@@ -50,6 +50,9 @@ public class CashCountModelController {
     // Сколько штук каждого номинала (denom -> count)
     private final Map<BigDecimal, Long> denomCounts = new LinkedHashMap<>();
 
+    // id existing CashCount if opened for edit (null = create mode)
+    private Long existingCashCountId = null;
+
     private final NumberFormat intFmt = NumberFormat.getIntegerInstance(Locale.GERMANY);
     private final NumberFormat eurFmt = NumberFormat.getCurrencyInstance(Locale.GERMANY);
 
@@ -305,6 +308,7 @@ public class CashCountModelController {
     }
 
     public void preload(CashCountResponse response) {
+        this.existingCashCountId = response.getId();
         // Queue after initialize()'s Platform.runLater so TextFields are already hooked
         Platform.runLater(() -> {
             setDenomField(coinsVBox, "0.01", response.getC001());
@@ -366,7 +370,11 @@ public class CashCountModelController {
         ccq.setB500(getCount(new BigDecimal("500")));
 
         try {
-            CashCountService.createCashCount(ccq);
+            if (existingCashCountId != null) {
+                CashCountService.updateCashCount(existingCashCountId, ccq);
+            } else {
+                CashCountService.createCashCount(ccq);
+            }
             onClose();
         }catch (Exception e){
             System.out.println(e.getMessage());
