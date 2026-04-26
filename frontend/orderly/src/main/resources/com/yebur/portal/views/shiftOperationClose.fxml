@@ -203,25 +203,19 @@
 
             </GridPane>
 
-            <Button fx:id="cerrarTurnoBtn"
-                    text="CERRAR TURNO"
-                    onAction="#onCerrarTurno"
-                    styleClass="btn-primary"
-                    maxWidth="Infinity"
-                    prefHeight="44"/>
-            <Label fx:id="closeErrorLabel"
-                   text=""
-                   wrapText="true"
-                   maxWidth="Infinity"
-                   style="-fx-text-fill: #dc2626; -fx-font-size: 12px; -fx-font-weight: 700;"/>
-
         </VBox>
     </GridPane>
 
     <!-- Нижние action-кнопки -->
-    <HBox spacing="12" alignment="CENTER" maxWidth="Infinity" styleClass="cash-actions">
+    <VBox spacing="6" maxWidth="Infinity">
+        <Label fx:id="closeErrorLabel"
+               text=""
+               wrapText="true"
+               maxWidth="Infinity"
+               style="-fx-text-fill: #dc2626; -fx-font-size: 12px; -fx-font-weight: 700; -fx-padding: 0 12 0 12;"/>
+        <HBox spacing="12" alignment="CENTER" maxWidth="Infinity" styleClass="cash-actions">
 
-        <Button text="GRABAR ARQUEO" HBox.hgrow="ALWAYS">
+        <Button fx:id="cerrarTurnoBtn" text="GRABAR ARQUEO" onAction="#onCerrarTurno" HBox.hgrow="ALWAYS">
             <styleClass><String fx:value="action-btn"/><String fx:value="action-orange"/></styleClass>
         </Button>
 
@@ -229,7 +223,7 @@
             <styleClass><String fx:value="action-btn"/><String fx:value="action-orange"/></styleClass>
         </Button>
 
-        <Button text="MODIFICAR DEPÓSITO" HBox.hgrow="ALWAYS">
+        <Button text="MODIFICAR DEPÓSITO" onAction="#onModificarDeposito" HBox.hgrow="ALWAYS">
             <styleClass><String fx:value="action-btn"/><String fx:value="action-orange"/></styleClass>
         </Button>
 
@@ -237,6 +231,7 @@
             <styleClass><String fx:value="action-btn"/><String fx:value="action-dark"/></styleClass>
         </Button>
 
-    </HBox>
+        </HBox>
+    </VBox>
 
 </VBox>

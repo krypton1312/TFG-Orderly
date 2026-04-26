@@ -1,6 +1,7 @@
 package com.yebur.controller;
 
 import com.yebur.model.request.CashCountRequest;
+import com.yebur.model.response.CashCountResponse;
 import com.yebur.model.response.CashSessionResponse;
 import com.yebur.service.CashCountService;
 import com.yebur.service.CashOperationService;
@@ -288,9 +289,9 @@ public class CashCountModelController {
         ccq.setC001(getCount(new BigDecimal("0.01")));
         ccq.setC002(getCount(new BigDecimal("0.02")));
         ccq.setC005(getCount(new BigDecimal("0.05")));
-        ccq.setC010(getCount(new BigDecimal("0.10")));
-        ccq.setC020(getCount(new BigDecimal("0.20")));
-        ccq.setC050(getCount(new BigDecimal("0.50")));
+        ccq.setC010(getCount(new BigDecimal("0.1")));
+        ccq.setC020(getCount(new BigDecimal("0.2")));
+        ccq.setC050(getCount(new BigDecimal("0.5")));
         ccq.setC100(getCount(new BigDecimal("1")));
         ccq.setC200(getCount(new BigDecimal("2")));
         ccq.setB005(getCount(new BigDecimal("5")));
@@ -301,6 +302,43 @@ public class CashCountModelController {
         ccq.setB200(getCount(new BigDecimal("200")));
         ccq.setB500(getCount(new BigDecimal("500")));
         return ccq;
+    }
+
+    public void preload(CashCountResponse response) {
+        // Queue after initialize()'s Platform.runLater so TextFields are already hooked
+        Platform.runLater(() -> {
+            setDenomField(coinsVBox, "0.01", response.getC001());
+            setDenomField(coinsVBox, "0.02", response.getC002());
+            setDenomField(coinsVBox, "0.05", response.getC005());
+            setDenomField(coinsVBox, "0.1",  response.getC010());
+            setDenomField(coinsVBox, "0.2",  response.getC020());
+            setDenomField(coinsVBox, "0.5",  response.getC050());
+            setDenomField(coinsVBox, "1",    response.getC100());
+            setDenomField(coinsVBox, "2",    response.getC200());
+            setDenomField(banknoteVBox, "5",   response.getB005());
+            setDenomField(banknoteVBox, "10",  response.getB010());
+            setDenomField(banknoteVBox, "20",  response.getB020());
+            setDenomField(banknoteVBox, "50",  response.getB050());
+            setDenomField(banknoteVBox, "100", response.getB100());
+            setDenomField(banknoteVBox, "200", response.getB200());
+            setDenomField(banknoteVBox, "500", response.getB500());
+        });
+    }
+
+    private void setDenomField(Parent vbox, String denomStr, Integer count) {
+        if (count == null || count == 0) return;
+        BigDecimal target = parseDenom(denomStr);
+        if (target == null) return;
+        for (Node node : vbox.lookupAll(".row-line")) {
+            if (node instanceof HBox row) {
+                BigDecimal rowDenom = parseDenom(String.valueOf(row.getUserData()));
+                if (rowDenom != null && target.compareTo(rowDenom) == 0) {
+                    TextField tf = findFirstTextField(row);
+                    if (tf != null) tf.setText(String.valueOf(count));
+                    return;
+                }
+            }
+        }
     }
 
 

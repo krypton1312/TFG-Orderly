@@ -1,8 +1,10 @@
 package com.yebur.controller;
 
 import com.yebur.model.request.CashCountRequest;
+import com.yebur.model.response.CashCountResponse;
 import com.yebur.model.response.CashOperationResponse;
 import com.yebur.model.response.CashSessionResponse;
+import com.yebur.service.CashCountService;
 import com.yebur.service.CashOperationService;
 import com.yebur.service.CashSessionService;
 import javafx.animation.PauseTransition;
@@ -263,6 +265,53 @@ public class ShiftOperationCloseController {
                 // Модалка возвращает ИТОГ НАЛИЧКИ -> просто устанавливаем
                 cashAmount = modalTotal;
 
+                refreshAll();
+            });
+
+            stage.showAndWait();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onModificarDeposito() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/yebur/portal/views/cashCountModel.fxml")
+            );
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(
+                    getClass().getResource("/com/yebur/portal/views/cashCountModel.css").toExternalForm()
+            );
+
+            Stage stage = new Stage();
+            stage.initStyle(StageStyle.UNDECORATED);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(cashRoot.getScene().getWindow());
+            stage.setResizable(false);
+            stage.setScene(scene);
+
+            CashCountModelController ctrl = loader.getController();
+            ctrl.setCurrentCashSession(cashSession);
+
+            // Preload existing CashCount denominations if one exists for this session
+            if (cashSession != null) {
+                try {
+                    CashCountResponse existing = CashCountService.getCashCountBySessionId(cashSession.getId());
+                    ctrl.preload(existing);
+                } catch (Exception ignored) {
+                    // No CashCount yet — fields start at zero (default)
+                }
+            }
+
+            stage.setOnHidden(ev -> {
+                this.cashCountController = ctrl;
+                BigDecimal modalTotal = ctrl.getTotal();
+                if (modalTotal == null) modalTotal = BigDecimal.ZERO;
+                cashAmount = modalTotal;
                 refreshAll();
             });
 
