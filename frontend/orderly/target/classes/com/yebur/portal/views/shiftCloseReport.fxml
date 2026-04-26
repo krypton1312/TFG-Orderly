@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.yebur.controller.ShiftCloseReportController"
+            styleClass="modal-card"
+            prefWidth="750" prefHeight="680" maxHeight="768"
+            stylesheets="@shiftCloseReport.css">
+
+    <!-- HEADER -->
+    <top>
+        <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
+            <Label text="INFORME DE TURNO" styleClass="modal-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="✕" styleClass="modal-close" onAction="#onClose"/>
+        </HBox>
+    </top>
+
+    <!-- BODY -->
+    <center>
+        <ScrollPane styleClass="report-scroll" fitToWidth="true">
+            <VBox styleClass="modal-body" spacing="16" maxWidth="Infinity">
+                <padding>
+                    <Insets topRightBottomLeft="16"/>
+                </padding>
+
+                <!-- INFO ROW: date, shift, open time, close time -->
+                <HBox spacing="14" maxWidth="Infinity">
+                    <!-- FECHA -->
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <Label text="FECHA" styleClass="info-label"/>
+                        <Label fx:id="dateLabel" text="" styleClass="info-value"/>
+                    </VBox>
+                    <!-- TURNO N° -->
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <Label text="TURNO N°" styleClass="info-label"/>
+                        <Label fx:id="shiftNoLabel" text="" styleClass="info-value"/>
+                    </VBox>
+                    <!-- APERTURA -->
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <Label text="APERTURA" styleClass="info-label"/>
+                        <Label fx:id="openedAtLabel" text="" styleClass="info-value"/>
+                    </VBox>
+                    <!-- CIERRE -->
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <Label text="CIERRE" styleClass="info-label"/>
+                        <Label fx:id="closedAtLabel" text="" styleClass="info-value"/>
+                    </VBox>
+                </HBox>
+
+                <!-- SUMMARY ROW: initial fund, cash sales, card sales, difference -->
+                <HBox spacing="14" maxWidth="Infinity">
+                    <!-- FONDO INICIAL -->
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <Label text="FONDO INICIAL" styleClass="mini-label"/>
+                        <Label fx:id="cashStartLabel" text="" styleClass="mini-value"/>
+                    </VBox>
+                    <!-- VENTAS EFECTIVO -->
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <Label text="VENTAS EFECTIVO" styleClass="mini-label"/>
+                        <Label fx:id="totalSalesCashLabel" text="" styleClass="mini-value"/>
+                    </VBox>
+                    <!-- VENTAS TARJETA -->
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <Label text="VENTAS TARJETA" styleClass="mini-label"/>
+                        <Label fx:id="totalSalesCardLabel" text="" styleClass="mini-value"/>
+                    </VBox>
+                    <!-- DIFERENCIA -->
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <Label text="DIFERENCIA" styleClass="mini-label"/>
+                        <Label fx:id="differenceLabel" text="" styleClass="mini-value"/>
+                    </VBox>
+                </HBox>
+
+                <!-- OPERATIONS CARD -->
+                <VBox styleClass="report-ops-card" spacing="0">
+                    <Label text="OPERACIONES DE CAJA" styleClass="section-title"/>
+
+                    <!-- Column headers -->
+                    <HBox styleClass="row-head" spacing="10">
+                        <Label text="HORA" styleClass="grid-head col-time"/>
+                        <Label text="TIPO" styleClass="grid-head col-type"/>
+                        <Label text="DESCRIPCIÓN" styleClass="grid-head" HBox.hgrow="ALWAYS"/>
+                        <Label text="IMPORTE" styleClass="grid-head-right col-amount"/>
+                    </HBox>
+
+                    <!-- Operations rows (populated programmatically) -->
+                    <VBox fx:id="operationsVBox" spacing="0" maxWidth="Infinity"/>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <!-- FOOTER -->
+    <bottom>
+        <HBox styleClass="report-footer" alignment="CENTER_RIGHT" spacing="10">
+            <Button fx:id="closeBtn" text="CERRAR" styleClass="btn-secondary" onAction="#onClose"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

@@ -3,7 +3,6 @@ package com.yebur.backendorderly.cashsessions;
 import com.yebur.backendorderly.cashcount.CashCount;
 import com.yebur.backendorderly.cashcount.CashCountRepository;
 import com.yebur.backendorderly.cashcount.CashCountService;
-import com.yebur.backendorderly.cashoperations.CashOperation;
 import com.yebur.backendorderly.cashoperations.CashOperationRepository;
 import com.yebur.backendorderly.orderdetail.OrderDetailRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -132,9 +131,18 @@ public class CashSessionService implements CashSessionServiceInterface {
 
         cashSessionRepository.save(cs);
 
-        cashCount.setSession(cs);
-        cashCount.setCreatedAt(LocalDateTime.now());
-        cashCountRepository.save(cashCount);
+        cashCountRepository.findFirstBySession_Id(cs.getId()).ifPresentOrElse(
+            existing -> {
+                copyDenominations(existing, cashCount);
+                existing.setCreatedAt(LocalDateTime.now());
+                cashCountRepository.save(existing);
+            },
+            () -> {
+                cashCount.setSession(cs);
+                cashCount.setCreatedAt(LocalDateTime.now());
+                cashCountRepository.save(cashCount);
+            }
+        );
 
         return CashSessionResponse.fromEntity(cs);
     }
@@ -163,5 +171,23 @@ public class CashSessionService implements CashSessionServiceInterface {
 
     public Long findLastOpenCashSessionId(){
         return findCashSessionDTOByStatus(CashSessionStatus.OPEN).map(CashSessionResponse::getId).orElse(null);
+    }
+
+    private void copyDenominations(CashCount target, CashCount source) {
+        target.setC001(source.getC001());
+        target.setC002(source.getC002());
+        target.setC005(source.getC005());
+        target.setC010(source.getC010());
+        target.setC020(source.getC020());
+        target.setC050(source.getC050());
+        target.setC100(source.getC100());
+        target.setC200(source.getC200());
+        target.setB005(source.getB005());
+        target.setB010(source.getB010());
+        target.setB020(source.getB020());
+        target.setB050(source.getB050());
+        target.setB100(source.getB100());
+        target.setB200(source.getB200());
+        target.setB500(source.getB500());
     }
 }

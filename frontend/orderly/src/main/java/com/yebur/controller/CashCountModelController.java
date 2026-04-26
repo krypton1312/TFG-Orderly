@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Collections;
@@ -57,6 +58,12 @@ public class CashCountModelController {
     // id existing CashCount if opened for edit (null = create mode)
     private Long existingCashCountId = null;
 
+    @Getter
+    private boolean accepted = false;
+
+    @Setter
+    private boolean persistCashCountOnAccept = true;
+
     private final NumberFormat intFmt = NumberFormat.getIntegerInstance(Locale.GERMANY);
     private final NumberFormat eurFmt = NumberFormat.getCurrencyInstance(Locale.GERMANY);
 
@@ -72,12 +79,16 @@ public class CashCountModelController {
         updateQtyDisplay();
         updateTotalDisplay();
 
-        // Важно: banknoteVBox/coinsVBox должны быть не null (fx:id должен совпадать)
+        // Use direct @FXML refs — avoids lookupAll(".text-field") which requires CSS to be
+        // applied and returns empty when called before the stage is shown.
         Platform.runLater(() -> {
-            if (banknoteVBox != null) hookDenomTextFields(banknoteVBox);
-            if (coinsVBox != null) hookDenomTextFields(coinsVBox);
-
-            // на всякий случай: после первичного сканирования
+            for (TextField tf : new TextField[]{c1, c2, c5, c10, c20, c50, c100, c200,
+                                               b5, b10, b20, b50, b100, b200, b500}) {
+                if (tf == null) continue;
+                attachDigitsFilter(tf);
+                attachRowAndTotalListener(tf);
+                updateFromTextField(tf);
+            }
             recalcTotalFromAllDenoms();
             updateTotalDisplay();
         });
@@ -162,18 +173,6 @@ public class CashCountModelController {
     }
 
     // ===== ПОДПИСКА НА ВСЕ TextField НОМИНАЛОВ =====
-
-    private void hookDenomTextFields(Parent root) {
-        for (Node node : root.lookupAll(".text-field")) {
-            if (node instanceof TextField tf) {
-                attachDigitsFilter(tf);
-                attachRowAndTotalListener(tf);
-
-                // учесть стартовое значение (у тебя text="0")
-                updateFromTextField(tf);
-            }
-        }
-    }
 
     private void attachDigitsFilter(TextField tf) {
         UnaryOperator<TextFormatter.Change> filter = change -> {
@@ -313,9 +312,6 @@ public class CashCountModelController {
 
     public void preload(CashCountResponse response) {
         this.existingCashCountId = response.getId();
-        // Set text directly — hookDenomTextFields (queued via Platform.runLater in initialize)
-        // runs after setOnShown and calls updateFromTextField on each field, so it will
-        // pick up whatever text is set here and populate denomCounts + recalc totals.
         setFieldValue(c1,   response.getC001());
         setFieldValue(c2,   response.getC002());
         setFieldValue(c5,   response.getC005());
@@ -333,9 +329,41 @@ public class CashCountModelController {
         setFieldValue(b500, response.getB500());
     }
 
+    public void preloadFromTotal(BigDecimal amount) {
+        existingCashCountId = null;
+
+        long remainingCents = normalizeAmountToCents(amount);
+        remainingCents = setFieldFromRemaining(b500, remainingCents, 50_000);
+        remainingCents = setFieldFromRemaining(b200, remainingCents, 20_000);
+        remainingCents = setFieldFromRemaining(b100, remainingCents, 10_000);
+        remainingCents = setFieldFromRemaining(b50, remainingCents, 5_000);
+        remainingCents = setFieldFromRemaining(b20, remainingCents, 2_000);
+        remainingCents = setFieldFromRemaining(b10, remainingCents, 1_000);
+        remainingCents = setFieldFromRemaining(b5, remainingCents, 500);
+        remainingCents = setFieldFromRemaining(c200, remainingCents, 200);
+        remainingCents = setFieldFromRemaining(c100, remainingCents, 100);
+        remainingCents = setFieldFromRemaining(c50, remainingCents, 50);
+        remainingCents = setFieldFromRemaining(c20, remainingCents, 20);
+        remainingCents = setFieldFromRemaining(c10, remainingCents, 10);
+        remainingCents = setFieldFromRemaining(c5, remainingCents, 5);
+        remainingCents = setFieldFromRemaining(c2, remainingCents, 2);
+        setFieldFromRemaining(c1, remainingCents, 1);
+    }
+
     private void setFieldValue(TextField tf, Integer count) {
         if (tf == null) return;
         tf.setText(count != null && count > 0 ? String.valueOf(count) : "0");
+    }
+
+    private long setFieldFromRemaining(TextField tf, long remainingCents, long denomCents) {
+        int count = (int) (remainingCents / denomCents);
+        setFieldValue(tf, count);
+        return remainingCents % denomCents;
+    }
+
+    private long normalizeAmountToCents(BigDecimal amount) {
+        if (amount == null || amount.signum() <= 0) return 0L;
+        return amount.setScale(2, RoundingMode.HALF_UP).movePointRight(2).longValue();
     }
 
 
@@ -343,24 +371,15 @@ public class CashCountModelController {
 
     @FXML
     private void onAccept() {
+        accepted = true;
 
-        CashCountRequest ccq = new CashCountRequest();
-        ccq.setSessionId(currentCashSession.getId());
-        ccq.setC001(getCount(new BigDecimal("0.01")));
-        ccq.setC002(getCount(new BigDecimal("0.02")));
-        ccq.setC005(getCount(new BigDecimal("0.05")));
-        ccq.setC010(getCount(new BigDecimal("0.10")));
-        ccq.setC020(getCount(new BigDecimal("0.20")));
-        ccq.setC050(getCount(new BigDecimal("0.50")));
-        ccq.setC100(getCount(new BigDecimal("1")));
-        ccq.setC200(getCount(new BigDecimal("2")));
-        ccq.setB005(getCount(new BigDecimal("5")));
-        ccq.setB010(getCount(new BigDecimal("10")));
-        ccq.setB020(getCount(new BigDecimal("20")));
-        ccq.setB050(getCount(new BigDecimal("50")));
-        ccq.setB100(getCount(new BigDecimal("100")));
-        ccq.setB200(getCount(new BigDecimal("200")));
-        ccq.setB500(getCount(new BigDecimal("500")));
+        if (!persistCashCountOnAccept) {
+            onClose();
+            return;
+        }
+
+        CashCountRequest ccq = buildCashCountRequest();
+        ccq.setSessionId(currentCashSession != null ? currentCashSession.getId() : null);
 
         try {
             if (existingCashCountId != null) {

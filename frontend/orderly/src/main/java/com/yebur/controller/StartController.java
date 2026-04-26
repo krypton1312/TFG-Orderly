@@ -1,7 +1,6 @@
 package com.yebur.controller;
 
 import com.yebur.app.App;
-import com.yebur.model.response.CashCountResponse;
 import com.yebur.model.response.CashSessionResponse;
 import com.yebur.service.CashCountService;
 import com.yebur.service.CashSessionService;
@@ -91,8 +90,22 @@ public class StartController {
                     if (!ok) return;
 
                     try {
-                        this.cashSession = CashSessionService.openCashSession();
-                        checkCashCountAndProceed();
+                        if (hasAnyPersistedCashCount()) {
+                            openShiftAndPos();
+                        } else {
+                            CustomDialog.showCashCountPromptInPlace(modalHost, dimPane, registerArqueo -> {
+                                if (registerArqueo) {
+                                    openInitialCashCountModalAndThenOpenShift();
+                                } else {
+                                    try {
+                                        openShiftAndPos();
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                        CustomDialog.showError("No se pudo abrir el turno. Inténtalo de nuevo.");
+                                    }
+                                }
+                            });
+                        }
                     } catch (Exception ex) {
                         ex.printStackTrace();
                         CustomDialog.showError("No se pudo abrir el turno. Inténtalo de nuevo.");
@@ -101,29 +114,11 @@ public class StartController {
         );
     }
 
-    private void checkCashCountAndProceed() {
-        boolean hasCashCount = false;
-        try {
-            CashCountResponse existing = CashCountService.getCashCountBySessionId(cashSession.getId());
-            hasCashCount = existing != null;
-        } catch (Exception ignored) {
-            // 404 or any error = no cash count
-        }
-
-        if (hasCashCount) {
-            openPosWindow();
-        } else {
-            CustomDialog.showCashCountPromptInPlace(modalHost, dimPane, registerArqueo -> {
-                if (registerArqueo) {
-                    openCashCountModalAndThenPOS();
-                } else {
-                    openPosWindow();
-                }
-            });
-        }
+    private boolean hasAnyPersistedCashCount() throws Exception {
+        return !CashCountService.getAllCashCounts().isEmpty();
     }
 
-    private void openCashCountModalAndThenPOS() {
+    private void openInitialCashCountModalAndThenOpenShift() {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/com/yebur/portal/views/cashCountModel.fxml")
@@ -135,7 +130,7 @@ public class StartController {
             );
 
             CashCountModelController ctrl = loader.getController();
-            ctrl.setCurrentCashSession(cashSession);
+            ctrl.preloadFromTotal(java.math.BigDecimal.ZERO);
 
             Stage stage = new Stage();
             stage.initStyle(StageStyle.UNDECORATED);
@@ -145,12 +140,19 @@ public class StartController {
             stage.setScene(scene);
 
             stage.showAndWait();
-            openPosWindow();
+            if (ctrl.isAccepted()) {
+                openShiftAndPos();
+            }
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            openPosWindow(); // fallback: proceed anyway
+            CustomDialog.showError("No se pudo registrar el arqueo inicial.");
         }
+    }
+
+    private void openShiftAndPos() throws Exception {
+        this.cashSession = CashSessionService.openCashSession();
+        openPosWindow();
     }
 
     private String formatOpenedAt(Object openedAt) {

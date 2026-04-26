@@ -1,5 +1,7 @@
 package com.yebur.controller;
 
+import com.yebur.service.CashSessionService;
+import com.yebur.ui.CustomDialog;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -32,9 +34,21 @@ public class ShiftOperationsController {
         Object source = mouseEvent.getSource();
 
         if (source == closeShiftVBox) {
+            if (!hasOpenCashSession()) {
+                CustomDialog.showError("No hay un turno abierto.");
+                return;
+            }
             loadCenterContent("/com/yebur/portal/views/shiftOperationClose.fxml");
         }
 
+    }
+
+    private boolean hasOpenCashSession() {
+        try {
+            return CashSessionService.findCashSessionByStatus("OPEN") != null;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     private void loadCenterContent(String fxmlPath) {

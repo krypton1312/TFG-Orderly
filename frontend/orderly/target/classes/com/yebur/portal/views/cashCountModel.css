@@ -1,0 +1,214 @@
+/* =========================
+   OVERLAY + CARD
+   ========================= */
+
+.modal-overlay {
+    -fx-background-color: rgba(0,0,0,0.25);
+    -fx-alignment: center;
+    -fx-padding: 24;
+}
+
+.modal-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(17,24,39,0.18), 24, 0.2, 0, 8);
+}
+
+.modal-header {
+    -fx-padding: 14 16;
+    -fx-border-color: #f3f4f6;
+    -fx-border-width: 0 0 1 0;
+}
+
+.modal-title {
+    -fx-text-fill: #ea580c;
+    -fx-font-weight: 900;
+    -fx-font-size: 13px;
+}
+
+.modal-close {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.modal-body {
+    -fx-padding: 16;
+}
+
+
+/* =========================
+   BREAKDOWN (2 columns)
+   ========================= */
+
+.breakdown-grid .label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+}
+
+/* header labels */
+.grid-head { -fx-text-fill: #9ca3af; }
+.grid-head-center { -fx-text-fill: #9ca3af; -fx-alignment: CENTER; }
+.grid-head-right { -fx-text-fill: #9ca3af; -fx-alignment: CENTER_RIGHT; }
+
+/* content labels */
+.grid-name { -fx-text-fill: #374151; }
+.grid-amount { -fx-text-fill: #9ca3af; -fx-alignment: CENTER_RIGHT; }
+
+/* input */
+.grid-input {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-alignment: CENTER;
+    -fx-pref-height: 30;
+    -fx-font-weight: 800;
+}
+
+/* header row container */
+.row-head {
+    -fx-padding: 0 8 6 8;
+}
+
+/* row container */
+.row-line {
+    -fx-padding: 6 8;
+    -fx-background-color: transparent;
+    -fx-background-radius: 12;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: rgba(0, 0, 0, 0.34);
+    -fx-border-radius: 12;
+}
+
+.row-line:hover {
+    -fx-background-color: rgba(234,88,12,0.06);
+}
+
+/* --- IMPORTANT: fixed column widths for perfect alignment --- */
+/* Подогнано под твою карточку 750px (по скрину). Если захочешь шире/уже — меняем только эти 3 числа. */
+.breakdown-col .col-name {
+    -fx-min-width: 210;
+    -fx-pref-width: 210;
+}
+
+.breakdown-col .col-unit {
+    -fx-min-width: 70;
+    -fx-pref-width: 70;
+}
+
+.breakdown-col .col-amount {
+    -fx-min-width: 70;
+    -fx-pref-width: 70;
+}
+
+/* alignment for unit/amount across header + rows */
+.breakdown-col .col-unit { -fx-alignment: CENTER; }
+.breakdown-col .col-amount { -fx-alignment: CENTER_RIGHT; }
+
+
+/* =========================
+   DISPLAY
+   ========================= */
+
+.modal-display {
+    -fx-background-color: #1f2937;
+    -fx-background-radius: 14;
+    -fx-padding: 14 16;
+}
+
+.modal-display-text {
+    -fx-text-fill: white;
+    -fx-font-size: 30px;
+    -fx-font-weight: 900;
+}
+
+
+/* =========================
+   KEYPAD BUTTONS
+   ========================= */
+
+.key-btn {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #eef2f7;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+    -fx-pref-height: 46;
+    -fx-cursor: hand;
+}
+
+.key-btn:hover {
+    -fx-background-color: #fff7ed;
+    -fx-border-color: #fed7aa;
+}
+
+.key-btn-muted { -fx-background-color: #f3f4f6; }
+.key-btn-danger { -fx-background-color: rgba(220,38,38,0.12); -fx-text-fill: #dc2626; }
+
+.key-btn-equals {
+    -fx-background-color: #ea580c;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+
+.key-btn-equals:hover { -fx-background-color: #9a3412; }
+
+
+/* =========================
+   TOTAL + ACTION BUTTONS
+   ========================= */
+
+.total-pill {
+    -fx-background-color: #1f2937;
+    -fx-background-radius: 12;
+    -fx-padding: 12 14;
+}
+
+.total-pill-label {
+    -fx-text-fill: #9ca3af;
+    -fx-font-weight: 800;
+    -fx-font-size: 11px;
+}
+
+.total-pill-value {
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-font-size: 16px;
+}
+
+.btn-primary {
+    -fx-background-color: #ea580c;
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-background-radius: 12;
+    -fx-pref-height: 44;
+    -fx-cursor: hand;
+}
+
+.btn-primary:hover { -fx-background-color: #9a3412; }
+
+.btn-secondary {
+    -fx-background-color: rgba(234,88,12,0.10);
+    -fx-text-fill: #ea580c;
+    -fx-font-weight: 900;
+    -fx-background-radius: 12;
+    -fx-pref-height: 40;
+    -fx-cursor: hand;
+}
+
+.btn-dark {
+    -fx-background-color: #1f2937;
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-background-radius: 12;
+    -fx-pref-height: 44;
+    -fx-cursor: hand;
+}
+
+.btn-dark:hover { -fx-background-color: #111827; }

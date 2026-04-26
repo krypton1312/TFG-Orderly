@@ -18,20 +18,27 @@
             "request": "launch",
             "mainClass": "com.yebur.backendorderly.BackendOrderlyApplication",
             "projectName": "backendOrderly",
-            "envFile": "${workspaceFolder}/backendOrderly/.env"
+            "envFile": "${workspaceFolder}/backendOrderly/.env",
+            "cwd": "${workspaceFolder}/backendOrderly",
+            "console": "internalConsole",
+            "shortenCommandLine": "jarmanifest"
         },
         {
             "type": "java",
             "name": "PC app (debug)",
             "request": "launch",
             "mainClass": "com.yebur/com.yebur.app.App",
-            "projectName": "orderly"
+            "projectName": "orderly",
+            "cwd": "${workspaceFolder}/frontend/orderly",
+            "console": "internalConsole",
+            "shortenCommandLine": "jarmanifest",
+            "preLaunchTask": "Backend: Start"
         }
     ],
     "compounds": [
         {
             "name": "Backend + PC (debug)",
-            "configurations": ["Backend (debug)", "PC app (debug)"]
+            "configurations": ["PC app (debug)"]
         }
     ]
 }

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.yebur.model.request.CashCountRequest;
 import com.yebur.model.response.CashCountResponse;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class CashCountService {
@@ -32,6 +33,13 @@ public class CashCountService {
     public static CashCountResponse getCashCountBySessionId(Long sessionId) throws Exception {
         String json = ApiClient.get("/cashcounts/sessionId/" + sessionId);
         return mapper.readValue(json, CashCountResponse.class);
+    }
+
+    public static CashCountResponse getLatestUnassignedCashCount() throws Exception {
+        return getAllCashCounts().stream()
+                .filter(cashCount -> cashCount.getSession_id() == null)
+                .max(Comparator.comparing(CashCountResponse::getCreatedAt))
+                .orElse(null);
     }
 
     // POST /cashcounts

@@ -53,6 +53,7 @@ D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\OverviewService.
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\model\response\RestTableResponse.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\OrderDetailService.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\service\CashOperationService.java
+D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\ShiftCloseReportController.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\LoginController.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\CashCountModelController.java
 D:\TFG-Orderly\frontend\orderly\src\main\java\com\yebur\controller\DataController.java

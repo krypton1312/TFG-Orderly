@@ -39,7 +39,7 @@ public class CashCountResponse {
     public static CashCountResponse mapToResponse(CashCount cc){
         return new CashCountResponse(
                 cc.getId(),
-                cc.getSession().getId(),
+                cc.getSession() != null ? cc.getSession().getId() : null,
                 cc.getCreatedAt(),
                 cc.getC001(),
                 cc.getC002(),

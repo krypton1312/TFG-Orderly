@@ -367,6 +367,9 @@ public class PartialPaymentController {
                 // 🔹 НОВЫЙ ЗАКАЗ: создаём, все partialDetails — это новые позиции
                 order = OrderService.createOrder(new OrderRequest("PAID", null));
 
+                Long cashSessionId = StartController.getCashSession() != null
+                        ? StartController.getCashSession().getId() : null;
+
                 List<OrderDetailRequest> createReqs = new ArrayList<>();
                 for (OrderDetailResponse item : partialDetails) {
                     OrderDetailRequest req = new OrderDetailRequest();
@@ -379,6 +382,7 @@ public class PartialPaymentController {
                     req.setStatus("PAID");
                     req.setBatchId(item.getBatchId());
                     req.setPaymentMethod(selectedPaymentMethod);
+                    req.setCashSessionId(cashSessionId);
                     createReqs.add(req);
                 }
 

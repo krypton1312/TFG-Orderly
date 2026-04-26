@@ -134,7 +134,9 @@ public class CashCountService implements CashCountServiceInterface{
 
 
     public CashCount mapToEntity(CashCountRequest request){
-        CashSession session = cashSessionRepository.findById(request.getSessionId()).orElseThrow();
+    CashSession session = request.getSessionId() != null
+        ? cashSessionRepository.findById(request.getSessionId()).orElseThrow()
+        : null;
         return new CashCount(
                 null,
                 session,

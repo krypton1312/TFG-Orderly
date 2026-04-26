@@ -15,7 +15,10 @@
             "name": "App",
             "request": "launch",
             "mainClass": "com.yebur/com.yebur.app.App",
-            "projectName": "orderly"
+            "projectName": "orderly",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "shortenCommandLine": "jarmanifest"
         }
     ]
 }

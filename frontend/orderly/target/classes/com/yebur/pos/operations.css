@@ -1,0 +1,250 @@
+.root {
+    -fx-font-family: "Inter", "Segoe UI", "System";
+    -fx-background-color: #f5f7fb;
+}
+
+/* chips top */
+.top-chips .chip {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: #e9edf5;
+    -fx-padding: 10 14 10 14;
+    -fx-effect: dropshadow(gaussian, rgba(13, 27, 62, 0.06), 12, 0, 0, 4);
+}
+.chip-icon { -fx-font-size: 18; }
+.chip-label { -fx-text-fill: #92a0b3; -fx-font-size: 10; -fx-font-weight: 700; }
+.chip-value { -fx-text-fill: #1c2b45; -fx-font-size: 14; -fx-font-weight: 800; }
+
+/* card */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: #e9edf5;
+    -fx-effect: dropshadow(gaussian, rgba(13, 27, 62, 0.06), 16, 0, 0, 6);
+}
+
+/* ===== TABLE LOOK (как на скрине) ===== */
+.movements-table {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+    -fx-table-cell-border-color: transparent;
+}
+
+.movements-table .column-header-background {
+    -fx-background-color: #f7f9fd;
+    -fx-background-radius: 12 12 0 0;
+    -fx-background-insets: 0;
+    -fx-padding: 10 10 10 10;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-border-radius: 0;
+}
+
+
+.movements-table .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 6 8 6 8;
+}
+
+.movements-table .column-header .label {
+    -fx-text-fill: #8fa0b5;
+    -fx-font-weight: 800;
+    -fx-font-size: 10.5;
+    -fx-letter-spacing: 0.6px;
+}
+
+/* убрать синюю рамку фокуса */
+.movements-table:focused {
+    -fx-faint-focus-color: transparent;
+    -fx-focus-color: transparent;
+}
+
+/* Rows + separators */
+.movements-table .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-cell-size: 44px;
+    -fx-border-color: #eef2f8;
+    -fx-border-width: 0 0 1 0; /* тонкий разделитель снизу */
+}
+
+.movements-table .table-row-cell:filled:hover {
+    -fx-background-color: rgba(13, 27, 62, 0.03);
+}
+
+.movements-table .table-row-cell:filled:selected,
+.movements-table .table-row-cell:filled:selected:focused {
+    -fx-background-color: rgba(40, 120, 255, 0.08);
+}
+
+/* Cells */
+.movements-table .table-cell {
+    -fx-border-color: transparent;
+    -fx-text-fill: #1b2a44;
+    -fx-font-size: 12.2;
+    -fx-padding: 0 10 0 10;
+}
+
+/* выравнивание по центру для коротких колонок */
+.cell-center { -fx-alignment: CENTER; }
+.cell-left   { -fx-alignment: CENTER_LEFT; }
+.cell-right  { -fx-alignment: CENTER_RIGHT; }
+
+/* ===== pills для сумм ===== */
+.amount-pill {
+    -fx-background-radius: 8;
+    -fx-padding: 6 10 6 10;
+    -fx-font-weight: 900;
+    -fx-font-size: 11.5;
+}
+
+.amount-green {
+    -fx-background-color: #dff6e8;
+    -fx-text-fill: #1f7a44;
+}
+
+.amount-red {
+    -fx-background-color: #ffe1e1;
+    -fx-text-fill: #b12525;
+}
+
+/* ===== TIPO styles ===== */
+.tipo-efectivo {
+    -fx-text-fill: #1b2a44;
+    -fx-font-weight: 900;
+}
+
+.tipo-pagos {
+    -fx-text-fill: #ff6a00; /* как на скрине */
+    -fx-font-weight: 900;
+}
+
+/* для "—" */
+.dash {
+    -fx-text-fill: #b8c3d3;
+    -fx-font-weight: 800;
+}
+
+
+/* summary cards */
+.summary-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: #e9edf5;
+    -fx-effect: dropshadow(gaussian, rgba(13, 27, 62, 0.06), 16, 0, 0, 6);
+}
+.summary-card-dark {
+    -fx-background-color: #152235;
+    -fx-border-color: #152235;
+}
+.summary-label { -fx-text-fill: #93a4b9; -fx-font-size: 10.5; -fx-font-weight: 800; }
+.summary-value { -fx-font-size: 22; -fx-font-weight: 900; }
+.summary-green { -fx-text-fill: #1f7a44; }
+.summary-red { -fx-text-fill: #b12525; }
+.summary-icon { -fx-font-size: 18; -fx-font-weight: 900; }
+.summary-label-dark { -fx-text-fill: rgba(255,255,255,0.55); }
+.summary-value-dark { -fx-text-fill: white; }
+
+.icon-btn {
+    -fx-background-color: rgba(255,255,255,0.14);
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 8 10 8 10;
+}
+
+/* side panel */
+.side {
+    -fx-background-color: #0f1b2a;
+}
+.side-title {
+    -fx-text-fill: white;
+    -fx-font-size: 16;
+    -fx-font-weight: 900;
+}
+.side-subtitle {
+    -fx-text-fill: rgba(255,255,255,0.55);
+    -fx-font-size: 11.5;
+    -fx-font-weight: 600;
+}
+
+.side-btn {
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-font-size: 16;
+    -fx-background-radius: 16;
+    -fx-padding: 18 14 18 14;
+    -fx-alignment: CENTER;
+}
+.side-btn-green { -fx-background-color: #26c45a; }
+.side-btn-orange { -fx-background-color: #f2a11b; }
+.side-btn-lightred{ -fx-background-color: #fc837b}
+
+.side-tile {
+    -fx-background-color: #f3f6fb;
+    -fx-background-radius: 14;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1b2a44;
+    -fx-padding: 16 10 16 10;
+}
+.side-tile-blue {
+    -fx-background-color: #2f7ef7;
+    -fx-text-fill: white;
+}
+
+.help-btn {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-text-fill: rgba(255,255,255,0.85);
+    -fx-background-radius: 12;
+    -fx-padding: 12 12 12 12;
+    -fx-font-weight: 800;
+}
+.exit-btn {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+    -fx-padding: 12 12 12 12;
+    -fx-font-weight: 900;
+}
+.action-btn svg, .action-btn-stack > SVGPath {
+    -fx-fill: transparent;
+    -fx-stroke: currentColor;
+}
+.side-icon {
+    -fx-stroke: transparent;
+    -fx-fill: rgb(255, 255, 255);
+    -fx-stroke-width: 3;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
+.icon-green{
+    -fx-stroke: #26c45a;
+}
+.icon-orange{
+    -fx-stroke: #f2a11b;
+}
+.icon-lightred{
+    -fx-stroke: #fc837b
+}
+.side-btn-text {
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-alignment: center;
+}
+.side-btn-subtext{
+    -fx-text-fill: rgba(255, 255, 255, 0.76);
+    -fx-font-weight: 700;
+    -fx-font-size: 14;
+    -fx-alignment: center;
+}
+.chip-icon {
+    -fx-stroke: #000000;
+    -fx-fill: rgb(255, 255, 255);
+    -fx-stroke-width: 2;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
