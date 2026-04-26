@@ -323,7 +323,10 @@ public class ShiftOperationCloseController {
             }
 
             stage.setOnHidden(ev -> {
-                ownerScene.setRoot(originalRoot); // restore undimmed root
+                // Must remove originalRoot from dimWrapper before restoring it as scene root;
+                // otherwise JavaFX throws "already inside a scene-graph" exception.
+                dimWrapper.getChildren().remove(originalRoot);
+                ownerScene.setRoot(originalRoot);
                 this.cashCountController = ctrl;
                 BigDecimal modalTotal = ctrl.getTotal();
                 if (modalTotal == null) modalTotal = BigDecimal.ZERO;

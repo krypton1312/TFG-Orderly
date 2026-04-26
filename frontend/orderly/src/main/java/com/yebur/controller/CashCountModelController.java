@@ -313,25 +313,24 @@ public class CashCountModelController {
 
     public void preload(CashCountResponse response) {
         this.existingCashCountId = response.getId();
-        // Use Platform.runLater so hookDenomTextFields (also runLater from initialize)
-        // has already wired the listeners before we set text values.
-        Platform.runLater(() -> {
-            setFieldValue(c1,   response.getC001());
-            setFieldValue(c2,   response.getC002());
-            setFieldValue(c5,   response.getC005());
-            setFieldValue(c10,  response.getC010());
-            setFieldValue(c20,  response.getC020());
-            setFieldValue(c50,  response.getC050());
-            setFieldValue(c100, response.getC100());
-            setFieldValue(c200, response.getC200());
-            setFieldValue(b5,   response.getB005());
-            setFieldValue(b10,  response.getB010());
-            setFieldValue(b20,  response.getB020());
-            setFieldValue(b50,  response.getB050());
-            setFieldValue(b100, response.getB100());
-            setFieldValue(b200, response.getB200());
-            setFieldValue(b500, response.getB500());
-        });
+        // Set text directly — hookDenomTextFields (queued via Platform.runLater in initialize)
+        // runs after setOnShown and calls updateFromTextField on each field, so it will
+        // pick up whatever text is set here and populate denomCounts + recalc totals.
+        setFieldValue(c1,   response.getC001());
+        setFieldValue(c2,   response.getC002());
+        setFieldValue(c5,   response.getC005());
+        setFieldValue(c10,  response.getC010());
+        setFieldValue(c20,  response.getC020());
+        setFieldValue(c50,  response.getC050());
+        setFieldValue(c100, response.getC100());
+        setFieldValue(c200, response.getC200());
+        setFieldValue(b5,   response.getB005());
+        setFieldValue(b10,  response.getB010());
+        setFieldValue(b20,  response.getB020());
+        setFieldValue(b50,  response.getB050());
+        setFieldValue(b100, response.getB100());
+        setFieldValue(b200, response.getB200());
+        setFieldValue(b500, response.getB500());
     }
 
     private void setFieldValue(TextField tf, Integer count) {
