@@ -101,11 +101,16 @@ Plans:
 
 ### Phase 6: Cash Session Management (PC)
 
-**Goal:** Implement the cash session open/close flow completely — including the `CashSessionService.create()` stub. Produce shift reports (total sales by payment method).
+**Goal:** Implement the cash session open/close flow completely — close endpoint, CashCount persistence, and shift report modal. Produce shift reports (total sales by payment method).
 
 **Requirements:** PC-05, PC-06
 
-**Plans:** TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Backend: CashSessionServiceCloseTest + close() CashCount persistence fix + POST /cashSession/{id}/close endpoint
+- [ ] 06-02-PLAN.md — Report modal: shiftCloseReport.css + shiftCloseReport.fxml + ShiftCloseReportController
+- [ ] 06-03-PLAN.md — Frontend wiring: getDenomCounts() getter + closeCashSession() service method + onCerrarTurno() handler + FXML button
 
 **Depends on:** Phase 1, Phase 5
 
