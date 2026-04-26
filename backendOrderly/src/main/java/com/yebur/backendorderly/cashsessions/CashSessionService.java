@@ -1,6 +1,7 @@
 package com.yebur.backendorderly.cashsessions;
 
 import com.yebur.backendorderly.cashcount.CashCount;
+import com.yebur.backendorderly.cashcount.CashCountRepository;
 import com.yebur.backendorderly.cashcount.CashCountService;
 import com.yebur.backendorderly.cashoperations.CashOperation;
 import com.yebur.backendorderly.cashoperations.CashOperationRepository;
@@ -20,12 +21,14 @@ public class CashSessionService implements CashSessionServiceInterface {
     private final CashOperationRepository cashOperationRepository;
     private final CashCountService cashCountService;
     private final OrderDetailRepository orderDetailRepository;
+    private final CashCountRepository cashCountRepository;
 
-    public CashSessionService(CashSessionRepository cashSessionRepository, CashCountService cashCountService, OrderDetailRepository orderDetailRepository, CashOperationRepository cashOperationRepository) {
+    public CashSessionService(CashSessionRepository cashSessionRepository, CashCountService cashCountService, OrderDetailRepository orderDetailRepository, CashOperationRepository cashOperationRepository, CashCountRepository cashCountRepository) {
         this.cashSessionRepository = cashSessionRepository;
         this.cashCountService = cashCountService;
         this.orderDetailRepository = orderDetailRepository;
         this.cashOperationRepository = cashOperationRepository;
+        this.cashCountRepository = cashCountRepository;
     }
 
     @Override
@@ -56,11 +59,6 @@ public class CashSessionService implements CashSessionServiceInterface {
     @Override
     public Optional<CashSessionResponse> findCashSessionDTOByStatus(CashSessionStatus status){
         return cashSessionRepository.findCashSessionDTOByStatus(status);
-    }
-
-    @Override
-    public CashSessionResponse create(CashSessionRequest request){
-        return new CashSessionResponse();
     }
 
     @Override
@@ -133,6 +131,10 @@ public class CashSessionService implements CashSessionServiceInterface {
         cs.setDifference(difference);
 
         cashSessionRepository.save(cs);
+
+        cashCount.setSession(cs);
+        cashCount.setCreatedAt(LocalDateTime.now());
+        cashCountRepository.save(cashCount);
 
         return CashSessionResponse.fromEntity(cs);
     }

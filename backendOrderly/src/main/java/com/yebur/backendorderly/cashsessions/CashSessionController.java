@@ -1,5 +1,7 @@
 package com.yebur.backendorderly.cashsessions;
 
+import com.yebur.backendorderly.cashcount.CashCount;
+import com.yebur.backendorderly.cashcount.CashCountRequest;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,6 +71,39 @@ public class CashSessionController {
         }catch (Exception e){
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
         }
+    }
+
+    @PostMapping("/{id}/close")
+    public ResponseEntity<?> closeCashSession(
+            @PathVariable Long id,
+            @RequestBody CashCountRequest cashCountRequest) {
+        try {
+            CashCount cashCount = toCashCountEntity(cashCountRequest);
+            return ResponseEntity.ok(cashSessionService.close(id, cashCount));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    Collections.singletonMap("error", e.getMessage()));
+        }
+    }
+
+    private CashCount toCashCountEntity(CashCountRequest req) {
+        CashCount cc = new CashCount();
+        cc.setC001(req.getC001());
+        cc.setC002(req.getC002());
+        cc.setC005(req.getC005());
+        cc.setC010(req.getC010());
+        cc.setC020(req.getC020());
+        cc.setC050(req.getC050());
+        cc.setC100(req.getC100());
+        cc.setC200(req.getC200());
+        cc.setB005(req.getB005());
+        cc.setB010(req.getB010());
+        cc.setB020(req.getB020());
+        cc.setB050(req.getB050());
+        cc.setB100(req.getB100());
+        cc.setB200(req.getB200());
+        cc.setB500(req.getB500());
+        return cc;
     }
 
     @PutMapping("/id/{id}")
