@@ -202,6 +202,19 @@
                 <Pane GridPane.rowIndex="4" GridPane.columnIndex="2"/>
 
             </GridPane>
+
+            <Button fx:id="cerrarTurnoBtn"
+                    text="CERRAR TURNO"
+                    onAction="#onCerrarTurno"
+                    styleClass="btn-primary"
+                    maxWidth="Infinity"
+                    prefHeight="44"/>
+            <Label fx:id="closeErrorLabel"
+                   text=""
+                   wrapText="true"
+                   maxWidth="Infinity"
+                   style="-fx-text-fill: #dc2626; -fx-font-size: 12px; -fx-font-weight: 700;"/>
+
         </VBox>
     </GridPane>
 

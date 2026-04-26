@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.yebur.model.request.CashCountRequest;
 import com.yebur.model.request.CashSessionRequest;
 import com.yebur.model.response.CashSessionResponse;
 
@@ -53,5 +54,11 @@ public class CashSessionService {
 
     public static void deleteCashSession(Long id) throws Exception {
         ApiClient.delete("/cashSession/id/" + id);
+    }
+
+    public static CashSessionResponse closeCashSession(Long id, CashCountRequest request) throws Exception {
+        String jsonInput = mapper.writeValueAsString(request);
+        String jsonResponse = ApiClient.post("/cashSession/" + id + "/close", jsonInput);
+        return mapper.readValue(jsonResponse, CashSessionResponse.class);
     }
 }

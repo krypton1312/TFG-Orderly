@@ -24,6 +24,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Currency;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -276,6 +277,30 @@ public class CashCountModelController {
 
     private int getCount(BigDecimal denom) {
         return Math.toIntExact(denomCounts.getOrDefault(denom, 0L));
+    }
+
+    public Map<BigDecimal, Long> getDenomCounts() {
+        return Collections.unmodifiableMap(denomCounts);
+    }
+
+    public CashCountRequest buildCashCountRequest() {
+        CashCountRequest ccq = new CashCountRequest();
+        ccq.setC001(getCount(new BigDecimal("0.01")));
+        ccq.setC002(getCount(new BigDecimal("0.02")));
+        ccq.setC005(getCount(new BigDecimal("0.05")));
+        ccq.setC010(getCount(new BigDecimal("0.10")));
+        ccq.setC020(getCount(new BigDecimal("0.20")));
+        ccq.setC050(getCount(new BigDecimal("0.50")));
+        ccq.setC100(getCount(new BigDecimal("1")));
+        ccq.setC200(getCount(new BigDecimal("2")));
+        ccq.setB005(getCount(new BigDecimal("5")));
+        ccq.setB010(getCount(new BigDecimal("10")));
+        ccq.setB020(getCount(new BigDecimal("20")));
+        ccq.setB050(getCount(new BigDecimal("50")));
+        ccq.setB100(getCount(new BigDecimal("100")));
+        ccq.setB200(getCount(new BigDecimal("200")));
+        ccq.setB500(getCount(new BigDecimal("500")));
+        return ccq;
     }
 
 

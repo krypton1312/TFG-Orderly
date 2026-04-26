@@ -1,6 +1,9 @@
 package com.yebur.controller;
 
+import com.yebur.model.request.CashCountRequest;
+import com.yebur.model.response.CashOperationResponse;
 import com.yebur.model.response.CashSessionResponse;
+import com.yebur.service.CashOperationService;
 import com.yebur.service.CashSessionService;
 import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
@@ -13,6 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -22,6 +26,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 public class ShiftOperationCloseController {
@@ -38,6 +43,9 @@ public class ShiftOperationCloseController {
 
     @FXML private HBox cashHBox;
     @FXML private HBox cardHBox;
+
+    @FXML private Button cerrarTurnoBtn;
+    @FXML private Label closeErrorLabel;
 
     private PauseTransition singleClickTimer;
 
@@ -262,6 +270,45 @@ public class ShiftOperationCloseController {
 
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onCerrarTurno() {
+        if (cashSession == null) {
+            closeErrorLabel.setText("No hay un turno abierto");
+            return;
+        }
+        closeErrorLabel.setText("");
+        try {
+            CashCountRequest req = cashCountController != null
+                    ? cashCountController.buildCashCountRequest()
+                    : new CashCountRequest();
+
+            CashSessionResponse closed = CashSessionService.closeCashSession(cashSession.getId(), req);
+
+            List<CashOperationResponse> ops =
+                    CashOperationService.getCashOperationsBySessionId(closed.getId());
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/yebur/portal/views/shiftCloseReport.fxml")
+            );
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            scene.setFill(Color.TRANSPARENT);
+
+            ShiftCloseReportController reportCtrl = loader.getController();
+            reportCtrl.populate(closed, ops);
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.UNDECORATED);
+            stage.initOwner(cashRoot.getScene().getWindow());
+            stage.setScene(scene);
+            stage.showAndWait();
+
+        } catch (Exception e) {
+            closeErrorLabel.setText("Error al cerrar el turno. Inténtelo de nuevo.");
         }
     }
 }
