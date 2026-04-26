@@ -40,6 +40,10 @@ public class CashCountModelController {
     @FXML private Label modalDisplayLabel; // текущее вводимое количество
     @FXML private Label totalLabel;        // итоговая сумма
 
+    // Denomination TextFields — injected directly for reliable preload()
+    @FXML private TextField c1, c2, c5, c10, c20, c50, c100, c200;
+    @FXML private TextField b5, b10, b20, b50, b100, b200, b500;
+
     // текущее вводимое количество (целое)
     private long qty = 0;
 
@@ -309,40 +313,30 @@ public class CashCountModelController {
 
     public void preload(CashCountResponse response) {
         this.existingCashCountId = response.getId();
-        // Queue after initialize()'s Platform.runLater so TextFields are already hooked
+        // Use Platform.runLater so hookDenomTextFields (also runLater from initialize)
+        // has already wired the listeners before we set text values.
         Platform.runLater(() -> {
-            setDenomField(coinsVBox, "0.01", response.getC001());
-            setDenomField(coinsVBox, "0.02", response.getC002());
-            setDenomField(coinsVBox, "0.05", response.getC005());
-            setDenomField(coinsVBox, "0.1",  response.getC010());
-            setDenomField(coinsVBox, "0.2",  response.getC020());
-            setDenomField(coinsVBox, "0.5",  response.getC050());
-            setDenomField(coinsVBox, "1",    response.getC100());
-            setDenomField(coinsVBox, "2",    response.getC200());
-            setDenomField(banknoteVBox, "5",   response.getB005());
-            setDenomField(banknoteVBox, "10",  response.getB010());
-            setDenomField(banknoteVBox, "20",  response.getB020());
-            setDenomField(banknoteVBox, "50",  response.getB050());
-            setDenomField(banknoteVBox, "100", response.getB100());
-            setDenomField(banknoteVBox, "200", response.getB200());
-            setDenomField(banknoteVBox, "500", response.getB500());
+            setFieldValue(c1,   response.getC001());
+            setFieldValue(c2,   response.getC002());
+            setFieldValue(c5,   response.getC005());
+            setFieldValue(c10,  response.getC010());
+            setFieldValue(c20,  response.getC020());
+            setFieldValue(c50,  response.getC050());
+            setFieldValue(c100, response.getC100());
+            setFieldValue(c200, response.getC200());
+            setFieldValue(b5,   response.getB005());
+            setFieldValue(b10,  response.getB010());
+            setFieldValue(b20,  response.getB020());
+            setFieldValue(b50,  response.getB050());
+            setFieldValue(b100, response.getB100());
+            setFieldValue(b200, response.getB200());
+            setFieldValue(b500, response.getB500());
         });
     }
 
-    private void setDenomField(Parent vbox, String denomStr, Integer count) {
-        if (count == null || count == 0) return;
-        BigDecimal target = parseDenom(denomStr);
-        if (target == null) return;
-        for (Node node : vbox.lookupAll(".row-line")) {
-            if (node instanceof HBox row) {
-                BigDecimal rowDenom = parseDenom(String.valueOf(row.getUserData()));
-                if (rowDenom != null && target.compareTo(rowDenom) == 0) {
-                    TextField tf = findFirstTextField(row);
-                    if (tf != null) tf.setText(String.valueOf(count));
-                    return;
-                }
-            }
-        }
+    private void setFieldValue(TextField tf, Integer count) {
+        if (tf == null) return;
+        tf.setText(count != null && count > 0 ? String.valueOf(count) : "0");
     }
 
 

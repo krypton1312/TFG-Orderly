@@ -17,6 +17,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -297,19 +299,31 @@ public class ShiftOperationCloseController {
             CashCountModelController ctrl = loader.getController();
             ctrl.setCurrentCashSession(cashSession);
 
-            // Preload after CSS is applied (lookupAll needs the scene to be shown first)
+            // Dim the portal background while the modal is open
+            Scene ownerScene = cashRoot.getScene();
+            Parent originalRoot = ownerScene.getRoot();
+            StackPane dimWrapper = new StackPane(originalRoot);
+            Region dimOverlay = new Region();
+            dimOverlay.setStyle("-fx-background-color: rgba(0,0,0,0.45);");
+            dimOverlay.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            dimWrapper.getChildren().add(dimOverlay);
+            ownerScene.setRoot(dimWrapper);
+
+            // Preload after hookDenomTextFields has run (both are Platform.runLater,
+            // hookDenomTextFields was queued first during loader.load(), so it runs first)
             if (cashSession != null) {
                 stage.setOnShown(ev -> {
                     try {
                         CashCountResponse existing = CashCountService.getCashCountBySessionId(cashSession.getId());
                         ctrl.preload(existing);
                     } catch (Exception ignored) {
-                        // No CashCount yet — fields start at zero (default)
+                        // No CashCount yet — fields stay at zero
                     }
                 });
             }
 
             stage.setOnHidden(ev -> {
+                ownerScene.setRoot(originalRoot); // restore undimmed root
                 this.cashCountController = ctrl;
                 BigDecimal modalTotal = ctrl.getTotal();
                 if (modalTotal == null) modalTotal = BigDecimal.ZERO;
