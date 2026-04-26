@@ -1,7 +1,9 @@
 package com.yebur.controller;
 
 import com.yebur.app.App;
+import com.yebur.model.response.CashCountResponse;
 import com.yebur.model.response.CashSessionResponse;
+import com.yebur.service.CashCountService;
 import com.yebur.service.CashSessionService;
 import com.yebur.ui.CustomDialog;
 import javafx.fxml.FXML;
@@ -13,6 +15,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.Getter;
@@ -89,13 +92,65 @@ public class StartController {
 
                     try {
                         this.cashSession = CashSessionService.openCashSession();
-                        openPosWindow();
+                        checkCashCountAndProceed();
                     } catch (Exception ex) {
                         ex.printStackTrace();
                         CustomDialog.showError("No se pudo abrir el turno. Inténtalo de nuevo.");
                     }
                 }
         );
+    }
+
+    private void checkCashCountAndProceed() {
+        boolean hasCashCount = false;
+        try {
+            CashCountResponse existing = CashCountService.getCashCountBySessionId(cashSession.getId());
+            hasCashCount = existing != null;
+        } catch (Exception ignored) {
+            // 404 or any error = no cash count
+        }
+
+        if (hasCashCount) {
+            openPosWindow();
+        } else {
+            CustomDialog.showCashCountPromptInPlace(modalHost, dimPane, registerArqueo -> {
+                if (registerArqueo) {
+                    openCashCountModalAndThenPOS();
+                } else {
+                    openPosWindow();
+                }
+            });
+        }
+    }
+
+    private void openCashCountModalAndThenPOS() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/yebur/portal/views/cashCountModel.fxml")
+            );
+            Parent ccRoot = loader.load();
+            Scene scene = new Scene(ccRoot);
+            scene.getStylesheets().add(
+                    getClass().getResource("/com/yebur/portal/views/cashCountModel.css").toExternalForm()
+            );
+
+            CashCountModelController ctrl = loader.getController();
+            ctrl.setCurrentCashSession(cashSession);
+
+            Stage stage = new Stage();
+            stage.initStyle(StageStyle.UNDECORATED);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(root.getScene().getWindow());
+            stage.setResizable(false);
+            stage.setScene(scene);
+
+            stage.setOnHidden(ev -> openPosWindow());
+            stage.showAndWait();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            openPosWindow(); // fallback: proceed anyway
+        }
     }
 
     private String formatOpenedAt(Object openedAt) {

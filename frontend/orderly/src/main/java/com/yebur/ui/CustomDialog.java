@@ -566,5 +566,131 @@ public class CustomDialog {
         slide.play();
     }
 
+    /**
+     * Prompt shown after opening a new shift when no CashCount exists yet.
+     * Consumer receives: true = "Registrar arqueo", false = "Continuar con 0"
+     */
+    public static void showCashCountPromptInPlace(
+            StackPane modalHost,
+            Region dimPane,
+            java.util.function.Consumer<Boolean> onResult
+    ) {
+        dimPane.setVisible(true);
+        dimPane.setManaged(true);
+        dimPane.setMouseTransparent(false);
+
+        modalHost.setVisible(true);
+        modalHost.setManaged(true);
+        modalHost.setMouseTransparent(false);
+        modalHost.getChildren().clear();
+
+        StackPane card = new StackPane();
+        card.setMaxWidth(520);
+        card.setPrefWidth(520);
+        card.setMaxHeight(Region.USE_PREF_SIZE);
+        card.setStyle("""
+            -fx-background-color: white;
+            -fx-background-radius: 18;
+            -fx-border-radius: 18;
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
+        """);
+
+        VBox content = new VBox(18);
+        content.setAlignment(Pos.TOP_CENTER);
+        content.setPadding(new Insets(28, 28, 24, 28));
+
+        Label closeX = new Label("✕");
+        closeX.setStyle("-fx-text-fill: #9ca3af; -fx-font-size: 16px; -fx-cursor: hand;");
+        closeX.setOnMouseEntered(e -> closeX.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 16px; -fx-cursor: hand;"));
+        closeX.setOnMouseExited(e -> closeX.setStyle("-fx-text-fill: #9ca3af; -fx-font-size: 16px; -fx-cursor: hand;"));
+
+        Circle iconBg = new Circle(26, Color.web("#FFF4E6"));
+        Label icon = new Label("💰");
+        icon.setStyle("-fx-font-size: 18px;");
+        StackPane iconHolder = new StackPane(iconBg, icon);
+        iconHolder.setMinSize(52, 52);
+        iconHolder.setMaxSize(52, 52);
+
+        Label title = new Label("Arqueo inicial");
+        title.setStyle("-fx-text-fill: #111827; -fx-font-size: 20px; -fx-font-weight: 800;");
+
+        Label desc = new Label("No hay un arqueo registrado para este turno.");
+        desc.setWrapText(true);
+        desc.setMaxWidth(440);
+        desc.setAlignment(Pos.CENTER);
+        desc.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 13px;");
+
+        Label question = new Label("¿Quieres registrar el efectivo en caja ahora?");
+        question.setWrapText(true);
+        question.setMaxWidth(440);
+        question.setAlignment(Pos.CENTER);
+        question.setStyle("-fx-text-fill: #111827; -fx-font-size: 13px; -fx-font-weight: 700;");
+
+        Button registerBtn = new Button("📋  Registrar arqueo");
+        registerBtn.setPrefHeight(42);
+        registerBtn.setPrefWidth(200);
+        String regNormal = "-fx-background-color: #f97316; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
+        String regHover  = "-fx-background-color: #ea6c08; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
+        registerBtn.setStyle(regNormal);
+        registerBtn.setOnMouseEntered(e -> registerBtn.setStyle(regHover));
+        registerBtn.setOnMouseExited(e -> registerBtn.setStyle(regNormal));
+
+        Button skipBtn = new Button("Continuar con 0");
+        skipBtn.setPrefHeight(42);
+        skipBtn.setPrefWidth(160);
+        String skipNormal = "-fx-background-color: white; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #d1d5db; -fx-border-width: 1; -fx-cursor: hand; -fx-font-size: 13px;";
+        String skipHover  = "-fx-background-color: #f9fafb; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #9ca3af; -fx-border-width: 1; -fx-cursor: hand; -fx-font-size: 13px;";
+        skipBtn.setStyle(skipNormal);
+        skipBtn.setOnMouseEntered(e -> skipBtn.setStyle(skipHover));
+        skipBtn.setOnMouseExited(e -> skipBtn.setStyle(skipNormal));
+
+        HBox buttons = new HBox(12, registerBtn, skipBtn);
+        buttons.setAlignment(Pos.CENTER);
+        buttons.setPadding(new Insets(10, 0, 0, 0));
+
+        content.getChildren().addAll(iconHolder, title, desc, question, buttons);
+        card.getChildren().addAll(content, closeX);
+        StackPane.setAlignment(closeX, Pos.TOP_RIGHT);
+        StackPane.setMargin(closeX, new Insets(12, 14, 0, 0));
+
+        modalHost.getChildren().add(card);
+        StackPane.setAlignment(card, Pos.CENTER);
+
+        Runnable close = () -> {
+            modalHost.getChildren().clear();
+            modalHost.setVisible(false);
+            modalHost.setManaged(false);
+            dimPane.setVisible(false);
+            dimPane.setManaged(false);
+            dimPane.setOnMouseClicked(null);
+            modalHost.setOnKeyPressed(null);
+        };
+
+        java.util.function.Consumer<Boolean> finish = v -> {
+            close.run();
+            onResult.accept(v);
+        };
+
+        registerBtn.setOnAction(e -> finish.accept(true));
+        skipBtn.setOnAction(e -> finish.accept(false));
+        closeX.setOnMouseClicked(e -> finish.accept(false));
+        dimPane.setOnMouseClicked(e -> finish.accept(false));
+
+        modalHost.requestFocus();
+        modalHost.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ESCAPE) finish.accept(false);
+            if (e.getCode() == KeyCode.ENTER) finish.accept(true);
+        });
+
+        card.setOpacity(0);
+        card.setTranslateY(18);
+        FadeTransition fade = new FadeTransition(Duration.millis(180), card);
+        fade.setFromValue(0); fade.setToValue(1);
+        TranslateTransition slide = new TranslateTransition(Duration.millis(180), card);
+        slide.setFromY(18); slide.setToY(0);
+        fade.play();
+        slide.play();
+    }
+
 
 }
