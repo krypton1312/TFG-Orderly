@@ -108,9 +108,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Backend: CashSessionServiceCloseTest + close() CashCount persistence fix + POST /cashSession/{id}/close endpoint
-- [ ] 06-02-PLAN.md — Report modal: shiftCloseReport.css + shiftCloseReport.fxml + ShiftCloseReportController
-- [ ] 06-03-PLAN.md — Frontend wiring: getDenomCounts() getter + closeCashSession() service method + onCerrarTurno() handler + FXML button
+- [x] 06-01-PLAN.md — Backend: CashSessionServiceCloseTest + close() CashCount persistence fix + POST /cashSession/{id}/close endpoint
+- [x] 06-02-PLAN.md — Report modal: shiftCloseReport.css + shiftCloseReport.fxml + ShiftCloseReportController
+- [x] 06-03-PLAN.md — Frontend wiring: getDenomCounts() getter + closeCashSession() service method + onCerrarTurno() handler + FXML button
 
 **Depends on:** Phase 1, Phase 5
 
