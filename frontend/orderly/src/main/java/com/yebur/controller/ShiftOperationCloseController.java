@@ -297,14 +297,16 @@ public class ShiftOperationCloseController {
             CashCountModelController ctrl = loader.getController();
             ctrl.setCurrentCashSession(cashSession);
 
-            // Preload existing CashCount denominations if one exists for this session
+            // Preload after CSS is applied (lookupAll needs the scene to be shown first)
             if (cashSession != null) {
-                try {
-                    CashCountResponse existing = CashCountService.getCashCountBySessionId(cashSession.getId());
-                    ctrl.preload(existing);
-                } catch (Exception ignored) {
-                    // No CashCount yet — fields start at zero (default)
-                }
+                stage.setOnShown(ev -> {
+                    try {
+                        CashCountResponse existing = CashCountService.getCashCountBySessionId(cashSession.getId());
+                        ctrl.preload(existing);
+                    } catch (Exception ignored) {
+                        // No CashCount yet — fields start at zero (default)
+                    }
+                });
             }
 
             stage.setOnHidden(ev -> {
