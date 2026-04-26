@@ -8,6 +8,7 @@ import com.yebur.model.response.CashSessionResponse;
 import com.yebur.service.CashCountService;
 import com.yebur.service.CashOperationService;
 import com.yebur.service.CashSessionService;
+import com.yebur.ui.CustomDialog;
 import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -68,6 +69,12 @@ public class ShiftOperationCloseController {
     // ТЕПЕРЬ ЭТО НЕ "totals", а "текущие суммы"
     private BigDecimal cashAmount = BigDecimal.ZERO;
     private BigDecimal cardAmount = BigDecimal.ZERO;
+
+    private Runnable onAfterClose;
+
+    public void setOnAfterClose(Runnable callback) {
+        this.onAfterClose = callback;
+    }
 
     @FXML
     public void initialize() {
@@ -265,7 +272,20 @@ public class ShiftOperationCloseController {
                 }
             }
 
+            // Dim the portal background while the modal is open
+            Scene ownerScene = cashRoot.getScene();
+            Parent originalRoot = ownerScene.getRoot();
+            StackPane dimWrapper = new StackPane(originalRoot);
+            Region dimOverlay = new Region();
+            dimOverlay.setStyle("-fx-background-color: rgba(0,0,0,0.45);");
+            dimOverlay.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            dimWrapper.getChildren().add(dimOverlay);
+            ownerScene.setRoot(dimWrapper);
+
             stage.setOnHidden(ev -> {
+                dimWrapper.getChildren().remove(originalRoot);
+                ownerScene.setRoot(originalRoot);
+
                 if (!efectivoCtrl.isAccepted()) {
                     return;
                 }
@@ -372,6 +392,14 @@ public class ShiftOperationCloseController {
             return;
         }
         closeErrorLabel.setText("");
+        CustomDialog.confirmGuardarArqueoInScene(
+                cashRoot.getScene(),
+                this::doCloseTurn,
+                () -> {}
+        );
+    }
+
+    private void doCloseTurn() {
         try {
             CashCountRequest req;
             if (cashCountController != null) {
@@ -400,7 +428,25 @@ public class ShiftOperationCloseController {
             stage.initStyle(StageStyle.UNDECORATED);
             stage.initOwner(cashRoot.getScene().getWindow());
             stage.setScene(scene);
+
+            // Dim the background while the report is shown
+            Scene ownerScene = cashRoot.getScene();
+            Parent originalRoot = ownerScene.getRoot();
+            StackPane dimWrapper = new StackPane(originalRoot);
+            Region dimOverlay = new Region();
+            dimOverlay.setStyle("-fx-background-color: rgba(0,0,0,0.45);");
+            dimOverlay.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            dimWrapper.getChildren().add(dimOverlay);
+            ownerScene.setRoot(dimWrapper);
+
             stage.showAndWait();
+
+            dimWrapper.getChildren().remove(originalRoot);
+            ownerScene.setRoot(originalRoot);
+
+            if (onAfterClose != null) {
+                onAfterClose.run();
+            }
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,8 +1,9 @@
 package com.yebur.ui;
 
 import javafx.animation.FadeTransition;
-import javafx.scene.layout.Region;
 import javafx.animation.TranslateTransition;
+import javafx.scene.Parent;
+import javafx.scene.layout.Region;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -736,6 +737,108 @@ public class CustomDialog {
         slide.setFromY(18); slide.setToY(0);
         fade.play();
         slide.play();
+    }
+
+    /**
+     * Confirmation dialog before saving arqueo / closing shift.
+     * Dims the owner scene in-place, shows a card with Guardar/Cancelar buttons.
+     * onConfirm runs if user confirms, onCancel runs if user cancels/closes.
+     */
+    public static void confirmGuardarArqueoInScene(
+            Scene ownerScene,
+            Runnable onConfirm,
+            Runnable onCancel) {
+
+        Parent originalRoot = ownerScene.getRoot();
+        StackPane dimWrapper = new StackPane(originalRoot);
+        Region dimOverlay = new Region();
+        dimOverlay.setStyle("-fx-background-color: rgba(0,0,0,0.45);");
+        dimOverlay.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        dimWrapper.getChildren().add(dimOverlay);
+        ownerScene.setRoot(dimWrapper);
+
+        StackPane card = new StackPane();
+        card.setMaxWidth(480);
+        card.setPrefWidth(480);
+        card.setMaxHeight(Region.USE_PREF_SIZE);
+        card.setStyle("""
+            -fx-background-color: white;
+            -fx-background-radius: 18;
+            -fx-border-radius: 18;
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
+        """);
+
+        VBox content = new VBox(18);
+        content.setAlignment(Pos.TOP_CENTER);
+        content.setPadding(new Insets(28, 28, 24, 28));
+
+        Circle iconBg = new Circle(26, Color.web("#F0FDF4"));
+        Label icon = new Label("💾");
+        icon.setStyle("-fx-font-size: 18px;");
+        StackPane iconHolder = new StackPane(iconBg, icon);
+        iconHolder.setMinSize(52, 52);
+        iconHolder.setMaxSize(52, 52);
+
+        Label title = new Label("Confirmar arqueo");
+        title.setStyle("-fx-text-fill: #111827; -fx-font-size: 20px; -fx-font-weight: 800;");
+
+        Label desc = new Label("¿Estás seguro de que quieres guardar el arqueo y cerrar el turno?");
+        desc.setWrapText(true);
+        desc.setMaxWidth(400);
+        desc.setAlignment(Pos.CENTER);
+        desc.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 13px;");
+
+        Label warning = new Label("Esta acción cerrará el turno actual y no podrá deshacerse.");
+        warning.setWrapText(true);
+        warning.setMaxWidth(400);
+        warning.setAlignment(Pos.CENTER);
+        warning.setStyle("-fx-text-fill: #111827; -fx-font-size: 13px; -fx-font-weight: 700;");
+
+        Button confirmBtn = new Button("Guardar arqueo");
+        confirmBtn.setPrefHeight(42);
+        confirmBtn.setPrefWidth(180);
+        String confirmNormal = "-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
+        String confirmHover  = "-fx-background-color: #15803d; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
+        confirmBtn.setStyle(confirmNormal);
+        confirmBtn.setOnMouseEntered(e -> confirmBtn.setStyle(confirmHover));
+        confirmBtn.setOnMouseExited(e -> confirmBtn.setStyle(confirmNormal));
+
+        Button cancelBtn = new Button("Cancelar");
+        cancelBtn.setPrefHeight(42);
+        cancelBtn.setPrefWidth(140);
+        String cancelNormal = "-fx-background-color: white; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #d1d5db; -fx-border-width: 1; -fx-cursor: hand; -fx-font-size: 13px;";
+        String cancelHover  = "-fx-background-color: #f9fafb; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #9ca3af; -fx-border-width: 1; -fx-cursor: hand; -fx-font-size: 13px;";
+        cancelBtn.setStyle(cancelNormal);
+        cancelBtn.setOnMouseEntered(e -> cancelBtn.setStyle(cancelHover));
+        cancelBtn.setOnMouseExited(e -> cancelBtn.setStyle(cancelNormal));
+
+        HBox buttons = new HBox(12, cancelBtn, confirmBtn);
+        buttons.setAlignment(Pos.CENTER);
+        buttons.setPadding(new Insets(10, 0, 0, 0));
+
+        content.getChildren().addAll(iconHolder, title, desc, warning, buttons);
+        card.getChildren().add(content);
+
+        dimWrapper.getChildren().add(card);
+        StackPane.setAlignment(card, Pos.CENTER);
+
+        Runnable restore = () -> {
+            dimWrapper.getChildren().remove(originalRoot);
+            ownerScene.setRoot(originalRoot);
+        };
+
+        confirmBtn.setOnAction(e -> { restore.run(); onConfirm.run(); });
+        cancelBtn.setOnAction(e -> { restore.run(); onCancel.run(); });
+        dimOverlay.setOnMouseClicked(e -> { restore.run(); onCancel.run(); });
+
+        card.setOpacity(0);
+        card.setTranslateY(18);
+        FadeTransition fade2 = new FadeTransition(Duration.millis(180), card);
+        fade2.setFromValue(0); fade2.setToValue(1);
+        TranslateTransition slide2 = new TranslateTransition(Duration.millis(180), card);
+        slide2.setFromY(18); slide2.setToY(0);
+        fade2.play();
+        slide2.play();
     }
 
 

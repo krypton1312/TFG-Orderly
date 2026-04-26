@@ -38,7 +38,22 @@ public class ShiftOperationsController {
                 CustomDialog.showError("No hay un turno abierto.");
                 return;
             }
-            loadCenterContent("/com/yebur/portal/views/shiftOperationClose.fxml");
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/com/yebur/portal/views/shiftOperationClose.fxml"));
+                Node content = loader.load();
+                ShiftOperationCloseController ctrl = loader.getController();
+                ctrl.setOnAfterClose(() ->
+                        loadCenterContent("/com/yebur/portal/views/shiftOperations.fxml"));
+                parentPane.getChildren().setAll(content);
+                AnchorPane.setTopAnchor(content, 20.0);
+                AnchorPane.setBottomAnchor(content, 20.0);
+                AnchorPane.setLeftAnchor(content, 20.0);
+                AnchorPane.setRightAnchor(content, 20.0);
+                applyFadeTransition(content);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
     }
