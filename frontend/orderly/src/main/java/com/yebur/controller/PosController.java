@@ -31,6 +31,7 @@ import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import javafx.concurrent.Task;
 
 public class PosController {
 
@@ -327,12 +328,22 @@ public class PosController {
         isOverviewMode = true;
         productBox.getChildren().clear();
 
-        try {
-            this.overview = OverviewService.getOverview();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
+        Task<List<TableWithOrderResponse>> task = new Task<>() {
+            @Override
+            protected List<TableWithOrderResponse> call() throws Exception {
+                return OverviewService.getOverview();
+            }
+        };
+        task.setOnSucceeded(e -> {
+            overview = task.getValue();
+            renderOrderTiles(slots);
+        });
+        task.setOnFailed(e -> task.getException().printStackTrace());
+        new Thread(task).start();
+    }
+
+    private void renderOrderTiles(int slots) {
+        productBox.getChildren().clear();
 
         if (overview == null || overview.isEmpty()) {
             System.out.println("No tables or orders to display");
@@ -352,7 +363,7 @@ public class PosController {
 
         if (start >= N && currentOrderPage > 0) {
             currentOrderPage--;
-            loadOrders(S);
+            renderOrderTiles(S);
             return;
         }
 
@@ -381,7 +392,7 @@ public class PosController {
             prevBtn.getStyleClass().add("product-btn");
             prevBtn.setOnAction(e -> {
                 currentOrderPage--;
-                loadOrders(S);
+                renderOrderTiles(S);
             });
             productBox.getChildren().add(prevBtn);
         }
@@ -423,7 +434,7 @@ public class PosController {
             nextBtn.getStyleClass().add("product-btn");
             nextBtn.setOnAction(e -> {
                 currentOrderPage++;
-                loadOrders(S);
+                renderOrderTiles(S);
             });
             productBox.getChildren().add(nextBtn);
         }
@@ -549,7 +560,10 @@ public class PosController {
             createReq.setBatchId(currentBatchId);
             createReq.setCashSessionId(StartController.getCashSession().getId());
 
-            OrderDetailService.createOrderDetail(createReq);
+            OrderDetailResponse created = OrderDetailService.createOrderDetail(createReq);
+            if (existingVisual == null && !currentdetails.isEmpty()) {
+                currentdetails.get(currentdetails.size() - 1).setId(created.getId());
+            }
 
             renderDetails(currentdetails, product);
 
@@ -593,6 +607,7 @@ public class PosController {
                 if (anyApplied) {
                     groupSameVisualElements(visualDetails);
                     renderDetails(visualDetails, null);
+                    selectedOrderDetailIndexes.clear();
                 } else {
                     System.out.println("No selected details suitable for this supplement");
                 }
@@ -626,6 +641,7 @@ public class PosController {
             applySupplementToVisualDetail(odr, supplement);
             groupSameVisualElements(visualDetails);
             renderDetails(visualDetails, null);
+            selectedOrderDetailIndexes.clear();
         }else{
             if(selectedOrderDetailIndexes.isEmpty()) {
                 try {
@@ -640,8 +656,8 @@ public class PosController {
                     System.out.println(e.getMessage());
                 }
             }
-            updateCurrentDetails();
-            renderDetails(currentdetails, null);
+            updateCurrentDetailsAsync(() -> renderDetails(currentdetails, null));
+            selectedOrderDetailIndexes.clear();
         }
     }
 
@@ -687,16 +703,25 @@ public class PosController {
             tableNameLabel.setText("");
         }
 
-        try {
-            currentdetails = OrderDetailService.getUnpaidOrderDetailsByOrderId(order.getId());
-            renderDetails(currentdetails != null ? currentdetails : new ArrayList<>(), null);
-        } catch (Exception e) {
-            e.printStackTrace();
+        Task<List<OrderDetailResponse>> task = new Task<>() {
+            @Override
+            protected List<OrderDetailResponse> call() throws Exception {
+                return OrderDetailService.getUnpaidOrderDetailsByOrderId(order.getId());
+            }
+        };
+        task.setOnSucceeded(e -> {
+            currentdetails = task.getValue() != null ? task.getValue() : new ArrayList<>();
+            renderDetails(currentdetails, null);
+        });
+        task.setOnFailed(e -> {
+            task.getException().printStackTrace();
             renderDetails(new ArrayList<>(), null);
-        }
+        });
+        new Thread(task).start();
     }
 
     private void renderDetails(List<OrderDetailResponse> details, ProductResponse product) {
+        selectedOrderDetailIndexes.clear();
         orderVboxItems.getChildren().clear();
         BigDecimal total = BigDecimal.ZERO;
 
@@ -1039,6 +1064,11 @@ public class PosController {
         if (currentOrder == null && visualDetails.isEmpty())
             return;
 
+        if (hasActiveOrder() && (currentdetails == null || currentdetails.isEmpty())) {
+            CustomDialog.showError("Todo ya está pagado en este pedido");
+            return;
+        }
+
         try {
             URL fxml = getClass().getResource("/com/yebur/payment/payment.fxml");
             if (fxml == null) {
@@ -1221,7 +1251,6 @@ public class PosController {
     }
 
     public List<OrderDetailResponse> getCurrentdetails() {
-        updateCurrentDetails();
         return currentdetails.isEmpty() ? visualDetails : currentdetails;
     }
 
@@ -1237,12 +1266,20 @@ public class PosController {
         return visualDetails;
     }
 
-    public void updateCurrentDetails() {
-        try{
-            currentdetails = OrderDetailService.getUnpaidOrderDetailsByOrderId(currentOrder.getId());
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-        }
+    private void updateCurrentDetailsAsync(Runnable onDone) {
+        if (!hasActiveOrder()) return;
+        Task<List<OrderDetailResponse>> task = new Task<>() {
+            @Override
+            protected List<OrderDetailResponse> call() throws Exception {
+                return OrderDetailService.getUnpaidOrderDetailsByOrderId(currentOrder.getId());
+            }
+        };
+        task.setOnSucceeded(e -> {
+            currentdetails = task.getValue() != null ? task.getValue() : new ArrayList<>();
+            if (onDone != null) onDone.run();
+        });
+        task.setOnFailed(e -> System.out.println(task.getException().getMessage()));
+        new Thread(task).start();
     }
 
 
