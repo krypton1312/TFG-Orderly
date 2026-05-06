@@ -5,5 +5,7 @@
 /frontend/OrderlyPhone/.kotlin/
 /frontend/OrderlyTablet/.kotlin/
 
+**/target/
+
 .planning/
 backendOrderly/.env
