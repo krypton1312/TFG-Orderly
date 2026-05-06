@@ -219,6 +219,23 @@
     -fx-font-weight: bold;
 }
 
+/* Item status — kitchen state visualization */
+.order-item-in-progress .label {
+    -fx-text-fill: #9ca3af;
+}
+
+.order-item-in-progress {
+    -fx-opacity: 0.75;
+}
+
+.order-item-served .label {
+    -fx-text-fill: #16a34a;
+}
+
+.order-item-served {
+    -fx-font-style: italic;
+}
+
 /* Полоса прокрутки */
 .scroll-bar {
     -fx-background-color: transparent;

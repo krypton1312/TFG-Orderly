@@ -141,6 +141,14 @@ public class PartialPaymentController {
 
             GridPane row = new GridPane();
             row.getStyleClass().add("order-item-row");
+            if (isMainBox) {
+                String itemStatus = d.getStatus();
+                if ("SENT".equals(itemStatus) || "IN_PROGRESS".equals(itemStatus)) {
+                    row.getStyleClass().add("order-item-in-progress");
+                } else if ("SERVED".equals(itemStatus)) {
+                    row.getStyleClass().add("order-item-served");
+                }
+            }
             row.setHgap(10);
 
             ColumnConstraints col1 = new ColumnConstraints();

@@ -217,6 +217,23 @@
     -fx-background-color: #f3f4f6;
 }
 
+/* Item status — kitchen state visualization */
+.order-item-in-progress .label {
+    -fx-text-fill: #9ca3af;
+}
+
+.order-item-in-progress {
+    -fx-opacity: 0.75;
+}
+
+.order-item-served .label {
+    -fx-text-fill: #16a34a;
+}
+
+.order-item-served {
+    -fx-font-style: italic;
+}
+
 /* Сумма и цены выделены жирнее */
 .order-item-row .price-label,
 .order-item-row .total-label {

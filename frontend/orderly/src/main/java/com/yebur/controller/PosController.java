@@ -533,14 +533,32 @@ public class PosController {
         }
 
         try {
-            OrderDetailResponse existingVisual = currentdetails.stream()
+            // Search for an existing PENDING item with the same product, name, and price
+            OrderDetailResponse existingPending = currentdetails.stream()
                     .filter(d -> Objects.equals(d.getProductId(), product.getId()))
+                    .filter(d -> Objects.equals(d.getName(), product.getName()))
+                    .filter(d -> d.getUnitPrice() != null && d.getUnitPrice().compareTo(unitPrice) == 0)
+                    .filter(d -> "PENDING".equals(d.getStatus()))
                     .findFirst()
                     .orElse(null);
 
-            if (existingVisual != null) {
-                existingVisual.setAmount(existingVisual.getAmount() + quantity);
+            if (existingPending != null) {
+                // Update existing PENDING item — increment quantity
+                int newQty = existingPending.getAmount() + quantity;
+                existingPending.setAmount(newQty);
+
+                OrderDetailRequest updateReq = new OrderDetailRequest();
+                updateReq.setProductId(existingPending.getProductId());
+                updateReq.setOrderId(currentOrder.getId());
+                updateReq.setName(existingPending.getName());
+                updateReq.setAmount(newQty);
+                updateReq.setUnitPrice(existingPending.getUnitPrice());
+                updateReq.setStatus("PENDING");
+                updateReq.setBatchId(existingPending.getBatchId());
+                updateReq.setCashSessionId(StartController.getCashSession().getId());
+                OrderDetailService.updateOrderDetail(existingPending.getId(), updateReq);
             } else {
+                // No matching PENDING item — create new entry
                 OrderDetailResponse newVisual = new OrderDetailResponse();
                 newVisual.setProductId(product.getId());
                 newVisual.setName(product.getName());
@@ -548,21 +566,21 @@ public class PosController {
                 newVisual.setUnitPrice(unitPrice);
                 newVisual.setBatchId(currentBatchId);
                 newVisual.setCreatedAt(LocalDateTime.now());
+                newVisual.setStatus("PENDING");
                 currentdetails.add(newVisual);
-            }
-            OrderDetailRequest createReq = new OrderDetailRequest();
-            createReq.setName(product.getName());
-            createReq.setOrderId(currentOrder.getId());
-            createReq.setProductId(product.getId());
-            createReq.setAmount(quantity);
-            createReq.setUnitPrice(unitPrice);
-            createReq.setStatus("PENDING");
-            createReq.setBatchId(currentBatchId);
-            createReq.setCashSessionId(StartController.getCashSession().getId());
 
-            OrderDetailResponse created = OrderDetailService.createOrderDetail(createReq);
-            if (existingVisual == null && !currentdetails.isEmpty()) {
-                currentdetails.get(currentdetails.size() - 1).setId(created.getId());
+                OrderDetailRequest createReq = new OrderDetailRequest();
+                createReq.setName(product.getName());
+                createReq.setOrderId(currentOrder.getId());
+                createReq.setProductId(product.getId());
+                createReq.setAmount(quantity);
+                createReq.setUnitPrice(unitPrice);
+                createReq.setStatus("PENDING");
+                createReq.setBatchId(currentBatchId);
+                createReq.setCashSessionId(StartController.getCashSession().getId());
+
+                OrderDetailResponse created = OrderDetailService.createOrderDetail(createReq);
+                newVisual.setId(created.getId());
             }
 
             renderDetails(currentdetails, product);
@@ -729,6 +747,12 @@ public class PosController {
             // Создаём адаптивную строку
             GridPane row = new GridPane();
             row.getStyleClass().add("order-item-row");
+            String itemStatus = d.getStatus();
+            if ("SENT".equals(itemStatus) || "IN_PROGRESS".equals(itemStatus)) {
+                row.getStyleClass().add("order-item-in-progress");
+            } else if ("SERVED".equals(itemStatus)) {
+                row.getStyleClass().add("order-item-served");
+            }
             row.setHgap(10);
 
             // Настраиваем колонки — те же пропорции, что и в заголовке
