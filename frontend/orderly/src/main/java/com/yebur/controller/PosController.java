@@ -6,6 +6,7 @@ import com.yebur.model.request.OrderRequest;
 import com.yebur.model.response.*;
 import com.yebur.service.*;
 import com.yebur.ui.CustomDialog;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -82,6 +83,12 @@ public class PosController {
     private int productPageSize;
     private NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.GERMANY);
 
+    private static final String WS_URL = "ws://localhost:8080/ws/overview/tablet";
+    private java.net.http.WebSocket wsClient;
+    private int wsReconnectAttempts = 0;
+    private static final int WS_MAX_RECONNECT = 3;
+    private static final long WS_RETRY_DELAY_MS = 5000;
+
     @FXML
     public void initialize() {
         javafx.application.Platform.runLater(() -> {
@@ -93,6 +100,17 @@ public class PosController {
             reloadCategories();
             orderTotalValue.setText(currencyFormatter.format(BigDecimal.ZERO));
             displayField.setEditable(false);
+            connectWebSocket();
+            Platform.runLater(() -> {
+                Stage posStage = (Stage) categoryBox.getScene().getWindow();
+                if (posStage != null) {
+                    posStage.setOnHiding(e -> {
+                        if (wsClient != null) {
+                            wsClient.sendClose(1000, "POS closing");
+                        }
+                    });
+                }
+            });
         });
     }
 
@@ -1458,6 +1476,90 @@ public class PosController {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void connectWebSocket() {
+        java.net.http.HttpClient.newHttpClient()
+                .newWebSocketBuilder()
+                .buildAsync(java.net.URI.create(WS_URL), new java.net.http.WebSocket.Listener() {
+                    @Override
+                    public void onOpen(java.net.http.WebSocket ws) {
+                        wsClient = ws;
+                        wsReconnectAttempts = 0;
+                        ws.request(1);
+                    }
+
+                    @Override
+                    public java.util.concurrent.CompletionStage<?> onText(
+                            java.net.http.WebSocket ws, CharSequence data, boolean last) {
+                        ws.request(1);
+                        javafx.application.Platform.runLater(() -> handleWsMessage(data.toString()));
+                        return null;
+                    }
+
+                    @Override
+                    public void onError(java.net.http.WebSocket ws, Throwable error) {
+                        System.err.println("[WS] Error: " + error.getMessage());
+                        scheduleWsReconnect();
+                    }
+
+                    @Override
+                    public java.util.concurrent.CompletionStage<?> onClose(
+                            java.net.http.WebSocket ws, int statusCode, String reason) {
+                        if (statusCode != 1000) {
+                            scheduleWsReconnect();
+                        }
+                        return null;
+                    }
+                });
+    }
+
+    private void scheduleWsReconnect() {
+        if (wsReconnectAttempts >= WS_MAX_RECONNECT) {
+            System.err.println("[WS] Max reconnect attempts reached. Real-time updates disabled.");
+            return;
+        }
+        wsReconnectAttempts++;
+        Thread retryThread = new Thread(() -> {
+            try {
+                Thread.sleep(WS_RETRY_DELAY_MS);
+            } catch (InterruptedException ignored) {}
+            javafx.application.Platform.runLater(this::connectWebSocket);
+        });
+        retryThread.setDaemon(true);
+        retryThread.start();
+    }
+
+    private static final com.fasterxml.jackson.databind.ObjectMapper WS_MAPPER =
+            new com.fasterxml.jackson.databind.ObjectMapper()
+                    .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    private void handleWsMessage(String json) {
+        try {
+            com.fasterxml.jackson.databind.JsonNode node = WS_MAPPER.readTree(json);
+
+            Long eventOrderId = null;
+            if (node.hasNonNull("orderId")) {
+                eventOrderId = node.get("orderId").asLong();
+            }
+
+            if (isOverviewMode) {
+                loadOrders(productPageSize);
+            }
+
+            if (hasActiveOrder() && eventOrderId != null
+                    && eventOrderId.equals(currentOrder.getId())) {
+                boolean displayEmpty = displayField.getText() == null
+                        || displayField.getText().isEmpty();
+                if (displayEmpty) {
+                    updateCurrentDetailsAsync(() -> renderDetails(currentdetails, null));
+                } else {
+                    updateCurrentDetailsAsync(null);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[WS] Failed to parse message: " + e.getMessage());
         }
     }
 
