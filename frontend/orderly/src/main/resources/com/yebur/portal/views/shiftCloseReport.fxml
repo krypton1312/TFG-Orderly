@@ -98,6 +98,9 @@
     <!-- FOOTER -->
     <bottom>
         <HBox styleClass="report-footer" alignment="CENTER_RIGHT" spacing="10">
+            <Button fx:id="printBtn" text="🖨  IMPRIMIR" styleClass="btn-action" onAction="#onPrint"/>
+            <Button fx:id="emailBtn" text="✉  ENVIAR" styleClass="btn-action" onAction="#onEmail"/>
+            <Region HBox.hgrow="ALWAYS"/>
             <Button fx:id="closeBtn" text="CERRAR" styleClass="btn-secondary" onAction="#onClose"/>
         </HBox>
     </bottom>

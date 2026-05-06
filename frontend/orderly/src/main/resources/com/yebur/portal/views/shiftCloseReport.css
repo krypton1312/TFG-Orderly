@@ -1,10 +1,51 @@
 /* =====================================================
-   shiftCloseReport.css
-   Phase 6 — Cash Session Close Report Modal
-   Extends cashCountModel.css patterns
+   shiftCloseReport.css  — self-contained redesign
    ===================================================== */
 
-/* --- SCROLL PANE — transparent background --- */
+/* ---- ROOT CARD ---- */
+.modal-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 18;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 18;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.20), 40, 0.15, 0, 12);
+}
+
+/* ---- HEADER ---- */
+.modal-header {
+    -fx-padding: 18 20;
+    -fx-border-color: transparent transparent #f1f5f9 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.modal-title {
+    -fx-text-fill: #ea580c;
+    -fx-font-weight: 900;
+    -fx-font-size: 13px;
+}
+
+.modal-close {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-background-radius: 20;
+    -fx-min-width: 30;
+    -fx-min-height: 30;
+    -fx-pref-width: 30;
+    -fx-pref-height: 30;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+    -fx-alignment: CENTER;
+}
+
+.modal-close:hover {
+    -fx-background-color: #fce7d3;
+    -fx-text-fill: #ea580c;
+}
+
+/* ---- SCROLL + BODY ---- */
 .report-scroll {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
@@ -15,71 +56,162 @@
     -fx-background-color: transparent;
 }
 
-/* --- MINI CARDS (summary row) --- */
-.mini-label {
-    -fx-text-fill: #9ca3af;
-    -fx-font-size: 11px;
-    -fx-font-weight: 700;
+.modal-body {
+    -fx-background-color: transparent;
 }
 
-.mini-value {
-    -fx-text-fill: #1f2937;
-    -fx-font-size: 16px;
+/* ---- INFO CARDS (top row: FECHA, TURNO N°, APERTURA, CIERRE) ---- */
+.info-card {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 12;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 12 14;
+}
+
+.info-label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 10px;
     -fx-font-weight: 800;
 }
 
-/* --- OPERATIONS CARD --- */
+.info-value {
+    -fx-text-fill: #1e293b;
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+}
+
+/* ---- SUMMARY CARDS (FONDO INICIAL, VENTAS EFECTIVO, etc.) ---- */
+.mini-label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 10px;
+    -fx-font-weight: 800;
+}
+
+.mini-value {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 20px;
+    -fx-font-weight: 900;
+}
+
+/* ---- OPERATIONS CARD ---- */
 .report-ops-card {
     -fx-background-color: #ffffff;
     -fx-background-radius: 14;
     -fx-padding: 14 16;
-    -fx-border-color: #f3f4f6;
+    -fx-border-color: #e2e8f0;
     -fx-border-radius: 14;
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(17,24,39,0.06), 14, 0.2, 0, 4);
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.05), 10, 0.1, 0, 2);
 }
 
 .section-title {
-    -fx-text-fill: #9ca3af;
-    -fx-font-size: 12px;
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 11px;
     -fx-font-weight: 800;
-    -fx-padding: 0 0 8 0;
+    -fx-padding: 0 0 10 0;
 }
 
-/* --- COLUMN WIDTH CONSTRAINTS --- */
+/* ---- COLUMN WIDTH CONSTRAINTS ---- */
 .col-time {
     -fx-min-width: 65;
     -fx-pref-width: 65;
 }
 
 .col-type {
-    -fx-min-width: 70;
-    -fx-pref-width: 70;
+    -fx-min-width: 75;
+    -fx-pref-width: 75;
 }
 
 .col-amount {
-    -fx-min-width: 80;
-    -fx-pref-width: 80;
+    -fx-min-width: 90;
+    -fx-pref-width: 90;
     -fx-alignment: CENTER_RIGHT;
 }
 
-/* --- FOOTER --- */
+/* ---- COLUMN HEADER + DATA ROWS ---- */
+.row-head {
+    -fx-padding: 0 6 8 6;
+    -fx-border-color: transparent transparent #f1f5f9 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.grid-head {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.grid-head-right {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.row-line {
+    -fx-padding: 9 6;
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #f1f5f9;
+    -fx-border-radius: 8;
+}
+
+.row-line:hover {
+    -fx-background-color: rgba(234,88,12,0.04);
+}
+
+.grid-name {
+    -fx-text-fill: #374151;
+    -fx-font-size: 13px;
+}
+
+.grid-amount {
+    -fx-text-fill: #374151;
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+/* ---- FOOTER ---- */
 .report-footer {
-    -fx-padding: 14 16;
-    -fx-border-color: #f3f4f6;
+    -fx-padding: 14 20;
+    -fx-border-color: #f1f5f9;
     -fx-border-width: 1 0 0 0;
 }
 
-/* --- BTN-SECONDARY (self-contained for this CSS scope) --- */
+/* ---- ACTION BUTTONS (print / email) ---- */
+.btn-action {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #475569;
+    -fx-font-weight: 700;
+    -fx-background-radius: 12;
+    -fx-pref-height: 44;
+    -fx-pref-width: 148;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-border-width: 0;
+}
+
+.btn-action:hover {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #1e293b;
+}
+
+/* ---- CERRAR BUTTON ---- */
 .btn-secondary {
-    -fx-background-color: rgba(234,88,12,0.10);
-    -fx-text-fill: #ea580c;
+    -fx-background-color: #ea580c;
+    -fx-text-fill: white;
     -fx-font-weight: 900;
     -fx-background-radius: 12;
     -fx-pref-height: 44;
+    -fx-pref-width: 130;
     -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-border-width: 0;
 }
 
 .btn-secondary:hover {
-    -fx-background-color: rgba(234,88,12,0.18);
+    -fx-background-color: #c2410c;
 }

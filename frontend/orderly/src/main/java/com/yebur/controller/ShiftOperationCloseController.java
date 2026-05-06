@@ -425,7 +425,7 @@ public class ShiftOperationCloseController {
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.initStyle(StageStyle.UNDECORATED);
+            stage.initStyle(StageStyle.TRANSPARENT);
             stage.initOwner(cashRoot.getScene().getWindow());
             stage.setScene(scene);
 

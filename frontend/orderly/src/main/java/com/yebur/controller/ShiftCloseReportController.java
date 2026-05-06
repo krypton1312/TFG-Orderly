@@ -28,6 +28,8 @@ public class ShiftCloseReportController {
     @FXML private Label differenceLabel;
     @FXML private VBox operationsVBox;
     @FXML private Button closeBtn;
+    @FXML private Button printBtn;
+    @FXML private Button emailBtn;
 
     private final DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private final DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
@@ -49,9 +51,10 @@ public class ShiftCloseReportController {
         if (ops == null || ops.isEmpty()) {
             Label emptyLabel = new Label("Sin operaciones en este turno");
             emptyLabel.getStyleClass().add("grid-name");
-            emptyLabel.setStyle("-fx-text-fill: #9ca3af;");
+            emptyLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 13px;");
             emptyLabel.setMaxWidth(Double.MAX_VALUE);
             emptyLabel.setAlignment(Pos.CENTER);
+            emptyLabel.setPadding(new javafx.geometry.Insets(20, 0, 12, 0));
             operationsVBox.getChildren().add(emptyLabel);
         } else {
             for (CashOperationResponse op : ops) {
@@ -90,5 +93,15 @@ public class ShiftCloseReportController {
     @FXML
     private void onClose() {
         ((Stage) closeBtn.getScene().getWindow()).close();
+    }
+
+    @FXML
+    private void onPrint() {
+        // TODO: implement shift report printing (Phase 999.10)
+    }
+
+    @FXML
+    private void onEmail() {
+        // TODO: implement shift report send-by-email (Phase 999.10)
     }
 }
