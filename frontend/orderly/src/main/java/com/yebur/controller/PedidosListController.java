@@ -62,7 +62,7 @@ public class PedidosListController {
             });
         });
 
-        metodoPicker.setItems(FXCollections.observableArrayList("Todos", "CASH", "CARD"));
+        metodoPicker.setItems(FXCollections.observableArrayList("Todos", "Efectivo", "Tarjeta"));
         metodoPicker.setValue("Todos");
 
         empleadoPicker.setItems(employeeNames);
@@ -75,11 +75,11 @@ public class PedidosListController {
         mesaCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
                 c.getValue().getRestTable() != null ? String.valueOf(c.getValue().getRestTable().getNumber()) : "—"));
         estadoCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
-                c.getValue().getState() != null ? c.getValue().getState() : "—"));
+                toEstadoLabel(c.getValue().getState())));
         totalCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
                 moneyFmt.format(c.getValue().getTotal()) + " €"));
         metodoPagoCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
-                c.getValue().getPaymentMethod() != null ? c.getValue().getPaymentMethod() : "—"));
+                toMetodoLabel(c.getValue().getPaymentMethod())));
         empleadoCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
                 employeeNameMap.getOrDefault(c.getValue().getIdEmployee(), "—")));
 
@@ -114,6 +114,27 @@ public class PedidosListController {
         t.start();
     }
 
+    private String toEstadoLabel(String s) {
+        if (s == null) return "—";
+        return switch (s.toUpperCase()) {
+            case "PAID"      -> "Pagado";
+            case "PENDING"   -> "Pendiente";
+            case "CANCELLED" -> "Cancelado";
+            case "OPEN"      -> "Abierto";
+            case "CLOSED"    -> "Cerrado";
+            default -> s;
+        };
+    }
+
+    private String toMetodoLabel(String s) {
+        if (s == null) return "—";
+        return switch (s.toUpperCase()) {
+            case "CASH" -> "Efectivo";
+            case "CARD" -> "Tarjeta";
+            default -> s;
+        };
+    }
+
     @FXML
     private void onFilter() {
         LocalDate from = fromDatePicker.getValue();
@@ -127,8 +148,10 @@ public class PedidosListController {
                 return false;
             if (to != null && o.getDatetime() != null && o.getDatetime().toLocalDate().isAfter(to))
                 return false;
-            if (metodo != null && !"Todos".equals(metodo) && !metodo.equals(o.getPaymentMethod()))
-                return false;
+            if (metodo != null && !"Todos".equals(metodo)) {
+                String rawMetodo = "Efectivo".equals(metodo) ? "CASH" : "CARD";
+                if (!rawMetodo.equals(o.getPaymentMethod())) return false;
+            }
             if (empleado != null && !"Todos".equals(empleado)) {
                 String empName = employeeNameMap.getOrDefault(o.getIdEmployee(), "");
                 if (!empName.equals(empleado)) return false;

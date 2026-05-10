@@ -7,7 +7,7 @@
             fx:controller="com.yebur.controller.PagosListController"
             styleClass="modal-card,list-modal-large"
             fx:id="root"
-            stylesheets="@shiftCloseReport.css @listados.css">
+            stylesheets="@listados.css">
 
     <top>
         <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
@@ -18,18 +18,18 @@
     </top>
 
     <center>
-        <VBox spacing="0">
+        <VBox spacing="0" styleClass="modal-center">
             <!-- Filter row -->
-            <HBox styleClass="list-filter-row" spacing="12" alignment="CENTER_LEFT">
+            <FlowPane styleClass="list-filter-row" hgap="10" vgap="8">
                 <Label text="DESDE" styleClass="list-filter-label"/>
                 <DatePicker fx:id="fromDatePicker" promptText="dd/MM/yyyy" prefWidth="140"/>
                 <Label text="HASTA" styleClass="list-filter-label"/>
                 <DatePicker fx:id="toDatePicker" promptText="dd/MM/yyyy" prefWidth="140"/>
                 <Label text="METODO" styleClass="list-filter-label"/>
                 <ComboBox fx:id="metodoPicker" styleClass="list-filter-combo" prefWidth="130"/>
-                <Button text="Filtrar" onAction="#onFilter" styleClass="modal-close"/>
-                <Button text="Limpiar" onAction="#onClear" styleClass="modal-close"/>
-            </HBox>
+                <Button text="Filtrar" onAction="#onFilter" styleClass="list-filter-btn"/>
+                <Button text="Limpiar" onAction="#onClear" styleClass="list-filter-btn"/>
+            </FlowPane>
 
             <!-- Table -->
             <TableView fx:id="pagosTable" styleClass="list-table" VBox.vgrow="ALWAYS"

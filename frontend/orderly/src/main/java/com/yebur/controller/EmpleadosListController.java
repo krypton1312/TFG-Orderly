@@ -55,7 +55,7 @@ public class EmpleadosListController {
                 c.getValue().getEmail() != null ? c.getValue().getEmail() : "—"));
         rolCol.setCellValueFactory(c -> {
             var roles = c.getValue().getRoles();
-            String rol = (roles != null && !roles.isEmpty()) ? roles.iterator().next().toString() : "—";
+            String rol = (roles != null && !roles.isEmpty()) ? toRolLabel(roles.iterator().next().toString()) : "—";
             return new javafx.beans.property.SimpleStringProperty(rol);
         });
         statusCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
@@ -91,6 +91,18 @@ public class EmpleadosListController {
         });
         t.setDaemon(true);
         t.start();
+    }
+
+    private String toRolLabel(String s) {
+        if (s == null) return "—";
+        return switch (s.toUpperCase()) {
+            case "ADMIN"     -> "Administrador";
+            case "MANAGER"   -> "Gerente";
+            case "WAITER"    -> "Camarero";
+            case "CHEF"      -> "Cocinero";
+            case "BARTENDER" -> "Bartender";
+            default -> s;
+        };
     }
 
     @FXML

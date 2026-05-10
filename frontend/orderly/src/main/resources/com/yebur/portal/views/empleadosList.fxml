@@ -7,7 +7,7 @@
             fx:controller="com.yebur.controller.EmpleadosListController"
             styleClass="modal-card,list-modal-large"
             fx:id="root"
-            stylesheets="@shiftCloseReport.css @listados.css">
+            stylesheets="@listados.css">
 
     <top>
         <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
@@ -18,12 +18,12 @@
     </top>
 
     <center>
-        <VBox spacing="0">
+        <VBox spacing="0" styleClass="modal-center">
             <!-- Filter row -->
-            <HBox styleClass="list-filter-row" spacing="12" alignment="CENTER_LEFT">
+            <FlowPane styleClass="list-filter-row" hgap="10" vgap="8">
                 <TextField fx:id="searchField" styleClass="list-filter-field" promptText="Buscar..." prefWidth="220"/>
-                <Button text="Limpiar" onAction="#onClear" styleClass="modal-close"/>
-            </HBox>
+                <Button text="Limpiar" onAction="#onClear" styleClass="list-filter-btn"/>
+            </FlowPane>
 
             <!-- Table -->
             <TableView fx:id="empleadosTable" styleClass="list-table" VBox.vgrow="ALWAYS"

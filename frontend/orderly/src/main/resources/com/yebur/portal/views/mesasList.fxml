@@ -7,7 +7,7 @@
             fx:controller="com.yebur.controller.MesasListController"
             styleClass="modal-card,list-modal-large"
             fx:id="root"
-            stylesheets="@shiftCloseReport.css @listados.css">
+            stylesheets="@listados.css">
 
     <top>
         <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
@@ -18,7 +18,8 @@
     </top>
 
     <center>
-        <TableView fx:id="mesasTable" styleClass="list-table">
+        <VBox styleClass="modal-center" spacing="0">
+            <TableView fx:id="mesasTable" styleClass="list-table" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="idCol" text="ID" prefWidth="60"/>
                 <TableColumn fx:id="numberCol" text="N&#xBA;" prefWidth="70"/>
@@ -29,6 +30,7 @@
             <placeholder>
                 <Label text="Sin mesas" styleClass="grid-name"/>
             </placeholder>
-        </TableView>
+            </TableView>
+        </VBox>
     </center>
 </BorderPane>

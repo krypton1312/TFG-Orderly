@@ -58,7 +58,7 @@ public class PagosListController {
             });
         });
 
-        metodoPicker.setItems(FXCollections.observableArrayList("Todos", "CASH", "CARD"));
+        metodoPicker.setItems(FXCollections.observableArrayList("Todos", "Efectivo", "Tarjeta"));
         metodoPicker.setValue("Todos");
 
         idCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
@@ -70,7 +70,7 @@ public class PagosListController {
         totalCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
                 moneyFmt.format(c.getValue().getTotal()) + " €"));
         metodoPagoCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
-                c.getValue().getPaymentMethod() != null ? c.getValue().getPaymentMethod() : "—"));
+                toMetodoLabel(c.getValue().getPaymentMethod())));
         empleadoCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
                 employeeNameMap.getOrDefault(c.getValue().getIdEmployee(), "—")));
 
@@ -101,6 +101,15 @@ public class PagosListController {
         t.start();
     }
 
+    private String toMetodoLabel(String s) {
+        if (s == null) return "—";
+        return switch (s.toUpperCase()) {
+            case "CASH" -> "Efectivo";
+            case "CARD" -> "Tarjeta";
+            default -> s;
+        };
+    }
+
     @FXML
     private void onFilter() {
         LocalDate from = fromDatePicker.getValue();
@@ -111,8 +120,10 @@ public class PagosListController {
                 return false;
             if (to != null && o.getDatetime() != null && o.getDatetime().toLocalDate().isAfter(to))
                 return false;
-            if (metodo != null && !"Todos".equals(metodo) && !metodo.equals(o.getPaymentMethod()))
-                return false;
+            if (metodo != null && !"Todos".equals(metodo)) {
+                String rawMetodo = "Efectivo".equals(metodo) ? "CASH" : "CARD";
+                if (!rawMetodo.equals(o.getPaymentMethod())) return false;
+            }
             return true;
         });
     }

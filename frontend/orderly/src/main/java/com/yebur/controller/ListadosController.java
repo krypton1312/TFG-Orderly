@@ -4,8 +4,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -70,11 +73,33 @@ public class ListadosController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent modalRoot = loader.load();
+
+            // Dim the main window
+            Parent sceneRoot = root.getScene().getRoot();
+            ColorAdjust dim = new ColorAdjust();
+            dim.setBrightness(-0.45);
+            sceneRoot.setEffect(dim);
+
+            Stage ownerStage = (Stage) root.getScene().getWindow();
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.initStyle(StageStyle.UNDECORATED);
-            stage.setScene(new Scene(modalRoot));
+            stage.initOwner(ownerStage);
+            stage.initStyle(StageStyle.TRANSPARENT);
+
+            // Clip root to rounded rectangle so children don't overflow card corners
+            if (modalRoot instanceof javafx.scene.layout.Region region) {
+                Rectangle clip = new Rectangle();
+                clip.setArcWidth(36);
+                clip.setArcHeight(36);
+                region.widthProperty().addListener((obs, o, w) -> clip.setWidth(w.doubleValue()));
+                region.heightProperty().addListener((obs, o, h) -> clip.setHeight(h.doubleValue()));
+                region.setClip(clip);
+            }
+
+            Scene scene = new Scene(modalRoot, Color.TRANSPARENT);
+            stage.setScene(scene);
             stage.centerOnScreen();
+            stage.setOnHiding(e -> sceneRoot.setEffect(null));
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

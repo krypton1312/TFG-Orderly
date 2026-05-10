@@ -1,10 +1,118 @@
 /* =====================================================
    listados.css  — Listados launcher + list modals
+   Self-contained: includes all base modal styles
    ===================================================== */
+
+/* ---- BASE MODAL CARD ---- */
+.modal-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 18;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 18;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.20), 40, 0.15, 0, 12);
+}
+
+.modal-header {
+    -fx-padding: 18 20;
+    -fx-border-color: transparent transparent #f1f5f9 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-background-color: transparent;
+}
+
+.modal-title {
+    -fx-text-fill: #ea580c;
+    -fx-font-weight: 900;
+    -fx-font-size: 13px;
+}
+
+.modal-close {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-background-radius: 20;
+    -fx-min-width: 30;
+    -fx-min-height: 30;
+    -fx-pref-width: 30;
+    -fx-pref-height: 30;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+    -fx-alignment: CENTER;
+}
+
+.modal-close:hover {
+    -fx-background-color: #fce7d3;
+    -fx-text-fill: #ea580c;
+}
+
+.modal-body {
+    -fx-background-color: transparent;
+}
+
+.report-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.report-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+/* ---- DETAIL FIELD STYLES ---- */
+.info-card {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 12;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 12 14;
+}
+
+.info-label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 10px;
+    -fx-font-weight: 800;
+}
+
+.info-value {
+    -fx-text-fill: #1e293b;
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+}
+
+.section-title {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-padding: 0 0 10 0;
+}
+
+.grid-name {
+    -fx-text-fill: #374151;
+    -fx-font-size: 13px;
+}
+
+.btn-action {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #475569;
+    -fx-font-weight: 700;
+    -fx-background-radius: 12;
+    -fx-pref-height: 40;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-border-width: 0;
+}
+
+.btn-action:hover {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #1e293b;
+}
 
 /* ---- LAUNCHER CONTENT AREA ---- */
 .list-content-area {
-    -fx-background-color: #f8fafc;
+    -fx-background-color: #f5f7fa;
 }
 
 /* ---- TILE PANE CARD GRID ---- */
@@ -47,7 +155,7 @@
 }
 
 .list-card-icon {
-    -fx-stroke: #64748b;
+    -fx-stroke: #ea580c;
     -fx-stroke-width: 1.6;
     -fx-fill: null;
 }
@@ -58,9 +166,9 @@
 
 /* ---- FILTER ROW ---- */
 .list-filter-row {
-    -fx-padding: 14 20 10 20;
-    -fx-spacing: 12;
-    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 12 12 10 12;
+    -fx-hgap: 10;
+    -fx-vgap: 8;
     -fx-border-color: transparent transparent #f1f5f9 transparent;
     -fx-border-width: 0 0 1 0;
 }
@@ -105,24 +213,24 @@
 
 /* ---- TABLE ---- */
 .list-table {
-    -fx-background-color: transparent;
+    -fx-background-color: #ffffff;
     -fx-border-color: transparent;
     -fx-table-cell-border-color: transparent;
 }
 
 .list-table .column-header-background {
-    -fx-background-color: #f8fafc;
+    -fx-background-color: #f1f5f9;
 }
 
 .list-table .column-header, .list-table .filler {
-    -fx-background-color: #f8fafc;
+    -fx-background-color: #f1f5f9;
     -fx-border-color: transparent transparent #e2e8f0 transparent;
-    -fx-border-width: 0 0 1 0;
-    -fx-size: 36;
+    -fx-border-width: 0 0 1.5 0;
+    -fx-size: 40;
 }
 
 .list-table .column-header .label {
-    -fx-text-fill: #64748b;
+    -fx-text-fill: #475569;
     -fx-font-size: 11px;
     -fx-font-weight: 800;
 }
@@ -132,14 +240,17 @@
     -fx-border-color: transparent transparent #f1f5f9 transparent;
     -fx-border-width: 0 0 1 0;
     -fx-cursor: hand;
+    -fx-pref-height: 44;
+    -fx-cell-size: 44;
 }
 
 .list-table .table-row-cell:odd {
-    -fx-background-color: #fafafa;
+    -fx-background-color: #fafbfc;
 }
 
 .list-table .table-row-cell:selected {
     -fx-background-color: #fff7ed;
+    -fx-border-color: transparent transparent #fed7aa transparent;
 }
 
 .list-table .table-row-cell:hover {
@@ -147,15 +258,86 @@
 }
 
 .list-table .table-cell {
-    -fx-text-fill: #1e293b;
+    -fx-text-fill: #374151;
     -fx-font-size: 13px;
+    -fx-padding: 0 12;
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* Name column — orange to hint clickable */
+.list-table .table-row-cell .table-cell:nth-child(2) {
+    -fx-text-fill: #ea580c;
+    -fx-font-weight: 600;
+}
+
+/* ---- FILTER BUTTON (Filtrar / Limpiar) ---- */
+.list-filter-btn {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #475569;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 8;
+    -fx-border-width: 0;
+    -fx-pref-height: 32;
+    -fx-min-width: 68;
     -fx-padding: 0 10;
+    -fx-cursor: hand;
+}
+
+.list-filter-btn:hover {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #1e293b;
+}
+
+/* ---- CENTER CONTENT ---- */
+/* transparent so BorderPane's background-radius 18 shows through at bottom corners */
+.modal-center {
+    -fx-background-color: transparent;
+    -fx-padding: 0 12 18 12;
+}
+
+/* ---- SCROLLBAR ---- */
+.list-table .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+.list-table .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.list-table .scroll-bar:vertical .thumb {
+    -fx-background-color: #cbd5e1;
+    -fx-background-radius: 4;
+}
+
+.list-table .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #94a3b8;
+}
+
+.list-table .scroll-bar:vertical .increment-button,
+.list-table .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-pref-height: 0;
+    -fx-min-height: 0;
+    -fx-max-height: 0;
+}
+
+.list-table .scroll-bar:vertical .increment-arrow,
+.list-table .scroll-bar:vertical .decrement-arrow {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0;
+    -fx-min-height: 0;
 }
 
 /* ---- MODAL SIZE OVERRIDES ---- */
 .list-modal-large {
-    -fx-pref-width: 800;
-    -fx-pref-height: 600;
+    -fx-pref-width: 860;
+    -fx-pref-height: 640;
 }
 
 /* ---- STATUS PILL ---- */

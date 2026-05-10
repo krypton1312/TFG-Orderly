@@ -58,11 +58,23 @@ public class PedidoDetailController {
                                 java.math.BigDecimal.valueOf(c.getValue().getAmount()))) + " €"
                         : "—"));
         lineStatusCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
-                c.getValue().getStatus() != null ? c.getValue().getStatus() : "—"));
+                toLineStatusLabel(c.getValue().getStatus())));
         lineCommentCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
                 c.getValue().getComment() != null ? c.getValue().getComment() : ""));
 
         linesTable.setItems(lines);
+    }
+
+    private String toLineStatusLabel(String s) {
+        if (s == null) return "—";
+        return switch (s.toUpperCase()) {
+            case "PENDING"     -> "Pendiente";
+            case "SENT"        -> "Enviado";
+            case "IN_PROGRESS" -> "En curso";
+            case "SERVED"      -> "Servido";
+            case "PAID"        -> "Pagado";
+            default -> s;
+        };
     }
 
     public void populate(OrderResponse order, Map<Long, String> employeeNameMap) {

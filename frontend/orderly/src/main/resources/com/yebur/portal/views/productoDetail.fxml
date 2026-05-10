@@ -8,7 +8,7 @@
             styleClass="modal-card"
             prefWidth="620" prefHeight="480"
             fx:id="root"
-            stylesheets="@shiftCloseReport.css @listados.css">
+            stylesheets="@listados.css">
 
     <top>
         <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">

@@ -7,7 +7,7 @@
             fx:controller="com.yebur.controller.CategoriasListController"
             styleClass="modal-card,list-modal-large"
             fx:id="root"
-            stylesheets="@shiftCloseReport.css @listados.css">
+            stylesheets="@listados.css">
 
     <top>
         <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
