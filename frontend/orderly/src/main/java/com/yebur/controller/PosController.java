@@ -852,25 +852,25 @@ public class PosController {
         nameLabel.setWrapText(true);
         nameBox.getChildren().add(nameLabel);
 
-        if (!"PENDING".equals(d.getStatus())) {
-            String pillText = switch (d.getStatus()) {
-                case "SENT"        -> "ENVIADO";
-                case "IN_PROGRESS" -> "EN COCINA";
-                case "SERVED"      -> "SERVIDO";
-                case "PAID"        -> "PAGADO";
-                default -> "";
-            };
-            String pillColor = switch (d.getStatus()) {
-                case "SENT", "IN_PROGRESS" -> "status-pill-amber";
-                case "SERVED"              -> "status-pill-blue";
-                case "PAID"                -> "status-pill-green";
-                default -> "";
-            };
-            if (!pillText.isEmpty()) {
-                Label pill = new Label(pillText);
-                pill.getStyleClass().addAll("status-pill", pillColor);
-                nameBox.getChildren().add(pill);
-            }
+        String pillText = switch (d.getStatus()) {
+            case "PENDING"     -> "PENDIENTE";
+            case "SENT"        -> "ENVIADO";
+            case "IN_PROGRESS" -> "EN COCINA";
+            case "SERVED"      -> "SERVIDO";
+            case "PAID"        -> "PAGADO";
+            default -> "";
+        };
+        String pillColor = switch (d.getStatus()) {
+            case "PENDING"             -> "status-pill-grey";
+            case "SENT", "IN_PROGRESS" -> "status-pill-amber";
+            case "SERVED"              -> "status-pill-blue";
+            case "PAID"                -> "status-pill-green";
+            default -> "";
+        };
+        if (!pillText.isEmpty()) {
+            Label pill = new Label(pillText);
+            pill.getStyleClass().addAll("status-pill", pillColor);
+            nameBox.getChildren().add(pill);
         }
 
         BigDecimal unitPrice = d.getUnitPrice();

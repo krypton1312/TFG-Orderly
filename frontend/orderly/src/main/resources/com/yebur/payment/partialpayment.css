@@ -273,6 +273,11 @@
     -fx-text-fill: #065F46;
 }
 
+.status-pill-grey {
+    -fx-background-color: #F3F4F6;
+    -fx-text-fill: #6B7280;
+}
+
 /* Полоса прокрутки */
 .scroll-bar {
     -fx-background-color: transparent;

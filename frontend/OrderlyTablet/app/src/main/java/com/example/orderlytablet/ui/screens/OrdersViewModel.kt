@@ -122,8 +122,11 @@ class OrdersViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 RetrofitClient.instance.updateOrderDetailStatus(newStatus, ids)
+                // Fallback reload — por si el WS event llega tarde o la conexión está caída
+                reloadDebounced(300)
             } catch (e: Exception) {
                 Log.e("OrdersViewModel", "❌ Ошибка PUT: ${e.message}")
+                reloadDebounced(500)
             }
         }
     }
