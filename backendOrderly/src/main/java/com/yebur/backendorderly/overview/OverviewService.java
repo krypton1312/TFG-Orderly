@@ -28,8 +28,10 @@ import org.springframework.stereotype.Service;
 import com.yebur.backendorderly.order.OrderResponse;
 import com.yebur.backendorderly.order.OrderService;
 import com.yebur.backendorderly.order.OrderStatus;
+import com.yebur.backendorderly.orderdetail.OrderDetailRepository;
 import com.yebur.backendorderly.orderdetail.OrderDetailResponse;
 import com.yebur.backendorderly.orderdetail.OrderDetailService;
+import com.yebur.backendorderly.orderdetail.OrderDetailStatus;
 import com.yebur.backendorderly.resttable.RestTableResponse;
 import com.yebur.backendorderly.resttable.RestTableService;
 
@@ -41,6 +43,7 @@ public class OverviewService {
     private final RestTableService restTableService;
     private final OrderService orderService;
     private final OrderDetailService orderDetailService;
+    private final OrderDetailRepository orderDetailRepository;
     private final ProductService productService;
     private final SupplementService supplementService;
     private final EmployeeService employeeService;
@@ -72,7 +75,9 @@ public class OverviewService {
                                                                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                                                                 .setScale(2, RoundingMode.HALF_UP);
 
-                                                return new OrderSummary(o.getId(), unpaidTotal);
+                                                boolean hasPaidItems = orderDetailRepository
+                                                                .existsByOrderIdAndStatus(o.getId(), OrderDetailStatus.PAID);
+                                                return new OrderSummary(o.getId(), unpaidTotal, hasPaidItems);
                                         })
                                         .orElse(null);
 
@@ -95,10 +100,12 @@ public class OverviewService {
                                         .reduce(BigDecimal.ZERO, BigDecimal::add)
                                         .setScale(2, RoundingMode.HALF_UP);
 
+                        boolean hasPaidItems = orderDetailRepository
+                                        .existsByOrderIdAndStatus(order.getId(), OrderDetailStatus.PAID);
                         overview.add(new TableWithOrderResponse(
                                         null,
                                         "Sin mesa",
-                                        new OrderSummary(order.getId(), unpaidTotal)));
+                                        new OrderSummary(order.getId(), unpaidTotal, hasPaidItems)));
                 }
 
                 return overview;
