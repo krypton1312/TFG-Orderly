@@ -1,0 +1,70 @@
+/* Month nav buttons */
+.month-nav-btn {
+    -fx-min-width: 28;
+    -fx-min-height: 28;
+    -fx-background-color: transparent;
+    -fx-text-fill: #374151;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+.month-nav-btn:hover {
+    -fx-text-fill: #ea580c;
+}
+.month-nav-btn:disabled {
+    -fx-text-fill: #d1d5db;
+    -fx-cursor: default;
+}
+
+/* Month label */
+.month-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1f2937;
+    -fx-alignment: CENTER;
+}
+
+/* Previous month comparison */
+.prev-month-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 400;
+    -fx-text-fill: #94a3b8;
+}
+
+/* Delta labels */
+.delta-positive {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #16a34a;
+}
+.delta-negative {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #dc2626;
+}
+.delta-neutral {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #64748b;
+}
+
+/* Override shiftCloseReport.css pre-existing weights for Phase 9 contexts */
+.info-label, .mini-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+.info-value, .mini-value {
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+}
+.modal-title {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+.section-title {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+.info-card {
+    -fx-padding: 12 16 12 16;
+}
