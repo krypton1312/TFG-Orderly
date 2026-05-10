@@ -267,7 +267,8 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                         entity.getPaymentMethod(),
                         entity.getBatchId(),
                         LocalDateTime.now(),
-                        entity.getCashSession().getId()
+                        entity.getCashSession().getId(),
+                        entity.isPaid()
                 );
 
                 createOrderDetail(newDetailReq);

@@ -724,7 +724,8 @@ public class PosController {
                     odr.getPaymentMethod(),
                     odr.getCreatedAt(),
                     odr.getDestination(),
-                    odr.getBatchId()
+                    odr.getBatchId(),
+                    odr.isPaid()
             );
 
             odr.setAmount(odr.getAmount() - 1);

@@ -22,4 +22,5 @@ public class OrderDetailRequest {
     private String batchId;
     private LocalDateTime createdAt;
     private Long cashSessionId;
+    private boolean paid;
 }
