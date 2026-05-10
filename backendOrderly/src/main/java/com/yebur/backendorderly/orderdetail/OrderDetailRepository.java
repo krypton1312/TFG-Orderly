@@ -36,6 +36,8 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
     @Query("SELECT new com.yebur.backendorderly.orderdetail.OrderDetailResponse(od.id, od.product.id, od.name, od.order.id, od.comment, od.amount, od.unitPrice, od.status, od.paymentMethod, od.createdAt, od.product.destination, od.batchId, od.paid) FROM OrderDetail od WHERE od.id = :id")
     Optional<OrderDetailResponse> findOrderDetailDTOById(Long id);
 
+    boolean existsByOrderId(Long orderId);
+
     boolean existsByOrderIdAndStatusNot(Long orderId, OrderDetailStatus status);
 
     boolean existsByOrderIdAndStatus(Long orderId, OrderDetailStatus status);

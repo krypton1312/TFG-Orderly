@@ -413,6 +413,12 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         Order order = orderService.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found with id " + orderId));
 
+        // Don't auto-close an order that has no items — happens transiently during
+        // delete-then-create payment flow and would cause a premature PAID state.
+        if (!orderDetailRepository.existsByOrderId(orderId)) {
+            return;
+        }
+
         boolean hasUnpaid = orderDetailRepository.existsByOrderIdAndPaid(orderId, false);
         boolean hasUnserved = orderDetailRepository.existsByOrderIdAndStatusNot(orderId, OrderDetailStatus.SERVED);
         OrderStatus newState = (!hasUnpaid && !hasUnserved) ? OrderStatus.PAID : OrderStatus.OPEN;

@@ -85,6 +85,49 @@
             "problemMatcher": []
         },
 
+        // ─── Build (clean compile) ───────────────────────────────────────────
+        {
+            "label": "Backend: Compile (clean)",
+            "type": "shell",
+            "command": "${workspaceFolder}/backendOrderly/mvnw.cmd",
+            "args": ["clean", "compile", "-DskipTests"],
+            "options": { "cwd": "${workspaceFolder}/backendOrderly" },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "group": "orderly",
+                "label": "Compile Backend"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Frontend PC: Compile (clean)",
+            "type": "shell",
+            "command": "mvn",
+            "args": ["clean", "compile", "-DskipTests", "-f", "${workspaceFolder}/frontend/orderly/pom.xml"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "group": "orderly",
+                "label": "Compile PC"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Compile All (clean)",
+            "dependsOn": ["Backend: Compile (clean)", "Frontend PC: Compile (clean)"],
+            "dependsOrder": "parallel",
+            "presentation": { "reveal": "silent" },
+            "problemMatcher": []
+        },
+        {
+            "label": "PC app: Pre-launch",
+            "dependsOn": ["Compile All (clean)", "Backend: Start"],
+            "dependsOrder": "sequence",
+            "presentation": { "reveal": "silent" },
+            "problemMatcher": []
+        },
+
         // ─── Compound: Launch All ─────────────────────────────────────────────
         {
             "label": "Launch All",
