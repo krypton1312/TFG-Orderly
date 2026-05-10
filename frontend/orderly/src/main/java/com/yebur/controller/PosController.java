@@ -18,6 +18,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
@@ -444,6 +445,18 @@ public class PosController {
                 this.currentOverviewItem = item;
             });
 
+            // Badge PARCIAL — solo si el pedido tiene ítems PAID
+            if (item.getOrder() != null && item.getOrder().isHasPaidItems()) {
+                Label parcialBadge = new Label("PARCIAL");
+                parcialBadge.getStyleClass().add("parcial-badge");
+                buttonNameVB.getChildren().add(parcialBadge);
+                btn.setStyle(
+                    "-fx-background-color: #f9fafb;" +
+                    "-fx-border-color: transparent transparent #15803D transparent;" +
+                    "-fx-border-width: 0 0 3 0;" +
+                    "-fx-border-radius: 0 0 8 8;");
+            }
+
             productBox.getChildren().add(btn);
         }
 
@@ -742,7 +755,7 @@ public class PosController {
         Task<List<OrderDetailResponse>> task = new Task<>() {
             @Override
             protected List<OrderDetailResponse> call() throws Exception {
-                return OrderDetailService.getUnpaidOrderDetailsByOrderId(order.getId());
+                return OrderDetailService.getAllOrderDetailsByOrderId(order.getId());
             }
         };
         task.setOnSucceeded(e -> {
@@ -761,81 +774,134 @@ public class PosController {
         orderVboxItems.getChildren().clear();
         BigDecimal total = BigDecimal.ZERO;
 
-        for (OrderDetailResponse d : details) {
-            // Создаём адаптивную строку
-            GridPane row = new GridPane();
-            row.getStyleClass().add("order-item-row");
-            String itemStatus = d.getStatus();
-            if ("SENT".equals(itemStatus) || "IN_PROGRESS".equals(itemStatus)) {
-                row.getStyleClass().add("order-item-in-progress");
-            } else if ("SERVED".equals(itemStatus)) {
-                row.getStyleClass().add("order-item-served");
-            }
-            row.setHgap(10);
+        List<OrderDetailResponse> unpaidItems = details.stream()
+                .filter(d -> !"PAID".equals(d.getStatus()))
+                .collect(Collectors.toList());
+        List<OrderDetailResponse> paidItems = details.stream()
+                .filter(d -> "PAID".equals(d.getStatus()))
+                .collect(Collectors.toList());
 
-            // Настраиваем колонки — те же пропорции, что и в заголовке
-            if (row.getColumnConstraints().isEmpty()) {
-                ColumnConstraints col1 = new ColumnConstraints();
-                col1.setPercentWidth(10);
-                col1.setHalignment(HPos.CENTER);
-
-                ColumnConstraints col2 = new ColumnConstraints();
-                col2.setPercentWidth(60);
-                col2.setHgrow(Priority.ALWAYS);
-
-                ColumnConstraints col3 = new ColumnConstraints();
-                col3.setPercentWidth(15);
-                col3.setHalignment(HPos.CENTER);
-
-                ColumnConstraints col4 = new ColumnConstraints();
-                col4.setPercentWidth(15);
-                col4.setHalignment(HPos.CENTER);
-
-                row.getColumnConstraints().addAll(col1, col2, col3, col4);
-            }
-
-            // Создаём ячейки
-            Label qty = new Label("x" + d.getAmount());
-            qty.setAlignment(Pos.CENTER_LEFT);
-
-            String name = d.getName() != null ? d.getName()
-                    : (product != null ? product.getName() : "Producto #" + d.getProductId());
-            Label nameLabel = new Label(name);
-            nameLabel.setWrapText(true);
-
-            BigDecimal unitPrice = d.getUnitPrice();
-            Label priceLabel = new Label(currencyFormatter.format(unitPrice));
-            priceLabel.setAlignment(Pos.CENTER_RIGHT);
-
-            BigDecimal totalLine = unitPrice
+        for (OrderDetailResponse d : unpaidItems) {
+            var row = buildOrderRow(d, product, unpaidItems, true);
+            orderVboxItems.getChildren().add(row);
+            BigDecimal totalLine = d.getUnitPrice()
                     .multiply(BigDecimal.valueOf(d.getAmount()))
                     .setScale(2, RoundingMode.HALF_UP);
-            Label totalLabel = new Label(currencyFormatter.format(totalLine));
-            totalLabel.setAlignment(Pos.CENTER_RIGHT);
+            total = total.add(totalLine);
+        }
 
-            // Добавляем в сетку
-            row.add(qty, 0, 0);
-            row.add(nameLabel, 1, 0);
-            row.add(priceLabel, 2, 0);
-            row.add(totalLabel, 3, 0);
+        if (!paidItems.isEmpty()) {
+            orderVboxItems.getChildren().add(new Separator());
+            Label sectionLabel = new Label("Ya pagado");
+            sectionLabel.getStyleClass().add("paid-section-label");
+            orderVboxItems.getChildren().add(sectionLabel);
+            for (OrderDetailResponse d : paidItems) {
+                var row = buildOrderRow(d, product, paidItems, false);
+                orderVboxItems.getChildren().add(row);
+            }
+        }
 
-            // Реакция на клик (выделение)
+        orderTotalValue.setText(currencyFormatter.format(total));
+    }
+
+    private GridPane buildOrderRow(OrderDetailResponse d, ProductResponse product,
+            List<OrderDetailResponse> list, boolean interactive) {
+        GridPane row = new GridPane();
+        row.getStyleClass().add("order-item-row");
+
+        String cssClass = switch (d.getStatus()) {
+            case "PENDING"             -> "order-item-pending";
+            case "SENT", "IN_PROGRESS" -> "order-item-in-progress";
+            case "SERVED"              -> "order-item-served";
+            case "PAID"                -> "order-item-paid";
+            default -> "";
+        };
+        if (!cssClass.isEmpty()) row.getStyleClass().add(cssClass);
+
+        row.setHgap(10);
+
+        if (row.getColumnConstraints().isEmpty()) {
+            ColumnConstraints col1 = new ColumnConstraints();
+            col1.setPercentWidth(10);
+            col1.setHalignment(HPos.CENTER);
+
+            ColumnConstraints col2 = new ColumnConstraints();
+            col2.setPercentWidth(55);
+            col2.setHgrow(Priority.ALWAYS);
+
+            ColumnConstraints col3 = new ColumnConstraints();
+            col3.setPercentWidth(15);
+            col3.setHalignment(HPos.CENTER);
+
+            ColumnConstraints col4 = new ColumnConstraints();
+            col4.setPercentWidth(15);
+            col4.setHalignment(HPos.CENTER);
+
+            row.getColumnConstraints().addAll(col1, col2, col3, col4);
+        }
+
+        Label qty = new Label("x" + d.getAmount());
+        qty.setAlignment(Pos.CENTER_LEFT);
+
+        String name = d.getName() != null ? d.getName()
+                : (product != null ? product.getName() : "Producto #" + d.getProductId());
+
+        HBox nameBox = new HBox(4);
+        nameBox.setAlignment(Pos.CENTER_LEFT);
+        Label nameLabel = new Label(name);
+        nameLabel.setWrapText(true);
+        nameBox.getChildren().add(nameLabel);
+
+        if (!"PENDING".equals(d.getStatus())) {
+            String pillText = switch (d.getStatus()) {
+                case "SENT"        -> "ENVIADO";
+                case "IN_PROGRESS" -> "EN COCINA";
+                case "SERVED"      -> "SERVIDO";
+                case "PAID"        -> "PAGADO";
+                default -> "";
+            };
+            String pillColor = switch (d.getStatus()) {
+                case "SENT", "IN_PROGRESS" -> "status-pill-amber";
+                case "SERVED"              -> "status-pill-blue";
+                case "PAID"                -> "status-pill-green";
+                default -> "";
+            };
+            if (!pillText.isEmpty()) {
+                Label pill = new Label(pillText);
+                pill.getStyleClass().addAll("status-pill", pillColor);
+                nameBox.getChildren().add(pill);
+            }
+        }
+
+        BigDecimal unitPrice = d.getUnitPrice();
+        Label priceLabel = new Label(currencyFormatter.format(unitPrice));
+        priceLabel.setAlignment(Pos.CENTER_RIGHT);
+
+        BigDecimal totalLine = unitPrice
+                .multiply(BigDecimal.valueOf(d.getAmount()))
+                .setScale(2, RoundingMode.HALF_UP);
+        Label totalLabel = new Label(currencyFormatter.format(totalLine));
+        totalLabel.setAlignment(Pos.CENTER_RIGHT);
+
+        row.add(qty, 0, 0);
+        row.add(nameBox, 1, 0);
+        row.add(priceLabel, 2, 0);
+        row.add(totalLabel, 3, 0);
+
+        if (interactive) {
             row.setOnMouseClicked(event -> {
                 boolean isSelected = row.getStyleClass().contains("selected-row-order-item");
                 if (!isSelected) {
                     row.getStyleClass().add("selected-row-order-item");
-                    selectedOrderDetailIndexes.add(details.indexOf(d));
+                    selectedOrderDetailIndexes.add(list.indexOf(d));
                 } else {
                     row.getStyleClass().remove("selected-row-order-item");
-                    selectedOrderDetailIndexes.remove(Integer.valueOf(details.indexOf(d)));
+                    selectedOrderDetailIndexes.remove(Integer.valueOf(list.indexOf(d)));
                 }
             });
-
-            orderVboxItems.getChildren().add(row);
-            total = total.add(totalLine);
         }
 
-        orderTotalValue.setText(currencyFormatter.format(total));
+        return row;
     }
 
     private void groupSameVisualElements(List<OrderDetailResponse> details) {
@@ -919,7 +985,11 @@ public class PosController {
             removeSelectedDetails();
         }
 
-        if ((currentdetails == null || currentdetails.isEmpty()) && hasActiveOrder()) {
+        boolean noUnpaidItems = currentdetails == null ||
+                currentdetails.stream().noneMatch(d -> !"PAID".equals(d.getStatus()) && d.getAmount() > 0);
+        boolean hasPaidItems = currentdetails != null &&
+                currentdetails.stream().anyMatch(d -> "PAID".equals(d.getStatus()));
+        if (noUnpaidItems && hasActiveOrder() && !hasPaidItems) {
             try {
                 OrderService.deleteOrder(currentOrder.getId());
                 currentOrder = null;
@@ -943,7 +1013,14 @@ public class PosController {
         }
 
         if (currentdetails != null && !currentdetails.isEmpty()) {
-            OrderDetailResponse lastDetail = currentdetails.get(currentdetails.size() - 1);
+            OrderDetailResponse lastDetail = null;
+            for (int i = currentdetails.size() - 1; i >= 0; i--) {
+                if (!"PAID".equals(currentdetails.get(i).getStatus())) {
+                    lastDetail = currentdetails.get(i);
+                    break;
+                }
+            }
+            if (lastDetail == null) return; // Solo quedan ítems PAID
             currentdetails.remove(lastDetail);
 
             try {
@@ -1106,7 +1183,9 @@ public class PosController {
         if (currentOrder == null && visualDetails.isEmpty())
             return;
 
-        if (hasActiveOrder() && (currentdetails == null || currentdetails.isEmpty())) {
+        boolean anyUnpaid = currentdetails != null && currentdetails.stream()
+                .anyMatch(d -> !"PAID".equals(d.getStatus()) && d.getAmount() > 0);
+        if (hasActiveOrder() && !anyUnpaid) {
             CustomDialog.showError("Todo ya está pagado en este pedido");
             return;
         }
@@ -1313,7 +1392,7 @@ public class PosController {
         Task<List<OrderDetailResponse>> task = new Task<>() {
             @Override
             protected List<OrderDetailResponse> call() throws Exception {
-                return OrderDetailService.getUnpaidOrderDetailsByOrderId(currentOrder.getId());
+                return OrderDetailService.getAllOrderDetailsByOrderId(currentOrder.getId());
             }
         };
         task.setOnSucceeded(e -> {

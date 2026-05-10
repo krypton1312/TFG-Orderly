@@ -24,9 +24,12 @@ import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.yebur.ui.CustomDialog.showError;
 
@@ -63,6 +66,7 @@ public class PartialPaymentController {
 
     private List<OrderDetailResponse> orderDetails;
     private List<OrderDetailResponse> partialDetails;
+    private Map<Long, Integer> originalAmounts = new HashMap<>();
 
     private String selectedPaymentMethod = "";
 
@@ -112,8 +116,16 @@ public class PartialPaymentController {
 
     public void loadData() {
         this.order = primaryController.getCurrentOrder();
-        this.orderDetails = primaryController.getCurrentdetails();
+        // Filtrar ítems PAID — el modal solo trabaja con ítems pendientes de cobro
+        this.orderDetails = primaryController.getCurrentdetails().stream()
+                .filter(d -> !"PAID".equals(d.getStatus()))
+                .collect(Collectors.toList());
         System.out.println(orderDetails);
+        // Snapshot de cantidades al abrir el modal
+        originalAmounts.clear();
+        this.orderDetails.forEach(d -> {
+            if (d.getId() != null) originalAmounts.put(d.getId(), d.getAmount());
+        });
         this.partialDetails = new ArrayList<>();
         this.table = primaryController.getSelectedTable();
         tableNameLabel.setText(
@@ -143,7 +155,9 @@ public class PartialPaymentController {
             row.getStyleClass().add("order-item-row");
             if (isMainBox) {
                 String itemStatus = d.getStatus();
-                if ("SENT".equals(itemStatus) || "IN_PROGRESS".equals(itemStatus)) {
+                if ("PENDING".equals(itemStatus)) {
+                    row.getStyleClass().add("order-item-pending");
+                } else if ("SENT".equals(itemStatus) || "IN_PROGRESS".equals(itemStatus)) {
                     row.getStyleClass().add("order-item-in-progress");
                 } else if ("SERVED".equals(itemStatus)) {
                     row.getStyleClass().add("order-item-served");
@@ -484,6 +498,11 @@ public class PartialPaymentController {
             for (OrderDetailResponse od : orderDetails) {
                 if (od.getId() == null) {
                     continue;
+                }
+
+                Integer original = originalAmounts.get(od.getId());
+                if (original != null && original.equals(od.getAmount())) {
+                    continue; // Cantidad sin cambio → no reenviar al backend
                 }
 
                 idsToUpdate.add(od.getId());
