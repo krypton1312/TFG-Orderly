@@ -583,6 +583,7 @@ public class PosController {
                     .filter(d -> Objects.equals(d.getName(), product.getName()))
                     .filter(d -> d.getUnitPrice() != null && d.getUnitPrice().compareTo(unitPrice) == 0)
                     .filter(d -> "PENDING".equals(d.getStatus()))
+                    .filter(d -> !d.isPaid())
                     .findFirst()
                     .orElse(null);
 
@@ -595,6 +596,7 @@ public class PosController {
                 updateReq.setProductId(existingPending.getProductId());
                 updateReq.setOrderId(currentOrder.getId());
                 updateReq.setName(existingPending.getName());
+                updateReq.setComment(existingPending.getComment());
                 updateReq.setAmount(newQty);
                 updateReq.setUnitPrice(existingPending.getUnitPrice());
                 updateReq.setStatus("PENDING");
@@ -1045,7 +1047,15 @@ public class PosController {
     }
 
     private void removeSelectedDetails() {
-        List<OrderDetailResponse> selected = getSelectedDetails(currentdetails, selectedOrderDetailIndexes);
+        // Indexes stored in selectedOrderDetailIndexes always refer to positions within
+        // the unpaidItems sublist (paid rows are non-interactive and never selected).
+        // Using currentdetails directly would produce wrong offsets whenever paid items
+        // appear before unpaid ones in the list.
+        List<OrderDetailResponse> unpaidItems = currentdetails.stream()
+                .filter(d -> !d.isPaid() && d.getAmount() > 0)
+                .collect(Collectors.toList());
+
+        List<OrderDetailResponse> selected = getSelectedDetails(unpaidItems, selectedOrderDetailIndexes);
 
         if (selected.isEmpty()) {
             return;

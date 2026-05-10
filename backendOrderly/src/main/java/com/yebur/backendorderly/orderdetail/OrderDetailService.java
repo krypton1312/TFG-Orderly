@@ -103,6 +103,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 .filter(d -> Objects.equals(d.getProduct().getId(), product.getId()) &&
                         d.getUnitPrice().compareTo(dto.getUnitPrice()) == 0 &&
                         d.getStatus() == OrderDetailStatus.PENDING &&
+                        !d.isPaid() &&
                         Objects.equals(d.getBatchId(), dto.getBatchId()))
                 .findFirst();
 
