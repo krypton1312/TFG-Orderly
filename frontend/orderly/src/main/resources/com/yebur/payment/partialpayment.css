@@ -219,21 +219,58 @@
     -fx-font-weight: bold;
 }
 
-/* Item status — kitchen state visualization */
-.order-item-in-progress .label {
-    -fx-text-fill: #9ca3af;
+/* =====================================================
+   PHASE 8 — Order item status: left-border accent
+   ===================================================== */
+.order-item-pending {
+    -fx-border-color: transparent transparent #e5e7eb #9E9E9E;
+    -fx-border-width: 0 0 1 4;
 }
 
 .order-item-in-progress {
-    -fx-opacity: 0.75;
-}
-
-.order-item-served .label {
-    -fx-text-fill: #16a34a;
+    -fx-border-color: transparent transparent #e5e7eb #F59E0B;
+    -fx-border-width: 0 0 1 4;
 }
 
 .order-item-served {
-    -fx-font-style: italic;
+    -fx-border-color: transparent transparent #e5e7eb #3B82F6;
+    -fx-border-width: 0 0 1 4;
+}
+
+.order-item-paid {
+    -fx-border-color: transparent transparent #e5e7eb #15803D;
+    -fx-border-width: 0 0 1 4;
+    -fx-opacity: 0.6;
+}
+
+/* Filas PAID: no hover */
+.order-item-paid:hover {
+    -fx-background-color: transparent;
+}
+
+/* =====================================================
+   PHASE 8 — Status pills
+   ===================================================== */
+.status-pill {
+    -fx-background-radius: 4;
+    -fx-padding: 2 6 2 6;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.status-pill-amber {
+    -fx-background-color: #FEF3C7;
+    -fx-text-fill: #92400E;
+}
+
+.status-pill-blue {
+    -fx-background-color: #DBEAFE;
+    -fx-text-fill: #1E40AF;
+}
+
+.status-pill-green {
+    -fx-background-color: #D1FAE5;
+    -fx-text-fill: #065F46;
 }
 
 /* Полоса прокрутки */

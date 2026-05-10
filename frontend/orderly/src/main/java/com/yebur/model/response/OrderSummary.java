@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 public class OrderSummary {
     private Long orderId;
     private BigDecimal total;
+    private boolean hasPaidItems;
     
     public OrderSummary() {
     }
@@ -29,9 +30,17 @@ public class OrderSummary {
     public void setTotal(BigDecimal total) {
         this.total = total;
     }
+
+    public boolean isHasPaidItems() {
+        return hasPaidItems;
+    }
+
+    public void setHasPaidItems(boolean hasPaidItems) {
+        this.hasPaidItems = hasPaidItems;
+    }
     
     @Override
     public String toString() {
-        return "OrderSummary [orderId=" + orderId + ", total=" + total + "]";
+        return "OrderSummary [orderId=" + orderId + ", total=" + total + ", hasPaidItems=" + hasPaidItems + "]";
     }
 }
