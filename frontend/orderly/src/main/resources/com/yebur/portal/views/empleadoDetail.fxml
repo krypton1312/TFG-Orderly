@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.yebur.controller.EmpleadoDetailController"
+            styleClass="modal-card"
+            prefWidth="640" prefHeight="520"
+            fx:id="root"
+            stylesheets="@shiftCloseReport.css @listados.css">
+
+    <top>
+        <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
+            <Label fx:id="titleLabel" text="DETALLE: EMPLEADO" styleClass="modal-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="&#x2715;" styleClass="modal-close" onAction="#onClose"/>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="report-scroll">
+            <VBox styleClass="modal-body" spacing="16" style="-fx-padding: 16;">
+
+                <!-- Info cards row 1 -->
+                <HBox spacing="12">
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="4">
+                        <Label text="NOMBRE" styleClass="info-label"/>
+                        <Label fx:id="nameLabel" text="—" styleClass="info-value"/>
+                    </VBox>
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="4">
+                        <Label text="EMAIL" styleClass="info-label"/>
+                        <Label fx:id="emailLabel" text="—" styleClass="info-value"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Info cards row 2 -->
+                <HBox spacing="12">
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="4">
+                        <Label text="ESTADO" styleClass="info-label"/>
+                        <Label fx:id="statusLabel" text="—" styleClass="info-value"/>
+                    </VBox>
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="4">
+                        <Label text="ROL" styleClass="info-label"/>
+                        <Label fx:id="rolLabel" text="—" styleClass="info-value"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Recent shifts -->
+                <VBox styleClass="report-ops-card" spacing="10">
+                    <Label text="TURNOS RECIENTES" styleClass="section-title"/>
+                    <Label fx:id="noShiftsLabel" text="Sin fichajes recientes"
+                           styleClass="grid-name" managed="false" visible="false"/>
+                    <TableView fx:id="shiftsTable" styleClass="list-table" prefHeight="200">
+                        <columns>
+                            <TableColumn fx:id="shiftIdCol" text="ID" prefWidth="70"/>
+                            <TableColumn fx:id="shiftDateCol" text="Fecha" prefWidth="140"/>
+                            <TableColumn fx:id="shiftInCol" text="Entrada" prefWidth="100"/>
+                            <TableColumn fx:id="shiftOutCol" text="Salida" prefWidth="100"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="Sin fichajes" styleClass="grid-name"/>
+                        </placeholder>
+                    </TableView>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

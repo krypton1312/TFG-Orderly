@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.yebur.controller.TurnosListController"
+            styleClass="modal-card,list-modal-large"
+            fx:id="root"
+            stylesheets="@shiftCloseReport.css @listados.css">
+
+    <top>
+        <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
+            <Label text="TURNOS" styleClass="modal-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="&#x2715;" styleClass="modal-close" onAction="#onClose"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="0">
+            <!-- Filter row -->
+            <HBox styleClass="list-filter-row" spacing="12" alignment="CENTER_LEFT">
+                <Label text="DESDE" styleClass="list-filter-label"/>
+                <DatePicker fx:id="fromDatePicker" promptText="dd/MM/yyyy" prefWidth="140"/>
+                <Label text="HASTA" styleClass="list-filter-label"/>
+                <DatePicker fx:id="toDatePicker" promptText="dd/MM/yyyy" prefWidth="140"/>
+                <Button text="Filtrar" onAction="#onFilter" styleClass="modal-close"/>
+                <Button text="Limpiar" onAction="#onClear" styleClass="modal-close"/>
+            </HBox>
+
+            <!-- Table -->
+            <TableView fx:id="turnosTable" styleClass="list-table" VBox.vgrow="ALWAYS"
+                       onMouseClicked="#onRowClicked">
+                <columns>
+                    <TableColumn fx:id="idCol" text="ID" prefWidth="60"/>
+                    <TableColumn fx:id="dateCol" text="Fecha" prefWidth="110"/>
+                    <TableColumn fx:id="shiftNoCol" text="Turno N&#xBA;" prefWidth="90"/>
+                    <TableColumn fx:id="openedAtCol" text="Apertura" prefWidth="100"/>
+                    <TableColumn fx:id="closedAtCol" text="Cierre" prefWidth="100"/>
+                    <TableColumn fx:id="totalCashCol" text="Efectivo" prefWidth="100"/>
+                    <TableColumn fx:id="totalCardCol" text="Tarjeta" prefWidth="100"/>
+                    <TableColumn fx:id="statusCol" text="Estado" prefWidth="90"/>
+                </columns>
+                <placeholder>
+                    <Label text="Sin turnos" styleClass="grid-name"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

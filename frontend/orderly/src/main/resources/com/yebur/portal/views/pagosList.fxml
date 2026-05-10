@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.yebur.controller.PagosListController"
+            styleClass="modal-card,list-modal-large"
+            fx:id="root"
+            stylesheets="@shiftCloseReport.css @listados.css">
+
+    <top>
+        <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
+            <Label text="PAGOS" styleClass="modal-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="&#x2715;" styleClass="modal-close" onAction="#onClose"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="0">
+            <!-- Filter row -->
+            <HBox styleClass="list-filter-row" spacing="12" alignment="CENTER_LEFT">
+                <Label text="DESDE" styleClass="list-filter-label"/>
+                <DatePicker fx:id="fromDatePicker" promptText="dd/MM/yyyy" prefWidth="140"/>
+                <Label text="HASTA" styleClass="list-filter-label"/>
+                <DatePicker fx:id="toDatePicker" promptText="dd/MM/yyyy" prefWidth="140"/>
+                <Label text="METODO" styleClass="list-filter-label"/>
+                <ComboBox fx:id="metodoPicker" styleClass="list-filter-combo" prefWidth="130"/>
+                <Button text="Filtrar" onAction="#onFilter" styleClass="modal-close"/>
+                <Button text="Limpiar" onAction="#onClear" styleClass="modal-close"/>
+            </HBox>
+
+            <!-- Table -->
+            <TableView fx:id="pagosTable" styleClass="list-table" VBox.vgrow="ALWAYS"
+                       onMouseClicked="#onRowClicked">
+                <columns>
+                    <TableColumn fx:id="idCol" text="ID" prefWidth="60"/>
+                    <TableColumn fx:id="dateCol" text="Fecha" prefWidth="140"/>
+                    <TableColumn fx:id="mesaCol" text="Mesa" prefWidth="70"/>
+                    <TableColumn fx:id="totalCol" text="Total" prefWidth="100"/>
+                    <TableColumn fx:id="metodoPagoCol" text="M&#xe9;todo" prefWidth="110"/>
+                    <TableColumn fx:id="empleadoCol" text="Empleado" prefWidth="160"/>
+                </columns>
+                <placeholder>
+                    <Label text="Sin pagos" styleClass="grid-name"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

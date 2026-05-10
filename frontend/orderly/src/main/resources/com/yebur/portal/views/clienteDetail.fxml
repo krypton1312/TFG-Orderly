@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.yebur.controller.ClienteDetailController"
+            styleClass="modal-card"
+            prefWidth="620" prefHeight="480"
+            fx:id="root"
+            stylesheets="@shiftCloseReport.css @listados.css">
+
+    <top>
+        <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
+            <Label fx:id="titleLabel" text="DETALLE: CLIENTE" styleClass="modal-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="&#x2715;" styleClass="modal-close" onAction="#onClose"/>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="report-scroll">
+            <VBox styleClass="modal-body" spacing="16" style="-fx-padding: 16;">
+
+                <!-- Info cards -->
+                <HBox spacing="12">
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="4">
+                        <Label text="NOMBRE" styleClass="info-label"/>
+                        <Label fx:id="nameLabel" text="—" styleClass="info-value"/>
+                    </VBox>
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="4">
+                        <Label text="PEDIDOS" styleClass="info-label"/>
+                        <Label fx:id="orderCountLabel" text="—" styleClass="info-value"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Orders section -->
+                <VBox styleClass="report-ops-card" spacing="10">
+                    <Label text="&#xda;LTIMOS PEDIDOS" styleClass="section-title"/>
+                    <TableView fx:id="ordersTable" styleClass="list-table" prefHeight="260">
+                        <columns>
+                            <TableColumn fx:id="orderIdCol" text="ID" prefWidth="70"/>
+                            <TableColumn fx:id="orderDateCol" text="Fecha" prefWidth="140"/>
+                            <TableColumn fx:id="orderMesaCol" text="Mesa" prefWidth="70"/>
+                            <TableColumn fx:id="orderTotalCol" text="Total" prefWidth="100"/>
+                            <TableColumn fx:id="orderEstadoCol" text="Estado" prefWidth="90"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="Sin pedidos" styleClass="grid-name"/>
+                        </placeholder>
+                    </TableView>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

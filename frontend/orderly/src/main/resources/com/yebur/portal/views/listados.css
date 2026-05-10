@@ -1,0 +1,177 @@
+/* =====================================================
+   listados.css  — Listados launcher + list modals
+   ===================================================== */
+
+/* ---- LAUNCHER CONTENT AREA ---- */
+.list-content-area {
+    -fx-background-color: #f8fafc;
+}
+
+/* ---- TILE PANE CARD GRID ---- */
+.list-tile-pane {
+    -fx-padding: 32;
+    -fx-hgap: 24;
+    -fx-vgap: 24;
+    -fx-pref-tile-width: 180;
+    -fx-pref-tile-height: 160;
+    -fx-alignment: CENTER;
+}
+
+/* ---- INDIVIDUAL LAUNCH CARD ---- */
+.list-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.07), 12, 0.1, 0, 3);
+    -fx-pref-width: 180;
+    -fx-pref-height: 160;
+}
+
+.list-card:hover {
+    -fx-background-color: #fff7ed;
+    -fx-border-color: #f97316;
+    -fx-effect: dropshadow(gaussian, rgba(249,115,22,0.18), 16, 0.15, 0, 5);
+}
+
+.list-card-text {
+    -fx-text-fill: #334155;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.list-card:hover .list-card-text {
+    -fx-text-fill: #ea580c;
+}
+
+.list-card-icon {
+    -fx-stroke: #64748b;
+    -fx-stroke-width: 1.6;
+    -fx-fill: null;
+}
+
+.list-card:hover .list-card-icon {
+    -fx-stroke: #f97316;
+}
+
+/* ---- FILTER ROW ---- */
+.list-filter-row {
+    -fx-padding: 14 20 10 20;
+    -fx-spacing: 12;
+    -fx-alignment: CENTER_LEFT;
+    -fx-border-color: transparent transparent #f1f5f9 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.list-filter-label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.list-filter-field {
+    -fx-background-color: #f1f5f9;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-pref-height: 32;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1e293b;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.list-filter-field:focused {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #f97316;
+    -fx-border-radius: 8;
+    -fx-border-width: 1.5;
+}
+
+.list-filter-combo {
+    -fx-background-color: #f1f5f9;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-pref-height: 32;
+    -fx-font-size: 13px;
+}
+
+.list-filter-combo:focused {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #f97316;
+    -fx-border-radius: 8;
+    -fx-border-width: 1.5;
+}
+
+/* ---- TABLE ---- */
+.list-table {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-table-cell-border-color: transparent;
+}
+
+.list-table .column-header-background {
+    -fx-background-color: #f8fafc;
+}
+
+.list-table .column-header, .list-table .filler {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: transparent transparent #e2e8f0 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-size: 36;
+}
+
+.list-table .column-header .label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.list-table .table-row-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #f1f5f9 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-cursor: hand;
+}
+
+.list-table .table-row-cell:odd {
+    -fx-background-color: #fafafa;
+}
+
+.list-table .table-row-cell:selected {
+    -fx-background-color: #fff7ed;
+}
+
+.list-table .table-row-cell:hover {
+    -fx-background-color: #fff7ed;
+}
+
+.list-table .table-cell {
+    -fx-text-fill: #1e293b;
+    -fx-font-size: 13px;
+    -fx-padding: 0 10;
+}
+
+/* ---- MODAL SIZE OVERRIDES ---- */
+.list-modal-large {
+    -fx-pref-width: 800;
+    -fx-pref-height: 600;
+}
+
+/* ---- STATUS PILL ---- */
+.status-pill {
+    -fx-background-radius: 20;
+    -fx-padding: 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.status-open {
+    -fx-background-color: #dcfce7;
+    -fx-text-fill: #16a34a;
+}
+
+.status-closed {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #64748b;
+}

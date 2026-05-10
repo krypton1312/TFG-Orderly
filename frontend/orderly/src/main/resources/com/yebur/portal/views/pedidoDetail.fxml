@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.yebur.controller.PedidoDetailController"
+            styleClass="modal-card"
+            prefWidth="700" prefHeight="560"
+            fx:id="root"
+            stylesheets="@shiftCloseReport.css @listados.css">
+
+    <top>
+        <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
+            <Label fx:id="titleLabel" text="DETALLE: PEDIDO" styleClass="modal-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="&#x2715;" styleClass="modal-close" onAction="#onClose"/>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="report-scroll">
+            <VBox styleClass="modal-body" spacing="16" style="-fx-padding: 16;">
+
+                <!-- Info cards row -->
+                <HBox spacing="12">
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="4">
+                        <Label text="FECHA" styleClass="info-label"/>
+                        <Label fx:id="dateLabel" text="—" styleClass="info-value"/>
+                    </VBox>
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="4">
+                        <Label text="MESA" styleClass="info-label"/>
+                        <Label fx:id="mesaLabel" text="—" styleClass="info-value"/>
+                    </VBox>
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="4">
+                        <Label text="EMPLEADO" styleClass="info-label"/>
+                        <Label fx:id="empleadoLabel" text="—" styleClass="info-value"/>
+                    </VBox>
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="4">
+                        <Label text="TOTAL" styleClass="info-label"/>
+                        <Label fx:id="totalLabel" text="—" styleClass="info-value"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Lines section -->
+                <VBox styleClass="report-ops-card" spacing="10">
+                    <Label text="L&#xcd;NEAS DEL PEDIDO" styleClass="section-title"/>
+                    <TableView fx:id="linesTable" styleClass="list-table" prefHeight="300">
+                        <columns>
+                            <TableColumn fx:id="lineNameCol" text="Producto" prefWidth="200"/>
+                            <TableColumn fx:id="lineAmountCol" text="Cant." prefWidth="60"/>
+                            <TableColumn fx:id="lineUnitPriceCol" text="P.Unit." prefWidth="90"/>
+                            <TableColumn fx:id="lineTotalCol" text="Total" prefWidth="90"/>
+                            <TableColumn fx:id="lineStatusCol" text="Estado" prefWidth="100"/>
+                            <TableColumn fx:id="lineCommentCol" text="Comentario" prefWidth="140"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="Sin l&#xed;neas" styleClass="grid-name"/>
+                        </placeholder>
+                    </TableView>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

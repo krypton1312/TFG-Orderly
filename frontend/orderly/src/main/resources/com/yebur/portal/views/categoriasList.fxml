@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.yebur.controller.CategoriasListController"
+            styleClass="modal-card,list-modal-large"
+            fx:id="root"
+            stylesheets="@shiftCloseReport.css @listados.css">
+
+    <top>
+        <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
+            <Label text="CATEGORIAS Y SUPLEMENTOS" styleClass="modal-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="&#x2715;" styleClass="modal-close" onAction="#onClose"/>
+        </HBox>
+    </top>
+
+    <center>
+        <HBox spacing="16" style="-fx-padding: 12;">
+            <!-- Categories section -->
+            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                <Label text="CATEGORIAS" styleClass="section-title"/>
+                <TableView fx:id="categoriasTable" styleClass="list-table" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="catIdCol" text="ID" prefWidth="60"/>
+                        <TableColumn fx:id="catNameCol" text="Nombre" prefWidth="160"/>
+                        <TableColumn fx:id="catIndexCol" text="Orden" prefWidth="70"/>
+                    </columns>
+                    <placeholder>
+                        <Label text="Sin categorias" styleClass="grid-name"/>
+                    </placeholder>
+                </TableView>
+            </VBox>
+
+            <!-- Supplements section -->
+            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                <Label text="SUPLEMENTOS" styleClass="section-title"/>
+                <TableView fx:id="suplementosTable" styleClass="list-table" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="supIdCol" text="ID" prefWidth="60"/>
+                        <TableColumn fx:id="supNameCol" text="Nombre" prefWidth="160"/>
+                        <TableColumn fx:id="supPriceCol" text="Precio" prefWidth="90"/>
+                    </columns>
+                    <placeholder>
+                        <Label text="Sin suplementos" styleClass="grid-name"/>
+                    </placeholder>
+                </TableView>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

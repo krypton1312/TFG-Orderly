@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.yebur.controller.ProductosListController"
+            styleClass="modal-card,list-modal-large"
+            fx:id="root"
+            stylesheets="@shiftCloseReport.css @listados.css">
+
+    <top>
+        <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
+            <Label text="PRODUCTOS" styleClass="modal-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="&#x2715;" styleClass="modal-close" onAction="#onClose"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="0">
+            <!-- Filter row -->
+            <HBox styleClass="list-filter-row" spacing="12" alignment="CENTER_LEFT">
+                <TextField fx:id="searchField" styleClass="list-filter-field" promptText="Buscar por nombre..." prefWidth="200"/>
+                <Label text="CATEGORIA" styleClass="list-filter-label"/>
+                <ComboBox fx:id="categoriaPicker" styleClass="list-filter-combo" prefWidth="150"/>
+                <Button text="Limpiar" onAction="#onClear" styleClass="modal-close"/>
+            </HBox>
+
+            <!-- Table -->
+            <TableView fx:id="productosTable" styleClass="list-table" VBox.vgrow="ALWAYS"
+                       onMouseClicked="#onRowClicked">
+                <columns>
+                    <TableColumn fx:id="idCol" text="ID" prefWidth="60"/>
+                    <TableColumn fx:id="nameCol" text="Nombre" prefWidth="180"/>
+                    <TableColumn fx:id="priceCol" text="Precio" prefWidth="90"/>
+                    <TableColumn fx:id="stockCol" text="Stock" prefWidth="70"/>
+                    <TableColumn fx:id="categoriaCol" text="Categor&#xed;a" prefWidth="130"/>
+                    <TableColumn fx:id="destinationCol" text="Destino" prefWidth="100"/>
+                </columns>
+                <placeholder>
+                    <Label text="Sin productos" styleClass="grid-name"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

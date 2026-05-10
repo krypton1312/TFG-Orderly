@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.yebur.controller.ProductoDetailController"
+            styleClass="modal-card"
+            prefWidth="620" prefHeight="480"
+            fx:id="root"
+            stylesheets="@shiftCloseReport.css @listados.css">
+
+    <top>
+        <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
+            <Label fx:id="titleLabel" text="DETALLE: PRODUCTO" styleClass="modal-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="&#x2715;" styleClass="modal-close" onAction="#onClose"/>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="report-scroll">
+            <VBox styleClass="modal-body" spacing="16" style="-fx-padding: 16;">
+
+                <!-- Info cards -->
+                <HBox spacing="12">
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="4">
+                        <Label text="NOMBRE" styleClass="info-label"/>
+                        <Label fx:id="nameLabel" text="—" styleClass="info-value"/>
+                    </VBox>
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="4">
+                        <Label text="PRECIO" styleClass="info-label"/>
+                        <Label fx:id="priceLabel" text="—" styleClass="info-value"/>
+                    </VBox>
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="4">
+                        <Label text="CATEGOR&#xcd;A" styleClass="info-label"/>
+                        <Label fx:id="categoriaLabel" text="—" styleClass="info-value"/>
+                    </VBox>
+                    <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="4">
+                        <Label text="DESTINO" styleClass="info-label"/>
+                        <Label fx:id="destinationLabel" text="—" styleClass="info-value"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Supplements section -->
+                <VBox styleClass="report-ops-card" spacing="10">
+                    <Label text="SUPLEMENTOS" styleClass="section-title"/>
+                    <Label fx:id="noSupsLabel" text="Sin suplementos" styleClass="grid-name"
+                           managed="false" visible="false"/>
+                    <TableView fx:id="suplementosTable" styleClass="list-table" prefHeight="220">
+                        <columns>
+                            <TableColumn fx:id="supIdCol" text="ID" prefWidth="70"/>
+                            <TableColumn fx:id="supNameCol" text="Nombre" prefWidth="220"/>
+                            <TableColumn fx:id="supPriceCol" text="Precio" prefWidth="100"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="Sin suplementos" styleClass="grid-name"/>
+                        </placeholder>
+                    </TableView>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

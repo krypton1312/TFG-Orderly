@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.yebur.controller.MesasListController"
+            styleClass="modal-card,list-modal-large"
+            fx:id="root"
+            stylesheets="@shiftCloseReport.css @listados.css">
+
+    <top>
+        <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
+            <Label text="MESAS" styleClass="modal-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="&#x2715;" styleClass="modal-close" onAction="#onClose"/>
+        </HBox>
+    </top>
+
+    <center>
+        <TableView fx:id="mesasTable" styleClass="list-table">
+            <columns>
+                <TableColumn fx:id="idCol" text="ID" prefWidth="60"/>
+                <TableColumn fx:id="numberCol" text="N&#xBA;" prefWidth="70"/>
+                <TableColumn fx:id="nameCol" text="Nombre" prefWidth="180"/>
+                <TableColumn fx:id="zonaCol" text="ZONA" prefWidth="130"/>
+                <TableColumn fx:id="statusCol" text="Estado" prefWidth="130"/>
+            </columns>
+            <placeholder>
+                <Label text="Sin mesas" styleClass="grid-name"/>
+            </placeholder>
+        </TableView>
+    </center>
+</BorderPane>
