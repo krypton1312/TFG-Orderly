@@ -2,13 +2,18 @@ package com.yebur.controller;
 
 import com.yebur.app.App;
 import com.yebur.model.response.CashSessionResponse;
+import com.yebur.model.response.MonthlySummaryResponse;
+import com.yebur.service.AnalyticsService;
 import com.yebur.service.CashCountService;
 import com.yebur.service.CashSessionService;
 import com.yebur.ui.CustomDialog;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
@@ -19,16 +24,31 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.Getter;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class StartController {
 
     @FXML private VBox root;
+    @FXML private VBox statsSection;
+    @FXML private Button prevMonthBtn;
+    @FXML private Button nextMonthBtn;
+    @FXML private Label monthLabel;
+    @FXML private Label revenueLabel;
+    @FXML private Label orderCountLabel;
 
     private Region dimPane;
     private StackPane modalHost;
     @Getter private static CashSessionResponse cashSession;
+
+    private YearMonth selectedMonth = YearMonth.now();
+    private final DecimalFormat moneyFmt = new DecimalFormat("#,##0.00");
+    private static final DateTimeFormatter MONTH_FMT =
+            DateTimeFormatter.ofPattern("MMMM yyyy", new Locale("es", "ES"));
 
     public void setOverlay(Region dimPane, StackPane modalHost) {
         this.dimPane = dimPane;
@@ -40,6 +60,13 @@ public class StartController {
         root.getStylesheets().add(
                 getClass().getResource("/com/yebur/portal/views/data.css").toExternalForm()
         );
+        prevMonthBtn.setTooltip(new javafx.scene.control.Tooltip("Mes anterior"));
+        prevMonthBtn.setAccessibleText("Mes anterior");
+        nextMonthBtn.setTooltip(new javafx.scene.control.Tooltip("Mes siguiente"));
+        nextMonthBtn.setAccessibleText("Mes siguiente");
+        nextMonthBtn.setDisable(true);
+        updateMonthLabel();
+        loadMonthStats();
     }
 
     @FXML
@@ -192,6 +219,51 @@ public class StartController {
             e.printStackTrace();
             CustomDialog.showError("No se pudo abrir el POS.");
         }
+    }
+
+    @FXML
+    private void prevMonth() {
+        selectedMonth = selectedMonth.minusMonths(1);
+        nextMonthBtn.setDisable(false);
+        updateMonthLabel();
+        loadMonthStats();
+    }
+
+    @FXML
+    private void nextMonth() {
+        selectedMonth = selectedMonth.plusMonths(1);
+        if (selectedMonth.equals(YearMonth.now())) {
+            nextMonthBtn.setDisable(true);
+        }
+        updateMonthLabel();
+        loadMonthStats();
+    }
+
+    private void updateMonthLabel() {
+        String raw = selectedMonth.format(MONTH_FMT);
+        monthLabel.setText(Character.toUpperCase(raw.charAt(0)) + raw.substring(1));
+    }
+
+    private void loadMonthStats() {
+        revenueLabel.setText("—");
+        orderCountLabel.setText("—");
+        int year = selectedMonth.getYear();
+        int month = selectedMonth.getMonthValue();
+        new Thread(() -> {
+            try {
+                MonthlySummaryResponse data = AnalyticsService.getMonthlySummary(year, month);
+                Platform.runLater(() -> {
+                    revenueLabel.setText(moneyFmt.format(data.getTotalRevenue()) + " €");
+                    orderCountLabel.setText(String.valueOf(data.getOrderCount()));
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    revenueLabel.setText("Error al cargar los datos. Comprueba la conexión.");
+                    revenueLabel.setStyle("-fx-text-fill: #dc2626; -fx-font-size: 12px;");
+                    orderCountLabel.setText("");
+                });
+            }
+        }).start();
     }
 
 
