@@ -21,4 +21,5 @@ public class TableWithOrderResponse {
 class OrderSummary {
     private Long orderId;
     private BigDecimal total;
+    private boolean hasPaidItems;
 }

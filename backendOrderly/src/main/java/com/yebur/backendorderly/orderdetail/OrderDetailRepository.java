@@ -38,6 +38,8 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
 
     boolean existsByOrderIdAndStatusNot(Long orderId, OrderDetailStatus status);
 
+    boolean existsByOrderIdAndStatus(Long orderId, OrderDetailStatus status);
+
     @Query("""
     SELECT COALESCE(SUM(od.amount * od.unitPrice), 0)
     FROM OrderDetail od
