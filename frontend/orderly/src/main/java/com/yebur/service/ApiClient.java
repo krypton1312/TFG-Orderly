@@ -14,28 +14,56 @@ public class ApiClient {
 
     private ApiClient() {}
 
+    // Attempt to silently refresh the access token using the stored refresh token.
+    // Returns true if refresh succeeded and a new access token is now in SessionStore.
+    private static boolean tryRefresh() {
+        String refreshToken = SessionStore.getRefreshToken();
+        if (refreshToken == null || refreshToken.isBlank()) return false;
+        try {
+            AuthService.refresh(refreshToken);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public static String get(String endpoint) throws IOException, ApiException {
+        try {
+            return doGet(endpoint);
+        } catch (ApiException e) {
+            if (e.getStatusCode() == 401 && tryRefresh()) return doGet(endpoint);
+            throw e;
+        }
+    }
+
+    private static String doGet(String endpoint) throws IOException, ApiException {
         URL url = URI.create(BASE_URL + endpoint).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/json");
         addAuthHeader(conn);
-
         return readResponse(conn);
     }
 
     public static String post(String endpoint, String jsonInput) throws IOException, ApiException {
+        try {
+            return doPost(endpoint, jsonInput);
+        } catch (ApiException e) {
+            if (e.getStatusCode() == 401 && tryRefresh()) return doPost(endpoint, jsonInput);
+            throw e;
+        }
+    }
+
+    private static String doPost(String endpoint, String jsonInput) throws IOException, ApiException {
         URL url = URI.create(BASE_URL + endpoint).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoOutput(true);
         addAuthHeader(conn);
-
         try (OutputStream os = conn.getOutputStream()) {
             os.write(jsonInput.getBytes(StandardCharsets.UTF_8));
         }
-
         return readResponse(conn);
     }
 
@@ -55,6 +83,15 @@ public class ApiClient {
     }
 
     public static String post(String endpoint) throws IOException, ApiException {
+        try {
+            return doPostEmpty(endpoint);
+        } catch (ApiException e) {
+            if (e.getStatusCode() == 401 && tryRefresh()) return doPostEmpty(endpoint);
+            throw e;
+        }
+    }
+
+    private static String doPostEmpty(String endpoint) throws IOException, ApiException {
         URL url = URI.create(BASE_URL + endpoint).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
@@ -65,26 +102,41 @@ public class ApiClient {
     }
 
     public static String put(String endpoint, String jsonInput) throws IOException, ApiException {
+        try {
+            return doPut(endpoint, jsonInput);
+        } catch (ApiException e) {
+            if (e.getStatusCode() == 401 && tryRefresh()) return doPut(endpoint, jsonInput);
+            throw e;
+        }
+    }
+
+    private static String doPut(String endpoint, String jsonInput) throws IOException, ApiException {
         URL url = URI.create(BASE_URL + endpoint).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("PUT");
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoOutput(true);
         addAuthHeader(conn);
-
         try (OutputStream os = conn.getOutputStream()) {
             os.write(jsonInput.getBytes(StandardCharsets.UTF_8));
         }
-
         return readResponse(conn);
     }
 
     public static String delete(String endpoint) throws IOException, ApiException {
+        try {
+            return doDelete(endpoint);
+        } catch (ApiException e) {
+            if (e.getStatusCode() == 401 && tryRefresh()) return doDelete(endpoint);
+            throw e;
+        }
+    }
+
+    private static String doDelete(String endpoint) throws IOException, ApiException {
         URL url = URI.create(BASE_URL + endpoint).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("DELETE");
         addAuthHeader(conn);
-
         return readResponse(conn);
     }
 

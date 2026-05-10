@@ -114,13 +114,13 @@ public class AnalyticsController {
         // Payment breakdown
         BigDecimal total = curr.getTotalRevenue();
         if (total.compareTo(BigDecimal.ZERO) == 0) {
-            cashPctLabel.setText("0%");
-            cardPctLabel.setText("0%");
+            cashPctLabel.setText("0% — 0,00 €");
+            cardPctLabel.setText("0% — 0,00 €");
         } else {
             int cashPct = curr.getTotalSalesCash().multiply(BigDecimal.valueOf(100))
                     .divide(total, 0, RoundingMode.HALF_UP).intValue();
-            cashPctLabel.setText(cashPct + "%");
-            cardPctLabel.setText((100 - cashPct) + "%");
+            cashPctLabel.setText(cashPct + "% — " + moneyFmt.format(curr.getTotalSalesCash()) + " €");
+            cardPctLabel.setText((100 - cashPct) + "% — " + moneyFmt.format(curr.getTotalSalesCard()) + " €");
         }
 
         // Top products
@@ -138,15 +138,17 @@ public class AnalyticsController {
     }
 
     private HBox buildProductRow(int rank, TopProductEntry entry) {
-        HBox row = new HBox(8);
+        HBox row = new HBox(12);
         row.setAlignment(Pos.CENTER_LEFT);
+        row.setStyle("-fx-padding: 8 4; -fx-border-color: transparent transparent #f1f5f9 transparent; -fx-border-width: 0 0 1 0;");
         Label rankLbl = new Label("#" + rank);
-        rankLbl.setMinWidth(24);
-        rankLbl.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 14px;");
+        rankLbl.setMinWidth(28);
+        rankLbl.setStyle("-fx-text-fill: #ea580c; -fx-font-size: 12px; -fx-font-weight: 800;");
         Label nameLbl = new Label(entry.getName());
+        nameLbl.setStyle("-fx-text-fill: #1e293b; -fx-font-size: 13px;");
         HBox.setHgrow(nameLbl, Priority.ALWAYS);
-        Label qtyLbl = new Label(String.valueOf(entry.getQuantity()));
-        qtyLbl.setStyle("-fx-text-fill: #1e293b; -fx-font-weight: 700;");
+        Label qtyLbl = new Label(entry.getQuantity() + " uds");
+        qtyLbl.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12px; -fx-font-weight: 700; -fx-background-color: #f1f5f9; -fx-background-radius: 6; -fx-padding: 2 8;");
         row.getChildren().addAll(rankLbl, nameLbl, qtyLbl);
         return row;
     }

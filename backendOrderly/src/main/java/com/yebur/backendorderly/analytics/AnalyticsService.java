@@ -29,9 +29,10 @@ public class AnalyticsService implements AnalyticsServiceInterface {
         LocalDateTime startDt = start.atStartOfDay();
         LocalDateTime endDt = end.plusDays(1).atStartOfDay();
 
-        Object[] revenue = cashSessionRepository.getMonthlyRevenue(start, end);
-        BigDecimal cash = (BigDecimal) revenue[0];
-        BigDecimal card = (BigDecimal) revenue[1];
+        List<Object[]> revenueRows = cashSessionRepository.getMonthlyRevenue(start, end);
+        Object[] revenue = revenueRows.isEmpty() ? new Object[]{BigDecimal.ZERO, BigDecimal.ZERO} : revenueRows.get(0);
+        BigDecimal cash = revenue[0] instanceof BigDecimal bd ? bd : new BigDecimal(revenue[0].toString());
+        BigDecimal card = revenue[1] instanceof BigDecimal bd ? bd : new BigDecimal(revenue[1].toString());
         BigDecimal total = cash.add(card);
 
         long orderCount = orderRepository.countClosedOrdersByMonth(startDt, endDt);

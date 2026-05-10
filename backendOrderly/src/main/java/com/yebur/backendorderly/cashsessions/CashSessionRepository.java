@@ -37,6 +37,6 @@ public interface CashSessionRepository extends JpaRepository<CashSession, Long> 
             WHERE cs.businessDate >= :start AND cs.businessDate <= :end
               AND cs.status = com.yebur.backendorderly.cashsessions.CashSessionStatus.CLOSED
             """)
-    Object[] getMonthlyRevenue(@Param("start") LocalDate start, @Param("end") LocalDate end);
+    List<Object[]> getMonthlyRevenue(@Param("start") LocalDate start, @Param("end") LocalDate end);
 
 }

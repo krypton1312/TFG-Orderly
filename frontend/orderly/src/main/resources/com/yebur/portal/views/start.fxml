@@ -8,36 +8,21 @@
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.yebur.controller.StartController"
       alignment="TOP_LEFT"
-      spacing="40"
+      spacing="24"
       styleClass="content-area"
       fx:id="root">
 
-    <GridPane hgap="10" vgap="10">
-        <columnConstraints>
-            <ColumnConstraints percentWidth="33" />
-            <ColumnConstraints percentWidth="33" />
-            <ColumnConstraints percentWidth="34" />
-        </columnConstraints>
-        <rowConstraints>
-            <RowConstraints percentHeight="33" />
-            <RowConstraints percentHeight="33" />
-            <RowConstraints percentHeight="34" />
-        </rowConstraints>
+    <!-- Abrir TPV -->
+    <VBox styleClass="card" alignment="CENTER" spacing="10" maxWidth="Infinity"
+          onMouseClicked="#openPOS" pickOnBounds="false">
+        <StackPane alignment="CENTER" scaleX="1.4" scaleY="1.4" pickOnBounds="false">
+            <SVGPath styleClass="icon"
+                     content="M5 2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H5z M2 14a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-4z M6 18h2 M12 18h6" />
+        </StackPane>
+        <Label text="Abrir TPV" styleClass="card-text" />
+    </VBox>
 
-        <children>
-            <StackPane GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="3">
-                <VBox styleClass="card" alignment="CENTER" spacing="10"
-                      onMouseClicked="#openPOS" pickOnBounds="false">
-                    <StackPane alignment="CENTER" scaleX="1.4" scaleY="1.4" pickOnBounds="false">
-                        <SVGPath styleClass="icon"
-                                 content="M5 2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H5z M2 14a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-4z M6 18h2 M12 18h6" />
-                    </StackPane>
-                    <Label text="Abrir TPV" styleClass="card-text" />
-                </VBox>
-            </StackPane>
-        </children>
-    </GridPane>
-
+    <!-- Stats section -->
     <VBox fx:id="statsSection" spacing="16" stylesheets="@analytics.css">
         <HBox spacing="8" alignment="CENTER_LEFT">
             <Button fx:id="prevMonthBtn" text="&#x2039;" styleClass="month-nav-btn"
@@ -46,15 +31,25 @@
                    minWidth="140" alignment="CENTER" />
             <Button fx:id="nextMonthBtn" text="&#x203A;" styleClass="month-nav-btn"
                     onAction="#nextMonth" />
+            <Button text="&#x21BB;" styleClass="month-nav-btn"
+                    onAction="#reloadStats" />
         </HBox>
+
         <HBox spacing="16">
-            <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
-                <Label text="INGRESOS DEL MES" styleClass="info-label" />
-                <Label fx:id="revenueLabel" styleClass="mini-value" text="&#x2014;" />
+            <!-- Ingresos card -->
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="12">
+                <SVGPath styleClass="icon"
+                         content="M23 6L13.5 15.5 8.5 10.5 1 18 M17 6H23V12" />
+                <Label text="INGRESOS DEL MES" styleClass="stat-card-label" />
+                <Label fx:id="revenueLabel" styleClass="stat-card-value" text="&#x2014;" />
             </VBox>
-            <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
-                <Label text="PEDIDOS DEL MES" styleClass="info-label" />
-                <Label fx:id="orderCountLabel" styleClass="mini-value" text="&#x2014;" />
+
+            <!-- Pedidos card -->
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="12">
+                <SVGPath styleClass="icon"
+                         content="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2 M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2 M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2 M12 12h3 M9 12h.01 M12 16h3 M9 16h.01" />
+                <Label text="PEDIDOS DEL MES" styleClass="stat-card-label" />
+                <Label fx:id="orderCountLabel" styleClass="stat-card-value" text="&#x2014;" />
             </VBox>
         </HBox>
     </VBox>

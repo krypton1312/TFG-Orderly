@@ -222,6 +222,11 @@ public class StartController {
     }
 
     @FXML
+    private void reloadStats() {
+        loadMonthStats();
+    }
+
+    @FXML
     private void prevMonth() {
         selectedMonth = selectedMonth.minusMonths(1);
         nextMonthBtn.setDisable(false);
@@ -245,8 +250,9 @@ public class StartController {
     }
 
     private void loadMonthStats() {
-        revenueLabel.setText("—");
-        orderCountLabel.setText("—");
+        revenueLabel.setText("\u2014");
+        revenueLabel.setStyle("");
+        orderCountLabel.setText("\u2014");
         int year = selectedMonth.getYear();
         int month = selectedMonth.getMonthValue();
         new Thread(() -> {

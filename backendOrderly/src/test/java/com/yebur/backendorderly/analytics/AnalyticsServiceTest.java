@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,10 +33,16 @@ public class AnalyticsServiceTest {
     @InjectMocks
     private AnalyticsService analyticsService;
 
+    private static List<Object[]> revenueList(BigDecimal cash, BigDecimal card) {
+        List<Object[]> list = new ArrayList<>();
+        list.add(new Object[]{cash, card});
+        return list;
+    }
+
     @Test
     void testMonthlyRevenue() {
         when(cashSessionRepository.getMonthlyRevenue(any(), any()))
-                .thenReturn(new Object[]{new BigDecimal("1800.00"), new BigDecimal("2520.50")});
+                .thenReturn(revenueList(new BigDecimal("1800.00"), new BigDecimal("2520.50")));
         when(orderRepository.countClosedOrdersByMonth(any(), any())).thenReturn(87L);
         when(orderDetailRepository.getTopProductsByMonth(any(), any(), any())).thenReturn(List.of());
 
@@ -49,7 +56,7 @@ public class AnalyticsServiceTest {
     @Test
     void testOrderCount() {
         when(cashSessionRepository.getMonthlyRevenue(any(), any()))
-                .thenReturn(new Object[]{BigDecimal.ZERO, BigDecimal.ZERO});
+                .thenReturn(revenueList(BigDecimal.ZERO, BigDecimal.ZERO));
         when(orderRepository.countClosedOrdersByMonth(any(), any())).thenReturn(42L);
         when(orderDetailRepository.getTopProductsByMonth(any(), any(), any())).thenReturn(List.of());
 
@@ -61,7 +68,7 @@ public class AnalyticsServiceTest {
     @Test
     void testTopProducts() {
         when(cashSessionRepository.getMonthlyRevenue(any(), any()))
-                .thenReturn(new Object[]{BigDecimal.ZERO, BigDecimal.ZERO});
+                .thenReturn(revenueList(BigDecimal.ZERO, BigDecimal.ZERO));
         when(orderRepository.countClosedOrdersByMonth(any(), any())).thenReturn(10L);
         when(orderDetailRepository.getTopProductsByMonth(any(), any(), any()))
                 .thenReturn(List.of(
@@ -79,7 +86,7 @@ public class AnalyticsServiceTest {
     @Test
     void testAvgOrderValue() {
         when(cashSessionRepository.getMonthlyRevenue(any(), any()))
-                .thenReturn(new Object[]{new BigDecimal("1800.00"), new BigDecimal("2520.50")});
+                .thenReturn(revenueList(new BigDecimal("1800.00"), new BigDecimal("2520.50")));
         when(orderRepository.countClosedOrdersByMonth(any(), any())).thenReturn(87L);
         when(orderDetailRepository.getTopProductsByMonth(any(), any(), any())).thenReturn(List.of());
 
@@ -92,7 +99,7 @@ public class AnalyticsServiceTest {
     @Test
     void testAvgOrderValueZeroOrders() {
         when(cashSessionRepository.getMonthlyRevenue(any(), any()))
-                .thenReturn(new Object[]{new BigDecimal("100.00"), new BigDecimal("200.00")});
+                .thenReturn(revenueList(new BigDecimal("100.00"), new BigDecimal("200.00")));
         when(orderRepository.countClosedOrdersByMonth(any(), any())).thenReturn(0L);
         when(orderDetailRepository.getTopProductsByMonth(any(), any(), any())).thenReturn(List.of());
 
