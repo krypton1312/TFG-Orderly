@@ -445,16 +445,29 @@ public class PosController {
                 this.currentOverviewItem = item;
             });
 
-            // Badge PARCIAL — solo si el pedido tiene ítems PAID
+            // Badge de pago: PAGADO (todo cobrado) o PARCIAL (cobrado parcialmente)
             if (item.getOrder() != null && item.getOrder().isHasPaidItems()) {
-                Label parcialBadge = new Label("PARCIAL");
-                parcialBadge.getStyleClass().add("parcial-badge");
-                buttonNameVB.getChildren().add(parcialBadge);
-                btn.setStyle(
-                    "-fx-background-color: #f9fafb;" +
-                    "-fx-border-color: transparent transparent #15803D transparent;" +
-                    "-fx-border-width: 0 0 3 0;" +
-                    "-fx-border-radius: 0 0 8 8;");
+                boolean fullyCovered = item.getOrder().getTotal() != null
+                        && item.getOrder().getTotal().compareTo(java.math.BigDecimal.ZERO) == 0;
+                if (fullyCovered) {
+                    Label pagadoBadge = new Label("PAGADO");
+                    pagadoBadge.getStyleClass().add("pagado-badge");
+                    buttonNameVB.getChildren().add(pagadoBadge);
+                    btn.setStyle(
+                        "-fx-background-color: #f9fafb;" +
+                        "-fx-border-color: transparent transparent #15803D transparent;" +
+                        "-fx-border-width: 0 0 3 0;" +
+                        "-fx-border-radius: 0 0 8 8;");
+                } else {
+                    Label parcialBadge = new Label("PARCIAL");
+                    parcialBadge.getStyleClass().add("parcial-badge");
+                    buttonNameVB.getChildren().add(parcialBadge);
+                    btn.setStyle(
+                        "-fx-background-color: #f9fafb;" +
+                        "-fx-border-color: transparent transparent #1D4ED8 transparent;" +
+                        "-fx-border-width: 0 0 3 0;" +
+                        "-fx-border-radius: 0 0 8 8;");
+                }
             }
 
             productBox.getChildren().add(btn);
