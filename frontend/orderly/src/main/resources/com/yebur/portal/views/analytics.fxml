@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.yebur.controller.AnalyticsController"
+      styleClass="content-area" spacing="24"
+      stylesheets="@analytics.css">
+    <!-- Header row: title + spacer + month selector -->
+    <HBox alignment="CENTER_LEFT" spacing="16">
+        <Label text="Análisis Mensual" styleClass="main-title" />
+        <Region HBox.hgrow="ALWAYS" />
+        <HBox spacing="8" alignment="CENTER_RIGHT">
+            <Button fx:id="prevMonthBtn" text="&#x2039;" styleClass="month-nav-btn"
+                    onAction="#prevMonth" />
+            <Label fx:id="monthLabel" styleClass="month-label"
+                   minWidth="160" alignment="CENTER" />
+            <Button fx:id="nextMonthBtn" text="&#x203A;" styleClass="month-nav-btn"
+                    onAction="#nextMonth" />
+        </HBox>
+    </HBox>
+    <!-- Scrollable body -->
+    <ScrollPane fitToWidth="true" styleClass="report-scroll" VBox.vgrow="ALWAYS">
+        <VBox styleClass="modal-body" spacing="16">
+            <!-- Row 1: Revenue + Orders + Avg Ticket -->
+            <HBox spacing="16">
+                <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <Label text="INGRESOS TOTALES" styleClass="info-label" />
+                    <Label fx:id="revenueLabel" styleClass="mini-value" text="&#x2014;" />
+                    <Label fx:id="revPrevLabel" styleClass="prev-month-label" text="" />
+                    <Label fx:id="revDeltaLabel" styleClass="delta-neutral" text="" />
+                </VBox>
+                <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <Label text="PEDIDOS" styleClass="info-label" />
+                    <Label fx:id="ordersLabel" styleClass="mini-value" text="&#x2014;" />
+                    <Label fx:id="ordersPrevLabel" styleClass="prev-month-label" text="" />
+                    <Label fx:id="ordersDeltaLabel" styleClass="delta-neutral" text="" />
+                </VBox>
+                <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <Label text="TICKET MEDIO" styleClass="info-label" />
+                    <Label fx:id="avgLabel" styleClass="mini-value" text="&#x2014;" />
+                    <Label fx:id="avgPrevLabel" styleClass="prev-month-label" text="" />
+                    <Label fx:id="avgDeltaLabel" styleClass="delta-neutral" text="" />
+                </VBox>
+            </HBox>
+            <!-- Row 2: Payment breakdown (cash % + card %) -->
+            <HBox spacing="16">
+                <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <Label text="EFECTIVO" styleClass="info-label" />
+                    <Label fx:id="cashPctLabel" styleClass="mini-value" text="&#x2014;" />
+                </VBox>
+                <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <Label text="TARJETA" styleClass="info-label" />
+                    <Label fx:id="cardPctLabel" styleClass="mini-value" text="&#x2014;" />
+                </VBox>
+            </HBox>
+            <!-- Row 3: Top 5 products (rows built programmatically) -->
+            <VBox styleClass="report-ops-card" spacing="8">
+                <Label text="TOP 5 PRODUCTOS" styleClass="section-title" />
+                <VBox fx:id="topProductsVBox" spacing="8" />
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</VBox>
