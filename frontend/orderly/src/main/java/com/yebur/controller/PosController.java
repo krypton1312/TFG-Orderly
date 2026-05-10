@@ -852,24 +852,10 @@ public class PosController {
         nameLabel.setWrapText(true);
         nameBox.getChildren().add(nameLabel);
 
-        String pillText = switch (d.getStatus()) {
-            case "PENDING"     -> "PENDIENTE";
-            case "SENT"        -> "ENVIADO";
-            case "IN_PROGRESS" -> "EN COCINA";
-            case "SERVED"      -> "SERVIDO";
-            case "PAID"        -> "PAGADO";
-            default -> "";
-        };
-        String pillColor = switch (d.getStatus()) {
-            case "PENDING"             -> "status-pill-grey";
-            case "SENT", "IN_PROGRESS" -> "status-pill-amber";
-            case "SERVED"              -> "status-pill-blue";
-            case "PAID"                -> "status-pill-green";
-            default -> "";
-        };
-        if (!pillText.isEmpty()) {
-            Label pill = new Label(pillText);
-            pill.getStyleClass().addAll("status-pill", pillColor);
+        // Pill solo para ítems PAID
+        if ("PAID".equals(d.getStatus())) {
+            Label pill = new Label("PAGADO");
+            pill.getStyleClass().addAll("status-pill", "status-pill-green");
             nameBox.getChildren().add(pill);
         }
 
