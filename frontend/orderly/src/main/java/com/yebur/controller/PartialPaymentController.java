@@ -419,6 +419,10 @@ public class PartialPaymentController {
             } else {
                 // 🔹 СУЩЕСТВУЮЩИЙ ЗАКАЗ: обновляем детали и создаём новые исходя из текущего UI
                 persistPartialDetails();
+                // Purge processed (amount=0) items so they are not re-sent in subsequent payment rounds
+                orderDetails.removeIf(od -> od.getAmount() <= 0);
+                originalAmounts.keySet().removeIf(id ->
+                        orderDetails.stream().noneMatch(od -> id.equals(od.getId())));
             }
 
             if (withReceipt) {
@@ -491,99 +495,93 @@ public class PartialPaymentController {
         displayField.setText(displayField.getText() + digit);
     }
 
-    private void persistPartialDetails() {
-        try {
-            List<Long> idsToUpdate = new ArrayList<>();
-            List<OrderDetailRequest> reqsToUpdate = new ArrayList<>();
-            List<OrderDetailRequest> reqsToCreate = new ArrayList<>();
-            for (OrderDetailResponse od : orderDetails) {
-                if (od.getId() == null) {
-                    continue;
-                }
+    private void persistPartialDetails() throws Exception {
+        List<Long> idsToUpdate = new ArrayList<>();
+        List<OrderDetailRequest> reqsToUpdate = new ArrayList<>();
+        List<OrderDetailRequest> reqsToCreate = new ArrayList<>();
+        for (OrderDetailResponse od : orderDetails) {
+            if (od.getId() == null) {
+                continue;
+            }
 
-                Integer original = originalAmounts.get(od.getId());
-                if (original != null && original.equals(od.getAmount())) {
-                    continue; // Cantidad sin cambio → no reenviar al backend
-                }
+            Integer original = originalAmounts.get(od.getId());
+            if (original != null && original.equals(od.getAmount())) {
+                continue; // Cantidad sin cambio → no reenviar al backend
+            }
 
-                idsToUpdate.add(od.getId());
+            idsToUpdate.add(od.getId());
+
+            OrderDetailRequest req = new OrderDetailRequest(
+                    od.getProductId(),
+                    od.getOrderId(),
+                    od.getName(),
+                    od.getComment(),
+                    od.getAmount(),
+                    od.getUnitPrice(),
+                    od.getStatus(),
+                    od.getPaymentMethod(),
+                    od.getBatchId(),
+                    od.getCreatedAt(),
+                    StartController.getCashSession().getId(),
+                    false
+
+            );
+
+            reqsToUpdate.add(req);
+        }
+
+        for (OrderDetailResponse pd : partialDetails) {
+            Long productId = pd.getProductId();
+            Long orderId   = pd.getOrderId() != null
+                    ? pd.getOrderId()
+                    : (order != null ? order.getId() : null);
+
+            if (productId == null || orderId == null) {
+                throw new IllegalStateException("productId/orderId must not be null for partial payment detail");
+            }
+
+            if (pd.getId() != null) {
+                idsToUpdate.add(pd.getId());
 
                 OrderDetailRequest req = new OrderDetailRequest(
-                        od.getProductId(),
-                        od.getOrderId(),
-                        od.getName(),
-                        od.getComment(),
-                        od.getAmount(),
-                        od.getUnitPrice(),
-                        od.getStatus(),
-                        od.getPaymentMethod(),
-                        od.getBatchId(),
-                        od.getCreatedAt(),
+                        productId,
+                        orderId,
+                        pd.getName(),
+                        pd.getComment(),
+                        pd.getAmount(),
+                        pd.getUnitPrice(),
+                        pd.getStatus(),
+                        selectedPaymentMethod,
+                        pd.getBatchId(),
+                        pd.getCreatedAt(),
                         StartController.getCashSession().getId(),
-                        false
-
+                        true
                 );
 
                 reqsToUpdate.add(req);
+            } else {
+                OrderDetailRequest createReq = new OrderDetailRequest(
+                        productId,
+                        orderId,
+                        pd.getName(),
+                        pd.getComment(),
+                        pd.getAmount(),
+                        pd.getUnitPrice(),
+                        pd.getStatus(),
+                        selectedPaymentMethod,
+                        pd.getBatchId(),
+                        pd.getCreatedAt(),
+                        StartController.getCashSession().getId(),
+                        true
+                );
+                reqsToCreate.add(createReq);
             }
-
-            for (OrderDetailResponse pd : partialDetails) {
-                Long productId = pd.getProductId();
-                Long orderId   = pd.getOrderId() != null
-                        ? pd.getOrderId()
-                        : (order != null ? order.getId() : null);
-
-                if (productId == null || orderId == null) {
-                    throw new IllegalStateException("productId/orderId must not be null for partial payment detail");
-                }
-
-                if (pd.getId() != null) {
-                    idsToUpdate.add(pd.getId());
-
-                    OrderDetailRequest req = new OrderDetailRequest(
-                            productId,
-                            orderId,
-                            pd.getName(),
-                            pd.getComment(),
-                            pd.getAmount(),
-                            pd.getUnitPrice(),
-                            pd.getStatus(),
-                            selectedPaymentMethod,
-                            pd.getBatchId(),
-                            pd.getCreatedAt(),
-                            StartController.getCashSession().getId(),
-                            true
-                    );
-
-                    reqsToUpdate.add(req);
-                } else {
-                    OrderDetailRequest createReq = new OrderDetailRequest(
-                            productId,
-                            orderId,
-                            pd.getName(),
-                            pd.getComment(),
-                            pd.getAmount(),
-                            pd.getUnitPrice(),
-                            pd.getStatus(),
-                            selectedPaymentMethod,
-                            pd.getBatchId(),
-                            pd.getCreatedAt(),
-                            StartController.getCashSession().getId(),
-                            true
-                    );
-                    reqsToCreate.add(createReq);
-                }
-            }
-            if (!idsToUpdate.isEmpty()) {
-                OrderDetailService.updateOrderDetailList(idsToUpdate, reqsToUpdate);
-            }
-            if (!reqsToCreate.isEmpty()) {
-                OrderDetailService.createOrderDetailList(reqsToCreate);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            showError("Error al guardar el pago parcial: " + e.getMessage());
+        }
+        if (!idsToUpdate.isEmpty()) {
+            OrderDetailService.updateOrderDetailList(idsToUpdate, reqsToUpdate);
+        }
+        if (!reqsToCreate.isEmpty()) {
+            OrderDetailService.createOrderDetailList(reqsToCreate);
         }
     }
 

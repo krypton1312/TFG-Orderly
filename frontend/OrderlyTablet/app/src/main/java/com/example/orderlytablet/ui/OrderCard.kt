@@ -31,24 +31,32 @@ fun StatusDropdown(
 
     val statusOptions = listOf("PENDING", "SENT", "IN_PROGRESS", "SERVED")
 
-    val statusColor = when (selectedStatus) {
-        "PENDING" -> Color(0xFF9E9E9E)
-        "SENT" -> Color(0xFFFFC107)
-        "IN_PROGRESS" -> Color(0xFF4CAF50)
-        "SERVED" -> Color(0xFF2196F3)
-        else -> Color.Gray
+    fun statusLabel(s: String) = when (s) {
+        "PENDING"     -> "PENDIENTE"
+        "SENT"        -> "ENVIADO"
+        "IN_PROGRESS" -> "EN PROCESO"
+        "SERVED"      -> "SERVIDO"
+        else          -> s
+    }
+
+    fun statusColor(s: String) = when (s) {
+        "PENDING"     -> Color(0xFF9E9E9E)
+        "SENT"        -> Color(0xFFF59E0B)
+        "IN_PROGRESS" -> Color(0xFFF97316)
+        "SERVED"      -> Color(0xFF3B82F6)
+        else          -> Color.Gray
     }
 
     Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)) {
         Row(
             modifier = Modifier
-                .background(statusColor, shape = RoundedCornerShape(8.dp))
+                .background(statusColor(selectedStatus), shape = RoundedCornerShape(8.dp))
                 .clickable { expanded = true }
                 .padding(horizontal = 10.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = selectedStatus.uppercase(),
+                text = statusLabel(selectedStatus),
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 fontSize = 13.sp
@@ -66,7 +74,20 @@ fun StatusDropdown(
         ) {
             statusOptions.forEach { status ->
                 DropdownMenuItem(
-                    text = { Text(status.replaceFirstChar { it.uppercase() }) },
+                    text = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .background(statusColor(status), shape = RoundedCornerShape(3.dp))
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = statusLabel(status),
+                                fontWeight = if (status == selectedStatus) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    },
                     onClick = {
                         selectedStatus = status
                         onStatusChange(status)

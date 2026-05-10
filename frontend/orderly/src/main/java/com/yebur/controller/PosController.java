@@ -776,10 +776,10 @@ public class PosController {
         BigDecimal total = BigDecimal.ZERO;
 
         List<OrderDetailResponse> unpaidItems = details.stream()
-                .filter(d -> !d.isPaid())
+                .filter(d -> !d.isPaid() && d.getAmount() > 0)
                 .collect(Collectors.toList());
         List<OrderDetailResponse> paidItems = details.stream()
-                .filter(d -> d.isPaid())
+                .filter(d -> d.isPaid() && !"SERVED".equals(d.getStatus()))
                 .collect(Collectors.toList());
 
         for (OrderDetailResponse d : unpaidItems) {
@@ -791,15 +791,9 @@ public class PosController {
             total = total.add(totalLine);
         }
 
-        if (!paidItems.isEmpty()) {
-            orderVboxItems.getChildren().add(new Separator());
-            Label sectionLabel = new Label("Ya pagado");
-            sectionLabel.getStyleClass().add("paid-section-label");
-            orderVboxItems.getChildren().add(sectionLabel);
-            for (OrderDetailResponse d : paidItems) {
-                var row = buildOrderRow(d, product, paidItems, false);
-                orderVboxItems.getChildren().add(row);
-            }
+        for (OrderDetailResponse d : paidItems) {
+            var row = buildOrderRow(d, product, paidItems, false);
+            orderVboxItems.getChildren().add(row);
         }
 
         orderTotalValue.setText(currencyFormatter.format(total));
@@ -810,13 +804,13 @@ public class PosController {
         GridPane row = new GridPane();
         row.getStyleClass().add("order-item-row");
 
-        String cssClass = switch (d.getStatus()) {
-            case "PENDING"             -> "order-item-pending";
-            case "SENT", "IN_PROGRESS" -> "order-item-in-progress";
-            case "SERVED"              -> "order-item-served";
+        String cssClass = switch (d.getStatus() != null ? d.getStatus() : "") {
+            case "PENDING"     -> "order-item-pending";
+            case "SENT"        -> "order-item-sent";
+            case "IN_PROGRESS" -> "order-item-in-progress";
+            case "SERVED"      -> "order-item-served";
             default -> "";
         };
-        if (d.isPaid()) cssClass = "order-item-paid";
         if (!cssClass.isEmpty()) row.getStyleClass().add(cssClass);
 
         row.setHgap(10);

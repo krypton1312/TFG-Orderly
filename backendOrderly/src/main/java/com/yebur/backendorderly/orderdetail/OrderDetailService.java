@@ -414,7 +414,8 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 .orElseThrow(() -> new RuntimeException("Order not found with id " + orderId));
 
         boolean hasUnpaid = orderDetailRepository.existsByOrderIdAndPaid(orderId, false);
-        OrderStatus newState = hasUnpaid ? OrderStatus.OPEN : OrderStatus.PAID;
+        boolean hasUnserved = orderDetailRepository.existsByOrderIdAndStatusNot(orderId, OrderDetailStatus.SERVED);
+        OrderStatus newState = (!hasUnpaid && !hasUnserved) ? OrderStatus.PAID : OrderStatus.OPEN;
 
         if (order.getState() != newState) {
             order.setState(newState);

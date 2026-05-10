@@ -227,8 +227,13 @@
     -fx-border-width: 0 0 1 4;
 }
 
-.order-item-in-progress {
+.order-item-sent {
     -fx-border-color: transparent transparent #e5e7eb #F59E0B;
+    -fx-border-width: 0 0 1 4;
+}
+
+.order-item-in-progress {
+    -fx-border-color: transparent transparent #e5e7eb #F97316;
     -fx-border-width: 0 0 1 4;
 }
 
