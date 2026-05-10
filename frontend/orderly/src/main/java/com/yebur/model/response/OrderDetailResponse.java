@@ -16,9 +16,10 @@ public class OrderDetailResponse {
     private LocalDateTime createdAt;
     private String destination;
     private String batchId;
+    private boolean paid;
 
     public OrderDetailResponse(Long id, Long productId, String name, Long orderId, String comment, int amount,
-            BigDecimal unitPrice, String status, String paymentMethod, LocalDateTime createdAt, String destination, String batchId) {
+            BigDecimal unitPrice, String status, String paymentMethod, LocalDateTime createdAt, String destination, String batchId, boolean paid) {
         this.id = id;
         this.productId = productId;
         this.name = name;
@@ -31,6 +32,7 @@ public class OrderDetailResponse {
         this.createdAt = createdAt;
         this.destination = destination;
         this.batchId = batchId;
+        this.paid = paid;
     }
 
     
@@ -144,5 +146,13 @@ public class OrderDetailResponse {
 
     public void setBatchId(String batchId) {
         this.batchId = batchId;
+    }
+
+    public boolean isPaid() {
+        return paid;
+    }
+
+    public void setPaid(boolean paid) {
+        this.paid = paid;
     }
 }

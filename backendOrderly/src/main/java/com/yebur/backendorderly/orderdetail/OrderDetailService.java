@@ -158,7 +158,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
 
         // 🔹 объединяем PAID / SERVED строки
         for (OrderDetail d : new ArrayList<>(saved)) {
-            if (d.getStatus() == OrderDetailStatus.PAID || d.getStatus() == OrderDetailStatus.SERVED) {
+            if (d.isPaid() || d.getStatus() == OrderDetailStatus.SERVED) {
                 mergeSimilarDetails(d, d.getStatus());
             }
         }
@@ -194,6 +194,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         existing.setCreatedAt(LocalDateTime.now());
         existing.setPaymentMethod(dto.getPaymentMethod());
         existing.setName(dto.getName());
+        existing.setPaid(dto.isPaid());
 
         Product product = productService.findById(dto.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found with id " + dto.getProductId()));
@@ -223,7 +224,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 .orElseThrow(() -> new RuntimeException("Supplement not found with id " + supplementId));
 
         for (OrderDetailResponse d : details) {
-            if (d.getStatus().equals("PAID")) {
+            if (d.isPaid()) {
                 continue;
             }
 
@@ -317,6 +318,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             existing.setCreatedAt(LocalDateTime.now());
             existing.setPaymentMethod(dto.getPaymentMethod());
             existing.setName(dto.getName());
+            existing.setPaid(dto.isPaid());
 
             Product product = productService.findById(dto.getProductId())
                     .orElseThrow(() -> new RuntimeException("Product not found with id " + dto.getProductId()));
@@ -338,7 +340,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         List<OrderDetail> saved = orderDetailRepository.saveAll(updatedEntities);
 
         for (OrderDetail d : new ArrayList<>(saved)) {
-            if (d.getStatus() == OrderDetailStatus.PAID || d.getStatus() == OrderDetailStatus.SERVED) {
+            if (d.isPaid() || d.getStatus() == OrderDetailStatus.SERVED) {
                 mergeSimilarDetails(d, d.getStatus());
             }
         }
@@ -388,7 +390,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
             detail.setStatus(enumStatus);
             orderDetailRepository.save(detail);
 
-            if (enumStatus == OrderDetailStatus.SERVED || enumStatus == OrderDetailStatus.PAID) {
+            if (detail.isPaid() || enumStatus == OrderDetailStatus.SERVED) {
                 mergeSimilarDetails(detail, enumStatus);
             }
 
@@ -410,7 +412,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         Order order = orderService.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found with id " + orderId));
 
-        boolean hasUnpaid = orderDetailRepository.existsByOrderIdAndStatusNot(orderId, OrderDetailStatus.PAID);
+        boolean hasUnpaid = orderDetailRepository.existsByOrderIdAndPaid(orderId, false);
         OrderStatus newState = hasUnpaid ? OrderStatus.OPEN : OrderStatus.PAID;
 
         if (order.getState() != newState) {
@@ -440,7 +442,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
 
     @Transactional
     protected void mergeSimilarDetails(OrderDetail detail, OrderDetailStatus status) {
-        if (status != OrderDetailStatus.PAID && status != OrderDetailStatus.SERVED) {
+        if (!detail.isPaid() && status != OrderDetailStatus.SERVED) {
             return;
         }
 
@@ -448,12 +450,14 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         String name = detail.getName();
         BigDecimal price = detail.getUnitPrice();
         String payment = detail.getPaymentMethod();
+        boolean isPaid = detail.isPaid();
 
         List<OrderDetail> sameLines = orderDetailRepository.findAllByOrderId(orderId).stream()
+                .filter(d -> d.isPaid() == isPaid)
                 .filter(d -> d.getStatus() == status)
                 .filter(d -> Objects.equals(d.getName(), name))
                 .filter(d -> d.getUnitPrice().compareTo(price) == 0)
-                .filter(d -> status != OrderDetailStatus.PAID ||
+                .filter(d -> !isPaid ||
                         Objects.equals(d.getPaymentMethod(), payment))
                 .collect(Collectors.toList());
 
@@ -552,6 +556,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
         detail.setBatchId(dto.getBatchId());
         detail.setName(dto.getName());
         detail.setCashSession(cs);
+        detail.setPaid(dto.isPaid());
         return detail;
     }
 
@@ -568,7 +573,8 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 entity.getPaymentMethod(),
                 entity.getCreatedAt(),
                 entity.getProduct().getDestination(),
-                entity.getBatchId());
+                entity.getBatchId(),
+                entity.isPaid());
     }
 
     private void notifyDetailChanged(WsEventType type, OrderDetail detail) {

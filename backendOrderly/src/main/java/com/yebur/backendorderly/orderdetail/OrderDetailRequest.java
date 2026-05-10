@@ -38,4 +38,6 @@ public class OrderDetailRequest {
     private LocalDateTime createdAt;
 
     private Long cashSessionId;
+
+    private boolean paid;
 }

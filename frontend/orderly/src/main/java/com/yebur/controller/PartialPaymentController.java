@@ -116,9 +116,9 @@ public class PartialPaymentController {
 
     public void loadData() {
         this.order = primaryController.getCurrentOrder();
-        // Filtrar ítems PAID — el modal solo trabaja con ítems pendientes de cobro
+        // Filtrar ítems pagados — el modal solo trabaja con ítems pendientes de cobro
         this.orderDetails = primaryController.getCurrentdetails().stream()
-                .filter(d -> !"PAID".equals(d.getStatus()))
+                .filter(d -> !d.isPaid())
                 .collect(Collectors.toList());
         System.out.println(orderDetails);
         // Snapshot de cantidades al abrir el modal
@@ -275,9 +275,9 @@ public class PartialPaymentController {
                 existing.setAmount(existing.getAmount() + amountToMove);
             } else {
                 OrderDetailResponse paid = copyResponse(item);
-                paid.setId(null);                // новый detail в БД
+                paid.setId(null);                // nuevo detail en BD
                 paid.setAmount(amountToMove);
-                paid.setStatus("PAID");
+                paid.setPaid(true);
                 partialDetails.add(paid);
             }
 
@@ -289,9 +289,9 @@ public class PartialPaymentController {
                 existing.setAmount(existing.getAmount() + amountToMove);
             } else {
                 OrderDetailResponse uiCopy = copyResponse(item);
-                uiCopy.setId(null);              // новый detail
+                uiCopy.setId(null);              // nuevo detail
                 uiCopy.setAmount(amountToMove);
-                uiCopy.setStatus("PAID");
+                uiCopy.setPaid(true);
                 partialDetails.add(uiCopy);
             }
         }
@@ -401,10 +401,11 @@ public class PartialPaymentController {
                     req.setComment(item.getComment());
                     req.setAmount(item.getAmount());
                     req.setUnitPrice(item.getUnitPrice());
-                    req.setStatus("PAID");
+                    req.setStatus(item.getStatus());
                     req.setBatchId(item.getBatchId());
                     req.setPaymentMethod(selectedPaymentMethod);
                     req.setCashSessionId(cashSessionId);
+                    req.setPaid(true);
                     createReqs.add(req);
                 }
 
@@ -518,7 +519,8 @@ public class PartialPaymentController {
                         od.getPaymentMethod(),
                         od.getBatchId(),
                         od.getCreatedAt(),
-                        StartController.getCashSession().getId()
+                        StartController.getCashSession().getId(),
+                        false
 
                 );
 
@@ -545,11 +547,12 @@ public class PartialPaymentController {
                             pd.getComment(),
                             pd.getAmount(),
                             pd.getUnitPrice(),
-                            "PAID",
+                            pd.getStatus(),
                             selectedPaymentMethod,
                             pd.getBatchId(),
                             pd.getCreatedAt(),
-                            StartController.getCashSession().getId()
+                            StartController.getCashSession().getId(),
+                            true
                     );
 
                     reqsToUpdate.add(req);
@@ -561,11 +564,12 @@ public class PartialPaymentController {
                             pd.getComment(),
                             pd.getAmount(),
                             pd.getUnitPrice(),
-                            "PAID",
+                            pd.getStatus(),
                             selectedPaymentMethod,
                             pd.getBatchId(),
                             pd.getCreatedAt(),
-                            StartController.getCashSession().getId()
+                            StartController.getCashSession().getId(),
+                            true
                     );
                     reqsToCreate.add(createReq);
                 }

@@ -88,6 +88,10 @@ public class OrderDetail {
     @ToString.Include
     private String paymentMethod;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    @ToString.Include
+    private boolean paid = false;
+
     @Column
     @ToString.Include
     private String batchId;

@@ -36,8 +36,10 @@ public class OrderDetailResponse {
 
     private String batchId;
 
+    private boolean paid;
+
     public OrderDetailResponse(Long id, Long productId, String name, Long orderId, String comment, int amount,
-            BigDecimal unitPrice, OrderDetailStatus status, String paymentMethod, LocalDateTime createdAt, ProductDestination destination, String batchId) {
+            BigDecimal unitPrice, OrderDetailStatus status, String paymentMethod, LocalDateTime createdAt, ProductDestination destination, String batchId, boolean paid) {
         this.id = id;
         this.productId = productId;
         this.name = name;
@@ -50,6 +52,7 @@ public class OrderDetailResponse {
         this.createdAt = createdAt;
         this.destination = destination.toString();
         this.batchId = batchId;
+        this.paid = paid;
     }
     
 }

@@ -775,10 +775,10 @@ public class PosController {
         BigDecimal total = BigDecimal.ZERO;
 
         List<OrderDetailResponse> unpaidItems = details.stream()
-                .filter(d -> !"PAID".equals(d.getStatus()))
+                .filter(d -> !d.isPaid())
                 .collect(Collectors.toList());
         List<OrderDetailResponse> paidItems = details.stream()
-                .filter(d -> "PAID".equals(d.getStatus()))
+                .filter(d -> d.isPaid())
                 .collect(Collectors.toList());
 
         for (OrderDetailResponse d : unpaidItems) {
@@ -813,9 +813,9 @@ public class PosController {
             case "PENDING"             -> "order-item-pending";
             case "SENT", "IN_PROGRESS" -> "order-item-in-progress";
             case "SERVED"              -> "order-item-served";
-            case "PAID"                -> "order-item-paid";
             default -> "";
         };
+        if (d.isPaid()) cssClass = "order-item-paid";
         if (!cssClass.isEmpty()) row.getStyleClass().add(cssClass);
 
         row.setHgap(10);
@@ -852,8 +852,8 @@ public class PosController {
         nameLabel.setWrapText(true);
         nameBox.getChildren().add(nameLabel);
 
-        // Pill solo para ítems PAID
-        if ("PAID".equals(d.getStatus())) {
+        // Pill solo para ítems pagados
+        if (d.isPaid()) {
             Label pill = new Label("PAGADO");
             pill.getStyleClass().addAll("status-pill", "status-pill-green");
             nameBox.getChildren().add(pill);
@@ -972,9 +972,9 @@ public class PosController {
         }
 
         boolean noUnpaidItems = currentdetails == null ||
-                currentdetails.stream().noneMatch(d -> !"PAID".equals(d.getStatus()) && d.getAmount() > 0);
+                currentdetails.stream().noneMatch(d -> !d.isPaid() && d.getAmount() > 0);
         boolean hasPaidItems = currentdetails != null &&
-                currentdetails.stream().anyMatch(d -> "PAID".equals(d.getStatus()));
+                currentdetails.stream().anyMatch(d -> d.isPaid());
         if (noUnpaidItems && hasActiveOrder() && !hasPaidItems) {
             try {
                 OrderService.deleteOrder(currentOrder.getId());
@@ -1001,12 +1001,12 @@ public class PosController {
         if (currentdetails != null && !currentdetails.isEmpty()) {
             OrderDetailResponse lastDetail = null;
             for (int i = currentdetails.size() - 1; i >= 0; i--) {
-                if (!"PAID".equals(currentdetails.get(i).getStatus())) {
+                if (!currentdetails.get(i).isPaid()) {
                     lastDetail = currentdetails.get(i);
                     break;
                 }
             }
-            if (lastDetail == null) return; // Solo quedan ítems PAID
+            if (lastDetail == null) return; // Solo quedan ítems pagados
             currentdetails.remove(lastDetail);
 
             try {
@@ -1170,7 +1170,7 @@ public class PosController {
             return;
 
         boolean anyUnpaid = currentdetails != null && currentdetails.stream()
-                .anyMatch(d -> !"PAID".equals(d.getStatus()) && d.getAmount() > 0);
+                .anyMatch(d -> !d.isPaid() && d.getAmount() > 0);
         if (hasActiveOrder() && !anyUnpaid) {
             CustomDialog.showError("Todo ya está pagado en este pedido");
             return;

@@ -76,7 +76,7 @@ public class OverviewService {
                                                                 .setScale(2, RoundingMode.HALF_UP);
 
                                                 boolean hasPaidItems = orderDetailRepository
-                                                                .existsByOrderIdAndStatus(o.getId(), OrderDetailStatus.PAID);
+                                                                .existsByOrderIdAndPaid(o.getId(), true);
                                                 return new OrderSummary(o.getId(), unpaidTotal, hasPaidItems);
                                         })
                                         .orElse(null);
@@ -101,7 +101,7 @@ public class OverviewService {
                                         .setScale(2, RoundingMode.HALF_UP);
 
                         boolean hasPaidItems = orderDetailRepository
-                                        .existsByOrderIdAndStatus(order.getId(), OrderDetailStatus.PAID);
+                                        .existsByOrderIdAndPaid(order.getId(), true);
                         overview.add(new TableWithOrderResponse(
                                         null,
                                         "Sin mesa",

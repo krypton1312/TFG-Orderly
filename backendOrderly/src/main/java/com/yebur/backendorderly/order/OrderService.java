@@ -126,7 +126,7 @@ public class OrderService implements OrderServiceInterface {
 
         // Проверяем, есть ли оплаченные детали
         boolean hasPaidDetails = order.getOrderDetails().stream()
-                .anyMatch(detail -> detail.getStatus() == OrderDetailStatus.PAID);
+                .anyMatch(detail -> detail.isPaid());
 
         if (!hasPaidDetails) {
             // Если оплаченных деталей нет, удаляем весь заказ целиком.
@@ -142,7 +142,7 @@ public class OrderService implements OrderServiceInterface {
             notifyOrderChanged(WsEventType.ORDER_DELETED, order);
         } else {
             // Если есть оплаченные детали, удаляем только неоплаченные.
-            order.getOrderDetails().removeIf(detail -> detail.getStatus() != OrderDetailStatus.PAID);
+            order.getOrderDetails().removeIf(detail -> !detail.isPaid());
 
             BigDecimal newTotal = order.getOrderDetails().stream()
                     .map(od -> od.getUnitPrice().multiply(BigDecimal.valueOf(od.getAmount())))
@@ -202,7 +202,7 @@ public class OrderService implements OrderServiceInterface {
 
         List<OrderDetail> details = order.getOrderDetails();
 
-        if (details != null && !details.isEmpty() && details.stream().allMatch(odetail -> odetail.getStatus() == OrderDetailStatus.PAID)) {
+        if (details != null && !details.isEmpty() && details.stream().allMatch(odetail -> odetail.isPaid())) {
             order.setState(OrderStatus.PAID);
             if (order.getRestTable() != null) {
                 order.getRestTable().setStatus(TableStatus.AVAILABLE);
