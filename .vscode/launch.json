@@ -21,7 +21,8 @@
             "envFile": "${workspaceFolder}/backendOrderly/.env",
             "cwd": "${workspaceFolder}/backendOrderly",
             "console": "internalConsole",
-            "shortenCommandLine": "jarmanifest"
+            "shortenCommandLine": "jarmanifest",
+            "preLaunchTask": "Backend: Compile (clean)"
         },
         {
             "type": "java",
@@ -32,7 +33,7 @@
             "cwd": "${workspaceFolder}/frontend/orderly",
             "console": "internalConsole",
             "shortenCommandLine": "jarmanifest",
-            "preLaunchTask": "Backend: Start"
+            "preLaunchTask": "PC app: Pre-launch"
         }
     ],
     "compounds": [

@@ -295,6 +295,15 @@
    PHASE 8 — PARCIAL badge en tile de mesa
    ===================================================== */
 .parcial-badge {
+    -fx-background-color: #DBEAFE;
+    -fx-text-fill: #1E40AF;
+    -fx-background-radius: 4;
+    -fx-padding: 1 5 1 5;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.pagado-badge {
     -fx-background-color: #D1FAE5;
     -fx-text-fill: #065F46;
     -fx-background-radius: 4;

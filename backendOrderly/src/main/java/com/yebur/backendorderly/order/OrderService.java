@@ -202,7 +202,9 @@ public class OrderService implements OrderServiceInterface {
 
         List<OrderDetail> details = order.getOrderDetails();
 
-        if (details != null && !details.isEmpty() && details.stream().allMatch(odetail -> odetail.isPaid())) {
+        if (details != null && !details.isEmpty()
+                && details.stream().allMatch(odetail -> odetail.isPaid())
+                && details.stream().allMatch(odetail -> odetail.getStatus() == OrderDetailStatus.SERVED)) {
             order.setState(OrderStatus.PAID);
             if (order.getRestTable() != null) {
                 order.getRestTable().setStatus(TableStatus.AVAILABLE);

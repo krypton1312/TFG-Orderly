@@ -103,6 +103,7 @@ public class OrderDetailService implements OrderDetailServiceInterface {
                 .filter(d -> Objects.equals(d.getProduct().getId(), product.getId()) &&
                         d.getUnitPrice().compareTo(dto.getUnitPrice()) == 0 &&
                         d.getStatus() == OrderDetailStatus.PENDING &&
+                        !d.isPaid() &&
                         Objects.equals(d.getBatchId(), dto.getBatchId()))
                 .findFirst();
 
@@ -412,6 +413,12 @@ public class OrderDetailService implements OrderDetailServiceInterface {
     private void checkAndUpdateOrderStatus(Long orderId) {
         Order order = orderService.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found with id " + orderId));
+
+        // Don't auto-close an order that has no items — happens transiently during
+        // delete-then-create payment flow and would cause a premature PAID state.
+        if (!orderDetailRepository.existsByOrderId(orderId)) {
+            return;
+        }
 
         boolean hasUnpaid = orderDetailRepository.existsByOrderIdAndPaid(orderId, false);
         boolean hasUnserved = orderDetailRepository.existsByOrderIdAndStatusNot(orderId, OrderDetailStatus.SERVED);

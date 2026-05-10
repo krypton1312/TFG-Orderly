@@ -116,22 +116,40 @@ public class PartialPaymentController {
 
     public void loadData() {
         this.order = primaryController.getCurrentOrder();
-        // Filtrar ítems pagados — el modal solo trabaja con ítems pendientes de cobro
-        this.orderDetails = primaryController.getCurrentdetails().stream()
-                .filter(d -> !d.isPaid())
-                .collect(Collectors.toList());
-        System.out.println(orderDetails);
+        this.table = primaryController.getSelectedTable();
+        tableNameLabel.setText(
+                order != null ?
+                        (this.table != null ? table.getName() + " - " : "") + "Cuenta #" + order.getId()
+                        : " ");
+
+        if (order != null) {
+            // Reload from backend to guarantee fresh IDs (avoids race conditions with async adds)
+            try {
+                List<com.yebur.model.response.OrderDetailResponse> fresh =
+                        com.yebur.service.OrderDetailService.getAllOrderDetailsByOrderId(order.getId());
+                this.orderDetails = fresh.stream()
+                        .filter(d -> !d.isPaid())
+                        .collect(Collectors.toList());
+            } catch (Exception e) {
+                e.printStackTrace();
+                this.orderDetails = primaryController.getCurrentdetails().stream()
+                        .filter(d -> !d.isPaid())
+                        .collect(Collectors.toList());
+            }
+        } else {
+            // Visual-only mode (no persisted order)
+            this.orderDetails = primaryController.getCurrentdetails().stream()
+                    .filter(d -> !d.isPaid())
+                    .collect(Collectors.toList());
+        }
+
+        System.out.println("[PartialPayment] loadData orderDetails=" + orderDetails);
         // Snapshot de cantidades al abrir el modal
         originalAmounts.clear();
         this.orderDetails.forEach(d -> {
             if (d.getId() != null) originalAmounts.put(d.getId(), d.getAmount());
         });
         this.partialDetails = new ArrayList<>();
-        this.table = primaryController.getSelectedTable();
-        tableNameLabel.setText(
-                order != null ?
-                        (this.table != null ? table.getName() + " - " : "") + "Cuenta #" + order.getId()
-                        : " ");
         refreshUI();
     }
 
@@ -417,12 +435,28 @@ public class PartialPaymentController {
                 }
 
             } else {
-                // 🔹 СУЩЕСТВУЮЩИЙ ЗАКАЗ: обновляем детали и создаём новые исходя из текущего UI
+                // 🔹 EXISTING ORDER: update/delete/create based on UI state
                 persistPartialDetails();
                 // Purge processed (amount=0) items so they are not re-sent in subsequent payment rounds
                 orderDetails.removeIf(od -> od.getAmount() <= 0);
                 originalAmounts.keySet().removeIf(id ->
                         orderDetails.stream().noneMatch(od -> id.equals(od.getId())));
+
+                // Safety net: if all tracked unpaid items are gone, remove any DB orphans
+                boolean allPaid = orderDetails.stream().noneMatch(od -> od.getAmount() > 0);
+                if (allPaid && order != null) {
+                    try {
+                        List<OrderDetailResponse> orphans =
+                                OrderDetailService.getUnpaidOrderDetailsByOrderId(order.getId());
+                        System.out.println("[processPayment] orphan unpaid items in DB: " + orphans.size());
+                        for (OrderDetailResponse orphan : orphans) {
+                            System.out.println("  deleting orphan id=" + orphan.getId());
+                            OrderDetailService.deleteOrderDetail(orphan.getId());
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace(); // non-fatal
+                    }
+                }
             }
 
             if (withReceipt) {
@@ -496,38 +530,42 @@ public class PartialPaymentController {
     }
 
     private void persistPartialDetails() throws Exception {
+        List<Long> idsToDelete = new ArrayList<>();
         List<Long> idsToUpdate = new ArrayList<>();
         List<OrderDetailRequest> reqsToUpdate = new ArrayList<>();
         List<OrderDetailRequest> reqsToCreate = new ArrayList<>();
+
         for (OrderDetailResponse od : orderDetails) {
             if (od.getId() == null) {
                 continue;
             }
-
             Integer original = originalAmounts.get(od.getId());
             if (original != null && original.equals(od.getAmount())) {
-                continue; // Cantidad sin cambio → no reenviar al backend
+                continue; // No change → skip
             }
 
-            idsToUpdate.add(od.getId());
-
-            OrderDetailRequest req = new OrderDetailRequest(
-                    od.getProductId(),
-                    od.getOrderId(),
-                    od.getName(),
-                    od.getComment(),
-                    od.getAmount(),
-                    od.getUnitPrice(),
-                    od.getStatus(),
-                    od.getPaymentMethod(),
-                    od.getBatchId(),
-                    od.getCreatedAt(),
-                    StartController.getCashSession().getId(),
-                    false
-
-            );
-
-            reqsToUpdate.add(req);
+            if (od.getAmount() <= 0) {
+                // Use explicit DELETE instead of amount=0 through update-list
+                // (avoids Hibernate cascade issues in the backend)
+                idsToDelete.add(od.getId());
+            } else {
+                idsToUpdate.add(od.getId());
+                OrderDetailRequest req = new OrderDetailRequest(
+                        od.getProductId(),
+                        od.getOrderId(),
+                        od.getName(),
+                        od.getComment(),
+                        od.getAmount(),
+                        od.getUnitPrice(),
+                        od.getStatus(),
+                        od.getPaymentMethod(),
+                        od.getBatchId(),
+                        od.getCreatedAt(),
+                        StartController.getCashSession().getId(),
+                        false
+                );
+                reqsToUpdate.add(req);
+            }
         }
 
         for (OrderDetailResponse pd : partialDetails) {
@@ -542,7 +580,6 @@ public class PartialPaymentController {
 
             if (pd.getId() != null) {
                 idsToUpdate.add(pd.getId());
-
                 OrderDetailRequest req = new OrderDetailRequest(
                         productId,
                         orderId,
@@ -557,7 +594,6 @@ public class PartialPaymentController {
                         StartController.getCashSession().getId(),
                         true
                 );
-
                 reqsToUpdate.add(req);
             } else {
                 OrderDetailRequest createReq = new OrderDetailRequest(
@@ -577,9 +613,20 @@ public class PartialPaymentController {
                 reqsToCreate.add(createReq);
             }
         }
+
+        // Step 1: explicit deletes first (amount=0 items fully moved to partial)
+        System.out.println("[persistPartialDetails] deleting ids=" + idsToDelete);
+        for (Long id : idsToDelete) {
+            OrderDetailService.deleteOrderDetail(id);
+        }
+
+        // Step 2: update items with reduced (but >0) amounts
         if (!idsToUpdate.isEmpty()) {
             OrderDetailService.updateOrderDetailList(idsToUpdate, reqsToUpdate);
         }
+
+        // Step 3: create new paid items
+        System.out.println("[persistPartialDetails] creating " + reqsToCreate.size() + " paid items");
         if (!reqsToCreate.isEmpty()) {
             OrderDetailService.createOrderDetailList(reqsToCreate);
         }

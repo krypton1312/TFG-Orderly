@@ -445,16 +445,29 @@ public class PosController {
                 this.currentOverviewItem = item;
             });
 
-            // Badge PARCIAL — solo si el pedido tiene ítems PAID
+            // Badge de pago: PAGADO (todo cobrado) o PARCIAL (cobrado parcialmente)
             if (item.getOrder() != null && item.getOrder().isHasPaidItems()) {
-                Label parcialBadge = new Label("PARCIAL");
-                parcialBadge.getStyleClass().add("parcial-badge");
-                buttonNameVB.getChildren().add(parcialBadge);
-                btn.setStyle(
-                    "-fx-background-color: #f9fafb;" +
-                    "-fx-border-color: transparent transparent #15803D transparent;" +
-                    "-fx-border-width: 0 0 3 0;" +
-                    "-fx-border-radius: 0 0 8 8;");
+                boolean fullyCovered = item.getOrder().getTotal() != null
+                        && item.getOrder().getTotal().compareTo(java.math.BigDecimal.ZERO) == 0;
+                if (fullyCovered) {
+                    Label pagadoBadge = new Label("PAGADO");
+                    pagadoBadge.getStyleClass().add("pagado-badge");
+                    buttonNameVB.getChildren().add(pagadoBadge);
+                    btn.setStyle(
+                        "-fx-background-color: #f9fafb;" +
+                        "-fx-border-color: transparent transparent #15803D transparent;" +
+                        "-fx-border-width: 0 0 3 0;" +
+                        "-fx-border-radius: 0 0 8 8;");
+                } else {
+                    Label parcialBadge = new Label("PARCIAL");
+                    parcialBadge.getStyleClass().add("parcial-badge");
+                    buttonNameVB.getChildren().add(parcialBadge);
+                    btn.setStyle(
+                        "-fx-background-color: #f9fafb;" +
+                        "-fx-border-color: transparent transparent #1D4ED8 transparent;" +
+                        "-fx-border-width: 0 0 3 0;" +
+                        "-fx-border-radius: 0 0 8 8;");
+                }
             }
 
             productBox.getChildren().add(btn);
@@ -570,6 +583,7 @@ public class PosController {
                     .filter(d -> Objects.equals(d.getName(), product.getName()))
                     .filter(d -> d.getUnitPrice() != null && d.getUnitPrice().compareTo(unitPrice) == 0)
                     .filter(d -> "PENDING".equals(d.getStatus()))
+                    .filter(d -> !d.isPaid())
                     .findFirst()
                     .orElse(null);
 
@@ -582,6 +596,7 @@ public class PosController {
                 updateReq.setProductId(existingPending.getProductId());
                 updateReq.setOrderId(currentOrder.getId());
                 updateReq.setName(existingPending.getName());
+                updateReq.setComment(existingPending.getComment());
                 updateReq.setAmount(newQty);
                 updateReq.setUnitPrice(existingPending.getUnitPrice());
                 updateReq.setStatus("PENDING");
@@ -1032,7 +1047,15 @@ public class PosController {
     }
 
     private void removeSelectedDetails() {
-        List<OrderDetailResponse> selected = getSelectedDetails(currentdetails, selectedOrderDetailIndexes);
+        // Indexes stored in selectedOrderDetailIndexes always refer to positions within
+        // the unpaidItems sublist (paid rows are non-interactive and never selected).
+        // Using currentdetails directly would produce wrong offsets whenever paid items
+        // appear before unpaid ones in the list.
+        List<OrderDetailResponse> unpaidItems = currentdetails.stream()
+                .filter(d -> !d.isPaid() && d.getAmount() > 0)
+                .collect(Collectors.toList());
+
+        List<OrderDetailResponse> selected = getSelectedDetails(unpaidItems, selectedOrderDetailIndexes);
 
         if (selected.isEmpty()) {
             return;
