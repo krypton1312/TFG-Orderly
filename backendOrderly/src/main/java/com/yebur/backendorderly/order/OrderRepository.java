@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
@@ -68,5 +70,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             WHERE o.id = :id
             """)
     Optional<OrderResponse> findOrderDTOById(@Param("id") Long id);
+
+    @Query("""
+            SELECT COUNT(o)
+            FROM Order o
+            WHERE o.datetime >= :start AND o.datetime < :end
+              AND o.state = com.yebur.backendorderly.order.OrderStatus.PAID
+            """)
+    long countClosedOrdersByMonth(@Param("start") LocalDateTime start,
+                                   @Param("end") LocalDateTime end);
 
 }

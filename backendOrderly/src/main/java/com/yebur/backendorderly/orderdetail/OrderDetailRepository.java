@@ -5,9 +5,13 @@ import java.util.List;
 import java.util.Optional;
 
 import com.yebur.backendorderly.cashsessions.CashSession;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
 
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> {
@@ -61,5 +65,19 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
     AND od.paid = true
     """)
     BigDecimal getPaidSalesByCashSession(Long cashSessionId);
+
+    @Query("""
+        SELECT od.name, SUM(od.amount)
+        FROM OrderDetail od
+        WHERE od.paid = true
+          AND od.cashSession IS NOT NULL
+          AND od.cashSession.businessDate >= :start
+          AND od.cashSession.businessDate <= :end
+        GROUP BY od.name
+        ORDER BY SUM(od.amount) DESC
+        """)
+    List<Object[]> getTopProductsByMonth(@Param("start") LocalDate start,
+                                          @Param("end") LocalDate end,
+                                          Pageable pageable);
 
 }

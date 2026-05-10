@@ -31,4 +31,12 @@ public interface CashSessionRepository extends JpaRepository<CashSession, Long> 
 
     boolean existsCashSessionByStatus(CashSessionStatus status);
 
+    @Query("""
+            SELECT COALESCE(SUM(cs.totalSalesCash), 0), COALESCE(SUM(cs.totalSalesCard), 0)
+            FROM CashSession cs
+            WHERE cs.businessDate >= :start AND cs.businessDate <= :end
+              AND cs.status = com.yebur.backendorderly.cashsessions.CashSessionStatus.CLOSED
+            """)
+    Object[] getMonthlyRevenue(@Param("start") LocalDate start, @Param("end") LocalDate end);
+
 }
