@@ -37,7 +37,8 @@
                 </Button>
                 <Button text="Gestion de datos" styleClass="nav-item" onAction="#showDataView" />
                 <Button text="Cierres" styleClass="nav-item" onAction="#showShiftOperationsView"/>
-                <Button text="Analisis" styleClass="nav-item" />
+                <Button text="Analisis" styleClass="nav-item" onAction="#showAnalyticsView" />
+                <Button text="Listados" styleClass="nav-item" onAction="#showListadosView" />
             </VBox>
 
             <Pane VBox.vgrow="ALWAYS" />

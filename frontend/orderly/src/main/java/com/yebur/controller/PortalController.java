@@ -90,6 +90,22 @@ public class PortalController {
     }
 
     @FXML
+    private void showAnalyticsView(ActionEvent event) {
+        titleLabel.setText("Analisis");
+        clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
+        ((Button) event.getSource()).getStyleClass().add("nav-item-selected");
+        loadCenterContent("/com/yebur/portal/views/analytics.fxml");
+    }
+
+    @FXML
+    private void showListadosView(ActionEvent event) {
+        titleLabel.setText("Listados");
+        clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
+        ((Button) event.getSource()).getStyleClass().add("nav-item-selected");
+        loadCenterContent("/com/yebur/portal/views/listados.fxml");
+    }
+
+    @FXML
     private void showStartView(ActionEvent event) {
         titleLabel.setText("Inicio");
 
