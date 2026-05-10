@@ -106,7 +106,7 @@
                 <version>0.0.8</version>
                 <configuration>
                     <!-- главный класс JavaFX -->
-                    <mainClass>com.yebur.app.App</mainClass>
+                    <mainClass>com.yebur/com.yebur.app.App</mainClass>
                 </configuration>
             </plugin>
 
