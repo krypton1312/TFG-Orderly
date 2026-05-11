@@ -43,3 +43,18 @@
     -fx-stroke-line-cap: round;    /* закруглённые концы */
     -fx-stroke-line-join: round;   /* закруглённые стыки */
 }
+
+/* Phase 10 — D-04: disabled-card visual state.
+   Triggered automatically by JavaFX setDisable(true) on a Node with .card styleClass.
+   Both closeShiftVBox and reOpenShiftVBOX rely on this rule. */
+.card:disabled {
+    -fx-opacity: 0.4;
+    -fx-cursor: default;
+}
+
+.card:disabled:hover {
+    -fx-background-color: #ffffff;
+    -fx-effect: none;
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+}
