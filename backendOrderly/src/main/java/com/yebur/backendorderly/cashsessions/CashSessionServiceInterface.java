@@ -16,6 +16,8 @@ public interface CashSessionServiceInterface {
 
     CashSessionResponse open();
 
+    CashSessionResponse reopen();
+
     CashSessionResponse close(Long id, CashCount cashCount);
 
     CashSessionResponse update(Long id, CashSessionRequest request);

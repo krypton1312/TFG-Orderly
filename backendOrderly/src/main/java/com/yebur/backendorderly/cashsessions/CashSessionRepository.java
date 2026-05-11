@@ -31,6 +31,8 @@ public interface CashSessionRepository extends JpaRepository<CashSession, Long> 
 
     boolean existsCashSessionByStatus(CashSessionStatus status);
 
+    Optional<CashSession> findFirstByStatusOrderByIdDesc(CashSessionStatus status);
+
     @Query("""
             SELECT COALESCE(SUM(cs.totalSalesCash), 0), COALESCE(SUM(cs.totalSalesCard), 0)
             FROM CashSession cs

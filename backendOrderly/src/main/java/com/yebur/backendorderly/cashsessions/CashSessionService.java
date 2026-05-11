@@ -5,8 +5,12 @@ import com.yebur.backendorderly.cashcount.CashCountRepository;
 import com.yebur.backendorderly.cashcount.CashCountService;
 import com.yebur.backendorderly.cashoperations.CashOperationRepository;
 import com.yebur.backendorderly.orderdetail.OrderDetailRepository;
+import com.yebur.backendorderly.websocket.WsEvent;
+import com.yebur.backendorderly.websocket.WsEventType;
+import com.yebur.backendorderly.websocket.WsNotifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,13 +25,15 @@ public class CashSessionService implements CashSessionServiceInterface {
     private final CashCountService cashCountService;
     private final OrderDetailRepository orderDetailRepository;
     private final CashCountRepository cashCountRepository;
+    private final WsNotifier wsNotifier;
 
-    public CashSessionService(CashSessionRepository cashSessionRepository, CashCountService cashCountService, OrderDetailRepository orderDetailRepository, CashOperationRepository cashOperationRepository, CashCountRepository cashCountRepository) {
+    public CashSessionService(CashSessionRepository cashSessionRepository, CashCountService cashCountService, OrderDetailRepository orderDetailRepository, CashOperationRepository cashOperationRepository, CashCountRepository cashCountRepository, WsNotifier wsNotifier) {
         this.cashSessionRepository = cashSessionRepository;
         this.cashCountService = cashCountService;
         this.orderDetailRepository = orderDetailRepository;
         this.cashOperationRepository = cashOperationRepository;
         this.cashCountRepository = cashCountRepository;
+        this.wsNotifier = wsNotifier;
     }
 
     @Override
@@ -92,10 +98,27 @@ public class CashSessionService implements CashSessionServiceInterface {
 
         try {
             CashSession saved = cashSessionRepository.saveAndFlush(s);
+            wsNotifier.send(new WsEvent(WsEventType.SESSION_OPENED, null, null, null, saved.getId()));
             return CashSessionResponse.fromEntity(saved);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalStateException("Failed to open session due to concurrent request. Try again.", e);
         }
+    }
+
+    @Override
+    @Transactional
+    public CashSessionResponse reopen() {
+        if (cashSessionRepository.existsCashSessionByStatus(CashSessionStatus.OPEN)) {
+            throw new IllegalStateException("There is already an OPEN cash session.");
+        }
+        CashSession latest = cashSessionRepository
+                .findFirstByStatusOrderByIdDesc(CashSessionStatus.CLOSED)
+                .orElseThrow(() -> new RuntimeException("No CLOSED session to reopen."));
+        latest.setStatus(CashSessionStatus.OPEN);
+        latest.setClosedAt(null);
+        CashSession saved = cashSessionRepository.saveAndFlush(latest);
+        wsNotifier.send(new WsEvent(WsEventType.SESSION_OPENED, null, null, null, saved.getId()));
+        return CashSessionResponse.fromEntity(saved);
     }
 
     @Override

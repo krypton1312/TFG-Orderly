@@ -73,6 +73,19 @@ public class CashSessionController {
         }
     }
 
+    @PostMapping("/reopen")
+    public ResponseEntity<?> reopenCashSession() {
+        try {
+            return ResponseEntity.ok(cashSessionService.reopen());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Collections.singletonMap("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Collections.singletonMap("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/{id}/close")
     public ResponseEntity<?> closeCashSession(
             @PathVariable Long id,
