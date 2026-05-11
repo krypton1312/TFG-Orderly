@@ -16,12 +16,28 @@ sealed class OrdersUiState {
     data class Error(val message: String) : OrdersUiState()
 }
 
+/**
+ * Phase 10 — D-01/D-02: session lifecycle state for the tablet block-screen gate.
+ * - Loading: HTTP check in progress at startup.
+ * - Open: an OPEN cash session exists; OrdersScreen is shown.
+ * - Blocked: no OPEN session found; NoSessionScreen is shown until SESSION_OPENED WS event.
+ */
+sealed class SessionState {
+    data object Loading : SessionState()
+    data object Open : SessionState()
+    data object Blocked : SessionState()
+}
+
 class OrdersViewModel : ViewModel() {
 
     private val wsClient = OrderWebSocketClient()
 
     private val _uiState = MutableStateFlow<OrdersUiState>(OrdersUiState.Loading)
     val uiState: StateFlow<OrdersUiState> = _uiState
+
+    // Phase 10 — D-01: session gate state, starts as Loading until HTTP check completes.
+    private val _sessionState = MutableStateFlow<SessionState>(SessionState.Loading)
+    val sessionState: StateFlow<SessionState> = _sessionState
 
     var isRefreshing = MutableStateFlow(false)
         private set
@@ -32,6 +48,7 @@ class OrdersViewModel : ViewModel() {
     init {
         connectWebSocket()
         loadOrders()
+        checkOpenSession()
     }
 
     private fun connectWebSocket() {
@@ -56,8 +73,51 @@ class OrdersViewModel : ViewModel() {
                 "ORDER_TOTAL_CHANGED",
                 "ORDER_CREATED",
                 "ORDER_DELETED" -> reloadDebounced()
+
+                // Phase 10 — D-02: forward SESSION_OPENED to the one-way session transition.
+                "SESSION_OPENED" -> onSessionOpened(event.sessionId)
             }
         }
+    }
+
+    /**
+     * Phase 10 — D-01: check whether a cash session is currently OPEN at startup.
+     * Sets sessionState to Open on HTTP 200, Blocked on 404 or any network failure.
+     */
+    private fun checkOpenSession() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.instance.getOpenCashSession()
+                _sessionState.value = if (response.isSuccessful && response.body() != null) {
+                    SessionState.Open
+                } else {
+                    SessionState.Blocked
+                }
+            } catch (e: Exception) {
+                // Network failure → treat as no-session for safety
+                Log.e("OrdersViewModel", "Session check failed: ${e.message}")
+                _sessionState.value = SessionState.Blocked
+            }
+        }
+    }
+
+    /**
+     * Phase 10 — D-02: one-way transition from Blocked/Loading → Open on WS SESSION_OPENED.
+     *
+     * INVARIANT (T-10-11): this method NEVER transitions Open → Blocked from a WS event.
+     * A stale or replayed SESSION_OPENED payload must not blank the kitchen display while
+     * orders are live. The only way to reach Blocked is via the HTTP check at startup
+     * (RESEARCH.md Pitfall 2).
+     *
+     * Trusts the payload sessionId without re-fetching (RESEARCH.md Pitfall 3 — backend
+     * saveAndFlush runs before wsNotifier.send, so the row is visible once tx commits).
+     */
+    private fun onSessionOpened(sessionId: Long) {
+        if (_sessionState.value != SessionState.Open) {
+            _sessionState.value = SessionState.Open
+            loadOrders() // refresh orders list now that a session is live
+        }
+        // If already Open: ignore — transition is idempotent (T-10-14).
     }
 
     private fun reloadDebounced(delayMs: Long = 700) {

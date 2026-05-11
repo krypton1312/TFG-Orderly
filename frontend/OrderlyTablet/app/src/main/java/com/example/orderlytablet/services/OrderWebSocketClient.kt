@@ -60,7 +60,8 @@ class OrderWebSocketClient {
                     val orderId = json.optLong("orderId", -1)
                     val overviewId = json.optString("overviewId", null)
                     val ts = json.optString("ts", "")
-                    onEventReceived(WsEvent(type, orderId, overviewId, ts))
+                    val sessionId = json.optLong("sessionId", -1L) // Phase 10 — D-02: populated for SESSION_OPENED
+                    onEventReceived(WsEvent(type, orderId, overviewId, ts, sessionId))
                 } catch (e: Exception) {
                     Log.e("WebSocket", "⚠️ Parse error: ${e.message}")
                 }
@@ -95,10 +96,15 @@ class OrderWebSocketClient {
         webSocket?.close(1000, "Client disconnected")
     }
 
+    /**
+     * WS event payload. The `sessionId` field is -1L for non-session events;
+     * positive for session lifecycle events (D-02).
+     */
     data class WsEvent(
         val type: String,
         val orderId: Long,
         val overviewId: String?,
-        val ts: String
+        val ts: String,
+        val sessionId: Long = -1L
     )
 }
