@@ -740,6 +740,189 @@ public class CustomDialog {
     }
 
     /**
+     * Phase 10 — D-04: Simple info dialog (green accent).
+     * Blocks until the user dismisses it.
+     */
+    public static void showInfo(String message) {
+        Stage dialog = new Stage();
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setResizable(false);
+
+        StackPane overlay = new StackPane();
+
+        StackPane card = new StackPane();
+        card.setMaxWidth(440);
+        card.setPrefWidth(440);
+        card.setStyle("""
+            -fx-background-color: white;
+            -fx-background-radius: 18;
+            -fx-border-radius: 18;
+            -fx-border-color: #dcfce7;
+            -fx-border-width: 1;
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
+        """);
+
+        VBox content = new VBox(16);
+        content.setAlignment(Pos.TOP_CENTER);
+        content.setPadding(new Insets(28, 28, 24, 28));
+
+        Circle iconBg = new Circle(26, Color.web("#DCFCE7"));
+        Label icon = new Label("✓");
+        icon.setStyle("-fx-font-size: 18px; -fx-text-fill: #16a34a;");
+        StackPane iconHolder = new StackPane(iconBg, icon);
+        iconHolder.setMinSize(52, 52);
+        iconHolder.setMaxSize(52, 52);
+
+        Label title = new Label("Éxito");
+        title.setStyle("-fx-text-fill: #111827; -fx-font-size: 20px; -fx-font-weight: 800;");
+
+        Label messageL = new Label(message);
+        messageL.setWrapText(true);
+        messageL.setMaxWidth(380);
+        messageL.setAlignment(Pos.CENTER);
+        messageL.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 14px;");
+
+        Button okBtn = new Button("OK");
+        okBtn.setPrefHeight(42);
+        okBtn.setPrefWidth(140);
+        String btnNormal = "-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
+        String btnHover  = "-fx-background-color: #15803d; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
+        okBtn.setStyle(btnNormal);
+        okBtn.setOnMouseEntered(e -> okBtn.setStyle(btnHover));
+        okBtn.setOnMouseExited(e -> okBtn.setStyle(btnNormal));
+        okBtn.setOnAction(e -> dialog.close());
+
+        content.getChildren().addAll(iconHolder, title, messageL, okBtn);
+        card.getChildren().add(content);
+        overlay.getChildren().add(card);
+
+        Scene scene = new Scene(overlay, 440, 260);
+        scene.setFill(Color.TRANSPARENT);
+        dialog.setScene(scene);
+
+        double sw = Screen.getPrimary().getVisualBounds().getWidth();
+        double sh = Screen.getPrimary().getVisualBounds().getHeight();
+        dialog.setX(sw / 2 - 220);
+        dialog.setY(sh / 2 - 130);
+
+        card.setOpacity(0);
+        card.setTranslateY(18);
+        FadeTransition fade = new FadeTransition(Duration.millis(180), card);
+        fade.setFromValue(0);
+        fade.setToValue(1);
+        TranslateTransition slide = new TranslateTransition(Duration.millis(180), card);
+        slide.setFromY(18);
+        slide.setToY(0);
+        fade.play();
+        slide.play();
+
+        dialog.showAndWait();
+    }
+
+    /**
+     * Phase 10 — D-04: Two-button confirmation dialog.
+     * Returns true if the user clicks confirmText, false if cancelText or closes.
+     *
+     * @param title       Dialog title
+     * @param message     Dialog body text
+     * @param confirmText Label for the confirm/affirmative button
+     * @param cancelText  Label for the cancel button
+     */
+    public static boolean showConfirm(String title, String message, String confirmText, String cancelText) {
+        AtomicBoolean result = new AtomicBoolean(false);
+
+        Stage dialog = new Stage();
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setResizable(false);
+
+        StackPane overlay = new StackPane();
+
+        StackPane card = new StackPane();
+        card.setMaxWidth(480);
+        card.setPrefWidth(480);
+        card.setStyle("""
+            -fx-background-color: white;
+            -fx-background-radius: 18;
+            -fx-border-radius: 18;
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
+        """);
+
+        VBox content = new VBox(18);
+        content.setAlignment(Pos.TOP_CENTER);
+        content.setPadding(new Insets(28, 28, 24, 28));
+
+        Circle iconBg = new Circle(26, Color.web("#FFF4E6"));
+        Label iconL = new Label("↪");
+        iconL.setStyle("-fx-font-size: 18px; -fx-text-fill: #f97316;");
+        StackPane iconHolder = new StackPane(iconBg, iconL);
+        iconHolder.setMinSize(52, 52);
+        iconHolder.setMaxSize(52, 52);
+
+        Label titleL = new Label(title);
+        titleL.setStyle("-fx-text-fill: #111827; -fx-font-size: 20px; -fx-font-weight: 800;");
+
+        Label messageL = new Label(message);
+        messageL.setWrapText(true);
+        messageL.setMaxWidth(400);
+        messageL.setAlignment(Pos.CENTER);
+        messageL.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 14px;");
+
+        Button confirmBtn = new Button(confirmText);
+        confirmBtn.setPrefHeight(42);
+        confirmBtn.setPrefWidth(160);
+        String confirmNormal = "-fx-background-color: #f97316; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
+        String confirmHover  = "-fx-background-color: #ea6c08; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
+        confirmBtn.setStyle(confirmNormal);
+        confirmBtn.setOnMouseEntered(e -> confirmBtn.setStyle(confirmHover));
+        confirmBtn.setOnMouseExited(e -> confirmBtn.setStyle(confirmNormal));
+        confirmBtn.setOnAction(e -> { result.set(true); dialog.close(); });
+
+        Button cancelBtn = new Button(cancelText);
+        cancelBtn.setPrefHeight(42);
+        cancelBtn.setPrefWidth(140);
+        String cancelNormal = "-fx-background-color: white; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #d1d5db; -fx-border-width: 1; -fx-cursor: hand; -fx-font-size: 13px;";
+        String cancelHover  = "-fx-background-color: #f9fafb; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #9ca3af; -fx-border-width: 1; -fx-cursor: hand; -fx-font-size: 13px;";
+        cancelBtn.setStyle(cancelNormal);
+        cancelBtn.setOnMouseEntered(e -> cancelBtn.setStyle(cancelHover));
+        cancelBtn.setOnMouseExited(e -> cancelBtn.setStyle(cancelNormal));
+        cancelBtn.setOnAction(e -> { result.set(false); dialog.close(); });
+
+        HBox buttons = new HBox(12, confirmBtn, cancelBtn);
+        buttons.setAlignment(Pos.CENTER);
+        buttons.setPadding(new Insets(10, 0, 0, 0));
+
+        content.getChildren().addAll(iconHolder, titleL, messageL, buttons);
+        card.getChildren().add(content);
+        overlay.getChildren().add(card);
+
+        Scene scene = new Scene(overlay, 480, 280);
+        scene.setFill(Color.TRANSPARENT);
+        dialog.setScene(scene);
+
+        double sw = Screen.getPrimary().getVisualBounds().getWidth();
+        double sh = Screen.getPrimary().getVisualBounds().getHeight();
+        dialog.setX(sw / 2 - 240);
+        dialog.setY(sh / 2 - 140);
+
+        card.setOpacity(0);
+        card.setTranslateY(18);
+        FadeTransition fade = new FadeTransition(Duration.millis(180), card);
+        fade.setFromValue(0);
+        fade.setToValue(1);
+        TranslateTransition slide = new TranslateTransition(Duration.millis(180), card);
+        slide.setFromY(18);
+        slide.setToY(0);
+        fade.play();
+        slide.play();
+
+        dialog.showAndWait();
+
+        return result.get();
+    }
+
+    /**
      * Confirmation dialog before saving arqueo / closing shift.
      * Dims the owner scene in-place, shows a card with Guardar/Cancelar buttons.
      * onConfirm runs if user confirms, onCancel runs if user cancels/closes.
