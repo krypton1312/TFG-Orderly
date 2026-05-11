@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Wifi
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +42,8 @@ fun HomeScreen(
 ) {
     val state by vm.state.collectAsState()
     val shiftLoading by vm.shiftLoading.collectAsState()
+    val cashSessionId by vm.cashSessionId.collectAsStateWithLifecycle()
+    val hasSession = cashSessionId != null
 
     LaunchedEffect(Unit) {
         vm.loadEmployeeData()
@@ -109,6 +113,7 @@ fun HomeScreen(
                     online = true,
                     activeTables = response.availableTables,
                     occupiedTables = response.occupiedTables,
+                    hasSession = hasSession,
                     onOrders = onOrders,
                     onNewOrder = onNewOrder,
                     onShiftToggle = { if (isClockedIn) vm.clockOut() else vm.clockIn() },
@@ -130,6 +135,7 @@ private fun HomeContent(
     online: Boolean,
     activeTables: Int,
     occupiedTables: Int,
+    hasSession: Boolean,
     onOrders: () -> Unit,
     onNewOrder: () -> Unit,
     onShiftToggle: () -> Unit,
@@ -166,7 +172,38 @@ private fun HomeContent(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                NewOrderButton(onClick = onNewOrder)
+                if (!hasSession) {
+                    Surface(
+                        color = Color(0x59_1B_1B_1B), // #1B1B1B α=0.35 — UI-SPEC.md §Color
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .testTag("home-no-session-banner")
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Info,
+                                contentDescription = null,
+                                tint = Color(0xFFFF8A3D), // phone accent orange — UI-SPEC.md
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(Modifier.width(10.dp))
+                            Text(
+                                text = "No hay turno abierto. Contacta con el encargado.",
+                                color = Color.White.copy(alpha = 0.85f),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(16.dp))
+                }
+
+                NewOrderButton(onClick = onNewOrder, enabled = hasSession)
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -302,7 +339,8 @@ private fun ShiftStatusBadge(isClockedIn: Boolean, startTime: LocalDateTime?) {
 
 @Composable
 fun NewOrderButton(
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    enabled: Boolean = true
 ) {
     val orange = Color(0xFFFF8A3D)
 
@@ -312,6 +350,7 @@ fun NewOrderButton(
     ) {
         Button(
             onClick = onClick,
+            enabled = enabled,
             modifier = Modifier
                 .testTag("home-new-order")
                 .fillMaxWidth()
