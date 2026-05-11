@@ -1,5 +1,7 @@
 package com.yebur.controller;
 
+import com.yebur.model.response.ApiException;
+import com.yebur.model.response.CashSessionResponse;
 import com.yebur.service.CashSessionService;
 import com.yebur.ui.CustomDialog;
 import javafx.animation.FadeTransition;
@@ -17,6 +19,7 @@ import java.io.IOException;
 public class ShiftOperationsController {
 
     @FXML private VBox closeShiftVBox;
+    @FXML private VBox reOpenShiftVBOX;
     @FXML private VBox root;
     private AnchorPane parentPane;
 
@@ -28,6 +31,64 @@ public class ShiftOperationsController {
                 parentPane = anchorPane;
             }
         });
+        refreshButtonState();
+    }
+
+    /**
+     * Phase 10 — D-04: toggle disabled state on both cards based on current
+     * session status. Called from initialize() and after every reopen attempt.
+     */
+    private void refreshButtonState() {
+        boolean hasOpen = false;
+        try {
+            CashSessionResponse session = CashSessionService.findCashSessionByStatus("OPEN");
+            hasOpen = session != null;
+        } catch (Exception ignored) {
+            // No OPEN session (404) or transient network failure — treat as "no open" so
+            // Reabrir is offered. The backend reopen endpoint is itself guarded against
+            // concurrent OPEN, so a stale "no open" UI cannot create two OPEN sessions.
+            hasOpen = false;
+        }
+        closeShiftVBox.setDisable(!hasOpen);
+        reOpenShiftVBOX.setDisable(hasOpen);
+    }
+
+    /**
+     * Phase 10 — D-04 + D-05 client side. Shows a confirm modal, then calls the
+     * backend reopen endpoint. Refreshes button state on success and on either
+     * error path (409 already-open / generic).
+     */
+    @FXML
+    public void onReopenShift(MouseEvent event) {
+        // Step 1: confirmation modal
+        boolean confirmed = CustomDialog.showConfirm(
+                "Confirmar reapertura",
+                "¿Reabrir el último turno cerrado?",
+                "Reabrir",
+                "Cancelar"
+        );
+        if (!confirmed) {
+            return;
+        }
+
+        // Step 2: prevent double-click while request is in flight (T-10-16)
+        reOpenShiftVBOX.setDisable(true);
+        closeShiftVBox.setDisable(true);
+
+        // Step 3: call backend
+        try {
+            CashSessionService.reopenCashSession();
+            CustomDialog.showInfo("Turno reabierto correctamente.");
+        } catch (Exception e) {
+            if (e instanceof ApiException apiEx && apiEx.getStatusCode() == 409) {
+                CustomDialog.showError("Ya hay un turno abierto. Ciérralo antes de reabrir otro.");
+            } else {
+                CustomDialog.showError("No se pudo reabrir el turno. Inténtalo de nuevo.");
+            }
+        } finally {
+            // Step 4: resync (sets the correct card disabled based on the new state)
+            refreshButtonState();
+        }
     }
 
     public void showShiftOperationView(MouseEvent mouseEvent) {

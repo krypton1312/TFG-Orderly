@@ -61,4 +61,14 @@ public class CashSessionService {
         String jsonResponse = ApiClient.post("/cashSession/" + id + "/close", jsonInput);
         return mapper.readValue(jsonResponse, CashSessionResponse.class);
     }
+
+    /**
+     * Phase 10 — D-05 client side. Reopens the most recent CLOSED cash session.
+     * Throws ApiException on non-2xx responses; controller catches and inspects
+     * getStatusCode() == 409 for the already-open guard path.
+     */
+    public static CashSessionResponse reopenCashSession() throws Exception {
+        String json = ApiClient.post("/cashSession/reopen");
+        return mapper.readValue(json, CashSessionResponse.class);
+    }
 }
