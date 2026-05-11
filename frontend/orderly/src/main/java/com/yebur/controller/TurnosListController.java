@@ -57,6 +57,9 @@ public class TurnosListController {
             });
         });
 
+        com.yebur.ui.DatePickerStyler.apply(fromDatePicker);
+        com.yebur.ui.DatePickerStyler.apply(toDatePicker);
+
         idCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
                 String.valueOf(c.getValue().getId())));
         dateCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(

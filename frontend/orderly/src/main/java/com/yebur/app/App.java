@@ -1,6 +1,7 @@
 package com.yebur.app;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import com.yebur.model.response.ApiException;
 import com.yebur.service.AuthService;
@@ -60,6 +61,7 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
+        Locale.setDefault(new Locale("es", "ES"));
         launch();
     }
     

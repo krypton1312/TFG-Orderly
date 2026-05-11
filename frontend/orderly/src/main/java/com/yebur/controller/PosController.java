@@ -949,6 +949,12 @@ public class PosController {
         if (orderVboxItems.getChildren().isEmpty() && !hasActiveOrder()) {
             return;
         }
+        boolean hasPaidItems = currentdetails != null &&
+                currentdetails.stream().anyMatch(d -> d.isPaid());
+        if (hasPaidItems) {
+            CustomDialog.showError("No se puede eliminar un pedido con productos ya pagados");
+            return;
+        }
         orderVboxItems.getChildren().clear();
         visualDetails.clear();
         currentdetails.clear();

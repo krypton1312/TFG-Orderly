@@ -33,11 +33,7 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<List<OrderResponse>> getAllOrders() {
-        try {
-            return ResponseEntity.ok(orderService.findAllOrderDTO());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        return ResponseEntity.ok(orderService.findAllOrderDTO());
     }
 
     @GetMapping("{id}/details")
@@ -98,6 +94,8 @@ public class OrderController {
             }
             orderService.deleteOrder(id);
             return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

@@ -65,6 +65,9 @@ public class PedidosListController {
         metodoPicker.setItems(FXCollections.observableArrayList("Todos", "Efectivo", "Tarjeta"));
         metodoPicker.setValue("Todos");
 
+        com.yebur.ui.DatePickerStyler.apply(fromDatePicker);
+        com.yebur.ui.DatePickerStyler.apply(toDatePicker);
+
         empleadoPicker.setItems(employeeNames);
         empleadoPicker.setValue("Todos");
 

@@ -30,6 +30,7 @@ public class OrderService implements OrderServiceInterface {
     private final WsNotifier wsNotifier;
 
     @Override
+    @Transactional(readOnly = true)
     public List<OrderResponse> findAllOrderDTO() {
         return orderRepository.findAllOrderDTO().stream()
                 .map(this::mapWithTable)
@@ -49,6 +50,7 @@ public class OrderService implements OrderServiceInterface {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<OrderResponse> findOrderDTOById(Long id) {
         return orderRepository.findOrderDTOById(id)
                 .map(this::mapWithTable);
@@ -124,43 +126,22 @@ public class OrderService implements OrderServiceInterface {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id " + id));
 
-        // Проверяем, есть ли оплаченные детали
         boolean hasPaidDetails = order.getOrderDetails().stream()
                 .anyMatch(detail -> detail.isPaid());
 
-        if (!hasPaidDetails) {
-            // Если оплаченных деталей нет, удаляем весь заказ целиком.
-            // CascadeType.ALL + orphanRemoval обеспечат удаление всех OrderDetail в БД перед удалением Order.
-            orderRepository.delete(order);
-
-            if (order.getRestTable() != null) {
-                RestTable table = order.getRestTable();
-                table.setStatus(TableStatus.AVAILABLE);
-                restTableRepository.save(table);
-            }
-
-            notifyOrderChanged(WsEventType.ORDER_DELETED, order);
-        } else {
-            // Если есть оплаченные детали, удаляем только неоплаченные.
-            order.getOrderDetails().removeIf(detail -> !detail.isPaid());
-
-            BigDecimal newTotal = order.getOrderDetails().stream()
-                    .map(od -> od.getUnitPrice().multiply(BigDecimal.valueOf(od.getAmount())))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add)
-                    .setScale(2, RoundingMode.HALF_UP);
-
-            order.setTotal(newTotal);
-            order.setState(OrderStatus.PAID);
-
-            if (order.getRestTable() != null) {
-                RestTable table = order.getRestTable();
-                table.setStatus(TableStatus.AVAILABLE);
-                restTableRepository.save(table);
-            }
-
-            orderRepository.save(order);
-            notifyOrderChanged(WsEventType.ORDER_TOTAL_CHANGED, order);
+        if (hasPaidDetails) {
+            throw new IllegalStateException("No se puede eliminar un pedido con productos ya pagados");
         }
+
+        orderRepository.delete(order);
+
+        if (order.getRestTable() != null) {
+            RestTable table = order.getRestTable();
+            table.setStatus(TableStatus.AVAILABLE);
+            restTableRepository.save(table);
+        }
+
+        notifyOrderChanged(WsEventType.ORDER_DELETED, order);
     }
 
     private OrderResponse mapWithTable(OrderResponse order) {

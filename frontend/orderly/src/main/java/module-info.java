@@ -33,5 +33,6 @@ module com.yebur {
     exports com.yebur.app;
     exports com.yebur.controller;
     exports com.yebur.model.response;
+    exports com.yebur.ui;
     exports com.yebur.model.request;
 }
