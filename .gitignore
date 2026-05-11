@@ -7,5 +7,7 @@
 
 **/target/
 
-.planning/
 backendOrderly/.env
+
+# GSD planning directory
+.planning/
