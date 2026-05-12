@@ -43,10 +43,13 @@ public class ShiftOperationsController {
         try {
             CashSessionResponse session = CashSessionService.findCashSessionByStatus("OPEN");
             hasOpen = session != null;
-        } catch (Exception ignored) {
-            // No OPEN session (404) or transient network failure — treat as "no open" so
-            // Reabrir is offered. The backend reopen endpoint is itself guarded against
-            // concurrent OPEN, so a stale "no open" UI cannot create two OPEN sessions.
+        } catch (ApiException e) {
+            if (e.getStatusCode() != 404) {
+                System.err.println("[ShiftOps] refreshButtonState failed: HTTP " + e.getStatusCode() + ": " + e.getMessage());
+            }
+            hasOpen = false;
+        } catch (Exception e) {
+            System.err.println("[ShiftOps] refreshButtonState failed: " + e.getClass().getSimpleName() + ": " + e.getMessage());
             hasOpen = false;
         }
         closeShiftVBox.setDisable(!hasOpen);

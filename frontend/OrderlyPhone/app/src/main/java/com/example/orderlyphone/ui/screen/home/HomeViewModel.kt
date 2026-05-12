@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.orderlyphone.data.local.CashSessionStore
 import com.example.orderlyphone.data.remote.OverviewApi
 import com.example.orderlyphone.data.remote.ShiftRecordApi
+import com.example.orderlyphone.data.remote.websocket.OrderWebSocketClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,7 +19,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val overviewApi: OverviewApi,
     private val cashSessionStore: CashSessionStore,
-    private val shiftRecordApi: ShiftRecordApi
+    private val shiftRecordApi: ShiftRecordApi,
+    private val orderWebSocketClient: OrderWebSocketClient
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<HomeState>(HomeState.Idle)
@@ -38,6 +40,25 @@ class HomeViewModel @Inject constructor(
             started = SharingStarted.Eagerly,
             initialValue = null
         )
+
+    init {
+        // Phase 10 (D-02): listen for SESSION_OPENED so the banner disappears
+        // and the "Nuevo pedido" button re-enables without requiring a re-login.
+        viewModelScope.launch {
+            orderWebSocketClient.events.collect { event ->
+                when (event.type) {
+                    "SESSION_OPENED" -> if (event.sessionId != null) {
+                        Log.d("HomeViewModel", "SESSION_OPENED sessionId=${event.sessionId}")
+                        cashSessionStore.saveCashSessionId(event.sessionId)
+                    }
+                    "SESSION_CLOSED" -> {
+                        Log.d("HomeViewModel", "SESSION_CLOSED — clearing session gate")
+                        cashSessionStore.clear()
+                    }
+                }
+            }
+        }
+    }
 
     fun loadEmployeeData() {
         viewModelScope.launch {

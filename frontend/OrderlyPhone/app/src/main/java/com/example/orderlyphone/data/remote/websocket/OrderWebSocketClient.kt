@@ -36,7 +36,7 @@ class OrderWebSocketClient @Inject constructor() {
     private var intentionalDisconnect = false
     private var reconnectDelayMs = 1_000L
 
-    private val _events = MutableSharedFlow<WsEvent>(extraBufferCapacity = 16)
+    private val _events = MutableSharedFlow<WsEvent>(replay = 1, extraBufferCapacity = 16)
     val events: SharedFlow<WsEvent> = _events.asSharedFlow()
 
     fun connect() {
@@ -63,7 +63,9 @@ class OrderWebSocketClient @Inject constructor() {
                         orderId    = json.optLong("orderId", -1),
                         overviewId = if (json.isNull("overviewId")) null
                                      else json.optString("overviewId"),
-                        ts         = json.optString("ts", "")
+                        ts         = json.optString("ts", ""),
+                        sessionId  = if (json.isNull("sessionId")) null
+                                     else json.optLong("sessionId")
                     )
                     scope.launch { _events.emit(event) }
                 } catch (e: Exception) {
@@ -103,6 +105,7 @@ class OrderWebSocketClient @Inject constructor() {
         val type: String,
         val orderId: Long,
         val overviewId: String?,
-        val ts: String
+        val ts: String,
+        val sessionId: Long? = null
     )
 }

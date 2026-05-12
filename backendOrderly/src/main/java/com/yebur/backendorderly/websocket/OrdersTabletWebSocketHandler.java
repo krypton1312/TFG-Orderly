@@ -30,17 +30,22 @@ public class OrdersTabletWebSocketHandler extends TextWebSocketHandler {
     }
 
     public void broadcast(Object messageObject) {
+        String json;
         try {
-            String json = mapper.writeValueAsString(messageObject);
-            synchronized (sessions) {
-                for (WebSocketSession session : sessions) {
-                    if (session.isOpen()) {
-                        session.sendMessage(new TextMessage(json));
-                    }
+            json = mapper.writeValueAsString(messageObject);
+        } catch (Exception e) {
+            System.err.println("[WS] Failed to serialize event: " + e.getMessage());
+            return;
+        }
+        synchronized (sessions) {
+            for (WebSocketSession session : sessions) {
+                if (!session.isOpen()) continue;
+                try {
+                    session.sendMessage(new TextMessage(json));
+                } catch (Exception e) {
+                    System.err.println("[WS] Failed to send to session " + session.getId() + ": " + e.getMessage());
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }

@@ -165,7 +165,7 @@ private fun HomeContent(
                     online = online
                 )
 
-                InfoCard(activeTables = activeTables, occupiedTables = occupiedTables, onClick = onNewOrder)
+                InfoCard(activeTables = activeTables, occupiedTables = occupiedTables, onClick = { if (hasSession) onNewOrder() })
             }
 
             Column(

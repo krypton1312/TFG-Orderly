@@ -86,7 +86,7 @@ public class CashCountService implements CashCountServiceInterface{
     @Override
     public BigDecimal getLastCashCountTotal() {
         CashCount cc = cashCountRepository
-                .findFirstByOrderByCreatedAtDesc()
+                .findFirstBySessionIsNotNullOrderByCreatedAtDesc()
                 .orElseThrow(() -> new IllegalStateException("No CashCount found"));
 
         return getTotal(cc);

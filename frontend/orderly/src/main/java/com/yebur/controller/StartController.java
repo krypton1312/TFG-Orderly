@@ -1,6 +1,7 @@
 package com.yebur.controller;
 
 import com.yebur.app.App;
+import com.yebur.model.response.ApiException;
 import com.yebur.model.response.CashSessionResponse;
 import com.yebur.model.response.MonthlySummaryResponse;
 import com.yebur.service.AnalyticsService;
@@ -100,9 +101,17 @@ public class StartController {
             // если null (на всякий) — считаем что нет открытого
             showOpenNewTurnModal();
 
+        } catch (ApiException e) {
+            if (e.getStatusCode() == 404) {
+                // 404 = no hay turno abierto — flujo normal
+                showOpenNewTurnModal();
+            } else {
+                System.err.println("[StartCtrl] openPOS check failed: " + e.getStatusCode() + " " + e.getMessage());
+                CustomDialog.showError("No se pudo verificar el estado del turno. Comprueba la conexión con el servidor.");
+            }
         } catch (Exception e) {
-            // нет открытого turno / ошибка поиска -> предлагаем открыть новый
-            showOpenNewTurnModal();
+            System.err.println("[StartCtrl] openPOS check failed: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+            CustomDialog.showError("No se pudo verificar el estado del turno. Comprueba la conexión con el servidor.");
         }
     }
 

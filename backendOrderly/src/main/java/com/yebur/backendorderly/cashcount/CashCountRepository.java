@@ -24,6 +24,8 @@ public interface CashCountRepository extends JpaRepository<CashCount, Long> {
 
     Optional<CashCount> findFirstByOrderByCreatedAtDesc();
 
+    Optional<CashCount> findFirstBySessionIsNotNullOrderByCreatedAtDesc();
+
     Optional<CashCount> findFirstBySession_Id(Long sessionId);
 
     Optional<CashCount> findFirstBySessionIsNullOrderByCreatedAtDesc();

@@ -49,17 +49,9 @@ public class CashSessionResponse {
     }
 
     public String getStatusString(CashSessionStatus status){
-        switch (status){
-            case OPEN -> {
-                return "Abierto";
-            }
-            case CLOSED -> {
-                return "Cerrado";
-            }
-            default -> {
-                return "N/A";
-            }
-        }
+        if (status == CashSessionStatus.OPEN) return "Abierto";
+        if (status == CashSessionStatus.CLOSED) return "Cerrado";
+        return "N/A";
     }
 
     public static CashSessionResponse fromEntity(CashSession s) {

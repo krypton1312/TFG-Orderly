@@ -76,6 +76,9 @@ class OrdersViewModel : ViewModel() {
 
                 // Phase 10 — D-02: forward SESSION_OPENED to the one-way session transition.
                 "SESSION_OPENED" -> onSessionOpened(event.sessionId)
+
+                // Phase 10 — D-02: forward SESSION_CLOSED → block kitchen display.
+                "SESSION_CLOSED" -> onSessionClosed()
             }
         }
     }
@@ -118,6 +121,14 @@ class OrdersViewModel : ViewModel() {
             loadOrders() // refresh orders list now that a session is live
         }
         // If already Open: ignore — transition is idempotent (T-10-14).
+    }
+
+    /**
+     * Phase 10 — D-02: one-way transition Open → Blocked on WS SESSION_CLOSED.
+     * Clears the orders list so the kitchen display goes blank alongside the gate screen.
+     */
+    private fun onSessionClosed() {
+        _sessionState.value = SessionState.Blocked
     }
 
     private fun reloadDebounced(delayMs: Long = 700) {

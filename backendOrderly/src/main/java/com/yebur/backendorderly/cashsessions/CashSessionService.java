@@ -11,6 +11,8 @@ import com.yebur.backendorderly.websocket.WsNotifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -63,10 +65,12 @@ public class CashSessionService implements CashSessionServiceInterface {
 
     @Override
     public Optional<CashSessionResponse> findCashSessionDTOByStatus(CashSessionStatus status){
-        return cashSessionRepository.findCashSessionDTOByStatus(status);
+        return cashSessionRepository.findFirstByStatusOrderByIdDesc(status)
+                .map(CashSessionResponse::fromEntity);
     }
 
     @Override
+    @Transactional
     public CashSessionResponse open() {
         BigDecimal cashStart = BigDecimal.ZERO;
         try {
@@ -78,9 +82,9 @@ public class CashSessionService implements CashSessionServiceInterface {
         LocalDateTime now = LocalDateTime.now();
         LocalDate businessDate = now.toLocalDate();
 
-        boolean openExists = cashSessionRepository.existsByBusinessDateAndStatus(businessDate, CashSessionStatus.OPEN);
+        boolean openExists = cashSessionRepository.existsCashSessionByStatus(CashSessionStatus.OPEN);
         if (openExists) {
-            throw new IllegalStateException("There is already an OPEN cash session for " + businessDate);
+            throw new IllegalStateException("There is already an OPEN cash session.");
         }
 
         int nextShiftNo = cashSessionRepository.maxShiftNoByBusinessDate(businessDate) + 1;
@@ -98,7 +102,13 @@ public class CashSessionService implements CashSessionServiceInterface {
 
         try {
             CashSession saved = cashSessionRepository.saveAndFlush(s);
-            wsNotifier.send(new WsEvent(WsEventType.SESSION_OPENED, null, null, null, saved.getId()));
+            final Long sessionId = saved.getId();
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    wsNotifier.send(new WsEvent(WsEventType.SESSION_OPENED, null, null, null, sessionId));
+                }
+            });
             return CashSessionResponse.fromEntity(saved);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalStateException("Failed to open session due to concurrent request. Try again.", e);
@@ -117,7 +127,13 @@ public class CashSessionService implements CashSessionServiceInterface {
         latest.setStatus(CashSessionStatus.OPEN);
         latest.setClosedAt(null);
         CashSession saved = cashSessionRepository.saveAndFlush(latest);
-        wsNotifier.send(new WsEvent(WsEventType.SESSION_OPENED, null, null, null, saved.getId()));
+        final Long sessionId = saved.getId();
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                wsNotifier.send(new WsEvent(WsEventType.SESSION_OPENED, null, null, null, sessionId));
+            }
+        });
         return CashSessionResponse.fromEntity(saved);
     }
 
@@ -153,6 +169,8 @@ public class CashSessionService implements CashSessionServiceInterface {
         cs.setDifference(difference);
 
         cashSessionRepository.save(cs);
+
+        wsNotifier.send(new WsEvent(WsEventType.SESSION_CLOSED, null, null, null, cs.getId()));
 
         cashCountRepository.findFirstBySession_Id(cs.getId()).ifPresentOrElse(
             existing -> {
