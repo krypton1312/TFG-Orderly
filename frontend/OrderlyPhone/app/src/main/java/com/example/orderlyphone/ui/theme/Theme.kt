@@ -33,13 +33,24 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+enum class ThemePreference {
+    SYSTEM,
+    LIGHT,
+    DARK
+}
+
 @Composable
 fun OrderlyPhoneTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    themePreference: ThemePreference = ThemePreference.SYSTEM,
     content: @Composable () -> Unit
 ) {
+    val darkTheme = when (themePreference) {
+        ThemePreference.DARK -> true
+        ThemePreference.LIGHT -> false
+        ThemePreference.SYSTEM -> isSystemInDarkTheme()
+    }
+    val dynamicColor = false  // Disabled — we use our own color scheme
+
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
