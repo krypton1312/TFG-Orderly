@@ -15,7 +15,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Component
 public class OrdersTabletWebSocketHandler extends TextWebSocketHandler {
     private final Set<WebSocketSession> sessions = Collections.synchronizedSet(new HashSet<>());
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper;
+
+    public OrdersTabletWebSocketHandler(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
