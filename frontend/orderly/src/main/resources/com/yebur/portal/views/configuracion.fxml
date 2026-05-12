@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.yebur.controller.ConfiguracionController"
+      fx:id="rootVbox"
+      styleClass="content-area"
+      spacing="24"
+      stylesheets="@configuracion.css">
+
+    <HBox alignment="CENTER_LEFT">
+        <Label text="Configuración" styleClass="main-title" />
+    </HBox>
+
+    <ScrollPane fitToWidth="true" styleClass="report-scroll" VBox.vgrow="ALWAYS">
+        <VBox styleClass="modal-body" spacing="24" style="-fx-padding: 4 0 0 0;">
+
+            <!-- SECTION 1: Apariencia -->
+            <VBox styleClass="config-section" spacing="16">
+                <Label text="APARIENCIA" styleClass="section-title" />
+                <HBox spacing="16" alignment="CENTER_LEFT">
+                    <ToggleGroup fx:id="themeGroup" />
+                    <RadioButton fx:id="lightThemeRadio" text="Claro"
+                                 toggleGroup="$themeGroup" />
+                    <RadioButton fx:id="darkThemeRadio" text="Oscuro"
+                                 toggleGroup="$themeGroup" />
+                </HBox>
+            </VBox>
+
+            <Separator styleClass="config-separator" />
+
+            <!-- SECTION 2: SMTP -->
+            <VBox styleClass="config-section" spacing="16">
+                <Label text="CORREO ELECTRÓNICO (SMTP)" styleClass="section-title" />
+                <GridPane hgap="16" vgap="12">
+                    <columnConstraints>
+                        <ColumnConstraints prefWidth="140" halignment="RIGHT" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                    </columnConstraints>
+
+                    <Label text="Servidor SMTP" styleClass="config-form-label"
+                           GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="smtpHostField" styleClass="config-textfield"
+                               GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                    <Label text="Puerto" styleClass="config-form-label"
+                           GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="smtpPortField" styleClass="config-textfield"
+                               GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                    <Label text="Usuario" styleClass="config-form-label"
+                           GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="smtpUserField" styleClass="config-textfield"
+                               GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                    <Label text="Contraseña" styleClass="config-form-label"
+                           GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <PasswordField fx:id="smtpPassField" styleClass="config-textfield"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                    <Label text="Correo receptor" styleClass="config-form-label"
+                           GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <TextField fx:id="smtpReceiverField" styleClass="config-textfield"
+                               GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                    <Label text="Usar TLS" styleClass="config-form-label"
+                           GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <CheckBox fx:id="smtpTlsCheck"
+                              GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                </GridPane>
+
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Button fx:id="testSmtpBtn" text="Probar conexión"
+                            styleClass="config-secondary-btn"
+                            onAction="#handleTestSmtp" />
+                    <Label fx:id="smtpStatusLabel" text="" styleClass="smtp-status-idle" />
+                </HBox>
+            </VBox>
+
+            <Separator styleClass="config-separator" />
+
+            <!-- SECTION 3: Impresora -->
+            <VBox styleClass="config-section" spacing="16">
+                <Label text="IMPRESORA" styleClass="section-title" />
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="printerCombo" styleClass="config-combobox"
+                              minWidth="280" promptText="Sin impresora seleccionada" />
+                    <Button fx:id="refreshPrintersBtn" text="Actualizar lista"
+                            styleClass="config-secondary-btn"
+                            onAction="#handleRefreshPrinters" />
+                </HBox>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+
+    <!-- Save bar — outside ScrollPane, always visible -->
+    <HBox alignment="CENTER_RIGHT" spacing="12" style="-fx-padding: 8 0 0 0;">
+        <Label fx:id="saveStatusLabel" text="" styleClass="smtp-status-idle" />
+        <Button fx:id="saveBtn" text="Guardar cambios"
+                styleClass="config-save-btn"
+                onAction="#handleSave" />
+    </HBox>
+
+</VBox>

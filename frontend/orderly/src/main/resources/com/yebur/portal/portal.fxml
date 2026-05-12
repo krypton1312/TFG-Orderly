@@ -44,7 +44,7 @@
             <Pane VBox.vgrow="ALWAYS" />
 
             <VBox fx:id="bottomButtons" alignment="BOTTOM_LEFT" spacing="10" styleClass="bottom-section">
-                <Button text="Configuracion" styleClass="nav-item" />
+                <Button text="Configuracion" styleClass="nav-item" onAction="#showConfiguracionView" />
                 <Button text="Salir" onAction="#handleCloseButton">
                     <styleClass>
                         <String fx:value="button" />
