@@ -32,6 +32,8 @@ import com.example.orderlyphone.ui.screen.productConfigurator.ProductConfigurato
 import com.example.orderlyphone.ui.screen.productConfigurator.ProductConfiguratorViewModel
 import com.example.orderlyphone.ui.screen.products.ProductsScreen
 import com.example.orderlyphone.ui.screen.products.ProductsViewModel
+import com.example.orderlyphone.ui.screen.settings.SettingsScreen
+import com.example.orderlyphone.ui.screen.settings.SettingsViewModel
 import com.example.orderlyphone.ui.screen.tablePicker.TablePickerScreen
 import com.example.orderlyphone.ui.screen.tablePicker.TablePickerViewModel
 import java.math.BigDecimal
@@ -51,6 +53,7 @@ private const val NewOrderGraphRoute = "order_flow/new/{tableRef}"
 private const val NewProductsRoute = "products/new/{tableRef}"
 private const val NewConfiguratorRoute = "product_configurator/new/{tableRef}/{categoryId}/{productId}"
 private const val NewReviewRoute = "review/new/{tableRef}"
+private const val SettingsRoute = "settings"
 private const val SnackbarMessageKey = "snackbar_message"
 
 private fun toTableRef(tableId: Long?) = tableId?.toString() ?: NoTableRouteValue
@@ -125,7 +128,7 @@ fun AppNav(webSocketClient: OrderWebSocketClient) {
                 vm = vm,
                 onOrders = { navController.navigate(OrdersRoute) },
                 onNewOrder = { navController.navigate(TablePickerRoute) },
-                onSettings = { },
+                onSettings = { navController.navigate(SettingsRoute) },
                 onLogout = {
                     webSocketClient.disconnect()
                     loginVm.logout()
@@ -253,6 +256,14 @@ fun AppNav(webSocketClient: OrderWebSocketClient) {
                     orderVm.addConfiguredDraft(line)
                     navController.popBackStack()
                 }
+            )
+        }
+
+        composable(SettingsRoute) {
+            val vm: SettingsViewModel = hiltViewModel()
+            SettingsScreen(
+                vm = vm,
+                onBack = { navController.popBackStack() }
             )
         }
 
