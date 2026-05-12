@@ -1,0 +1,282 @@
+/* ================================================================
+   portal-dark.css — Dark Theme Override
+   Phase 12: App Configuration (D-02)
+
+   LOADED AT RUNTIME via scene.getStylesheets().add(...)
+   Overrides portal.css light theme via CSS cascade order.
+
+   CONSTRAINT: JavaFX CSS 2.1 subset — NO var(), NO calc(), NO :is()
+   ALL values are hardcoded literals. Only -fx-* properties.
+   ================================================================ */
+
+/* ---- ROOT / SCENE BACKGROUND ---- */
+.root {
+    -fx-background-color: #1a1c1e;
+}
+
+/* ---- SIDEBAR ---- */
+.sidebar {
+    -fx-background-color: #111315;
+    -fx-border-color: #2a2d31;
+}
+
+.sidebar-header {
+    -fx-border-color: #2a2d31;
+}
+
+.sidebar-title {
+    -fx-text-fill: #e2e8f0;
+}
+
+.sidebar-subtitle {
+    -fx-text-fill: #64748b;
+}
+
+/* Nav buttons in sidebar */
+.sidebar .button {
+    -fx-text-fill: #cbd5e1;
+    -fx-background-color: transparent;
+}
+
+.sidebar .button:hover {
+    -fx-background-color: rgba(234,88,12,0.12);
+    -fx-text-fill: #fb923c;
+}
+
+.sidebar .button.nav-item-selected {
+    -fx-background-color: rgba(234,88,12,0.22);
+    -fx-text-fill: #fb923c;
+}
+
+.sidebar .button.nav-item-logout {
+    -fx-text-fill: #f87171;
+}
+
+.sidebar .button.nav-item-logout:hover {
+    -fx-text-fill: #f87171;
+    -fx-background-color: rgba(248,113,113,0.15);
+}
+
+/* ---- SECTION TITLE ---- */
+.section-title {
+    -fx-text-fill: #64748b;
+}
+
+/* ---- DASHBOARD HEADER ---- */
+.dashboard-header {
+    -fx-background-color: #111315;
+    -fx-border-color: #2a2d31;
+}
+
+.dashboard-header .main-title {
+    -fx-text-fill: #e2e8f0;
+}
+
+/* ---- TYPOGRAPHY ---- */
+.main-title {
+    -fx-text-fill: #e2e8f0;
+}
+
+.subtitle {
+    -fx-text-fill: #94a3b8;
+}
+
+.description {
+    -fx-text-fill: #64748b;
+}
+
+/* ---- CONTENT AREA ---- */
+.main-area {
+    -fx-background-color: #1a1c1e;
+}
+
+.content-area {
+    -fx-background-color: #1a1c1e;
+}
+
+/* ---- BOTTOM SECTION (sidebar footer) ---- */
+.bottom-section {
+    -fx-border-color: #2a2d31;
+}
+
+/* ---- CARDS ---- */
+.info-card,
+.report-ops-card,
+.stat-card {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.list-card {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.list-card-text {
+    -fx-text-fill: #e2e8f0;
+}
+
+.info-label {
+    -fx-text-fill: #64748b;
+}
+
+.info-value {
+    -fx-text-fill: #e2e8f0;
+}
+
+.mini-value {
+    -fx-text-fill: #e2e8f0;
+}
+
+.month-label {
+    -fx-text-fill: #e2e8f0;
+}
+
+.prev-month-label {
+    -fx-text-fill: #64748b;
+}
+
+.stat-card-label {
+    -fx-text-fill: #64748b;
+}
+
+.stat-card-value {
+    -fx-text-fill: #e2e8f0;
+}
+
+/* ---- FORM ELEMENTS ---- */
+.form-label {
+    -fx-text-fill: #64748b;
+}
+
+.form-textfield {
+    -fx-background-color: #272b2f;
+    -fx-text-fill: #e2e8f0;
+    -fx-border-color: #2a2d31;
+}
+
+.form-textfield:focused {
+    -fx-border-color: #ea580c;
+    -fx-background-color: #1f2124;
+}
+
+.form-combobox {
+    -fx-background-color: #272b2f;
+    -fx-border-color: #2a2d31;
+}
+
+.form-combobox .list-view {
+    -fx-background-color: #1f2124;
+}
+
+.form-combobox .list-cell {
+    -fx-text-fill: #e2e8f0;
+    -fx-background-color: #1f2124;
+}
+
+.form-combobox .list-cell:hover {
+    -fx-background-color: rgba(234,88,12,0.12);
+    -fx-text-fill: #fb923c;
+}
+
+/* ---- MODAL ---- */
+.modal-card {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.modal-header {
+    -fx-background-color: #111315;
+    -fx-border-color: #2a2d31;
+}
+
+.modal-title {
+    -fx-text-fill: #e2e8f0;
+}
+
+.modal-body {
+    -fx-background-color: #1f2124;
+}
+
+/* ---- SCROLL PANE ---- */
+.report-scroll {
+    -fx-background-color: transparent;
+    -fx-background: #1a1c1e;
+}
+
+.report-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.report-scroll .scroll-bar {
+    -fx-background-color: #272b2f;
+}
+
+.report-scroll .scroll-bar .thumb {
+    -fx-background-color: #3a3d42;
+    -fx-background-radius: 4px;
+}
+
+/* ---- CONFIGURACION SECTION DARK OVERRIDES ---- */
+
+.config-separator {
+    -fx-background-color: #2a2d31;
+}
+
+.config-form-label {
+    -fx-text-fill: #64748b;
+}
+
+.config-textfield {
+    -fx-background-color: #272b2f;
+    -fx-border-color: #2a2d31;
+    -fx-text-fill: #e2e8f0;
+}
+
+.config-textfield:focused {
+    -fx-border-color: #ea580c;
+    -fx-background-color: #1f2124;
+}
+
+.config-combobox {
+    -fx-background-color: #272b2f;
+    -fx-border-color: #2a2d31;
+}
+
+.config-combobox .list-view {
+    -fx-background-color: #1f2124;
+}
+
+.config-combobox .list-cell {
+    -fx-text-fill: #e2e8f0;
+    -fx-background-color: #1f2124;
+}
+
+.config-combobox .list-cell:hover {
+    -fx-background-color: rgba(234,88,12,0.12);
+    -fx-text-fill: #fb923c;
+}
+
+.config-secondary-btn {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+    -fx-text-fill: #cbd5e1;
+}
+
+.config-secondary-btn:hover {
+    -fx-background-color: rgba(234,88,12,0.12);
+    -fx-text-fill: #fb923c;
+    -fx-border-color: rgba(234,88,12,0.30);
+}
+
+.smtp-status-testing {
+    -fx-text-fill: #64748b;
+}
+
+.smtp-status-success {
+    -fx-text-fill: #22c55e;
+}
+
+.smtp-status-error {
+    -fx-text-fill: #f87171;
+}
