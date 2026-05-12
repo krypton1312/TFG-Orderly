@@ -12,6 +12,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
 
+APP_CONFIG_ENCRYPTION_KEY: "test-encryption-key-for-unit-tests"
+
 app:
   jwt:
     secret: test-secret-key-for-testing-only-at-least-32-chars-long
