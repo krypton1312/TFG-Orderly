@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.yebur.model.response.ConfigResponse;
+import com.yebur.service.ConfigService;
 import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -26,6 +29,7 @@ public class PortalController {
     @FXML private AnchorPane centerContent;
     @FXML private Label titleLabel;
     @FXML private VBox sidebarNavButtonsVBox;
+    @FXML private VBox bottomButtons;
 
     private final Map<String, Node> loadedViews = new HashMap<>();
     private final Map<String, Object> loadedControllers = new HashMap<>();
@@ -41,6 +45,28 @@ public class PortalController {
 
         initCenterOverlay();
         showStartView();
+
+        sidebarNavButtonsVBox.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                new Thread(() -> {
+                    try {
+                        ConfigResponse config = ConfigService.getConfig();
+                        if ("dark".equals(config.getTheme())) {
+                            Platform.runLater(() -> {
+                                String darkCss = getClass()
+                                        .getResource("/com/yebur/portal/portal-dark.css")
+                                        .toExternalForm();
+                                if (!newScene.getStylesheets().contains(darkCss)) {
+                                    newScene.getStylesheets().add(darkCss);
+                                }
+                            });
+                        }
+                    } catch (Exception ignored) {
+                        // config not available — ignore silently
+                    }
+                }).start();
+            }
+        });
     }
 
     private void initCenterOverlay() {
@@ -72,20 +98,18 @@ public class PortalController {
     @FXML
     private void showDataView(ActionEvent event) {
         titleLabel.setText("Gestion de datos");
-
         clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
+        clearSelectedStyle(bottomButtons, "nav-item-selected");
         ((Button) event.getSource()).getStyleClass().add("nav-item-selected");
-
         loadCenterContent("/com/yebur/portal/views/data.fxml");
     }
 
     @FXML
     private void showShiftOperationsView(ActionEvent event) {
         titleLabel.setText("Cierres");
-
         clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
+        clearSelectedStyle(bottomButtons, "nav-item-selected");
         ((Button) event.getSource()).getStyleClass().add("nav-item-selected");
-
         loadCenterContent("/com/yebur/portal/views/shiftOperations.fxml");
     }
 
@@ -93,6 +117,7 @@ public class PortalController {
     private void showAnalyticsView(ActionEvent event) {
         titleLabel.setText("Analisis");
         clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
+        clearSelectedStyle(bottomButtons, "nav-item-selected");
         ((Button) event.getSource()).getStyleClass().add("nav-item-selected");
         loadCenterContent("/com/yebur/portal/views/analytics.fxml");
     }
@@ -101,6 +126,7 @@ public class PortalController {
     private void showListadosView(ActionEvent event) {
         titleLabel.setText("Listados");
         clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
+        clearSelectedStyle(bottomButtons, "nav-item-selected");
         ((Button) event.getSource()).getStyleClass().add("nav-item-selected");
         loadCenterContent("/com/yebur/portal/views/listados.fxml");
     }
@@ -108,11 +134,19 @@ public class PortalController {
     @FXML
     private void showStartView(ActionEvent event) {
         titleLabel.setText("Inicio");
-
         clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
+        clearSelectedStyle(bottomButtons, "nav-item-selected");
         ((Button) event.getSource()).getStyleClass().add("nav-item-selected");
-
         loadCenterContent("/com/yebur/portal/views/start.fxml");
+    }
+
+    @FXML
+    private void showConfiguracionView(ActionEvent event) {
+        titleLabel.setText("Configuración");
+        clearSelectedStyle(sidebarNavButtonsVBox, "nav-item-selected");
+        clearSelectedStyle(bottomButtons, "nav-item-selected");
+        ((Button) event.getSource()).getStyleClass().add("nav-item-selected");
+        loadCenterContent("/com/yebur/portal/views/configuracion.fxml");
     }
 
     private void showStartView() {
