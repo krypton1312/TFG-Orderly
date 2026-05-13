@@ -27,6 +27,196 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CustomDialog {
 
+    private record DialogPalette(
+            boolean dark,
+            String cardBackground,
+            String cardBorder,
+            String textPrimary,
+            String textSecondary,
+            String closeText,
+            String closeHoverText,
+            String infoBoxBackground,
+            String infoBoxBorder,
+            String secondaryButtonBackground,
+            String secondaryButtonHoverBackground,
+            String secondaryButtonText,
+            String secondaryButtonBorder,
+            String secondaryButtonHoverBorder,
+            String shadowColor) {
+    }
+
+    private static DialogPalette palette(Scene scene) {
+        boolean dark = ThemeSupport.isDark(scene != null ? scene : ThemeSupport.findActiveScene());
+        if (dark) {
+            return new DialogPalette(
+                    true,
+                    "#111827",
+                    "#374151",
+                    "#f9fafb",
+                    "#d1d5db",
+                    "#9ca3af",
+                    "#f3f4f6",
+                    "#0f172a",
+                    "#334155",
+                    "#1f2937",
+                    "#374151",
+                    "#f9fafb",
+                    "#4b5563",
+                    "#6b7280",
+                    "rgba(0,0,0,0.55)");
+        }
+
+        return new DialogPalette(
+                false,
+                "white",
+                "#e5e7eb",
+                "#111827",
+                "#6b7280",
+                "#9ca3af",
+                "#6b7280",
+                "#f9fafb",
+                "#e5e7eb",
+                "white",
+                "#f9fafb",
+                "#111827",
+                "#d1d5db",
+                "#9ca3af",
+                "rgba(0,0,0,0.25)");
+    }
+
+    private static String cardStyle(DialogPalette palette, String borderColor) {
+        return """
+                -fx-background-color: %s;
+                -fx-background-radius: 18;
+                -fx-border-radius: 18;
+                -fx-border-color: %s;
+                -fx-border-width: 1;
+                -fx-effect: dropshadow(gaussian, %s, 28, 0, 0, 10);
+            """.formatted(
+                palette.cardBackground(),
+                borderColor != null ? borderColor : palette.cardBorder(),
+                palette.shadowColor());
+    }
+
+    private static void styleCloseLabel(Label closeLabel, DialogPalette palette) {
+        String normal = """
+                -fx-text-fill: %s;
+                -fx-font-size: 16px;
+                -fx-cursor: hand;
+            """.formatted(palette.closeText());
+        String hover = """
+                -fx-text-fill: %s;
+                -fx-font-size: 16px;
+                -fx-cursor: hand;
+            """.formatted(palette.closeHoverText());
+        closeLabel.setStyle(normal);
+        closeLabel.setOnMouseEntered(e -> closeLabel.setStyle(hover));
+        closeLabel.setOnMouseExited(e -> closeLabel.setStyle(normal));
+    }
+
+    private static String titleStyle(DialogPalette palette) {
+        return textStyle(palette.textPrimary(), 20, "800");
+    }
+
+    private static String bodyStyle(DialogPalette palette) {
+        return textStyle(palette.textSecondary(), 14, "400");
+    }
+
+    private static String mutedStyle(DialogPalette palette) {
+        return textStyle(palette.textSecondary(), 13, "400");
+    }
+
+    private static String strongStyle(DialogPalette palette) {
+        return textStyle(palette.textPrimary(), 13, "700");
+    }
+
+    private static String mediumStyle(DialogPalette palette) {
+        return textStyle(palette.textSecondary(), 13, "600");
+    }
+
+    private static String infoBoxStyle(DialogPalette palette) {
+        return """
+                -fx-background-color: %s;
+                -fx-background-radius: 12;
+                -fx-border-radius: 12;
+                -fx-border-color: %s;
+                -fx-border-width: 1;
+                -fx-padding: 12 14 12 14;
+            """.formatted(palette.infoBoxBackground(), palette.infoBoxBorder());
+    }
+
+    private static void styleSecondaryButton(Button button, DialogPalette palette) {
+        String normal = """
+                -fx-background-color: %s;
+                -fx-text-fill: %s;
+                -fx-font-weight: 700;
+                -fx-background-radius: 12;
+                -fx-border-radius: 12;
+                -fx-border-color: %s;
+                -fx-border-width: 1;
+                -fx-cursor: hand;
+                -fx-font-size: 13px;
+            """.formatted(
+                palette.secondaryButtonBackground(),
+                palette.secondaryButtonText(),
+                palette.secondaryButtonBorder());
+        String hover = """
+                -fx-background-color: %s;
+                -fx-text-fill: %s;
+                -fx-font-weight: 700;
+                -fx-background-radius: 12;
+                -fx-border-radius: 12;
+                -fx-border-color: %s;
+                -fx-border-width: 1;
+                -fx-cursor: hand;
+                -fx-font-size: 13px;
+            """.formatted(
+                palette.secondaryButtonHoverBackground(),
+                palette.secondaryButtonText(),
+                palette.secondaryButtonHoverBorder());
+        button.setStyle(normal);
+        button.setOnMouseEntered(e -> button.setStyle(hover));
+        button.setOnMouseExited(e -> button.setStyle(normal));
+    }
+
+    private static void stylePrimaryButton(Button button, String normalBackground, String hoverBackground) {
+        String normal = """
+                -fx-background-color: %s;
+                -fx-text-fill: white;
+                -fx-font-weight: 800;
+                -fx-background-radius: 12;
+                -fx-cursor: hand;
+                -fx-font-size: 13px;
+            """.formatted(normalBackground);
+        String hover = """
+                -fx-background-color: %s;
+                -fx-text-fill: white;
+                -fx-font-weight: 800;
+                -fx-background-radius: 12;
+                -fx-cursor: hand;
+                -fx-font-size: 13px;
+            """.formatted(hoverBackground);
+        button.setStyle(normal);
+        button.setOnMouseEntered(e -> button.setStyle(hover));
+        button.setOnMouseExited(e -> button.setStyle(normal));
+    }
+
+    private static String textStyle(String color, int size, String weight) {
+        return """
+                -fx-text-fill: %s;
+                -fx-font-size: %dpx;
+                -fx-font-weight: %s;
+            """.formatted(color, size, weight);
+    }
+
+    private static String accent(DialogPalette palette, String lightColor, String darkColor) {
+        return palette.dark() ? darkColor : lightColor;
+    }
+
+    private static Color accentFill(DialogPalette palette, String lightColor, String darkColor) {
+        return Color.web(accent(palette, lightColor, darkColor));
+    }
+
     public static int show(Stage parentStage, String title, String message, String yesText, String noText,
             String cancelText) {
         final int[] result = { -1 };
@@ -97,6 +287,7 @@ public class CustomDialog {
         } catch (Exception e) {
             System.err.println("⚠️ Не удалось загрузить customdialog.css");
         }
+        ThemeSupport.copyTheme(scene, parentStage.getScene());
 
         dialog.setScene(scene);
 
@@ -131,47 +322,40 @@ public class CustomDialog {
         dialog.setResizable(false);
 
         StackPane overlay = new StackPane();
+        DialogPalette dialogPalette = palette(null);
 
         StackPane card = new StackPane();
         card.setMaxWidth(440);
         card.setPrefWidth(440);
-        card.setStyle("""
-            -fx-background-color: white;
-            -fx-background-radius: 18;
-            -fx-border-radius: 18;
-            -fx-border-color: #fee2e2;
-            -fx-border-width: 1;
-            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
-        """);
+        card.setStyle(cardStyle(dialogPalette, accent(dialogPalette, "#fee2e2", "#7f1d1d")));
 
         VBox content = new VBox(16);
         content.setAlignment(Pos.TOP_CENTER);
         content.setPadding(new Insets(28, 28, 24, 28));
 
-        Circle iconBg = new Circle(26, Color.web("#FEF2F2"));
+        Circle iconBg = new Circle(26, accentFill(dialogPalette, "#FEF2F2", "#4c1d1d"));
         Label icon = new Label("⚠");
-        icon.setStyle("-fx-font-size: 18px; -fx-text-fill: #ef4444;");
+        icon.setStyle("""
+            -fx-font-size: 18px;
+            -fx-text-fill: %s;
+        """.formatted(accent(dialogPalette, "#ef4444", "#f87171")));
         StackPane iconHolder = new StackPane(iconBg, icon);
         iconHolder.setMinSize(52, 52);
         iconHolder.setMaxSize(52, 52);
 
         Label title = new Label("Error");
-        title.setStyle("-fx-text-fill: #111827; -fx-font-size: 20px; -fx-font-weight: 800;");
+        title.setStyle(titleStyle(dialogPalette));
 
         Label messageL = new Label(message);
         messageL.setWrapText(true);
         messageL.setMaxWidth(380);
         messageL.setAlignment(Pos.CENTER);
-        messageL.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 14px;");
+        messageL.setStyle(bodyStyle(dialogPalette));
 
         Button okBtn = new Button("OK");
         okBtn.setPrefHeight(42);
         okBtn.setPrefWidth(140);
-        String btnNormal = "-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
-        String btnHover  = "-fx-background-color: #dc2626; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
-        okBtn.setStyle(btnNormal);
-        okBtn.setOnMouseEntered(e -> okBtn.setStyle(btnHover));
-        okBtn.setOnMouseExited(e -> okBtn.setStyle(btnNormal));
+        stylePrimaryButton(okBtn, "#ef4444", "#dc2626");
         okBtn.setOnAction(e -> dialog.close());
 
         content.getChildren().addAll(iconHolder, title, messageL, okBtn);
@@ -217,6 +401,7 @@ public class CustomDialog {
         modalHost.setManaged(true);
         modalHost.setMouseTransparent(false);
         modalHost.getChildren().clear();
+        DialogPalette dialogPalette = palette(modalHost.getScene());
 
         // ===== Card =====
         StackPane card = new StackPane();
@@ -224,12 +409,7 @@ public class CustomDialog {
         card.setPrefWidth(520);
         card.setMaxHeight(420);
         card.setPrefHeight(420);
-        card.setStyle("""
-            -fx-background-color: white;
-            -fx-background-radius: 18;
-            -fx-border-radius: 18;
-            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
-        """);
+        card.setStyle(cardStyle(dialogPalette, accent(dialogPalette, "#ffedd5", "#9a3412")));
 
         VBox content = new VBox(20);
         content.setAlignment(Pos.TOP_CENTER);
@@ -239,23 +419,9 @@ public class CustomDialog {
 
 
         Label closeX = new Label("✕");
-        closeX.setStyle("""
-            -fx-text-fill: #9ca3af;
-            -fx-font-size: 16px;
-            -fx-cursor: hand;
-        """);
-        closeX.setOnMouseEntered(e -> closeX.setStyle("""
-            -fx-text-fill: #6b7280;
-            -fx-font-size: 16px;
-            -fx-cursor: hand;
-        """));
-        closeX.setOnMouseExited(e -> closeX.setStyle("""
-            -fx-text-fill: #9ca3af;
-            -fx-font-size: 16px;
-            -fx-cursor: hand;
-        """));
+        styleCloseLabel(closeX, dialogPalette);
 
-        Circle iconBg = new Circle(26, Color.web("#FFF4E6"));
+        Circle iconBg = new Circle(26, accentFill(dialogPalette, "#FFF4E6", "#4a2b10"));
         Label icon = new Label("🔒");
         icon.setStyle("-fx-font-size: 18px;");
         StackPane iconHolder = new StackPane(iconBg, icon);
@@ -263,86 +429,31 @@ public class CustomDialog {
         iconHolder.setMaxSize(52, 52);
 
         Label title = new Label(messageTitle);
-        title.setStyle("""
-            -fx-text-fill: #111827;
-            -fx-font-size: 20px;
-            -fx-font-weight: 800;
-        """);
+        title.setStyle(titleStyle(dialogPalette));
         title.setPadding(new Insets(6, 0, 0, 0));
 
         Label desc = new Label(messageText);
         desc.setWrapText(true);
         desc.setMaxWidth(440);
         desc.setAlignment(Pos.CENTER);
-        desc.setStyle("""
-            -fx-text-fill: #6b7280;
-            -fx-font-size: 13px;
-        """);
+        desc.setStyle(mutedStyle(dialogPalette));
 
         Label question = new Label(questionText);
         question.setWrapText(true);
         question.setMaxWidth(440);
         question.setAlignment(Pos.CENTER);
-        question.setStyle("""
-            -fx-text-fill: #111827;
-            -fx-font-size: 13px;
-            -fx-font-weight: 700;
-        """);
+        question.setStyle(strongStyle(dialogPalette));
         question.setPadding(new Insets(4, 0, 0, 0));
 
         Button openBtn = new Button("↪  Abrir turno");
         openBtn.setPrefHeight(42);
         openBtn.setPrefWidth(170);
-
-        String openNormal = """
-            -fx-background-color: #22c55e;
-            -fx-text-fill: white;
-            -fx-font-weight: 800;
-            -fx-background-radius: 12;
-            -fx-cursor: hand;
-            -fx-font-size: 13px;
-        """;
-        String openHover = """
-            -fx-background-color: #16a34a;
-            -fx-text-fill: white;
-            -fx-font-weight: 800;
-            -fx-background-radius: 12;
-            -fx-cursor: hand;
-            -fx-font-size: 13px;
-        """;
-        openBtn.setStyle(openNormal);
-        openBtn.setOnMouseEntered(e -> openBtn.setStyle(openHover));
-        openBtn.setOnMouseExited(e -> openBtn.setStyle(openNormal));
+        stylePrimaryButton(openBtn, "#22c55e", "#16a34a");
 
         Button cancelBtn = new Button("Cancelar");
         cancelBtn.setPrefHeight(42);
         cancelBtn.setPrefWidth(140);
-
-        String cancelNormal = """
-            -fx-background-color: white;
-            -fx-text-fill: #111827;
-            -fx-font-weight: 700;
-            -fx-background-radius: 12;
-            -fx-border-radius: 12;
-            -fx-border-color: #d1d5db;
-            -fx-border-width: 1;
-            -fx-cursor: hand;
-            -fx-font-size: 13px;
-        """;
-        String cancelHover = """
-            -fx-background-color: #f9fafb;
-            -fx-text-fill: #111827;
-            -fx-font-weight: 700;
-            -fx-background-radius: 12;
-            -fx-border-radius: 12;
-            -fx-border-color: #cbd5e1;
-            -fx-border-width: 1;
-            -fx-cursor: hand;
-            -fx-font-size: 13px;
-        """;
-        cancelBtn.setStyle(cancelNormal);
-        cancelBtn.setOnMouseEntered(e -> cancelBtn.setStyle(cancelHover));
-        cancelBtn.setOnMouseExited(e -> cancelBtn.setStyle(cancelNormal));
+        styleSecondaryButton(cancelBtn, dialogPalette);
 
         HBox buttons = new HBox(12, openBtn, cancelBtn);
         buttons.setAlignment(Pos.CENTER);
@@ -418,41 +529,23 @@ public class CustomDialog {
         modalHost.setManaged(true);
         modalHost.setMouseTransparent(false);
         modalHost.getChildren().clear();
+        DialogPalette dialogPalette = palette(modalHost.getScene());
 
         StackPane card = new StackPane();
         card.setPrefWidth(520);
         card.setMaxWidth(520);
         card.setPrefHeight(360);
         card.setMaxHeight(360);
-        card.setStyle("""
-        -fx-background-color: white;
-        -fx-background-radius: 18;
-        -fx-border-radius: 18;
-        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
-    """);
+        card.setStyle(cardStyle(dialogPalette, accent(dialogPalette, "#dcfce7", "#166534")));
 
         VBox content = new VBox(10);
         content.setAlignment(Pos.TOP_CENTER);
         content.setPadding(new Insets(22, 28, 22, 28));
 
         Label closeX = new Label("✕");
-        closeX.setStyle("""
-        -fx-text-fill: #9ca3af;
-        -fx-font-size: 16px;
-        -fx-cursor: hand;
-    """);
-        closeX.setOnMouseEntered(e -> closeX.setStyle("""
-        -fx-text-fill: #6b7280;
-        -fx-font-size: 16px;
-        -fx-cursor: hand;
-    """));
-        closeX.setOnMouseExited(e -> closeX.setStyle("""
-        -fx-text-fill: #9ca3af;
-        -fx-font-size: 16px;
-        -fx-cursor: hand;
-    """));
+        styleCloseLabel(closeX, dialogPalette);
 
-        Circle iconBg = new Circle(26, Color.web("#ECFDF3"));
+        Circle iconBg = new Circle(26, accentFill(dialogPalette, "#ECFDF3", "#14532d"));
         Label icon = new Label("✅");
         icon.setStyle("-fx-font-size: 18px;");
         StackPane iconHolder = new StackPane(iconBg, icon);
@@ -460,102 +553,36 @@ public class CustomDialog {
         iconHolder.setMaxSize(52, 52);
 
         Label title = new Label("Turno ya está abierto");
-        title.setStyle("""
-        -fx-text-fill: #111827;
-        -fx-font-size: 20px;
-        -fx-font-weight: 800;
-    """);
+        title.setStyle(titleStyle(dialogPalette));
         title.setPadding(new Insets(6, 0, 0, 0));
 
         Label desc = new Label("Ya existe un turno activo. Puedes continuar trabajando con este turno.");
         desc.setWrapText(true);
         desc.setMaxWidth(440);
         desc.setAlignment(Pos.CENTER);
-        desc.setStyle("""
-        -fx-text-fill: #6b7280;
-        -fx-font-size: 13px;
-    """);
+        desc.setStyle(mutedStyle(dialogPalette));
 
         VBox infoBox = new VBox(8);
         infoBox.setMaxWidth(440);
-        infoBox.setStyle("""
-        -fx-background-color: #f9fafb;
-        -fx-background-radius: 12;
-        -fx-border-radius: 12;
-        -fx-border-color: #e5e7eb;
-        -fx-border-width: 1;
-        -fx-padding: 12 14 12 14;
-    """);
+        infoBox.setStyle(infoBoxStyle(dialogPalette));
 
         Label line1 = new Label("🧾  Turno:  " + shiftNo);
-        line1.setStyle("""
-        -fx-text-fill: #111827;
-        -fx-font-size: 13px;
-        -fx-font-weight: 700;
-    """);
+        line1.setStyle(strongStyle(dialogPalette));
 
         Label line2 = new Label("🕒  Apertura:  " + openedAt);
-        line2.setStyle("""
-        -fx-text-fill: #374151;
-        -fx-font-size: 13px;
-        -fx-font-weight: 600;
-    """);
+        line2.setStyle(mediumStyle(dialogPalette));
 
         infoBox.getChildren().addAll(line1, line2);
 
         Button openBtn = new Button("↪  Abrir TPV");
         openBtn.setPrefHeight(42);
         openBtn.setPrefWidth(170);
-
-        String openNormal = """
-        -fx-background-color: #22c55e;
-        -fx-text-fill: white;
-        -fx-font-weight: 800;
-        -fx-background-radius: 12;
-        -fx-cursor: hand;
-        -fx-font-size: 13px;
-    """;
-        String openHover = """
-        -fx-background-color: #16a34a;
-        -fx-text-fill: white;
-        -fx-font-weight: 800;
-        -fx-background-radius: 12;
-        -fx-cursor: hand;
-        -fx-font-size: 13px;
-    """;
-        openBtn.setStyle(openNormal);
-        openBtn.setOnMouseEntered(e -> openBtn.setStyle(openHover));
-        openBtn.setOnMouseExited(e -> openBtn.setStyle(openNormal));
+        stylePrimaryButton(openBtn, "#22c55e", "#16a34a");
 
         Button okBtn = new Button("OK");
         okBtn.setPrefHeight(42);
         okBtn.setPrefWidth(140);
-
-        String okNormal = """
-        -fx-background-color: white;
-        -fx-text-fill: #111827;
-        -fx-font-weight: 700;
-        -fx-background-radius: 12;
-        -fx-border-radius: 12;
-        -fx-border-color: #d1d5db;
-        -fx-border-width: 1;
-        -fx-cursor: hand;
-        -fx-font-size: 13px;
-    """;
-        String okHover = """
-        -fx-background-color: #f9fafb;
-        -fx-text-fill: #111827;
-        -fx-font-weight: 700;
-        -fx-background-radius: 12;
-        -fx-border-radius: 12;
-        -fx-border-color: #cbd5e1;
-        -fx-border-width: 1;
-        -fx-cursor: hand;
-        -fx-font-size: 13px;
-    """;
-        okBtn.setStyle(okNormal);
-        okBtn.setOnMouseEntered(e -> okBtn.setStyle(okHover));
-        okBtn.setOnMouseExited(e -> okBtn.setStyle(okNormal));
+        styleSecondaryButton(okBtn, dialogPalette);
 
         HBox buttons = new HBox(12, openBtn, okBtn);
         buttons.setAlignment(Pos.CENTER);
@@ -630,28 +657,22 @@ public class CustomDialog {
         modalHost.setManaged(true);
         modalHost.setMouseTransparent(false);
         modalHost.getChildren().clear();
+        DialogPalette dialogPalette = palette(modalHost.getScene());
 
         StackPane card = new StackPane();
         card.setMaxWidth(520);
         card.setPrefWidth(520);
         card.setMaxHeight(Region.USE_PREF_SIZE);
-        card.setStyle("""
-            -fx-background-color: white;
-            -fx-background-radius: 18;
-            -fx-border-radius: 18;
-            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
-        """);
+        card.setStyle(cardStyle(dialogPalette, accent(dialogPalette, "#ffedd5", "#9a3412")));
 
         VBox content = new VBox(18);
         content.setAlignment(Pos.TOP_CENTER);
         content.setPadding(new Insets(28, 28, 24, 28));
 
         Label closeX = new Label("✕");
-        closeX.setStyle("-fx-text-fill: #9ca3af; -fx-font-size: 16px; -fx-cursor: hand;");
-        closeX.setOnMouseEntered(e -> closeX.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 16px; -fx-cursor: hand;"));
-        closeX.setOnMouseExited(e -> closeX.setStyle("-fx-text-fill: #9ca3af; -fx-font-size: 16px; -fx-cursor: hand;"));
+        styleCloseLabel(closeX, dialogPalette);
 
-        Circle iconBg = new Circle(26, Color.web("#FFF4E6"));
+        Circle iconBg = new Circle(26, accentFill(dialogPalette, "#FFF4E6", "#4a2b10"));
         Label icon = new Label("💰");
         icon.setStyle("-fx-font-size: 18px;");
         StackPane iconHolder = new StackPane(iconBg, icon);
@@ -659,37 +680,29 @@ public class CustomDialog {
         iconHolder.setMaxSize(52, 52);
 
         Label title = new Label("Arqueo inicial");
-        title.setStyle("-fx-text-fill: #111827; -fx-font-size: 20px; -fx-font-weight: 800;");
+        title.setStyle(titleStyle(dialogPalette));
 
         Label desc = new Label("No hay un arqueo registrado para este turno.");
         desc.setWrapText(true);
         desc.setMaxWidth(440);
         desc.setAlignment(Pos.CENTER);
-        desc.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 13px;");
+        desc.setStyle(mutedStyle(dialogPalette));
 
         Label question = new Label("¿Quieres registrar el efectivo en caja ahora?");
         question.setWrapText(true);
         question.setMaxWidth(440);
         question.setAlignment(Pos.CENTER);
-        question.setStyle("-fx-text-fill: #111827; -fx-font-size: 13px; -fx-font-weight: 700;");
+        question.setStyle(strongStyle(dialogPalette));
 
         Button registerBtn = new Button("📋  Registrar arqueo");
         registerBtn.setPrefHeight(42);
         registerBtn.setPrefWidth(200);
-        String regNormal = "-fx-background-color: #f97316; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
-        String regHover  = "-fx-background-color: #ea6c08; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
-        registerBtn.setStyle(regNormal);
-        registerBtn.setOnMouseEntered(e -> registerBtn.setStyle(regHover));
-        registerBtn.setOnMouseExited(e -> registerBtn.setStyle(regNormal));
+        stylePrimaryButton(registerBtn, "#f97316", "#ea6c08");
 
         Button skipBtn = new Button("Continuar con 0");
         skipBtn.setPrefHeight(42);
         skipBtn.setPrefWidth(160);
-        String skipNormal = "-fx-background-color: white; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #d1d5db; -fx-border-width: 1; -fx-cursor: hand; -fx-font-size: 13px;";
-        String skipHover  = "-fx-background-color: #f9fafb; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #9ca3af; -fx-border-width: 1; -fx-cursor: hand; -fx-font-size: 13px;";
-        skipBtn.setStyle(skipNormal);
-        skipBtn.setOnMouseEntered(e -> skipBtn.setStyle(skipHover));
-        skipBtn.setOnMouseExited(e -> skipBtn.setStyle(skipNormal));
+        styleSecondaryButton(skipBtn, dialogPalette);
 
         HBox buttons = new HBox(12, registerBtn, skipBtn);
         buttons.setAlignment(Pos.CENTER);
@@ -750,47 +763,40 @@ public class CustomDialog {
         dialog.setResizable(false);
 
         StackPane overlay = new StackPane();
+        DialogPalette dialogPalette = palette(null);
 
         StackPane card = new StackPane();
         card.setMaxWidth(440);
         card.setPrefWidth(440);
-        card.setStyle("""
-            -fx-background-color: white;
-            -fx-background-radius: 18;
-            -fx-border-radius: 18;
-            -fx-border-color: #dcfce7;
-            -fx-border-width: 1;
-            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
-        """);
+        card.setStyle(cardStyle(dialogPalette, accent(dialogPalette, "#dcfce7", "#166534")));
 
         VBox content = new VBox(16);
         content.setAlignment(Pos.TOP_CENTER);
         content.setPadding(new Insets(28, 28, 24, 28));
 
-        Circle iconBg = new Circle(26, Color.web("#DCFCE7"));
+        Circle iconBg = new Circle(26, accentFill(dialogPalette, "#DCFCE7", "#14532d"));
         Label icon = new Label("✓");
-        icon.setStyle("-fx-font-size: 18px; -fx-text-fill: #16a34a;");
+        icon.setStyle("""
+            -fx-font-size: 18px;
+            -fx-text-fill: %s;
+        """.formatted(accent(dialogPalette, "#16a34a", "#4ade80")));
         StackPane iconHolder = new StackPane(iconBg, icon);
         iconHolder.setMinSize(52, 52);
         iconHolder.setMaxSize(52, 52);
 
         Label title = new Label("Éxito");
-        title.setStyle("-fx-text-fill: #111827; -fx-font-size: 20px; -fx-font-weight: 800;");
+        title.setStyle(titleStyle(dialogPalette));
 
         Label messageL = new Label(message);
         messageL.setWrapText(true);
         messageL.setMaxWidth(380);
         messageL.setAlignment(Pos.CENTER);
-        messageL.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 14px;");
+        messageL.setStyle(bodyStyle(dialogPalette));
 
         Button okBtn = new Button("OK");
         okBtn.setPrefHeight(42);
         okBtn.setPrefWidth(140);
-        String btnNormal = "-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
-        String btnHover  = "-fx-background-color: #15803d; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
-        okBtn.setStyle(btnNormal);
-        okBtn.setOnMouseEntered(e -> okBtn.setStyle(btnHover));
-        okBtn.setOnMouseExited(e -> okBtn.setStyle(btnNormal));
+        stylePrimaryButton(okBtn, "#16a34a", "#15803d");
         okBtn.setOnAction(e -> dialog.close());
 
         content.getChildren().addAll(iconHolder, title, messageL, okBtn);
@@ -838,55 +844,46 @@ public class CustomDialog {
         dialog.setResizable(false);
 
         StackPane overlay = new StackPane();
+        DialogPalette dialogPalette = palette(null);
 
         StackPane card = new StackPane();
         card.setMaxWidth(480);
         card.setPrefWidth(480);
-        card.setStyle("""
-            -fx-background-color: white;
-            -fx-background-radius: 18;
-            -fx-border-radius: 18;
-            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
-        """);
+        card.setStyle(cardStyle(dialogPalette, accent(dialogPalette, "#ffedd5", "#9a3412")));
 
         VBox content = new VBox(18);
         content.setAlignment(Pos.TOP_CENTER);
         content.setPadding(new Insets(28, 28, 24, 28));
 
-        Circle iconBg = new Circle(26, Color.web("#FFF4E6"));
+        Circle iconBg = new Circle(26, accentFill(dialogPalette, "#FFF4E6", "#4a2b10"));
         Label iconL = new Label("↪");
-        iconL.setStyle("-fx-font-size: 18px; -fx-text-fill: #f97316;");
+        iconL.setStyle("""
+            -fx-font-size: 18px;
+            -fx-text-fill: %s;
+        """.formatted(accent(dialogPalette, "#f97316", "#fb923c")));
         StackPane iconHolder = new StackPane(iconBg, iconL);
         iconHolder.setMinSize(52, 52);
         iconHolder.setMaxSize(52, 52);
 
         Label titleL = new Label(title);
-        titleL.setStyle("-fx-text-fill: #111827; -fx-font-size: 20px; -fx-font-weight: 800;");
+        titleL.setStyle(titleStyle(dialogPalette));
 
         Label messageL = new Label(message);
         messageL.setWrapText(true);
         messageL.setMaxWidth(400);
         messageL.setAlignment(Pos.CENTER);
-        messageL.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 14px;");
+        messageL.setStyle(bodyStyle(dialogPalette));
 
         Button confirmBtn = new Button(confirmText);
         confirmBtn.setPrefHeight(42);
         confirmBtn.setPrefWidth(160);
-        String confirmNormal = "-fx-background-color: #f97316; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
-        String confirmHover  = "-fx-background-color: #ea6c08; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
-        confirmBtn.setStyle(confirmNormal);
-        confirmBtn.setOnMouseEntered(e -> confirmBtn.setStyle(confirmHover));
-        confirmBtn.setOnMouseExited(e -> confirmBtn.setStyle(confirmNormal));
+        stylePrimaryButton(confirmBtn, "#f97316", "#ea6c08");
         confirmBtn.setOnAction(e -> { result.set(true); dialog.close(); });
 
         Button cancelBtn = new Button(cancelText);
         cancelBtn.setPrefHeight(42);
         cancelBtn.setPrefWidth(140);
-        String cancelNormal = "-fx-background-color: white; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #d1d5db; -fx-border-width: 1; -fx-cursor: hand; -fx-font-size: 13px;";
-        String cancelHover  = "-fx-background-color: #f9fafb; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #9ca3af; -fx-border-width: 1; -fx-cursor: hand; -fx-font-size: 13px;";
-        cancelBtn.setStyle(cancelNormal);
-        cancelBtn.setOnMouseEntered(e -> cancelBtn.setStyle(cancelHover));
-        cancelBtn.setOnMouseExited(e -> cancelBtn.setStyle(cancelNormal));
+        styleSecondaryButton(cancelBtn, dialogPalette);
         cancelBtn.setOnAction(e -> { result.set(false); dialog.close(); });
 
         HBox buttons = new HBox(12, confirmBtn, cancelBtn);
@@ -933,6 +930,7 @@ public class CustomDialog {
             Runnable onCancel) {
 
         Parent originalRoot = ownerScene.getRoot();
+        DialogPalette dialogPalette = palette(ownerScene);
         StackPane dimWrapper = new StackPane(originalRoot);
         Region dimOverlay = new Region();
         dimOverlay.setStyle("-fx-background-color: rgba(0,0,0,0.45);");
@@ -944,18 +942,13 @@ public class CustomDialog {
         card.setMaxWidth(480);
         card.setPrefWidth(480);
         card.setMaxHeight(Region.USE_PREF_SIZE);
-        card.setStyle("""
-            -fx-background-color: white;
-            -fx-background-radius: 18;
-            -fx-border-radius: 18;
-            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 28, 0, 0, 10);
-        """);
+        card.setStyle(cardStyle(dialogPalette, accent(dialogPalette, "#dcfce7", "#166534")));
 
         VBox content = new VBox(18);
         content.setAlignment(Pos.TOP_CENTER);
         content.setPadding(new Insets(28, 28, 24, 28));
 
-        Circle iconBg = new Circle(26, Color.web("#F0FDF4"));
+        Circle iconBg = new Circle(26, accentFill(dialogPalette, "#F0FDF4", "#14532d"));
         Label icon = new Label("💾");
         icon.setStyle("-fx-font-size: 18px;");
         StackPane iconHolder = new StackPane(iconBg, icon);
@@ -963,37 +956,29 @@ public class CustomDialog {
         iconHolder.setMaxSize(52, 52);
 
         Label title = new Label("Confirmar arqueo");
-        title.setStyle("-fx-text-fill: #111827; -fx-font-size: 20px; -fx-font-weight: 800;");
+        title.setStyle(titleStyle(dialogPalette));
 
         Label desc = new Label("¿Estás seguro de que quieres guardar el arqueo y cerrar el turno?");
         desc.setWrapText(true);
         desc.setMaxWidth(400);
         desc.setAlignment(Pos.CENTER);
-        desc.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 13px;");
+        desc.setStyle(mutedStyle(dialogPalette));
 
         Label warning = new Label("Esta acción cerrará el turno actual y no podrá deshacerse.");
         warning.setWrapText(true);
         warning.setMaxWidth(400);
         warning.setAlignment(Pos.CENTER);
-        warning.setStyle("-fx-text-fill: #111827; -fx-font-size: 13px; -fx-font-weight: 700;");
+        warning.setStyle(strongStyle(dialogPalette));
 
         Button confirmBtn = new Button("Guardar arqueo");
         confirmBtn.setPrefHeight(42);
         confirmBtn.setPrefWidth(180);
-        String confirmNormal = "-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
-        String confirmHover  = "-fx-background-color: #15803d; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 13px;";
-        confirmBtn.setStyle(confirmNormal);
-        confirmBtn.setOnMouseEntered(e -> confirmBtn.setStyle(confirmHover));
-        confirmBtn.setOnMouseExited(e -> confirmBtn.setStyle(confirmNormal));
+        stylePrimaryButton(confirmBtn, "#16a34a", "#15803d");
 
         Button cancelBtn = new Button("Cancelar");
         cancelBtn.setPrefHeight(42);
         cancelBtn.setPrefWidth(140);
-        String cancelNormal = "-fx-background-color: white; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #d1d5db; -fx-border-width: 1; -fx-cursor: hand; -fx-font-size: 13px;";
-        String cancelHover  = "-fx-background-color: #f9fafb; -fx-text-fill: #111827; -fx-font-weight: 700; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #9ca3af; -fx-border-width: 1; -fx-cursor: hand; -fx-font-size: 13px;";
-        cancelBtn.setStyle(cancelNormal);
-        cancelBtn.setOnMouseEntered(e -> cancelBtn.setStyle(cancelHover));
-        cancelBtn.setOnMouseExited(e -> cancelBtn.setStyle(cancelNormal));
+        styleSecondaryButton(cancelBtn, dialogPalette);
 
         HBox buttons = new HBox(12, cancelBtn, confirmBtn);
         buttons.setAlignment(Pos.CENTER);

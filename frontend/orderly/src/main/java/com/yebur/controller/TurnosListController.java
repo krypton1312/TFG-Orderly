@@ -51,10 +51,19 @@ public class TurnosListController {
     @FXML
     public void initialize() {
         root.sceneProperty().addListener((obs, o, newScene) -> {
-            if (newScene != null) newScene.setOnKeyPressed(e -> {
+            if (newScene == null) return;
+            newScene.setOnKeyPressed(e -> {
                 if (e.getCode() == KeyCode.ESCAPE)
                     ((Stage) newScene.getWindow()).close();
             });
+            String url = getClass().getResource("/com/yebur/portal/portal-dark.css").toExternalForm();
+            Runnable sync = () -> {
+                boolean dark = newScene.getStylesheets().stream().anyMatch(s -> s.contains("portal-dark"));
+                if (dark) { if (!root.getStylesheets().contains(url)) root.getStylesheets().add(url); }
+                else root.getStylesheets().remove(url);
+            };
+            sync.run();
+            newScene.getStylesheets().addListener((javafx.collections.ListChangeListener<String>) c -> sync.run());
         });
 
         com.yebur.ui.DatePickerStyler.apply(fromDatePicker);
@@ -138,7 +147,9 @@ public class TurnosListController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initStyle(StageStyle.UNDECORATED);
             stage.initOwner(turnosTable.getScene().getWindow());
-            stage.setScene(new Scene(reportRoot));
+            Scene scene = new Scene(reportRoot);
+            com.yebur.ui.ThemeSupport.copyTheme(reportRoot, scene, turnosTable.getScene());
+            stage.setScene(scene);
             stage.centerOnScreen();
             stage.show();
         } catch (Exception e) {

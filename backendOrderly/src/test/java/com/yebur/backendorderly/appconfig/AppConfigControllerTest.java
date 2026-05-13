@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -36,9 +37,10 @@ class AppConfigControllerTest {
     void getConfig_omitsSmtpPassword() throws Exception {
         AppConfig config = new AppConfig();
         config.setId(1L);
-        config.setTheme("light");
+        config.setPcTheme("light");
+        config.setMobileTheme("dark");
         config.setSmtpPassword("should_not_appear_in_response");
-        when(configService.getOrCreateConfig()).thenReturn(config);
+        when(configService.getOrCreateConfig(any())).thenReturn(config);
 
         String body = mockMvc.perform(get("/config"))
                 .andExpect(status().isOk())
@@ -46,7 +48,8 @@ class AppConfigControllerTest {
 
         assertThat(body).doesNotContain("smtpPassword");
         assertThat(body).doesNotContain("should_not_appear_in_response");
-        assertThat(body).contains("\"theme\"");
+        assertThat(body).contains("\"pcTheme\"");
+        assertThat(body).contains("\"mobileTheme\"");
     }
 
     @Test
@@ -54,10 +57,13 @@ class AppConfigControllerTest {
         AppConfig existing = new AppConfig();
         existing.setId(1L);
         existing.setSmtpPassword("original_encrypted");
-        when(configService.updateConfig(any())).thenReturn(existing);
+        existing.setPcTheme("dark");
+        existing.setMobileTheme("light");
+        when(configService.updateConfig(any(), any())).thenReturn(existing);
 
         ConfigRequest req = new ConfigRequest();
-        req.setTheme("dark");
+        req.setPcTheme("dark");
+        req.setMobileTheme("light");
 
         mockMvc.perform(put("/config")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -69,7 +75,7 @@ class AppConfigControllerTest {
     void postTestSmtp_returnsSuccessOrFailureShape() throws Exception {
         AppConfig config = new AppConfig();
         config.setId(1L);
-        when(configService.getOrCreateConfig()).thenReturn(config);
+        when(configService.getOrCreateConfig(any())).thenReturn(config);
 
         String body = mockMvc.perform(post("/config/test-smtp"))
                 .andExpect(status().isOk())

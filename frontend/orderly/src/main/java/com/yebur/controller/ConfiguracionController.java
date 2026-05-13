@@ -13,15 +13,17 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConfiguracionController {
 
-    @FXML private ToggleGroup themeGroup;
-    @FXML private RadioButton lightThemeRadio;
-    @FXML private RadioButton darkThemeRadio;
+    @FXML private ToggleGroup pcThemeGroup;
+    @FXML private RadioButton pcLightThemeRadio;
+    @FXML private RadioButton pcDarkThemeRadio;
+    @FXML private ToggleGroup mobileThemeGroup;
+    @FXML private RadioButton mobileLightThemeRadio;
+    @FXML private RadioButton mobileDarkThemeRadio;
 
     @FXML private TextField smtpHostField;
     @FXML private TextField smtpPortField;
@@ -40,15 +42,24 @@ public class ConfiguracionController {
 
     @FXML private VBox rootVbox;
 
-    private static final String DARK_CSS = "/com/yebur/portal/portal-dark.css";
-
     public void initialize() {
         populatePrinters();
+        mobileLightThemeRadio.setSelected(true);
 
-        themeGroup.selectedToggleProperty().addListener((obs, old, newToggle) -> {
-            if (newToggle == darkThemeRadio) {
+        rootVbox.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null && pcThemeGroup.getSelectedToggle() == null) {
+                if (com.yebur.ui.ThemeSupport.isDark(newScene)) {
+                    pcDarkThemeRadio.setSelected(true);
+                } else {
+                    pcLightThemeRadio.setSelected(true);
+                }
+            }
+        });
+
+        pcThemeGroup.selectedToggleProperty().addListener((obs, old, newToggle) -> {
+            if (newToggle == pcDarkThemeRadio) {
                 applyTheme(true);
-            } else if (newToggle == lightThemeRadio) {
+            } else if (newToggle == pcLightThemeRadio) {
                 applyTheme(false);
             }
         });
@@ -64,11 +75,8 @@ public class ConfiguracionController {
     }
 
     private void populateForm(ConfigResponse config) {
-        if ("dark".equals(config.getTheme())) {
-            darkThemeRadio.setSelected(true);
-        } else {
-            lightThemeRadio.setSelected(true);
-        }
+        applyThemeSelection(config.getPcTheme(), pcLightThemeRadio, pcDarkThemeRadio);
+        applyThemeSelection(config.getMobileTheme(), mobileLightThemeRadio, mobileDarkThemeRadio);
 
         smtpHostField.setText(config.getSmtpHost() != null ? config.getSmtpHost() : "");
         smtpPortField.setText(config.getSmtpPort() != null ? config.getSmtpPort().toString() : "");
@@ -157,7 +165,8 @@ public class ConfiguracionController {
 
     private ConfigRequest buildRequest() {
         ConfigRequest req = new ConfigRequest();
-        req.setTheme(darkThemeRadio.isSelected() ? "dark" : "light");
+        req.setPcTheme(pcDarkThemeRadio.isSelected() ? "dark" : "light");
+        req.setMobileTheme(mobileDarkThemeRadio.isSelected() ? "dark" : "light");
         req.setSmtpHost(nullIfBlank(smtpHostField.getText()));
         String portText = smtpPortField.getText();
         if (portText != null && !portText.isBlank()) {
@@ -177,19 +186,18 @@ public class ConfiguracionController {
         return (s == null || s.isBlank()) ? null : s;
     }
 
+    private void applyThemeSelection(String theme, RadioButton lightRadio, RadioButton darkRadio) {
+        if ("dark".equalsIgnoreCase(theme)) {
+            darkRadio.setSelected(true);
+        } else {
+            lightRadio.setSelected(true);
+        }
+    }
+
     private void applyTheme(boolean dark) {
         Scene scene = rootVbox.getScene();
         if (scene == null) return;
-        URL url = getClass().getResource(DARK_CSS);
-        if (url == null) return;
-        String darkCssUrl = url.toExternalForm();
-        if (dark) {
-            if (!scene.getStylesheets().contains(darkCssUrl)) {
-                scene.getStylesheets().add(darkCssUrl);
-            }
-        } else {
-            scene.getStylesheets().remove(darkCssUrl);
-        }
+        com.yebur.ui.ThemeSupport.setDark(scene.getStylesheets(), dark);
     }
 
     private void setSmtpStatus(String text, String styleClass) {

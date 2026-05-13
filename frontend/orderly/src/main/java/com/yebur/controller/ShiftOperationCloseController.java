@@ -81,6 +81,17 @@ public class ShiftOperationCloseController {
         cashRoot.getStylesheets().add(
                 getClass().getResource("/com/yebur/portal/views/shiftOperationClose.css").toExternalForm()
         );
+        cashRoot.sceneProperty().addListener((obs, oldS, newS) -> {
+            if (newS == null) return;
+            String url = getClass().getResource("/com/yebur/portal/portal-dark.css").toExternalForm();
+            Runnable sync = () -> {
+                boolean dark = newS.getStylesheets().stream().anyMatch(s -> s.contains("portal-dark"));
+                if (dark) { if (!cashRoot.getStylesheets().contains(url)) cashRoot.getStylesheets().add(url); }
+                else cashRoot.getStylesheets().remove(url);
+            };
+            sync.run();
+            newS.getStylesheets().addListener((javafx.collections.ListChangeListener<String>) c -> sync.run());
+        });
 
         getLastCashSession();
 
@@ -252,6 +263,7 @@ public class ShiftOperationCloseController {
             scene.getStylesheets().add(
                     getClass().getResource("/com/yebur/portal/views/cashCountModel.css").toExternalForm()
             );
+            com.yebur.ui.ThemeSupport.copyTheme(root, scene, cashRoot.getScene());
 
             Stage stage = new Stage();
             stage.initStyle(StageStyle.UNDECORATED);
@@ -330,6 +342,7 @@ public class ShiftOperationCloseController {
             scene.getStylesheets().add(
                     getClass().getResource("/com/yebur/portal/views/cashCountModel.css").toExternalForm()
             );
+            com.yebur.ui.ThemeSupport.copyTheme(root, scene, cashRoot.getScene());
 
             Stage stage = new Stage();
             stage.initStyle(StageStyle.UNDECORATED);
@@ -419,6 +432,7 @@ public class ShiftOperationCloseController {
             Parent root = loader.load();
             Scene scene = new Scene(root);
             scene.setFill(Color.TRANSPARENT);
+                com.yebur.ui.ThemeSupport.copyTheme(root, scene, cashRoot.getScene());
 
             ShiftCloseReportController reportCtrl = loader.getController();
             reportCtrl.populate(closed, ops);

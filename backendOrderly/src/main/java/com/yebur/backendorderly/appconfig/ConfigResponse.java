@@ -8,7 +8,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ConfigResponse {
-    private String theme;
+    private String pcTheme;
+    private String mobileTheme;
     private String smtpHost;
     private Integer smtpPort;
     private String smtpUsername;
@@ -19,7 +20,8 @@ public class ConfigResponse {
 
     public static ConfigResponse fromEntity(AppConfig config) {
         ConfigResponse r = new ConfigResponse();
-        r.setTheme(config.getTheme());
+        r.setPcTheme(resolveTheme(config.getPcTheme(), config.getTheme()));
+        r.setMobileTheme(resolveTheme(config.getMobileTheme(), config.getTheme()));
         r.setSmtpHost(config.getSmtpHost());
         r.setSmtpPort(config.getSmtpPort());
         r.setSmtpUsername(config.getSmtpUsername());
@@ -28,5 +30,15 @@ public class ConfigResponse {
         r.setSmtpUseTls(config.getSmtpUseTls());
         r.setPrinterName(config.getPrinterName());
         return r;
+    }
+
+    private static String resolveTheme(String primaryTheme, String fallbackTheme) {
+        if (primaryTheme != null && !primaryTheme.isBlank()) {
+            return primaryTheme;
+        }
+        if (fallbackTheme != null && !fallbackTheme.isBlank()) {
+            return fallbackTheme;
+        }
+        return "light";
     }
 }

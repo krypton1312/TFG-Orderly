@@ -9,6 +9,11 @@
       spacing="24"
       stylesheets="@configuracion.css">
 
+    <fx:define>
+                <ToggleGroup fx:id="pcThemeGroup" />
+                <ToggleGroup fx:id="mobileThemeGroup" />
+    </fx:define>
+
     <HBox alignment="CENTER_LEFT">
         <Label text="Configuración" styleClass="main-title" />
     </HBox>
@@ -19,13 +24,32 @@
             <!-- SECTION 1: Apariencia -->
             <VBox styleClass="config-section" spacing="16">
                 <Label text="APARIENCIA" styleClass="section-title" />
-                <HBox spacing="16" alignment="CENTER_LEFT">
-                    <ToggleGroup fx:id="themeGroup" />
-                    <RadioButton fx:id="lightThemeRadio" text="Claro"
-                                 toggleGroup="$themeGroup" />
-                    <RadioButton fx:id="darkThemeRadio" text="Oscuro"
-                                 toggleGroup="$themeGroup" />
-                </HBox>
+                <GridPane hgap="16" vgap="12">
+                    <columnConstraints>
+                        <ColumnConstraints prefWidth="140" halignment="RIGHT" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                    </columnConstraints>
+
+                    <Label text="Tema PC" styleClass="config-form-label"
+                           GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <HBox spacing="16" alignment="CENTER_LEFT"
+                          GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <RadioButton fx:id="pcLightThemeRadio" text="Claro"
+                                     toggleGroup="$pcThemeGroup" />
+                        <RadioButton fx:id="pcDarkThemeRadio" text="Oscuro"
+                                     toggleGroup="$pcThemeGroup" />
+                    </HBox>
+
+                    <Label text="Tema móvil" styleClass="config-form-label"
+                           GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <HBox spacing="16" alignment="CENTER_LEFT"
+                          GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <RadioButton fx:id="mobileLightThemeRadio" text="Claro"
+                                     toggleGroup="$mobileThemeGroup" />
+                        <RadioButton fx:id="mobileDarkThemeRadio" text="Oscuro"
+                                     toggleGroup="$mobileThemeGroup" />
+                    </HBox>
+                </GridPane>
             </VBox>
 
             <Separator styleClass="config-separator" />

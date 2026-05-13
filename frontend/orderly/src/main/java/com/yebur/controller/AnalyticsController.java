@@ -3,6 +3,7 @@ package com.yebur.controller;
 import com.yebur.model.response.MonthlySummaryResponse;
 import com.yebur.model.response.TopProductEntry;
 import com.yebur.service.AnalyticsService;
+import com.yebur.ui.ThemeSupport;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -22,6 +23,7 @@ import java.util.Locale;
 
 public class AnalyticsController {
 
+    @FXML private VBox root;
     @FXML private Button prevMonthBtn;
     @FXML private Button nextMonthBtn;
     @FXML private Label monthLabel;
@@ -39,6 +41,7 @@ public class AnalyticsController {
 
     @FXML
     public void initialize() {
+        ThemeSupport.bindRootStylesheet(root);
         prevMonthBtn.setTooltip(new javafx.scene.control.Tooltip("Mes anterior"));
         prevMonthBtn.setAccessibleText("Mes anterior");
         nextMonthBtn.setTooltip(new javafx.scene.control.Tooltip("Mes siguiente"));
@@ -128,7 +131,7 @@ public class AnalyticsController {
         List<TopProductEntry> products = curr.getTopProducts();
         if (products == null || products.isEmpty()) {
             Label empty = new Label("Sin datos para este mes");
-            empty.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12px;");
+            empty.getStyleClass().add("analytics-empty-state");
             topProductsVBox.getChildren().add(empty);
         } else {
             for (int i = 0; i < products.size(); i++) {
@@ -140,15 +143,15 @@ public class AnalyticsController {
     private HBox buildProductRow(int rank, TopProductEntry entry) {
         HBox row = new HBox(12);
         row.setAlignment(Pos.CENTER_LEFT);
-        row.setStyle("-fx-padding: 8 4; -fx-border-color: transparent transparent #f1f5f9 transparent; -fx-border-width: 0 0 1 0;");
+        row.getStyleClass().add("product-row");
         Label rankLbl = new Label("#" + rank);
         rankLbl.setMinWidth(28);
-        rankLbl.setStyle("-fx-text-fill: #ea580c; -fx-font-size: 12px; -fx-font-weight: 800;");
+        rankLbl.getStyleClass().add("product-rank");
         Label nameLbl = new Label(entry.getName());
-        nameLbl.setStyle("-fx-text-fill: #1e293b; -fx-font-size: 13px;");
+        nameLbl.getStyleClass().add("product-name");
         HBox.setHgrow(nameLbl, Priority.ALWAYS);
         Label qtyLbl = new Label(entry.getQuantity() + " uds");
-        qtyLbl.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12px; -fx-font-weight: 700; -fx-background-color: #f1f5f9; -fx-background-radius: 6; -fx-padding: 2 8;");
+        qtyLbl.getStyleClass().add("product-qty");
         row.getChildren().addAll(rankLbl, nameLbl, qtyLbl);
         return row;
     }

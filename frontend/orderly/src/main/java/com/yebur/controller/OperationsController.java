@@ -245,6 +245,7 @@ public class OperationsController {
                 scene.getStylesheets().clear();
                 scene.getStylesheets().add(cssUrl.toExternalForm());
             }
+            com.yebur.ui.ThemeSupport.copyTheme(root, scene, ((javafx.scene.Node) actionEvent.getSource()).getScene());
 
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -18,20 +19,20 @@ public class AppConfigController {
     private final AesEncryptionService encryption;
 
     @GetMapping
-    public ResponseEntity<ConfigResponse> getConfig() {
-        AppConfig config = configService.getOrCreateConfig();
+    public ResponseEntity<ConfigResponse> getConfig(Authentication auth) {
+        AppConfig config = configService.getOrCreateConfig(auth);
         return ResponseEntity.ok(ConfigResponse.fromEntity(config));
     }
 
     @PutMapping
-    public ResponseEntity<ConfigResponse> updateConfig(@RequestBody ConfigRequest request) {
-        AppConfig updated = configService.updateConfig(request);
+    public ResponseEntity<ConfigResponse> updateConfig(Authentication auth, @RequestBody ConfigRequest request) {
+        AppConfig updated = configService.updateConfig(auth, request);
         return ResponseEntity.ok(ConfigResponse.fromEntity(updated));
     }
 
     @PostMapping("/test-smtp")
-    public ResponseEntity<Map<String, Object>> testSmtp() {
-        AppConfig config = configService.getOrCreateConfig();
+    public ResponseEntity<Map<String, Object>> testSmtp(Authentication auth) {
+        AppConfig config = configService.getOrCreateConfig(auth);
 
         if (config.getSmtpHost() == null || config.getSmtpHost().isBlank()) {
             return ResponseEntity.ok(Map.of("success", false, "error", "SMTP no configurado"));

@@ -61,6 +61,10 @@ public class StartController {
         root.getStylesheets().add(
                 getClass().getResource("/com/yebur/portal/views/data.css").toExternalForm()
         );
+        root.getStylesheets().add(
+                getClass().getResource("/com/yebur/portal/views/analytics.css").toExternalForm()
+        );
+        com.yebur.ui.ThemeSupport.bindRootStylesheet(root);
         prevMonthBtn.setTooltip(new javafx.scene.control.Tooltip("Mes anterior"));
         prevMonthBtn.setAccessibleText("Mes anterior");
         nextMonthBtn.setTooltip(new javafx.scene.control.Tooltip("Mes siguiente"));
@@ -164,6 +168,7 @@ public class StartController {
             scene.getStylesheets().add(
                     getClass().getResource("/com/yebur/portal/views/cashCountModel.css").toExternalForm()
             );
+            com.yebur.ui.ThemeSupport.copyTheme(ccRoot, scene, root.getScene());
 
             CashCountModelController ctrl = loader.getController();
             ctrl.preloadFromTotal(java.math.BigDecimal.ZERO);
@@ -212,6 +217,7 @@ public class StartController {
             scene.getStylesheets().add(
                     App.class.getResource("/com/yebur/pos/pos.css").toExternalForm()
             );
+                com.yebur.ui.ThemeSupport.copyTheme(posRoot, scene, root.getScene());
 
             Stage stage = new Stage();
             stage.initStyle(StageStyle.UNDECORATED);
@@ -260,7 +266,7 @@ public class StartController {
 
     private void loadMonthStats() {
         revenueLabel.setText("\u2014");
-        revenueLabel.setStyle("");
+        revenueLabel.getStyleClass().remove("stat-card-error");
         orderCountLabel.setText("\u2014");
         int year = selectedMonth.getYear();
         int month = selectedMonth.getMonthValue();
@@ -274,7 +280,9 @@ public class StartController {
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     revenueLabel.setText("Error al cargar los datos. Comprueba la conexión.");
-                    revenueLabel.setStyle("-fx-text-fill: #dc2626; -fx-font-size: 12px;");
+                    if (!revenueLabel.getStyleClass().contains("stat-card-error")) {
+                        revenueLabel.getStyleClass().add("stat-card-error");
+                    }
                     orderCountLabel.setText("");
                 });
             }

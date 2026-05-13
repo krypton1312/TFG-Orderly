@@ -23,16 +23,10 @@ public class LoginController {
     @FXML private Label errorLabel;
     @FXML private ImageView logoView;
 
-    private static final String BTN_NORMAL  = "-fx-background-color: #f97316; -fx-text-fill: white; -fx-font-size: 15; -fx-font-weight: 600; -fx-background-radius: 8; -fx-padding: 12 0; -fx-cursor: hand; -fx-border-width: 0; -fx-font-family: 'Inter', 'Segoe UI', sans-serif;";
-    private static final String BTN_HOVER   = "-fx-background-color: #ea580c; -fx-text-fill: white; -fx-font-size: 15; -fx-font-weight: 600; -fx-background-radius: 8; -fx-padding: 12 0; -fx-cursor: hand; -fx-border-width: 0; -fx-font-family: 'Inter', 'Segoe UI', sans-serif;";
-    private static final String BTN_DISABLED = "-fx-background-color: #fdba74; -fx-text-fill: white; -fx-font-size: 15; -fx-font-weight: 600; -fx-background-radius: 8; -fx-padding: 12 0; -fx-border-width: 0; -fx-font-family: 'Inter', 'Segoe UI', sans-serif;";
-
     @FXML
     private void initialize() {
         var logoStream = getClass().getResourceAsStream("/com/yebur/icons/logo.png");
         if (logoStream != null) logoView.setImage(new Image(logoStream, 52, 52, true, true));
-        loginButton.setOnMouseEntered(e -> { if (!loginButton.isDisabled()) loginButton.setStyle(BTN_HOVER); });
-        loginButton.setOnMouseExited(e  -> { if (!loginButton.isDisabled()) loginButton.setStyle(BTN_NORMAL); });
     }
 
     @FXML
@@ -42,7 +36,6 @@ public class LoginController {
 
         errorLabel.setText("");
         loginButton.setDisable(true);
-        loginButton.setStyle(BTN_DISABLED);
 
         new Thread(() -> {
             try {
@@ -65,7 +58,6 @@ public class LoginController {
             } finally {
                 Platform.runLater(() -> {
                     loginButton.setDisable(false);
-                    loginButton.setStyle(BTN_NORMAL);
                 });
             }
         }).start();

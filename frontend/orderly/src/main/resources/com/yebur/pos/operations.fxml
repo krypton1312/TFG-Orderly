@@ -10,7 +10,7 @@
             xmlns:fx="http://javafx.com/fxml"
             prefHeight="768.0" prefWidth="1024.0"
             fx:controller="com.yebur.controller.OperationsController"
-            styleClass="root">
+            styleClass="root,operations-root">
 
     <!-- CENTER (контент) -->
     <center>

@@ -173,8 +173,9 @@ public class PosController {
         for (CategoryResponse category : this.categories) {
             Button btn = new Button(category.getName());
             btn.getStyleClass().add("category-btn");
-            btn.setStyle("-fx-background-color: " +
-                    (category.getColor() != null ? category.getColor() : "#f9fafb"));
+            if (category.getColor() != null && !category.getColor().isBlank()) {
+                btn.setStyle("-fx-background-color: " + category.getColor());
+            }
             btn.setOnAction(e -> {
                 selectedCategoryId = category.getId();
                 currentProductPage = 0;
@@ -301,7 +302,9 @@ public class PosController {
         for (Object obj : pageItems) {
             Button btn = new Button();
             btn.getStyleClass().add("product-btn");
-            btn.setStyle("-fx-background-color: " + (color != null ? color : "#f9fafb"));
+            if (color != null && !color.isBlank()) {
+                btn.setStyle("-fx-background-color: " + color);
+            }
             if (obj instanceof ProductResponse) {
                 ProductResponse product = (ProductResponse) obj;
                 btn.setText(product.getName());
@@ -357,7 +360,10 @@ public class PosController {
             overview = task.getValue();
             renderOrderTiles(slots);
         });
-        task.setOnFailed(e -> task.getException().printStackTrace());
+        task.setOnFailed(e -> {
+            task.getException().printStackTrace();
+            CustomDialog.showError("Error al cargar las mesas. Comprueba la sesión e inténtalo de nuevo.");
+        });
         new Thread(task).start();
     }
 
@@ -438,8 +444,7 @@ public class PosController {
 
             Button btn = new Button();
             btn.setGraphic(buttonNameVB);
-            btn.getStyleClass().add("product-btn");
-            btn.setStyle("-fx-background-color: #f9fafb;");
+            btn.getStyleClass().addAll("product-btn", "overview-product-btn");
             btn.setOnAction(e -> {
                 onOverviewItemClick(item);
                 this.currentOverviewItem = item;
@@ -453,20 +458,12 @@ public class PosController {
                     Label pagadoBadge = new Label("PAGADO");
                     pagadoBadge.getStyleClass().add("pagado-badge");
                     buttonNameVB.getChildren().add(pagadoBadge);
-                    btn.setStyle(
-                        "-fx-background-color: #f9fafb;" +
-                        "-fx-border-color: transparent transparent #15803D transparent;" +
-                        "-fx-border-width: 0 0 3 0;" +
-                        "-fx-border-radius: 0 0 8 8;");
+                    btn.getStyleClass().add("overview-product-btn-paid");
                 } else {
                     Label parcialBadge = new Label("PARCIAL");
                     parcialBadge.getStyleClass().add("parcial-badge");
                     buttonNameVB.getChildren().add(parcialBadge);
-                    btn.setStyle(
-                        "-fx-background-color: #f9fafb;" +
-                        "-fx-border-color: transparent transparent #1D4ED8 transparent;" +
-                        "-fx-border-width: 0 0 3 0;" +
-                        "-fx-border-radius: 0 0 8 8;");
+                    btn.getStyleClass().add("overview-product-btn-partial");
                 }
             }
 
@@ -1225,6 +1222,7 @@ public class PosController {
                 scene.getStylesheets().clear();
                 scene.getStylesheets().add(cssUrl.toExternalForm());
             }
+            com.yebur.ui.ThemeSupport.copyTheme(root, scene, categoryBox.getScene());
 
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setOnHiding(event -> {
@@ -1307,12 +1305,7 @@ public class PosController {
         paymentVB.setAlignment(Pos.CENTER_LEFT);
         paymentVB.setPadding(new javafx.geometry.Insets(15, 15, 15, 15));
         paymentVB.setSpacing(10);
-        paymentVB.setStyle(
-                "-fx-background-color: white;" +
-                        "-fx-background-radius: 12;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 4);" +
-                        "-fx-border-color: #f3f4f6;" +
-                        "-fx-border-radius: 12;");
+        paymentVB.getStyleClass().add("payment-summary-card");
 
         paymentVB.setMaxWidth(orderVboxItems.getWidth() * 0.9);
         paymentVB.setMaxHeight(orderVboxItems.getHeight() * 0.9);
@@ -1323,15 +1316,15 @@ public class PosController {
         StackPane.setMargin(paymentVB, new javafx.geometry.Insets(10, 0, 0, 0));
 
         Label title = new Label("💳 PAGO DE LA CUENTA");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #111827;");
+        title.getStyleClass().add("payment-summary-title");
 
         Pane separator = new Pane();
-        separator.setStyle("-fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;");
+        separator.getStyleClass().add("payment-summary-divider");
         separator.setPrefHeight(1);
 
-        HBox rowTotal    = createPaymentRow("COBRADO:",  currencyFormatter.format(total),  "#000");
-        HBox rowRecibido = createPaymentRow("RECIBIDO:", currencyFormatter.format(input),  "#000");
-        HBox rowCambio   = createPaymentRow("CAMBIO:",   currencyFormatter.format(change), "#16a34a");
+        HBox rowTotal = createPaymentRow("COBRADO:", currencyFormatter.format(total), false);
+        HBox rowRecibido = createPaymentRow("RECIBIDO:", currencyFormatter.format(input), false);
+        HBox rowCambio = createPaymentRow("CAMBIO:", currencyFormatter.format(change), true);
 
         // Логика показа строк:
         // если что-то реально "дали" (input > 0) – показываем RECIBIDO и CAMBIO
@@ -1366,15 +1359,18 @@ public class PosController {
     }
 
 
-    private HBox createPaymentRow(String label, String value, String color) {
+    private HBox createPaymentRow(String label, String value, boolean success) {
         HBox row = new HBox(7);
         row.setAlignment(Pos.CENTER_LEFT);
 
         Label lblText = new Label(label);
-        lblText.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #000;");
+        lblText.getStyleClass().add("payment-summary-label");
 
         Label lblValue = new Label(value);
-        lblValue.setStyle("-fx-font-size: 18px; -fx-text-fill: " + color + "; -fx-font-weight: bold;");
+        lblValue.getStyleClass().add("payment-summary-value");
+        if (success) {
+            lblValue.getStyleClass().add("payment-summary-value-success");
+        }
 
         HBox.setHgrow(lblText, javafx.scene.layout.Priority.ALWAYS);
         row.getChildren().addAll(lblText, lblValue);
@@ -1559,6 +1555,7 @@ public class PosController {
                 scene.getStylesheets().clear();
                 scene.getStylesheets().add(cssUrl.toExternalForm());
             }
+            com.yebur.ui.ThemeSupport.copyTheme(root, scene, categoryBox.getScene());
 
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();

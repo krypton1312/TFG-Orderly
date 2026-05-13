@@ -22,10 +22,19 @@ public class ListadosController {
     @FXML
     public void initialize() {
         root.sceneProperty().addListener((obs, o, newScene) -> {
-            if (newScene != null) newScene.setOnKeyPressed(e -> {
+            if (newScene == null) return;
+            newScene.setOnKeyPressed(e -> {
                 if (e.getCode() == KeyCode.ESCAPE)
                     ((Stage) newScene.getWindow()).close();
             });
+            String url = getClass().getResource("/com/yebur/portal/portal-dark.css").toExternalForm();
+            Runnable sync = () -> {
+                boolean dark = newScene.getStylesheets().stream().anyMatch(s -> s.contains("portal-dark"));
+                if (dark) { if (!root.getStylesheets().contains(url)) root.getStylesheets().add(url); }
+                else root.getStylesheets().remove(url);
+            };
+            sync.run();
+            newScene.getStylesheets().addListener((javafx.collections.ListChangeListener<String>) c -> sync.run());
         });
     }
 
@@ -97,6 +106,8 @@ public class ListadosController {
             }
 
             Scene scene = new Scene(modalRoot, Color.TRANSPARENT);
+                com.yebur.ui.ThemeSupport.copyTheme(modalRoot, scene, root.getScene());
+
             stage.setScene(scene);
             stage.centerOnScreen();
             stage.setOnHiding(e -> sceneRoot.setEffect(null));

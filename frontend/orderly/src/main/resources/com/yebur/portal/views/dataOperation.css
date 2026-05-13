@@ -133,6 +133,25 @@
     -fx-text-fill: #9a3412;
 }
 
+.dynamic-list-view {
+    -fx-background-color: white;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 2);
+}
+
+.dynamic-list-view .list-cell {
+    -fx-background-color: white;
+    -fx-text-fill: #1f2937;
+}
+
+.dynamic-list-view .list-cell:filled:hover,
+.dynamic-list-view .list-cell:filled:selected {
+    -fx-background-color: #fff7ed;
+    -fx-text-fill: #ea580c;
+}
+
 .chip {
     -fx-background-color: #fed7aa;
     -fx-background-radius: 999;

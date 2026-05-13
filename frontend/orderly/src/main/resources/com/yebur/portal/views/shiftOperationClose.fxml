@@ -212,7 +212,7 @@
                text=""
                wrapText="true"
                maxWidth="Infinity"
-               style="-fx-text-fill: #dc2626; -fx-font-size: 12px; -fx-font-weight: 700; -fx-padding: 0 12 0 12;"/>
+             styleClass="close-error-label"/>
         <HBox spacing="12" alignment="CENTER" maxWidth="Infinity" styleClass="cash-actions">
 
         <Button fx:id="cerrarTurnoBtn" text="GRABAR ARQUEO" onAction="#onCerrarTurno" HBox.hgrow="ALWAYS">

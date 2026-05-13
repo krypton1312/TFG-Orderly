@@ -51,14 +51,9 @@ public class PortalController {
                 new Thread(() -> {
                     try {
                         ConfigResponse config = ConfigService.getConfig();
-                        if ("dark".equals(config.getTheme())) {
+                        if ("dark".equalsIgnoreCase(config.getPcTheme())) {
                             Platform.runLater(() -> {
-                                String darkCss = getClass()
-                                        .getResource("/com/yebur/portal/portal-dark.css")
-                                        .toExternalForm();
-                                if (!newScene.getStylesheets().contains(darkCss)) {
-                                    newScene.getStylesheets().add(darkCss);
-                                }
+                                com.yebur.ui.ThemeSupport.setDark(newScene.getStylesheets(), true);
                             });
                         }
                     } catch (Exception ignored) {

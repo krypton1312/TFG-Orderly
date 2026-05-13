@@ -43,7 +43,7 @@ public class ReceiptFxToPdfService {
         controller.setData(order, details, table, paymentInfo);
 
         // 2. Делаем layout (нужна сцена, чтобы CSS применились)
-        Scene scene = new Scene(root);
+        new Scene(root);
         root.applyCss();
         root.layout();
 

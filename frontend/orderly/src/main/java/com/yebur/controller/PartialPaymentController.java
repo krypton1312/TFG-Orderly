@@ -674,12 +674,7 @@ public class PartialPaymentController {
         paymentVB.setAlignment(Pos.CENTER_LEFT);
         paymentVB.setPadding(new javafx.geometry.Insets(15, 15, 15, 15));
         paymentVB.setSpacing(10);
-        paymentVB.setStyle(
-                "-fx-background-color: white;" +
-                        "-fx-background-radius: 12;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 4);" +
-                        "-fx-border-color: #f3f4f6;" +
-                        "-fx-border-radius: 12;");
+        paymentVB.getStyleClass().add("payment-summary-card");
 
         paymentVB.setMaxWidth(partialOrderBox.getWidth() * 0.9);
         paymentVB.setMaxHeight(partialOrderBox.getHeight() * 0.9);
@@ -690,15 +685,15 @@ public class PartialPaymentController {
         StackPane.setMargin(paymentVB, new javafx.geometry.Insets(40, 0, 0, 0));
 
         Label title = new Label("💳 PAGO DE LA SUBCUENTA");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #111827;");
+        title.getStyleClass().add("payment-summary-title");
 
         Pane separator = new Pane();
-        separator.setStyle("-fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;");
+        separator.getStyleClass().add("payment-summary-divider");
         separator.setPrefHeight(1);
 
-        HBox rowTotal = createPaymentRow("COBRADO:", currencyFormatter.format(total), "#000");
-        HBox rowRecibido = createPaymentRow("RECIBIDO:", currencyFormatter.format(recibido), "#000");
-        HBox rowCambio = createPaymentRow("CAMBIO:", currencyFormatter.format(cambio), "#16a34a");
+        HBox rowTotal = createPaymentRow("COBRADO:", currencyFormatter.format(total), false);
+        HBox rowRecibido = createPaymentRow("RECIBIDO:", currencyFormatter.format(recibido), false);
+        HBox rowCambio = createPaymentRow("CAMBIO:", currencyFormatter.format(cambio), true);
 
         if (recibido.compareTo(BigDecimal.ZERO) > 0) {
             paymentVB.getChildren().addAll(title, separator, rowTotal, rowRecibido, rowCambio);
@@ -727,15 +722,18 @@ public class PartialPaymentController {
         isPaymentBoxShown = true;
     }
 
-    private HBox createPaymentRow(String label, String value, String color) {
+    private HBox createPaymentRow(String label, String value, boolean success) {
         HBox row = new HBox(7);
         row.setAlignment(Pos.CENTER_LEFT);
 
         Label lblText = new Label(label);
-        lblText.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #000;");
+        lblText.getStyleClass().add("payment-summary-label");
 
         Label lblValue = new Label(value);
-        lblValue.setStyle("-fx-font-size: 18px; -fx-text-fill: " + color + "; -fx-font-weight: bold;");
+        lblValue.getStyleClass().add("payment-summary-value");
+        if (success) {
+            lblValue.getStyleClass().add("payment-summary-value-success");
+        }
 
         HBox.setHgrow(lblText, javafx.scene.layout.Priority.ALWAYS);
         row.getChildren().addAll(lblText, lblValue);

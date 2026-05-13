@@ -15,44 +15,44 @@
 }
 
 /* ---- SIDEBAR ---- */
-.sidebar {
+.portal-root .sidebar {
     -fx-background-color: #111315;
     -fx-border-color: #2a2d31;
 }
 
-.sidebar-header {
+.portal-root .sidebar-header {
     -fx-border-color: #2a2d31;
 }
 
-.sidebar-title {
+.portal-root .sidebar-title {
     -fx-text-fill: #e2e8f0;
 }
 
-.sidebar-subtitle {
+.portal-root .sidebar-subtitle {
     -fx-text-fill: #64748b;
 }
 
 /* Nav buttons in sidebar */
-.sidebar .button {
+.portal-root .sidebar .button {
     -fx-text-fill: #cbd5e1;
     -fx-background-color: transparent;
 }
 
-.sidebar .button:hover {
+.portal-root .sidebar .button:hover {
     -fx-background-color: rgba(234,88,12,0.12);
     -fx-text-fill: #fb923c;
 }
 
-.sidebar .button.nav-item-selected {
+.portal-root .sidebar .button.nav-item-selected {
     -fx-background-color: rgba(234,88,12,0.22);
     -fx-text-fill: #fb923c;
 }
 
-.sidebar .button.nav-item-logout {
+.portal-root .sidebar .button.nav-item-logout {
     -fx-text-fill: #f87171;
 }
 
-.sidebar .button.nav-item-logout:hover {
+.portal-root .sidebar .button.nav-item-logout:hover {
     -fx-text-fill: #f87171;
     -fx-background-color: rgba(248,113,113,0.15);
 }
@@ -63,12 +63,12 @@
 }
 
 /* ---- DASHBOARD HEADER ---- */
-.dashboard-header {
+.portal-root .dashboard-header {
     -fx-background-color: #111315;
     -fx-border-color: #2a2d31;
 }
 
-.dashboard-header .main-title {
+.portal-root .dashboard-header .main-title {
     -fx-text-fill: #e2e8f0;
 }
 
@@ -86,16 +86,16 @@
 }
 
 /* ---- CONTENT AREA ---- */
-.main-area {
+.portal-root .main-area {
     -fx-background-color: #1a1c1e;
 }
 
-.content-area {
+.portal-root .content-area {
     -fx-background-color: #1a1c1e;
 }
 
 /* ---- BOTTOM SECTION (sidebar footer) ---- */
-.bottom-section {
+.portal-root .bottom-section {
     -fx-border-color: #2a2d31;
 }
 
@@ -149,6 +149,40 @@
     -fx-text-fill: #64748b;
 }
 
+/* ---- LOGIN ---- */
+.login-root .login-card {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.login-root .login-title {
+    -fx-fill: #e2e8f0;
+}
+
+.login-root .login-subtitle {
+    -fx-fill: #94a3b8;
+}
+
+.login-root .login-field-label {
+    -fx-text-fill: #cbd5e1;
+}
+
+.login-root .login-input {
+    -fx-background-color: #272b2f;
+    -fx-border-color: #2a2d31;
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #64748b;
+}
+
+.login-root .login-input:focused {
+    -fx-border-color: #ea580c;
+    -fx-background-color: #1f2124;
+}
+
+.login-root .login-button:disabled {
+    -fx-background-color: rgba(249,115,22,0.45);
+}
+
 .form-textfield {
     -fx-background-color: #272b2f;
     -fx-text-fill: #e2e8f0;
@@ -192,6 +226,14 @@
 
 .modal-title {
     -fx-text-fill: #e2e8f0;
+}
+
+.analytics-empty-state {
+    -fx-text-fill: #94a3b8;
+}
+
+.stat-card-error {
+    -fx-text-fill: #f87171;
 }
 
 .modal-body {
@@ -279,4 +321,952 @@
 
 .smtp-status-error {
     -fx-text-fill: #f87171;
+}
+
+/* ================================================================
+   MODAL SHARED — close button, row/grid elements, report footer
+   ================================================================ */
+
+.modal-close {
+    -fx-background-color: #272b2f;
+    -fx-text-fill: #94a3b8;
+}
+
+.modal-close:hover {
+    -fx-background-color: rgba(234,88,12,0.15);
+    -fx-text-fill: #fb923c;
+}
+
+.mini-label {
+    -fx-text-fill: #64748b;
+}
+
+.row-head {
+    -fx-border-color: transparent transparent #2a2d31 transparent;
+}
+
+.row-line {
+    -fx-border-color: #2a2d31;
+    -fx-background-color: transparent;
+}
+
+.row-line:hover {
+    -fx-background-color: rgba(234,88,12,0.06);
+}
+
+.grid-head {
+    -fx-text-fill: #64748b;
+}
+
+.grid-head-center {
+    -fx-text-fill: #64748b;
+    -fx-alignment: CENTER;
+}
+
+.grid-head-right {
+    -fx-text-fill: #64748b;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.grid-name {
+    -fx-text-fill: #cbd5e1;
+}
+
+.grid-amount {
+    -fx-text-fill: #94a3b8;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.grid-input {
+    -fx-background-color: #272b2f;
+    -fx-border-color: #2a2d31;
+    -fx-text-fill: #e2e8f0;
+}
+
+.report-footer {
+    -fx-border-color: #2a2d31;
+}
+
+.btn-action {
+    -fx-background-color: #272b2f;
+    -fx-text-fill: #94a3b8;
+}
+
+.btn-action:hover {
+    -fx-background-color: #1f2124;
+    -fx-text-fill: #e2e8f0;
+}
+
+/* ================================================================
+   LISTADOS LAUNCHER + LIST MODAL TABLES
+   ================================================================ */
+
+.list-content-area {
+    -fx-background-color: #1a1c1e;
+}
+
+.list-card:hover {
+    -fx-background-color: rgba(234,88,12,0.12);
+    -fx-border-color: #ea580c;
+    -fx-effect: dropshadow(gaussian, rgba(234,88,12,0.20), 16, 0.15, 0, 5);
+}
+
+.list-card:hover .list-card-text {
+    -fx-text-fill: #fb923c;
+}
+
+.list-filter-label {
+    -fx-text-fill: #64748b;
+}
+
+.list-filter-field {
+    -fx-background-color: #272b2f;
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #64748b;
+    -fx-border-color: #2a2d31;
+}
+
+.list-filter-field:focused {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #ea580c;
+}
+
+.list-filter-combo {
+    -fx-background-color: #272b2f;
+    -fx-border-color: #2a2d31;
+}
+
+.list-filter-btn {
+    -fx-background-color: #272b2f;
+    -fx-text-fill: #94a3b8;
+    -fx-border-color: #2a2d31;
+}
+
+.list-filter-btn:hover {
+    -fx-background-color: rgba(234,88,12,0.15);
+    -fx-text-fill: #fb923c;
+    -fx-border-color: #ea580c;
+}
+
+.list-table {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.list-table .column-header-background {
+    -fx-background-color: #111315;
+}
+
+.list-table .column-header,
+.list-table .filler {
+    -fx-background-color: #111315;
+    -fx-border-color: transparent transparent #2a2d31 transparent;
+}
+
+.list-table .column-header .label {
+    -fx-text-fill: #64748b;
+}
+
+.list-table .table-row-cell {
+    -fx-background-color: #1f2124;
+    -fx-border-color: transparent transparent #2a2d31 transparent;
+}
+
+.list-table .table-row-cell:odd {
+    -fx-background-color: #1a1c1e;
+}
+
+.list-table .table-row-cell:selected,
+.list-table .table-row-cell:selected:focused {
+    -fx-background-color: rgba(234,88,12,0.15);
+    -fx-border-color: transparent transparent rgba(234,88,12,0.30) transparent;
+}
+
+.list-table .table-row-cell:filled:hover,
+.list-table .table-row-cell:hover {
+    -fx-background-color: rgba(234,88,12,0.08);
+}
+
+.list-table .table-cell {
+    -fx-text-fill: #cbd5e1;
+    -fx-border-color: transparent;
+}
+
+.list-table .scroll-bar:vertical .thumb {
+    -fx-background-color: #3a3d42;
+}
+
+.list-table .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #64748b;
+}
+
+/* ---- DATE PICKERS (filter rows + employee forms) ---- */
+
+.date-picker .text-field {
+    -fx-background-color: #272b2f;
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #64748b;
+    -fx-border-color: transparent;
+}
+
+.date-picker .text-field:focused {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #ea580c;
+}
+
+.date-picker .arrow-button {
+    -fx-background-color: #272b2f;
+    -fx-border-color: transparent;
+}
+
+.date-picker .arrow-button:hover {
+    -fx-background-color: #1f2124;
+}
+
+.date-picker .arrow-button .arrow {
+    -fx-background-color: #94a3b8;
+}
+
+.date-picker-popup {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.date-picker-popup .calendar-grid {
+    -fx-background-color: #1f2124;
+}
+
+.date-picker-popup .day-cell {
+    -fx-background-color: transparent;
+}
+
+.date-picker-popup .day-cell > .text {
+    -fx-fill: #e2e8f0;
+}
+
+.date-picker-popup .day-cell:hover > .text {
+    -fx-fill: #fb923c;
+}
+
+.date-picker-popup .month-year-pane {
+    -fx-background-color: #ea580c;
+}
+
+.date-picker-popup .spinner .button {
+    -fx-background-color: transparent;
+}
+
+.date-picker-popup .spinner .left-button .left-arrow,
+.date-picker-popup .spinner .right-button .right-arrow {
+    -fx-background-color: white;
+}
+
+/* ================================================================
+   ANALYTICS SCREEN
+   ================================================================ */
+
+.analytics-body {
+    -fx-background-color: transparent;
+}
+
+.month-nav-btn {
+    -fx-background-color: #272b2f;
+    -fx-text-fill: #cbd5e1;
+    -fx-border-color: #2a2d31;
+}
+
+.month-nav-btn:hover {
+    -fx-background-color: rgba(234,88,12,0.15);
+    -fx-text-fill: #fb923c;
+}
+
+.month-nav-btn:disabled {
+    -fx-background-color: #1a1c1e;
+    -fx-text-fill: #3a3d42;
+}
+
+/* ---- TOP PRODUCTS ROWS ---- */
+.product-row {
+    -fx-border-color: transparent transparent #2a2d31 transparent;
+}
+.product-name {
+    -fx-text-fill: #e2e8f0;
+}
+.product-qty {
+    -fx-text-fill: #94a3b8;
+    -fx-background-color: #272b2f;
+}
+
+/* ================================================================
+   CASH COUNT MODAL (DESGLOSE MONEDA)
+   ================================================================ */
+
+.key-btn {
+    -fx-background-color: #272b2f;
+    -fx-border-color: #2a2d31;
+    -fx-text-fill: #e2e8f0;
+}
+
+.key-btn:hover {
+    -fx-background-color: rgba(234,88,12,0.12);
+    -fx-border-color: rgba(234,88,12,0.40);
+}
+
+.key-btn-muted {
+    -fx-background-color: #1f2124;
+    -fx-text-fill: #94a3b8;
+}
+
+.key-btn-danger {
+    -fx-background-color: rgba(220,38,38,0.15);
+}
+
+/* ================================================================
+   NAVIGATION CARDS (data.css / shiftOperations.css screens)
+   ================================================================ */
+
+.portal-root .content-area .card {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.portal-root .content-area .card:hover {
+    -fx-background-color: rgba(234,88,12,0.12);
+    -fx-border-color: rgba(234,88,12,0.40);
+    -fx-effect: dropshadow(three-pass-box, rgba(234,88,12,0.15), 15, 0, 0, 6);
+}
+
+.portal-root .content-area .card-text {
+    -fx-text-fill: #e2e8f0;
+}
+
+.portal-root .content-area .card:hover .card-text {
+    -fx-text-fill: #fb923c;
+}
+
+/* ================================================================
+   DATAOPERATION FORMS (employee, product, category editors)
+   ================================================================ */
+
+.main-container {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.toggle-container {
+    -fx-border-color: transparent transparent #2a2d31 transparent;
+}
+
+.tab-toggle {
+    -fx-text-fill: #64748b;
+    -fx-border-color: transparent transparent #2a2d31 transparent;
+}
+
+.tab-toggle:hover {
+    -fx-text-fill: #fb923c;
+}
+
+.tab-icon {
+    -fx-stroke: #64748b;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: #1f2124;
+    -fx-text-fill: #cbd5e1;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: rgba(234,88,12,0.15);
+    -fx-text-fill: #fb923c;
+}
+
+.submit-button {
+    -fx-background-color: rgba(249,115,22,0.80);
+    -fx-text-fill: white;
+}
+
+.color-picker {
+    -fx-background-color: #272b2f;
+    -fx-border-color: #2a2d31;
+    -fx-text-fill: #e2e8f0;
+}
+
+.color-picker:hover {
+    -fx-background-color: rgba(234,88,12,0.12);
+}
+
+.color-picker .color-picker-label {
+    -fx-text-fill: #e2e8f0;
+}
+
+.color-palette {
+    -fx-background-color: #272b2f;
+    -fx-border-color: #2a2d31;
+}
+
+.table-buttons {
+    -fx-background-color: #272b2f;
+    -fx-text-fill: #e2e8f0;
+    -fx-border-color: #2a2d31;
+}
+
+.table-buttons-pressed {
+    -fx-background-color: rgba(234,88,12,0.18);
+    -fx-text-fill: #fb923c;
+    -fx-border-color: #ea580c;
+}
+
+.dynamic-list-view {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.dynamic-list-view .list-cell {
+    -fx-background-color: #1f2124;
+    -fx-text-fill: #cbd5e1;
+}
+
+.dynamic-list-view .list-cell:filled:hover,
+.dynamic-list-view .list-cell:filled:selected {
+    -fx-background-color: rgba(234,88,12,0.15);
+    -fx-text-fill: #fb923c;
+}
+
+.chip {
+    -fx-background-color: rgba(234,88,12,0.15);
+    -fx-border-color: rgba(234,88,12,0.30);
+}
+
+.chip-text {
+    -fx-text-fill: #fb923c;
+}
+
+.chip-remove:hover {
+    -fx-background-color: rgba(255,255,255,0.08);
+}
+
+.role-add-btn {
+    -fx-background-color: #272b2f;
+    -fx-text-fill: #cbd5e1;
+    -fx-border-color: #2a2d31;
+}
+
+.role-add-btn:hover {
+    -fx-background-color: rgba(234,88,12,0.15);
+    -fx-text-fill: #fb923c;
+    -fx-border-color: #ea580c;
+}
+
+.emp-datepicker {
+    -fx-background-color: #272b2f;
+    -fx-border-color: #2a2d31;
+}
+
+.emp-datepicker .text-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #64748b;
+}
+
+.emp-datepicker .arrow-button .arrow {
+    -fx-background-color: #ea580c;
+}
+
+/* ================================================================
+   CASH / SHIFT SCREENS (cashCountModel, shiftOperationClose)
+   ================================================================ */
+
+.cash-root {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.cash-card {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.payments-card {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.pay-header {
+    -fx-border-color: transparent transparent #2a2d31 transparent;
+}
+
+.pay-head-idx,
+.pay-head-name,
+.pay-head-amount {
+    -fx-text-fill: #64748b;
+}
+
+.pay-divider {
+    -fx-background-color: #2a2d31;
+}
+
+.pay-row:hover {
+    -fx-background-color: rgba(234,88,12,0.08);
+}
+
+.pay-idx {
+    -fx-text-fill: #64748b;
+}
+
+.pay-name {
+    -fx-text-fill: #e2e8f0;
+}
+
+.pay-amount {
+    -fx-text-fill: #cbd5e1;
+}
+
+.mini-card {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.calculator-card {
+    -fx-background-color: #1a1c1e;
+    -fx-border-color: #2a2d31;
+}
+
+.key-btn {
+    -fx-background-color: #272b2f;
+    -fx-text-fill: #e2e8f0;
+    -fx-border-color: #2a2d31;
+}
+
+.key-btn:hover {
+    -fx-background-color: rgba(234,88,12,0.15);
+    -fx-border-color: #ea580c;
+}
+
+.key-btn-muted {
+    -fx-background-color: #111315;
+    -fx-text-fill: #94a3b8;
+}
+
+.warn-text {
+    -fx-text-fill: #fb923c;
+}
+
+.action-orange {
+    -fx-background-color: rgba(234,88,12,0.18);
+    -fx-text-fill: #fb923c;
+    -fx-border-color: transparent;
+}
+
+.action-orange:hover {
+    -fx-background-color: rgba(234,88,12,0.30);
+}
+
+/* ================================================================
+   POS WINDOW (pos.css elements — portal-dark.css now applied there)
+   ================================================================ */
+
+.pos-root .card {
+    -fx-background-color: #1f2124;
+    -fx-background-radius: 12;
+    -fx-border-color: transparent;
+    -fx-border-radius: 12;
+}
+
+.pos-root .card:hover {
+    -fx-background-color: #1f2124;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.28), 12, 0, 0, 4);
+}
+
+.pos-root .sidebar {
+    -fx-background-color: #111315;
+    -fx-background-radius: 12;
+    -fx-border-color: transparent;
+}
+
+.pos-root .sidebar .button.action-btn {
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 15, 0, 0, 4);
+}
+
+.pos-root .btn-green {
+    -fx-background-color: #22c55e;
+}
+
+.pos-root .btn-green:hover {
+    -fx-background-color: #16a34a;
+}
+
+.pos-root .btn-blue {
+    -fx-background-color: #3b82f6;
+}
+
+.pos-root .btn-blue:hover {
+    -fx-background-color: #2563eb;
+}
+
+.pos-root .btn-red {
+    -fx-background-color: #ef4444;
+}
+
+.pos-root .btn-red:hover {
+    -fx-background-color: #dc2626;
+}
+
+.pos-root .btn-light {
+    -fx-background-color: #f8fafc;
+    -fx-text-fill: #111827;
+}
+
+.pos-root .btn-light:hover {
+    -fx-background-color: #e5e7eb;
+}
+
+.pos-root .action-btn-label {
+    -fx-text-fill: #111827;
+}
+
+.pos-root .icon {
+    -fx-stroke: #111827;
+}
+
+.pos-root .order-head {
+    -fx-border-color: transparent transparent #2a2d31 transparent;
+}
+
+.pos-root .order-head-label {
+    -fx-text-fill: #94a3b8;
+}
+
+.pos-root .order-title,
+.partial-payment-root .order-title {
+    -fx-text-fill: #e2e8f0;
+}
+
+.pos-root .order-subtitle {
+    -fx-text-fill: #94a3b8;
+}
+
+.pos-root .order-total {
+    -fx-text-fill: #e2e8f0;
+}
+
+.pos-root .display,
+.partial-payment-root .display {
+    -fx-background-color: #272b2f;
+    -fx-text-fill: #e2e8f0;
+}
+
+.pos-root .num-btn,
+.partial-payment-root .num-btn {
+    -fx-background-color: #272b2f;
+    -fx-text-fill: #e2e8f0;
+}
+
+.pos-root .num-btn:hover,
+.partial-payment-root .num-btn:hover {
+    -fx-background-color: #1f2124;
+}
+
+.pos-root .category-btn {
+    -fx-text-fill: #cbd5e1;
+    -fx-background-color: #272b2f;
+    -fx-border-color: #2a2d31;
+}
+
+.pos-root .category-btn:hover {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #ea580c;
+}
+
+.pos-root .product-btn {
+    -fx-text-fill: #cbd5e1;
+    -fx-background-color: #272b2f;
+    -fx-border-color: #2a2d31;
+}
+
+.pos-root .product-btn:hover {
+    -fx-border-color: #3b82f6;
+    -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.35), 10, 0, 0, 2);
+}
+
+.pos-root .order-items-box,
+.partial-payment-root .order-items-box {
+    -fx-background-color: #1f2124;
+}
+
+.pos-root .order-item-row,
+.partial-payment-root .order-item-row {
+    -fx-text-fill: #e2e8f0;
+    -fx-border-color: transparent transparent #2a2d31 transparent;
+}
+
+.pos-root .order-item-row:hover,
+.partial-payment-root .order-item-row:hover {
+    -fx-background-color: rgba(234,88,12,0.08);
+}
+
+.pos-root .order-total-bar,
+.partial-payment-root .order-total-bar {
+    -fx-border-color: #2a2d31 transparent transparent transparent;
+}
+
+.pos-root .order-total-label,
+.partial-payment-root .order-total-label {
+    -fx-text-fill: #94a3b8;
+}
+
+.pos-root .order-total-value,
+.partial-payment-root .order-total-value {
+    -fx-text-fill: #e2e8f0;
+}
+
+.pos-root .tablewithorder-name-label {
+    -fx-text-fill: #e2e8f0;
+}
+
+.pos-root .tablewithorder-total-label {
+    -fx-text-fill: #94a3b8;
+}
+
+.pos-root .overview-product-btn {
+    -fx-background-color: #272b2f;
+}
+
+.pos-root .overview-product-btn-paid {
+    -fx-border-color: transparent transparent #15803D transparent;
+    -fx-border-width: 0 0 3 0;
+    -fx-border-radius: 0 0 8 8;
+}
+
+.pos-root .overview-product-btn-partial {
+    -fx-border-color: transparent transparent #1D4ED8 transparent;
+    -fx-border-width: 0 0 3 0;
+    -fx-border-radius: 0 0 8 8;
+}
+
+.pos-root .paid-section-label {
+    -fx-text-fill: #64748b;
+}
+
+.pos-root .selected-row-order-item {
+    -fx-background-color: rgba(59,130,246,0.20);
+}
+
+.pos-root .scroll-bar .track,
+.partial-payment-root .scroll-bar .track {
+    -fx-background-color: #272b2f;
+}
+
+.pos-root .scroll-bar .thumb,
+.partial-payment-root .scroll-bar .thumb {
+    -fx-background-color: #3a3d42;
+}
+
+.pos-root .scroll-bar .thumb:hover,
+.partial-payment-root .scroll-bar .thumb:hover {
+    -fx-background-color: #64748b;
+}
+
+/* ================================================================
+   PAYMENT SUMMARY OVERLAYS (generated in POS / partial payment)
+   ================================================================ */
+
+.pos-root .payment-summary-card,
+.partial-payment-root .payment-summary-card {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.pos-root .payment-summary-title,
+.partial-payment-root .payment-summary-title,
+.pos-root .payment-summary-label,
+.partial-payment-root .payment-summary-label,
+.pos-root .payment-summary-value,
+.partial-payment-root .payment-summary-value {
+    -fx-text-fill: #e2e8f0;
+}
+
+.pos-root .payment-summary-divider,
+.partial-payment-root .payment-summary-divider {
+    -fx-border-color: #2a2d31;
+}
+
+.pos-root .payment-summary-value-success,
+.partial-payment-root .payment-summary-value-success {
+    -fx-text-fill: #22c55e;
+}
+
+/* ================================================================
+   OPERATIONS PANEL (operations.css — POS cash operations screen)
+   ================================================================ */
+
+.operations-root .top-chips .chip {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.operations-root .chip-value {
+    -fx-text-fill: #e2e8f0;
+}
+
+.operations-root .card {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.operations-root .movements-table .column-header-background {
+    -fx-background-color: #111315;
+    -fx-background-radius: 12 12 0 0;
+}
+
+.operations-root .movements-table .table-row-cell:filled:hover {
+    -fx-background-color: rgba(234,88,12,0.06);
+}
+
+.operations-root .movements-table .table-cell {
+    -fx-text-fill: #cbd5e1;
+}
+
+.operations-root .summary-card {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.operations-root .summary-value {
+    -fx-text-fill: #e2e8f0;
+}
+
+.operations-root .side-tile {
+    -fx-background-color: #272b2f;
+    -fx-text-fill: #e2e8f0;
+}
+
+/* ================================================================
+   CUSTOM DIALOGS (customdialog.css — POS confirm/error dialogs)
+   ================================================================ */
+
+.dialog-box {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.dialog-title {
+    -fx-text-fill: #e2e8f0;
+}
+
+.dialog-message {
+    -fx-text-fill: #cbd5e1;
+}
+
+/* ================================================================
+   OPERATIONS TABLE — remaining dark overrides
+   ================================================================ */
+
+/* Base row border (was #eef2f8) */
+.operations-root .movements-table .table-row-cell {
+    -fx-border-color: transparent transparent #2a2d31 transparent;
+}
+
+/* tipo-efectivo text was #1b2a44 (dark navy) */
+.operations-root .tipo-efectivo {
+    -fx-text-fill: #e2e8f0;
+}
+
+.operations-root .dash {
+    -fx-text-fill: #3a3d42;
+}
+
+/* ================================================================
+   CASH COUNT MODEL — breakdown grid labels
+   ================================================================ */
+
+/* .breakdown-grid .label has no explicit color → would be black */
+.breakdown-grid .label {
+    -fx-text-fill: #cbd5e1;
+}
+
+/* ================================================================
+   PARTIAL PAYMENT WINDOW (partialpayment.css)
+   ================================================================ */
+
+.partial-payment-root .card {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.partial-payment-root .header-box {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.partial-payment-root .header-title {
+    -fx-text-fill: #e2e8f0;
+}
+
+.partial-payment-root .header-subtitle {
+    -fx-text-fill: #94a3b8;
+}
+
+.partial-payment-root .order-header {
+    -fx-border-color: transparent transparent #2a2d31 transparent;
+}
+
+/* Generic TableView used in partial payment */
+.partial-payment-root .table-view {
+    -fx-background-color: #1f2124;
+    -fx-border-color: #2a2d31;
+}
+
+.partial-payment-root .table-view .column-header-background {
+    -fx-background-color: #111315;
+}
+
+.partial-payment-root .table-view .column-header,
+.partial-payment-root .table-view .filler {
+    -fx-background-color: #111315;
+    -fx-border-color: transparent transparent #2a2d31 transparent;
+}
+
+.partial-payment-root .table-view .column-header .label {
+    -fx-text-fill: #64748b;
+}
+
+.partial-payment-root .table-view .table-cell {
+    -fx-text-fill: #cbd5e1;
+    -fx-border-color: transparent;
+}
+
+/* Generic table-row-cell (partialpayment.css) */
+.partial-payment-root .table-row-cell {
+    -fx-border-color: transparent transparent #2a2d31 transparent;
+    -fx-background-color: #1f2124;
+}
+
+.partial-payment-root .table-row-cell:hover {
+    -fx-background-color: rgba(234,88,12,0.08);
+}
+
+.partial-payment-root .table-row-cell:selected {
+    -fx-background-color: rgba(234,88,12,0.15);
+    -fx-border-color: transparent transparent rgba(234,88,12,0.30) transparent;
+}
+
+/* Numeric operator buttons (e.g. ×, ÷) in payment calc */
+.partial-payment-root .calc-operator {
+    -fx-background-color: #272b2f;
+    -fx-border-color: #2a2d31;
+    -fx-text-fill: #e2e8f0;
+}
+
+.partial-payment-root .calc-operator:hover {
+    -fx-background-color: rgba(234,88,12,0.15);
+    -fx-border-color: #ea580c;
 }

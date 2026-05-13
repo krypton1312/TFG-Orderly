@@ -26,6 +26,17 @@ public class ShiftOperationsController {
     @FXML
     public void initialize() {
         root.getStylesheets().add(getClass().getResource("/com/yebur/portal/views/shiftOperations.css").toExternalForm());
+        root.sceneProperty().addListener((obs, oldS, newS) -> {
+            if (newS == null) return;
+            String url = getClass().getResource("/com/yebur/portal/portal-dark.css").toExternalForm();
+            Runnable sync = () -> {
+                boolean dark = newS.getStylesheets().stream().anyMatch(s -> s.contains("portal-dark"));
+                if (dark) { if (!root.getStylesheets().contains(url)) root.getStylesheets().add(url); }
+                else root.getStylesheets().remove(url);
+            };
+            sync.run();
+            newS.getStylesheets().addListener((javafx.collections.ListChangeListener<String>) c -> sync.run());
+        });
         Platform.runLater(() -> {
             if (root.getParent() instanceof AnchorPane anchorPane) {
                 parentPane = anchorPane;

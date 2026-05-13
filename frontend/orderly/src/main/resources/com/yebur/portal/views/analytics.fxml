@@ -3,6 +3,7 @@
 <?import javafx.scene.layout.*?>
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.yebur.controller.AnalyticsController"
+      fx:id="root"
       styleClass="content-area" spacing="24"
       stylesheets="@analytics.css">
     <!-- Header row: title + spacer + month selector -->
@@ -20,7 +21,7 @@
     </HBox>
     <!-- Scrollable body -->
     <ScrollPane fitToWidth="true" styleClass="report-scroll" VBox.vgrow="ALWAYS">
-        <VBox styleClass="modal-body" spacing="16">
+        <VBox styleClass="analytics-body" spacing="16">
             <!-- Row 1: Revenue + Orders + Avg Ticket -->
             <HBox spacing="16">
                 <VBox styleClass="info-card" HBox.hgrow="ALWAYS" spacing="6">

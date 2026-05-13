@@ -1,0 +1,76 @@
+.login-root {
+    -fx-alignment: center;
+    -fx-padding: 32;
+}
+
+.login-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-border-color: transparent;
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 24, 0, 0, 8);
+}
+
+.login-title {
+    -fx-font-size: 28;
+    -fx-font-weight: 700;
+    -fx-fill: #1f2937;
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.login-subtitle {
+    -fx-font-size: 14;
+    -fx-fill: #6b7280;
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.login-field-label {
+    -fx-font-size: 13;
+    -fx-text-fill: #374151;
+    -fx-font-weight: 500;
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.login-input {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 8;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 10 14;
+    -fx-font-size: 14;
+    -fx-text-fill: #1f2937;
+    -fx-prompt-text-fill: #9ca3af;
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.login-input:focused {
+    -fx-border-color: #f97316;
+    -fx-background-color: white;
+}
+
+.login-error {
+    -fx-text-fill: #dc2626;
+    -fx-font-size: 13;
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.login-button {
+    -fx-background-color: #f97316;
+    -fx-text-fill: white;
+    -fx-font-size: 15;
+    -fx-font-weight: 600;
+    -fx-background-radius: 8;
+    -fx-padding: 12 0;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.login-button:hover {
+    -fx-background-color: #ea580c;
+}
+
+.login-button:disabled {
+    -fx-background-color: #fdba74;
+}

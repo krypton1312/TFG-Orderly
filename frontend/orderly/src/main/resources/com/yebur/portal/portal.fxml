@@ -8,7 +8,8 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.yebur.controller.PortalController"
             prefWidth="1024" prefHeight="768"
-            fx:id="mainPane">
+            fx:id="mainPane"
+            styleClass="portal-root">
 
     <left>
         <VBox prefWidth="220" spacing="10" styleClass="sidebar" fillWidth="true">

@@ -1,7 +1,8 @@
 package com.yebur.model.request;
 
 public class ConfigRequest {
-    private String theme;
+    private String pcTheme;
+    private String mobileTheme;
     private String smtpHost;
     private Integer smtpPort;
     private String smtpUsername;
@@ -12,8 +13,11 @@ public class ConfigRequest {
 
     public ConfigRequest() {}
 
-    public String getTheme() { return theme; }
-    public void setTheme(String theme) { this.theme = theme; }
+    public String getPcTheme() { return pcTheme; }
+    public void setPcTheme(String pcTheme) { this.pcTheme = pcTheme; }
+
+    public String getMobileTheme() { return mobileTheme; }
+    public void setMobileTheme(String mobileTheme) { this.mobileTheme = mobileTheme; }
 
     public String getSmtpHost() { return smtpHost; }
     public void setSmtpHost(String smtpHost) { this.smtpHost = smtpHost; }

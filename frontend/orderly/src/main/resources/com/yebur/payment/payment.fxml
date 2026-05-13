@@ -15,6 +15,7 @@
     xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="com.yebur.controller.PartialPaymentController"
     prefWidth="1024" prefHeight="768"
+    styleClass="partial-payment-root"
     style="-fx-padding: 20;">
 
     <!-- ===== Верхняя панель ===== -->

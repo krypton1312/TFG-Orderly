@@ -23,7 +23,7 @@
     </VBox>
 
     <!-- Stats section -->
-    <VBox fx:id="statsSection" spacing="16" stylesheets="@analytics.css">
+    <VBox fx:id="statsSection" spacing="16">
         <HBox spacing="8" alignment="CENTER_LEFT">
             <Button fx:id="prevMonthBtn" text="&#x2039;" styleClass="month-nav-btn"
                     onAction="#prevMonth" />

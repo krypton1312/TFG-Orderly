@@ -46,12 +46,11 @@ public class ShiftCloseReportController {
         differenceLabel.setText(moneyFmt.format(session.getDifference()) + " €");
 
         BigDecimal diff = session.getDifference();
-        differenceLabel.setStyle("-fx-text-fill: " + (diff.compareTo(BigDecimal.ZERO) >= 0 ? "#16a34a" : "#dc2626") + ";");
+        applyTone(differenceLabel, diff.compareTo(BigDecimal.ZERO) >= 0);
 
         if (ops == null || ops.isEmpty()) {
             Label emptyLabel = new Label("Sin operaciones en este turno");
-            emptyLabel.getStyleClass().add("grid-name");
-            emptyLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 13px;");
+            emptyLabel.getStyleClass().addAll("grid-name", "report-empty-state");
             emptyLabel.setMaxWidth(Double.MAX_VALUE);
             emptyLabel.setAlignment(Pos.CENTER);
             emptyLabel.setPadding(new javafx.geometry.Insets(20, 0, 12, 0));
@@ -76,7 +75,7 @@ public class ShiftCloseReportController {
 
         Label tipoLabel = new Label(isEntry ? "ENTRADA" : "SALIDA");
         tipoLabel.getStyleClass().addAll("grid-name", "col-type");
-        tipoLabel.setStyle("-fx-text-fill: " + (isEntry ? "#16a34a" : "#dc2626") + ";");
+    applyTone(tipoLabel, isEntry);
 
         Label descLabel = new Label(op.getDescription());
         descLabel.getStyleClass().addAll("grid-name", "col-desc");
@@ -84,7 +83,7 @@ public class ShiftCloseReportController {
 
         Label importeLabel = new Label((isEntry ? "+" : "-") + moneyFmt.format(op.getAmount()) + " €");
         importeLabel.getStyleClass().addAll("grid-amount", "col-amount");
-        importeLabel.setStyle("-fx-text-fill: " + (isEntry ? "#16a34a" : "#dc2626") + ";");
+    applyTone(importeLabel, isEntry);
 
         row.getChildren().addAll(horaLabel, tipoLabel, descLabel, importeLabel);
         return row;
@@ -103,5 +102,10 @@ public class ShiftCloseReportController {
     @FXML
     private void onEmail() {
         // TODO: implement shift report send-by-email (Phase 999.10)
+    }
+
+    private void applyTone(Label label, boolean positive) {
+        label.getStyleClass().removeAll("report-positive", "report-negative");
+        label.getStyleClass().add(positive ? "report-positive" : "report-negative");
     }
 }
